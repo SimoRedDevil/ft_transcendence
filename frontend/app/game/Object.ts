@@ -81,7 +81,7 @@ export const Ball: ball = {
     ballPosY: 0,
     velocityX: 0,
     velocityY: 5,
-    speedBall: 6,
+    speedBall: 9,
 
     initialize(canvas: HTMLCanvasElement): void{
         this.radius = (canvas.clientHeight / 25) / 2;

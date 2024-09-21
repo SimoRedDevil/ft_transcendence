@@ -7,12 +7,17 @@ module.exports = {
   theme: {
     extend: {
       screens: {
-        'mobile': '360px',
-        'tablet': '601px',
-        'laptop': '1025px'
+        'xs': '320px',
+        'sm': '640px',
+        'md': '768px',
+        'lg': '1024px',
+        'xl': '1280px',
+        '2xl': '1536px'
       },
       backgroundImage: {
         'main-bg': "url('/images/Main-Background.png')",
+        'hover-bg' : "url(/images/cup.png)",
+        'custom-gradient': 'linear-gradient(180deg, rgba(26, 31, 38, 0.7) 0%, rgba(0, 0, 0, 0.5) 100%)',
       },
     },
   },

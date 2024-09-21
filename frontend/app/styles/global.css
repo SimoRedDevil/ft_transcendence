@@ -19,3 +19,47 @@
         scrollbar-width: none;  /* Firefox */
   }
 }
+/* Hide scrollbar for WebKit browsers */
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for all other browsers */
+.hide-scrollbar {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+}
+.stats_styles{
+
+
+box-sizing: border-box;
+
+
+background: linear-gradient(270deg, #1A252B 0%, rgba(0, 0, 0, 0.5) 100%);
+border: 1px solid rgba(255, 255, 255, 0.2);
+border-radius: 10px 30px;
+
+}
+.stats_holder{
+    /* Rectangle 106 */
+
+box-sizing: border-box;
+
+background: linear-gradient(180deg, rgba(26, 31, 38, 0.7) 0%, rgba(0, 0, 0, 0.5) 100%);
+border: 1px solid rgba(255, 255, 255, 0.2);
+border-radius: 50px;
+
+}
+.border_cus_mode{
+
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.border_cus{
+
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.border_cus_mode:hover {
+    border: 3px solid rgb(0, 238, 255);
+    transition:   transform 0.5s ease-in;
+    transform: scale(1.01);
+}

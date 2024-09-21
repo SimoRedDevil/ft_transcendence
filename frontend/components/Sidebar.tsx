@@ -22,10 +22,10 @@ function Sidebar() {
     const profile = pathname.startsWith('/profile');
     const settings = pathname.startsWith('/settings');
     const tournament = pathname.startsWith('/tournament');
-    const home = pathname === '/';
+    const home = pathname === '/dashboard';
     return (
         <nav className='w-full sm:w-[100px] sm:h-full h-16 flex sm:flex-col items-center justify-around sm:justify-center sm:gap-[5%]'>
-            <NavLink href='/' isActive={home}><TbLayoutDashboardFilled className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] hover:text-opacity-100 transition'/></NavLink>
+            <NavLink href='/dashboard' isActive={home}><TbLayoutDashboardFilled className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] hover:text-opacity-100 transition'/></NavLink>
             <NavLink href='/game' isActive={game}><IoLogoGameControllerB className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink>
             <NavLink href='/tournament' isActive={tournament}><GiLaurelsTrophy className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink>
             <NavLink href='/profile' isActive={profile}><FaUser className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink>

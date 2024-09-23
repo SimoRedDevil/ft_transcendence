@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sleep 15
+sleep 20
 
 python manage.py makemigrations
 

@@ -1,6 +1,6 @@
 Django==4.2.16
 Djangorestframework==3.15.2
-psycopg2-binary==2.9.9
+psycopg[binary]==3.1.8
 django-cors-headers==4.4.0
 channels==4.1.0
 daphne==4.1.2

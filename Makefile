@@ -21,5 +21,7 @@ build:
 
 fclean:
 	rm -rf  database/*
-	docker system prune -a
-	docker builder prune -a
+	docker system prune -a -f
+	docker builder prune -a -f
+
+re: fclean all

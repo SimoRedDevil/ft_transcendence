@@ -4,3 +4,4 @@ env
 frontend/.next
 database/*
 backend/game/migrations
+virtualenv

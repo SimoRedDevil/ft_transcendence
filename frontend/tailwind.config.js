@@ -8,14 +8,22 @@ module.exports = {
     extend: {
       screens: {
         'mobile': '360px',
-        'tablet': '601px',
-        'laptop': '1025px'
+        'less-than-tablet': { 'max': '640px' },
+        'less-than-mobile': { 'max': '360px' },
+        'tablet': '640px',
+        'laptop': '1025px',
+        'desktop': '1280px',
       },
       backgroundImage: {
         'main-bg': "url('/images/Main-Background.png')",
       },
+      borderRadius: {
+        'custom-Radius': '10px 20px 10px 20px',
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    require('tailwind-scrollbar'),
+  ],
 }
 

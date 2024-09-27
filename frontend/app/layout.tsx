@@ -1,8 +1,7 @@
+'use client';
 import React from 'react'
-import { Head } from 'next/document'
-import './styles/global.css'
-import Image from 'next/image'
-import Link from 'next/link'
+import "./styles/global.css";
+import { usePathname } from 'next/navigation';
 import Header from '../components/Header'
 import Sidebar from '../components/Sidebar'
 
@@ -11,6 +10,8 @@ export default function RootLayout({
   }: {
     children: React.ReactNode
   }) {
+    const pathname = usePathname(); 
+    const exclude = ['/login']
     return (
       <html lang="en">
         <head>
@@ -21,13 +22,17 @@ export default function RootLayout({
         </head>
         <body className='h-screen'>
           <div className='bg-main-bg border border-black w-screen h-full bg- bg-cover bg-no-repeat bg-center fixed min-w-[280px] min-h-[800px]'>
+          {!exclude.includes(pathname) &&(
             <div className='h-[100px]'>
                 <Header/>
-            </div>
+            </div>)
+            }
             <div className='h-[calc(100%_-_100px)] flex flex-col-reverse sm:flex-row'>
+            {!exclude.includes(pathname) &&(
               <div className='flex sm:flex-col w-full sm:w-[100px]'>
                 <Sidebar/>
               </div>
+            )}
               <div className='h-[calc(100%_-_100px)] w-full'>
                 {children}
               </div>

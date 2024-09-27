@@ -2,3 +2,4 @@ frontend/node_modules
 backend/env
 frontend/db.json
 frontend/.next
+node_modules

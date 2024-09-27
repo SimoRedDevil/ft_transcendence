@@ -13,6 +13,11 @@ module.exports = {
         'tablet': '640px',
         'laptop': '1025px',
         'desktop': '1280px',
+        'xs': '400px',
+        'ls': '500px',
+        'lm': '900px',
+        '3xl': '1800px',
+        '4xl': '2000px'
       },
       backgroundImage: {
         'main-bg': "url('/images/Main-Background.png')",

@@ -1,16 +1,58 @@
+'use client';
 import React from "react";
 import { FaEnvelope, FaUserAlt } from "react-icons/fa";
 import PasswordHelper from "./passwordHelper";
 import { motion } from "framer-motion";
-
+import { useState } from "react";
+import { useRouter } from 'next/navigation';
 interface SignupPageProps {
   onNavigate?: () => void;
 }
 
 const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
-  return (
-    <motion.form className="flex flex-col items-center justify-center h-screen w-screen overflow-auto fixed">
-      <div className="flex items-center justify-center h-full w-full laptop:w-[850px] tablet:w-[750px] tablet:h-[770px] desktop:h-[750px]
+  const [full_name, setFullName] = useState("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const router = useRouter();
+
+  const handleSignup = async (e) => {
+    e.preventDefault();
+  
+    const body = {
+      full_name,
+      username,
+      email,
+      password,
+    };
+  
+    try {
+      const response = await fetch("http://localhost:8000/api/auth/signup/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      }
+    );
+      const data = await response.json();
+  
+      if (response.ok) {
+        alert("Signup successful");
+        router.push("/login");
+      } else {
+        alert(data.message || "Signup failed, please try again.");
+      }
+    } catch (error) {
+      console.error("Error during signup:", error);
+      alert("An error occurred. Please try again later.");
+    }
+  };
+  
+    return (
+    <motion.form onSubmit={handleSignup}
+    className="flex flex-col items-center justify-center h-screen w-screen overflow-auto fixed">
+      <div className="flex items-center justify-center h-full w-full laptop:w-[850px] tablet:w-[620px] tablet:h-[770px] desktop:h-[750px]
        desktop:w-[950px] mobile:w-[500px] mobile:h-[680px] laptop:h-[770px] less-than-mobile:h-[680px] less-than-mobile:w-[500px]  fixed overflow-auto
        ">
         <motion.div
@@ -62,7 +104,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
                 Full Name
               </label>
               <div className="relative flex">
-                <input
+                <input value={full_name} onChange={(e) => setFullName(e.target.value)}
                   type="text"
                   className="border-b-[1px] border-[#949DA2] mb-7 h-[34px] w-full focus:outline-none bg-[#131E24]"
                 />
@@ -74,7 +116,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
                 Username
               </label>
               <div className="relative flex">
-                <input
+                <input value={username} onChange={(e) => setUsername(e.target.value)}
                   type="text"
                   className="border-b-[1px] border-[#949DA2] mb-7 h-[34px] w-full focus:outline-none bg-[#131E24]"
                 />
@@ -86,16 +128,19 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
                 Email Address
               </label>
               <div className="relative flex">
-                <input
+                <input value={email} onChange={(e) => setEmail(e.target.value)}
                   type="email"
                   className="border-b-[1px] border-[#949DA2] mb-7 h-[34px] w-full focus:outline-none bg-[#131E24]"
                 />
                 <FaEnvelope className="absolute right-0.5 text-[#949DA2]" />
               </div>
             </div>
-            <PasswordHelper />
-            <button className="text-md  bg-[#293B45] w-10/12 h-[50px] mt-[20px] rounded-custom-Radius border-gray-500 border less-than-mobile:h-[40px] less-than-mobile:mt-[10px] less-than-tablet:h-[40px] less-than-tablet:mt-[10px]">
-              <input type="submit" value="Sign Up" />
+            <PasswordHelper setPassword={setPassword} password={password}/>
+            <button type="submit"
+             className="text-md  bg-[#293B45] w-10/12 h-[50px] mt-[20px] rounded-custom-Radius
+             border-gray-500 border less-than-mobile:h-[40px] less-than-mobile:mt-[10px]
+             less-than-tablet:h-[40px] less-than-tablet:mt-[10px]">
+              Sign Up
             </button>
           </div>
         </motion.div>

@@ -1,20 +1,63 @@
+`use client`;
 import React from "react";
 import { FaEnvelope, FaUserAlt } from "react-icons/fa";
 import PasswordHelper from "./passwordHelper";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from 'next/navigation';
+
 
 interface SigninPageProps {
   onNavigate?: () => void;
 }
 
 const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const router = useRouter();
+
+  const handleSignin = async (e) => {
+    e.preventDefault();
+
+    // Create the body object to send in the request
+    const body = {
+      email,
+      password,
+    };
+
+    try {
+      // Send the signin request
+      const response = await fetch("http://localhost:8000/api/auth/login/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+
+      // Parse the response
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Signin successful");
+        router.push("/settings");
+      } else {
+        // If the response is not successful, display the error message
+        alert(data.message || "Signin failed, please try again.");
+      }
+    } catch (error) {
+      // Handle any network errors
+      console.error("Error during signin:", error);
+      alert("An error occurred. Please try again later.");
+    }
+  };
   return (
     <motion.form className=" flex flex-col items-center justify-center h-screen w-screen overflow-auto fixed">
       <div
         className="flex items-center justify-center h-full w-full laptop:w-[850px]
       tablet:w-[620px] tablet:h-[770px] desktop:h-[760px] desktop:w-[950px] mobile:w-[500px]
-      mobile:h-[700px] laptop:h-[770px]  less-than-mobile:h-[720px] less-than-mobile:w-[500px]  fixed overflow-auto">
+      mobile:h-[700px] laptop:h-[770px]  less-than-mobile:h-[720px] less-than-mobile:w-[500px] fixed overflow-auto">
         <motion.div
           initial={{ opacity: 1, x: "50%" }}
           animate={{ opacity: 1, x: "0" }}
@@ -95,18 +138,19 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
                 Email Address
               </label>
               <div className="relative flex">
-                <input
+                <input value={email} onChange={(e) => setEmail(e.target.value)}
                   type="email"
                   className="border-b-[1px] border-[#949DA2] mb-7 h-[34px] w-full focus:outline-none bg-[#131E24]"
                 />
                 <FaEnvelope className="absolute right-0.5 text-[#949DA2]" />
               </div>
             </div>
-            <PasswordHelper />
-            <button className="bg-[#293B45] mobile:mb-3 less-than-mobile:mb-3 w-10/12 h-[50px] mt-[20px] rounded-custom-Radius
+            <PasswordHelper setPassword={setPassword} password={password}/>
+            <button type="submit" onClick={handleSignin}
+            className="bg-[#293B45] mobile:mb-3 less-than-mobile:mb-3 w-10/12 h-[50px] mt-[20px] rounded-custom-Radius
                     border-gray-500 border less-than-mobile:text-sm text-md less-than-mobile:h-[40px] less-than-mobile:mt-[10px]
                     less-than-tablet:h-[40px] less-than-tablet:mt-[10px]">
-              <input type="submit" value="Sign In" />
+              Sign In
             </button>
           </div>
         </motion.div>

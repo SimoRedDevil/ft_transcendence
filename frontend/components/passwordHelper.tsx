@@ -4,7 +4,9 @@ import { useState } from "react";
 import { FaEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa";
 
-export default function passwordHelper(){
+export default function passwordHelper(
+    {setPassword, password}
+){
     const [showPassword, setShowPassword] = useState(false);
 
     const togglePasswordVisibility = () => {
@@ -14,7 +16,9 @@ export default function passwordHelper(){
         <div className="flex flex-col w-10/12 ">
         <label className=" text-[#949DA2] text-sm">Password</label>
         <div className="relative flex">
-        <input type={showPassword ? "text" : "password"} className=" border-b-[1px] border-[#949DA2] mb-4 h-[34px] w-full
+        <input value={password}
+         onChange={(e) => setPassword(e.target.value)}
+        type={showPassword ? "text" : "password"} className=" border-b-[1px] border-[#949DA2] mb-4 h-[34px] w-full
         focus:outline-none bg-[#131E24] password-circles 
         " />
         <button

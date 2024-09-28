@@ -11,7 +11,7 @@ export default function RootLayout({
     children: React.ReactNode
   }) {
     const pathname = usePathname(); 
-    const exclude = ['/login']
+    const exclude = ['/login', '/']
     return (
       <html lang="en">
         <head>

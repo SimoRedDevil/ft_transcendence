@@ -1,8 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { Walls , walls} from './Object';
-import { UpPaddle } from './Paddle';
-import { DownPaddle } from './Paddle';
-import { Ball, ball } from './Object';
+import { walls } from './Object';
 import p5 from 'p5';
 
 export function Score1(sketch: p5, Walls : walls,  Scor1: number):void {

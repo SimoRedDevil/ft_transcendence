@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useRef, useEffect } from 'react';
-import { Player1, Player2, player } from './Object';
+import { Player1, Player2} from './Object';
 import { Walls , walls} from './Object';
 import { UpPaddle } from './Paddle';
 import { DownPaddle } from './Paddle';
@@ -10,6 +10,7 @@ import { Score1, Score2 } from './Score';
 import { Collision } from './Collision';
 import { handleCollision } from './Collision';
 import p5 from 'p5';
+
 
 export default function Table() {
     const canvasRef = useRef<HTMLCanvasElement>(null);

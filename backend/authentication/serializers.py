@@ -13,9 +13,11 @@ class SignUpSerializer(serializers.ModelSerializer):
             full_name=validated_data['full_name'],
             username=validated_data['username'],
             email=validated_data['email'],
-            password=validated_data['password']
         )
+        user.set_password(validated_data['password'])
+        user.save()
         return user
+
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()

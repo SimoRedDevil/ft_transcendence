@@ -41,6 +41,7 @@ export const Player1: player = {
         this.y = (Walls.wallsHeight / 20) - this.paddleHeight;
     }
 };
+
 export const Player2: player = {
     x: 4,
     y: 4,

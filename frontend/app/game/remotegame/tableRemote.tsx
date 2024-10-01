@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Player1, Player2 } from './Object';
 import { Walls, walls } from './Object';
 import { UpPaddle, DownPaddle } from './PaddleRemote';
@@ -12,6 +12,10 @@ export default function Table() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const socketRef = useRef<WebSocket | null>(null);
 
+
+  let data1 = {
+    x: 0,
+  };
   useEffect(() => {
     if (typeof window !== 'undefined') {
       socketRef.current = new WebSocket('ws://localhost:8000/ws/game/remotegame');
@@ -21,7 +25,7 @@ export default function Table() {
       };
 
       socketRef.current.onmessage = (event) => {
-        console.log('Received message:', event.data);
+        data1 = JSON.parse(event.data);
       };
 
       socketRef.current.onclose = (event) => {
@@ -40,20 +44,32 @@ export default function Table() {
         };
 
         Ball.initialize(canvasRef.current);
-
-        sketch.draw = () => {
-          Walls.initialize(canvasRef.current);
-          sketch.background("#0B4464");
+         Walls.initialize(canvasRef.current);
           Player1.initialize(Walls);
           Player2.initialize(Walls);
+          const init_object = {
+            'type': 'init',
+            walls: Walls,
+            player1: Player1,
+          }
+          if (socketRef.current.readyState === WebSocket.OPEN)
+            socketRef.current.send(JSON.stringify(init_object));
+          else {
+            socketRef.current.addEventListener('open', () => {
+                socketRef.current.send(JSON.stringify(init_object));
+            });
+        }
+
+        sketch.draw = () => {
+          sketch.background("#0B4464");
           Score1(sketch, Walls, Player1.score);
           Score2(sketch, Walls, Player2.score);
           Line(sketch, Walls);
           UpPaddle(sketch, Walls, socketRef.current);
+          sketch.rect(data1.x, Player1.y, Player1.paddleWidth, Player1.paddleHeight, 50, 50, 0, 0);
           Ball.ballPosX += Ball.velocityX;
           Ball.ballPosY += Ball.velocityY;
-
-          let pla = (Ball.ballPosY > Walls.wallsHeight / 2) ? Player1 : Player2;
+          
 
           if (Collision(Ball, Player1)) {
             handleCollision(Ball, Player1, Walls);

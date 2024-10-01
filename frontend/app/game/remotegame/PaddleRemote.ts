@@ -9,22 +9,16 @@ export function UpPaddle(sketch: p5, Walls: walls, socket: WebSocket):void{
     if (sketch.keyIsPressed)
     {
       if (sketch.keyIsDown(68))
-      {
         if (socket)
-          {
-            socket.send('isMovingRight');
-            console.log('isMovingRightdd');
-          }
-      }
-      else if (sketch.keyIsDown(65))
         {
-          if (Player1.x - Player1.speedPaddle < 4)
-            Player1.x = 4;
-          else
-          Player1.x -= Player1.speedPaddle;
-      }
+          socket.send(JSON.stringify({type: 'move', direction: 'right'}));
+        }
+      if (sketch.keyIsDown(65))
+        if (socket)
+        {
+          socket.send(JSON.stringify({type: 'move', direction: 'left'}));
+        }
     }
-    sketch.rect(Player1.x, Player1.y, Player1.paddleWidth, Player1.paddleHeight, 50, 50, 0, 0);
 }
     
 export function DownPaddle(sketch: p5, Walls: walls):void{

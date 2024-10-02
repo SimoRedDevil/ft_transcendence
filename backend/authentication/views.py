@@ -52,7 +52,6 @@ import requests
         
 #         return JsonResponse({"error": "No code provided."}, status=400)
 
-
 # Sign Up View
 class SignUpView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()

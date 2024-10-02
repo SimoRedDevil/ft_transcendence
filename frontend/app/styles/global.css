@@ -10,7 +10,7 @@
 
 @layer components {
     .password-circles {
-      @apply font-sans text-xl;
+      @apply font-sans text-sm;
     }
   }
 

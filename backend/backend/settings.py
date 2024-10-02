@@ -44,10 +44,10 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'authentication',
-    # 'django.contrib.sites',
     'allauth',
-    # 'allauth.account',
     'allauth.socialaccount',
+    'allauth.account',
+    'authentication.providers.fortytwo',  # Your provider app
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.oauth2',
 ]
@@ -61,6 +61,24 @@ SITE_ID = 1
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+SOCIALACCOUNT_PROVIDERS = {
+    'oauth2': {
+        'APP': {
+            'client_id': 'u-s4t2ud-d28e9829df125623cb079f92c8a5b9008eab4cbd49465c1ab45a053590c23bea',
+            'secret': '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',
+            'key': '',
+        },
+        'SCOPE': ['public'],
+        'AUTH_PARAMS': {'access_type': 'offline'},
+        'METHOD': 'oauth2',
+        'AUTHORIZE_URL': 'https://api.intra.42.fr/oauth/authorize',
+        'ACCESS_TOKEN_URL': 'https://api.intra.42.fr/oauth/token',
+        'PROFILE_URL': 'https://api.intra.42.fr/v2/me',  # For getting user data
+        'REDIRECT_URI': 'http://localhost:8000/accounts/42/callback/',
+    }
+}
+
 
 CORS_ALLOW_ALL_ORIGINS = True
 

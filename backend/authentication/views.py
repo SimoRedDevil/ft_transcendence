@@ -2,8 +2,9 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
+from rest_framework import viewsets
 from django.contrib.auth import login
-from .serializers import SignUpSerializer, LoginSerializer
+from .serializers import SignUpSerializer, LoginSerializer, UserSerializer
 from .models import CustomUser
 from django.http import JsonResponse
 import requests
@@ -69,3 +70,7 @@ class LoginView(APIView):
             token, created = Token.objects.get_or_create(user=user)
             return Response({"token": token.key}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer

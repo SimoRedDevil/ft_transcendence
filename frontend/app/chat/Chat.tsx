@@ -8,11 +8,7 @@ import { MdEmojiEmotions } from "react-icons/md";
 import EmojiPicker from 'emoji-picker-react';
 import { useState } from 'react';
 
-type Props = {
-    data: any
-}
-
-function Chat({data}: Props) {
+function Chat() {
   const [showEmoji, setShowEmoji] = useState(false)
   const [input, setInput] = useState('')
 

@@ -2,20 +2,16 @@ import React from 'react'
 import Image from "next/image";
 import TextBox from '../../components/TextBox';
 
-type Props = {
-    data: any
-}
-
-function Conversations({data}: Props) {
+function Conversations() {
   return (
     <div className='w-full h-full lg:w-[400px] 2xl:w-[550px] flex flex-col'>
             <div className='h-[200px]'>
               <div className='h-[100px] flex gap-[10px] p-[20px]'>
                 <div className='h-[60px] w-[60px] rounded-full'>
-                  <Image className='rounded-full' src={data[0].image} width={60} height={60} alt='avatar'/>
+                  <Image className='rounded-full' src='' width={60} height={60} alt='avatar'/>
                 </div>
                 <div className='flex flex-col'>
-                  <span className='text-[1rem]'>{data[0].name}</span>
+                  <span className='text-[1rem]'>Name</span>
                   <span className='text-[0.9rem] text-white text-opacity-65'>Active Now</span>
                 </div>
               </div>
@@ -24,7 +20,7 @@ function Conversations({data}: Props) {
               </div>
             </div>
         <div className='mt-[20px] h-[calc(100%_-_270px)] no-scrollbar overflow-y-auto scroll-smooth'>
-            {
+            {/* {
               data.slice(1).map((e) => {
                 return (
                   <div key={e.id} className='hover:bg-white hover:bg-opacity-10 hover:cursor-pointer h-[140px] flex items-center gap-3'>
@@ -38,7 +34,7 @@ function Conversations({data}: Props) {
                   </div>
                 )
               })
-            }
+            } */}
         </div>
     </div>
   )

@@ -21,5 +21,6 @@ from allauth.socialaccount import urls as socialaccount_urls
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('authentication.urls')),
+    path('api/chat/', include('chat.urls')),
     # path('accounts/42/', include(socialaccount_urls)),  # This line includes allauth URLs for 42
 ]

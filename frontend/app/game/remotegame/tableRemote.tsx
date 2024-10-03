@@ -18,7 +18,7 @@ export default function Table() {
   };
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      socketRef.current = new WebSocket('ws://localhost:8000/ws/game/remotegame');
+      socketRef.current = new WebSocket('ws://10.11.8.12:8000/ws/game/remotegame');
       
       socketRef.current.onopen = () => {
         console.log('WebSocket connected');
@@ -51,6 +51,7 @@ export default function Table() {
             'type': 'init',
             walls: Walls,
             player1: Player1,
+            player2: Player2,
           }
           if (socketRef.current.readyState === WebSocket.OPEN)
             socketRef.current.send(JSON.stringify(init_object));

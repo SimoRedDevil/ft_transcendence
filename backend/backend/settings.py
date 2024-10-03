@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-^3knd(m=5&aq8zx$uw@qfy8^h5dnx75bkd)^k)b!nyv#$tu443
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['*']
 
 
 
@@ -120,6 +120,15 @@ USE_I18N = True
 
 USE_TZ = True
 
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
+    },
+}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/

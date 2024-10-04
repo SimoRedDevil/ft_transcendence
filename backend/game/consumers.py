@@ -23,15 +23,15 @@ class Game(AsyncWebsocketConsumer):
         if (message_type == 'move'):
             message_direction = data_from_client['direction']
             if (message_direction == 'right'):
-                if (self.player1['x'] + self.player1['paddleWidth'] + self.player1['speedPaddle'] > self.walls['wallsWidth'] - 4):
-                    self.player1['x'] = self.walls['wallsWidth'] - self.player1['paddleWidth'] - 4
+                if (self.player1['x'] + self.player1['paddleWidth'] + self.player1['speedPaddle'] > 1):
+                    self.player1['x'] = 1 - self.player1['paddleWidth']
                 else:
                     self.player1['x'] += self.player1['speedPaddle']
             if (message_direction == 'left'):
-                if (self.player1['x'] - self.player1['speedPaddle'] > 4):
+                if (self.player1['x'] - self.player1['speedPaddle'] > 0):
                     self.player1['x'] -= self.player1['speedPaddle']
                 else:
-                    self.player1['x'] = 4
+                    self.player1['x'] = 0
             await self.channel_layer.group_send("game", {
                 'type': 'update_position',
                 'x': self.player1['x'],

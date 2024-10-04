@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Image from "next/image";
 import TextBox from '../../components/TextBox';
 
@@ -8,7 +8,7 @@ function Conversations() {
             <div className='h-[200px]'>
               <div className='h-[100px] flex gap-[10px] p-[20px]'>
                 <div className='h-[60px] w-[60px] rounded-full'>
-                  <Image className='rounded-full' src='' width={60} height={60} alt='avatar'/>
+                  {/* <Image className='rounded-full' src='' width={60} height={60} alt='avatar'/> */}
                 </div>
                 <div className='flex flex-col'>
                   <span className='text-[1rem]'>Name</span>
@@ -19,7 +19,7 @@ function Conversations() {
                 <TextBox placeholder='Search...' icon='/icons/search.png' className='border border-white border-opacity-20 w-[95%] h-[70px] bg-white bg-opacity-10 rounded-[40px] flex items-center'></TextBox>
               </div>
             </div>
-        <div className='mt-[20px] h-[calc(100%_-_270px)] no-scrollbar overflow-y-auto scroll-smooth'>
+        <div className='mt-[20px] h-[calc(100%_-_270px)] no-scrollbar overflow-y-auto scroll-smooth border'>
             {/* {
               data.slice(1).map((e) => {
                 return (

@@ -15,7 +15,10 @@ export default function Table() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const socketRef = useRef<WebSocket | null>(null);
 
-  let data1 = {
+  let player1 = {
+    x: 0,
+  };
+  let player2 = {
     x: 0,
   };
 
@@ -56,8 +59,8 @@ export default function Table() {
       };
 
       socketRef.current.onmessage = (event) => {
-        data1 = JSON.parse(event.data);
-        data1.x = data1.x * canvasRef.current.clientWidth;
+        player1 = JSON.parse(event.data);
+        player1.x = player1.x * canvasRef.current.clientWidth;
       };
 
       socketRef.current.onclose = (event) => {
@@ -87,7 +90,7 @@ export default function Table() {
           Line(sketch, Walls);
           UpPaddle(sketch, Walls, socketRef.current);
 
-          sketch.rect(data1.x, Player1.y, Player1.paddleWidth, Player1.paddleHeight, 50, 50, 0, 0);
+          sketch.rect(player1.x, Player1.y, Player1.paddleWidth, Player1.paddleHeight, 50, 50, 0, 0);
           Ball.ballPosX += Ball.velocityX;
           Ball.ballPosY += Ball.velocityY;
 

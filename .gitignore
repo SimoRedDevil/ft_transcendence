@@ -4,5 +4,5 @@ env
 frontend/.next
 database/*
 backend/game/migrations
-new_env
+new_env/*
 node_modules

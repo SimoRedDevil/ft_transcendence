@@ -6,8 +6,6 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
-
-
 interface SigninPageProps {
   onNavigate?: () => void;
 }
@@ -53,10 +51,35 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
     }
   };
 
-//   const handleLogin = () => {
-//     const redirectUri = encodeURIComponent("http://localhost:8000/accounts/42/callback/");
-//     window.location.href = `https://api.intra.42.fr/oauth/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=${redirectUri}&response_type=code`;
-// };
+const API_URL = 'http://localhost:8000/api/auth/42'; // Adjust to your backend URL
+
+// Function to initiate login with 42 API
+const loginWith42 = () => {
+  // Redirect user to the Django login endpoint
+  window.location.href = `${API_URL}/login/`;
+};
+
+// Function to handle the callback after login
+const handle42Callback = async (code) => {
+  try {
+    const response = await fetch(`${API_URL}/callback/?code=${code}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to authenticate');
+    }
+
+    const data = await response.json();
+    return data; // This should include the tokens and user info
+  } catch (error) {
+    console.error('Error during authentication:', error);
+    throw error;
+  }
+};
 
   return (
     <motion.form className=" flex flex-col items-center justify-center h-screen w-screen overflow-auto fixed">
@@ -96,7 +119,7 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
                 Sign up
               </button>
             </div>
-            <button
+            <button onClick={loginWith42}
             className="flex items-center bg-[#131E24] text-white w-[75%] mobile:w-[90%] less-than-mobile:w-[90%] justify-center py-2 rounded mt-7 
               hover:bg-[#1E2E36] rounded-tl-[13px] rounded-bl-[22px] rounded-tr-[22px] rounded-br-[10px] border border-gray-500">
               <img
@@ -106,9 +129,7 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
               />
               <Link
                 href="/login"
-                className="text-xs
-              "
-              >
+                className="text-xs">
                 Sign in with Intra
               </Link>
             </button>

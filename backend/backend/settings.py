@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'authentication.providers.fortytwo',  # Your provider app
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.oauth2',
+    'rest_framework_simplejwt',
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -86,6 +87,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 }
 AUTH_USER_MODEL = 'authentication.CustomUser'
@@ -128,13 +130,22 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
+
+# 42 API OAuth settings
+INTRA_42_CLIENT_ID = 'u-s4t2ud-1c073e814ca362dbc74fa34720dc03f709a4212438b8669de754f3398b85be70'
+INTRA_42_CLIENT_SECRET = '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'
+INTRA_42_REDIRECT_URI = 'http://localhost:3000/dashboard'
+INTRA_42_TOKEN_URL = 'https://api.intra.42.fr/oauth/token'
+INTRA_42_AUTH_URL = 'https://api.intra.42.fr/oauth/authorize'
+
+
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
         "ENGINE": "django.db.backends.postgresql",
-        'NAME': 'users',
+        'NAME': 'alienpong',
         'USER': 'aben-nei',
         'PASSWORD': 'aben-nei123',
         'HOST': 'db',

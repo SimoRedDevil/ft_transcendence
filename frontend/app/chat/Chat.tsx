@@ -25,7 +25,7 @@ function Chat() {
       <div className='flex items-center'>
         <hr className='border border-white h-[90%] border-opacity-30'></hr>
       </div>
-      <div className='w-full flex flex-col'>
+      {/* <div className='w-full flex flex-col'>
         <div className='flex p-[20px] justify-between'>
           <div className='flex flex-row gap-3'>
             <div className='rounded-full h-[60px] w-[60px]'>
@@ -66,7 +66,7 @@ function Chat() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   )
 }

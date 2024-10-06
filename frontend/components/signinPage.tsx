@@ -41,6 +41,7 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
 
       if (response.ok) {
         alert("Signin successful");
+        localStorage.setItem("token", data.token); // Storing token in local storage after login !!
         router.push("/settings");
       } else {
         // If the response is not successful, display the error message

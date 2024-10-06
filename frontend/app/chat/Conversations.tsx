@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Image from "next/image";
 import TextBox from '../../components/TextBox';
 import { axiosInstance } from '../../utils/axiosInstance';
+import { cookies } from 'next/headers';
 
 function Conversations() {
   const [data, setData] = useState(null)
@@ -15,11 +16,12 @@ function Conversations() {
       console.log(error)
     })
   }, [])
+
   return (
     <div className='w-full h-full lg:w-[400px] 2xl:w-[550px] flex flex-col'>
             <div className='h-[200px]'>
               <div className='h-[100px] flex gap-[10px] p-[20px]'>
-                <div className='h-[60px] w-[60px] rounded-full bg-red-600'>
+                <div className='h-[60px] w-[60px] rounded-full bg-blue-800'>
                   {/* <Image className='rounded-full' src='' width={60} height={60} alt='avatar'/> */}
                 </div>
                 <div className='flex flex-col'>
@@ -32,17 +34,14 @@ function Conversations() {
               </div>
             </div>
         <div className='mt-[20px] h-[calc(100%_-_270px)] no-scrollbar overflow-y-auto scroll-smooth'>
-          {(!isLoading && !data) && 
+          {!data || data.length === 0 ? (
             <div className='text-white text-opacity-60 text-[1rem] text-center flex flex-col items-center justify-center gap-4 h-full'>
                <div className='h-[100px] w-[100px] rounded-full'>
                 <Image className='rounded-full' src='/icons/sleep.png' width={100} height={100} alt='avatar'/>
                </div>
                <span className='text-[22px]'>No conversations</span>
-            </div>
+            </div>) : (<div>there's conversations</div>)
           }
-          {(!isLoading && data) && data.map((e) => {
-            console.log(e)
-          })}
         </div>
     </div>
   )

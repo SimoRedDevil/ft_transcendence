@@ -38,7 +38,6 @@ export const Player1: player = {
     initialize: function(Walls: walls): void{
         this.paddleWidth = Walls.wallsWidth/4;
         this.paddleHeight = Walls.wallsHeight/40;
-        this.y = (Walls.wallsHeight / 20) - this.paddleHeight;
     }
 };
 export const Player2: player = {

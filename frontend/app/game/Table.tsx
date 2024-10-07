@@ -20,7 +20,6 @@ export default function Table() {
           sketch.setup = () => {
             sketch.createCanvas(canvasRef.current.clientWidth, canvasRef.current.clientHeight);
           };
-          let sc1 = 0;
           Ball.initialize(canvasRef.current);
           sketch.draw = () => {
             Walls.initialize(canvasRef.current);

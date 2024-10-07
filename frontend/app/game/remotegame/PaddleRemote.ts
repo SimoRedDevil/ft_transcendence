@@ -10,9 +10,9 @@ export function movePaddle(sketch: p5, Player: player, socket: WebSocket):void{
     {
       if (sketch.keyIsDown(68))
         if (socket)
-          socket.send(JSON.stringify({type: 'move', direction: 'right', player: Player}));
+          socket.send(JSON.stringify({message: 'move', direction: 'right', player: Player}));
       if (sketch.keyIsDown(65))
         if (socket)
-          socket.send(JSON.stringify({type: 'move', direction: 'left', player: Player}));
+          socket.send(JSON.stringify({message: 'move', direction: 'left', player: Player}));
     }
 }

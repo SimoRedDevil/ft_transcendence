@@ -1,4 +1,6 @@
-
+import { use } from 'react';
+import { getRandomName } from './Collision';
+import Game from '../page';
 
 export interface walls {
     
@@ -23,7 +25,8 @@ export interface player {
     paddleWidth: number;
     paddleHeight: number;
     speedPaddle: number;
-    game_id: string;
+    game_channel: string;
+    self_channel: string;
     username: string;
     player_id: string;
     color: string;
@@ -37,14 +40,14 @@ export const Player: player = {
     paddleHeight:  0,
     speedPaddle: 8,
     username: "",
-    game_id: "",
+    game_channel: "",
     player_id: "",
+    self_channel: "",
     color: "",
     score: 0,
     initialize: function(Walls: walls): void{
         this.paddleWidth = Walls.wallsWidth/4;
         this.paddleHeight = Walls.wallsHeight/40;
-        this.y = (Walls.wallsHeight / 20) - this.paddleHeight;
     }
 };
 
@@ -97,6 +100,10 @@ export function normalizePlayer(player: player, walls: walls) {
       paddleWidth: player.paddleWidth / walls.wallsWidth,
       paddleHeight: player.paddleHeight / walls.wallsHeight,
       speedPaddle: player.speedPaddle / walls.wallsWidth,
+      username: getRandomName(),
+      self_channel: "",
+      player_id: "",
+      game_channel: "",
       color: player.color,
       score: player.score,
     };

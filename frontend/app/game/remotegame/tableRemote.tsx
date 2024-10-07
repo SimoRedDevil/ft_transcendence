@@ -10,17 +10,19 @@ import { normalizePlayer } from './Object';
 import { getRandomName } from './Collision';
 import p5 from 'p5';
 
-
 export default function Table() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const socketRef = useRef<WebSocket | null>(null);
+
+  let playInfo = {
+    player : Player,
+  }
 
   const initializeGame = () => {
     if (canvasRef.current) {
       Ball.initialize(canvasRef.current);
       Walls.initialize(canvasRef.current);
       Player.initialize(Walls);
-      Player.username = getRandomName();
     }
   };
 
@@ -36,6 +38,13 @@ export default function Table() {
       };
 
       socketRef.current.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        playInfo = data;
+        if (data['type'] === 'player_connected') {
+          playInfo.player['game_channel'] = data['game_channel'];
+        }
+        else if (data['type'] === 'move')
+          console.log(data);
       };
 
       socketRef.current.onclose = (event) => {
@@ -58,9 +67,9 @@ export default function Table() {
           sketch.resizeCanvas(canvasRef.current.clientWidth, canvasRef.current.clientHeight); // Ensure canvas resizes dynamically
           sketch.background("#0B4464");
           Line(sketch, Walls);
-          movePaddle(sketch, Player, socketRef.current);
+          movePaddle(sketch, playInfo.player, socketRef.current);
           
-          sketch.rect(Player.x, (Walls.wallsHeight / 20) - Player.paddleHeight, Player.paddleWidth, Player.paddleHeight, 50, 50, 0, 0);
+          sketch.rect(playInfo.player['x'], (Walls.wallsHeight / 20) - Player.paddleHeight, Player.paddleWidth, Player.paddleHeight, 50, 50, 0, 0);
         };
       }, canvasRef.current);
 

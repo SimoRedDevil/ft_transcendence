@@ -2,16 +2,16 @@
 services:
 
 
-  frontend:
-    container_name: frontend
-    build: ./frontend
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./frontend:/app
-    restart: always
-    networks:
-      - mynetwork
+  # frontend:
+  #   container_name: frontend
+  #   build: ./frontend
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - ./frontend:/app
+  #   restart: always
+  #   networks:
+  #     - mynetwork
       
   backend:
     container_name: backend

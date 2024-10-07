@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 class ConversationViewSet(viewsets.ModelViewSet):
     # queryset = conversation.objects.all()
     serializer_class = ConversationSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     def get_queryset(self):
         return conversation.objects.filter(user1_id=self.request.user.id) | conversation.objects.filter(user2_id=self.request.user.id)
 

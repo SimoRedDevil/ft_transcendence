@@ -52,7 +52,7 @@ export default function Table() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      socketRef.current = new WebSocket('ws://10.11.9.12:8000/ws/game/remotegame');
+      socketRef.current = new WebSocket('ws://10.11.8.12:8000/ws/game/remotegame');
 
       socketRef.current.onopen = () => {
         console.log('WebSocket connected');
@@ -61,6 +61,7 @@ export default function Table() {
       socketRef.current.onmessage = (event) => {
         player1 = JSON.parse(event.data);
         player1.x = player1.x * canvasRef.current.clientWidth;
+        console.log(player1['Idgame']);
       };
 
       socketRef.current.onclose = (event) => {

@@ -19,7 +19,6 @@ class Game(AsyncWebsocketConsumer):
                 await self.channel_layer.group_add(f"game_{gameId}", self.channel_name)
                 await self.accept()
                 return
-
         newGameId = len(self.all_games) + 1
         newGame = {
             'id': newGameId,
@@ -51,14 +50,17 @@ class Game(AsyncWebsocketConsumer):
                     self.player1['x'] -= self.player1['speedPaddle']
                 else:
                     self.player1['x'] = 0
-            await self.channel_layer.group_send("game", {
+            await self.channel_layer.group_send("game_1", {
                 'type': 'update_position',
                 'x': self.player1['x'],
+                'Idgame': len(self.all_games) + 1
             })
             
     async def update_position(self, event):
         await self.send(text_data=json.dumps({
             'type': 'update_position',
-            'player': 
-            'x': event['x'],
+            'player': {
+                'x': event['x'],
+            },
+            'Idgame': len(self.all_games) + 1
         }))

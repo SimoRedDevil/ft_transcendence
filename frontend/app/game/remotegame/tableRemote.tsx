@@ -7,6 +7,7 @@ import { Score1, Score2 } from './ScoreRemote';
 import { Collision } from './Collision';
 import { handleCollision } from './Collision';
 import { normalizePlayer } from './Object';
+import { getRandomName } from './Collision';
 import p5 from 'p5';
 
 
@@ -19,6 +20,7 @@ export default function Table() {
       Ball.initialize(canvasRef.current);
       Walls.initialize(canvasRef.current);
       Player.initialize(Walls);
+      Player.username = getRandomName();
     }
   };
 

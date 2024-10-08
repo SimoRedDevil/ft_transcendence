@@ -5,7 +5,6 @@ from asgiref.sync import sync_to_async
 @sync_to_async
 def get_user_from_token(token_key):
     try:
-        # Try to get the user from the token
         token = Token.objects.get(key=token_key)
         return token.user
     except Token.DoesNotExist:

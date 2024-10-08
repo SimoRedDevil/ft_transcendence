@@ -45,7 +45,7 @@ const DonutChart: React.FC = () => {
     maintainAspectRatio: false, // Allow dynamic resizing
     plugins: {
       legend: {
-        position: 'top' as const, // Position of the legend
+        position: 'left' as const, // Position of the legend
         labels: {
           font: {
             size: 10,

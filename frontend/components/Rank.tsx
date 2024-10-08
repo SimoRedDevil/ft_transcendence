@@ -40,11 +40,11 @@ async function Rank(info, player: number) {
         <div
             className="w-[95%] h-[89%] overflow-auto border_cus rounded-xl bg-gradient-to-b from-[rgba(26,31,38,0.7)] to-[rgba(0,0,0,0.5)] flex flex-col justify-start gap-[15px] items-center hide-scrollbar"
         >
-            <h1 className="text-[rgb(113,113,113)] relative right-[100px]">Top players</h1>
+            <h1 className="text-[rgb(113,113,113)] relative text-start  w-full left-7 top-2 text-[15px]">Top players</h1>
             <Gold name={table[0].teamName} minipic="/images/minipic.jpeg" />
             <Silver name={table[2].teamName} minipic="/images/minipic.jpeg" />
             <Bronze name={table[1].teamName} minipic="/images/minipic.jpeg" />
-            <h3 className="text-[orange]">Others</h3>
+            <h3 className="text-[rgb(113,113,113)] w-full text-start relative left-7 top-2 text-[15px]">Others</h3>
             {table.slice(3).map((team, index) => (
                 <Basic key={index + 3} name={team.teamName} minipic="/images/minipic.jpeg" />
             ))}

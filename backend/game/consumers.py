@@ -8,6 +8,7 @@ class Game(AsyncWebsocketConsumer):
     all_game = []
 
     async def connect(self):
+
         await self.accept()
         
     async def disconnect(self, close_code):
@@ -52,10 +53,9 @@ class Game(AsyncWebsocketConsumer):
                     'message': 'connection',
                     'player': player
                 }))
-        elif message == 'move':
+        if message == 'move':
             player = text_data_json['player']
             game_channel = player['game_channel']
-            print(player)
             await self.channel_layer.group_send(game_channel, {
                 'type': 'move',
                 'player': player,

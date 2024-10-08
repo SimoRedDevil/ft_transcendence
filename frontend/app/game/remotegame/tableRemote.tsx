@@ -10,11 +10,16 @@ import { normalizePlayer } from './Object';
 import { getRandomName } from './Collision';
 import p5 from 'p5';
 
+
 export default function Table() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const socketRef = useRef<WebSocket | null>(null);
 
-  let playInfo = {
+  let player1 = {
+    player : Player,
+  }
+
+  let player2 = {
     player : Player,
   }
 
@@ -30,8 +35,7 @@ export default function Table() {
   useEffect(() => {
     initializeGame();
     if (typeof window !== 'undefined') {
-      socketRef.current = new WebSocket('ws://10.11.8.12:8000/ws/game/remotegame');
-
+      socketRef.current = new WebSocket('ws://10.11.2.2:8000/ws/game/remotegame');
       socketRef.current.onopen = () => {
         console.log('WebSocket connected');
         socketRef.current.send(JSON.stringify({ message: 'connection', player: normalizePlayer(Player, Walls) }));
@@ -39,12 +43,32 @@ export default function Table() {
 
       socketRef.current.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        playInfo = data;
+        if (data['message'] === 'connection')
+        {
+          if(data['player']['player_id'] === '1')
+          {
+            console.log('player1');
+            player1.player = data['player'];
+          }
+          else
+          {
+            console.log('player2');
+            player2.player = data['player'];
+          }
+
+        }
         if (data['type'] === 'player_connected') {
-          playInfo.player['game_channel'] = data['game_channel'];
+          player1.player.game_channel = data['game_channel']
+          console.log(player1.player)
         }
         else if (data['type'] === 'move')
-          console.log(data);
+        {
+          console.log(data['player']['player_id'])
+            if (data['player']['player_id'] === '1')
+              player1.player = data['player'];
+            else
+              player2.player = data['player'];
+        }
       };
 
       socketRef.current.onclose = (event) => {
@@ -67,9 +91,9 @@ export default function Table() {
           sketch.resizeCanvas(canvasRef.current.clientWidth, canvasRef.current.clientHeight); // Ensure canvas resizes dynamically
           sketch.background("#0B4464");
           Line(sketch, Walls);
-          movePaddle(sketch, playInfo.player, socketRef.current);
+          movePaddle(sketch, player1.player, player2.player, socketRef.current);
           
-          sketch.rect(playInfo.player['x'], (Walls.wallsHeight / 20) - Player.paddleHeight, Player.paddleWidth, Player.paddleHeight, 50, 50, 0, 0);
+          sketch.rect(player1.player['x'], (Walls.wallsHeight / 20) - Player.paddleHeight, Player.paddleWidth, Player.paddleHeight, 50, 50, 0, 0);
         };
       }, canvasRef.current);
 

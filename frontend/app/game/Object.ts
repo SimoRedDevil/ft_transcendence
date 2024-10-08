@@ -27,7 +27,7 @@ export interface player {
     score: number;
     initialize(Walls: walls): void;
 }
-export const Player: player = {
+export const Player1: player = {
     x: 4,
     y: 0,
     paddleWidth: 0,
@@ -38,6 +38,21 @@ export const Player: player = {
     initialize: function(Walls: walls): void{
         this.paddleWidth = Walls.wallsWidth/4;
         this.paddleHeight = Walls.wallsHeight/40;
+        this.y = (Walls.wallsHeight / 20) - this.paddleHeight;
+    }
+};
+export const Player2: player = {
+    x: 4,
+    y: 4,
+    paddleWidth: 0,
+    paddleHeight:  0,
+    speedPaddle: 8,
+    color: "",
+    score: 0,
+    initialize: function(Walls: walls): void{
+        this.paddleWidth = Walls.wallsWidth/4;
+        this.paddleHeight = Walls.wallsHeight/40;
+        this.y = Walls.wallsHeight - Walls.wallsHeight / 20;
     }
 };
 

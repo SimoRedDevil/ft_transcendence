@@ -1,74 +1,47 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Player } from './Object';
-import { Walls, walls } from './Object';
-import { movePaddle } from './PaddleRemote';
-import { Ball, ball } from './Object';
-import { Score1, Score2 } from './ScoreRemote';
-import { Collision } from './Collision';
-import { handleCollision } from './Collision';
-import { normalizePlayer } from './Object';
-import { getRandomName } from './Collision';
+import {getRandomName} from './Collision';
 import p5 from 'p5';
+import { player } from './Object';
+import { any } from 'prop-types';
 
+
+let playerInfo: player = { player_id: '', name: '' };
+let game_channel: string = '';
+let paddles = any;
 
 export default function Table() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const socketRef = useRef<WebSocket | null>(null);
 
-  let player1 = {
-    player : Player,
-  }
-
-  let player2 = {
-    player : Player,
-  }
-
-  const initializeGame = () => {
-    if (canvasRef.current) {
-      Ball.initialize(canvasRef.current);
-      Walls.initialize(canvasRef.current);
-      Player.initialize(Walls);
-    }
-  };
 
 
   useEffect(() => {
-    initializeGame();
     if (typeof window !== 'undefined') {
-      socketRef.current = new WebSocket('ws://10.11.2.2:8000/ws/game/remotegame');
+      socketRef.current = new WebSocket('ws://10.12.10.12:8000/ws/game/remotegame');
       socketRef.current.onopen = () => {
         console.log('WebSocket connected');
-        socketRef.current.send(JSON.stringify({ message: 'connection', player: normalizePlayer(Player, Walls) }));
+        const firtsData = { username: getRandomName() , 
+                            x: 4/ canvasRef.current.clientWidth,
+                            pw: (canvasRef.current.clientWidth/4) / canvasRef.current.clientWidth };
+        socketRef.current.send(JSON.stringify({ type: 'connection', data: firtsData }));
       };
 
       socketRef.current.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        if (data['message'] === 'connection')
-        {
-          if(data['player']['player_id'] === '1')
-          {
-            console.log('player1');
-            player1.player = data['player'];
-          }
-          else
-          {
-            console.log('player2');
-            player2.player = data['player'];
-          }
+        if (data.type === 'connection') {
+          playerInfo.player_id = data.player.id;
+          playerInfo.name = data.player.name;
+          console.log('playerInfo after set:', playerInfo);
+        }
+        if (data.type === 'move') {
+          console.log('player move:', data);
+        }
+        if (data.type === 'start_game') {
+          console.log('game start:', data);
+          paddles = data.paddles;
+          game_channel = data.game_channel
+        }
 
-        }
-        if (data['type'] === 'player_connected') {
-          player1.player.game_channel = data['game_channel']
-          console.log(player1.player)
-        }
-        else if (data['type'] === 'move')
-        {
-          console.log(data['player']['player_id'])
-            if (data['player']['player_id'] === '1')
-              player1.player = data['player'];
-            else
-              player2.player = data['player'];
-        }
       };
 
       socketRef.current.onclose = (event) => {
@@ -88,19 +61,30 @@ export default function Table() {
 
 
         sketch.draw = () => {
-          sketch.resizeCanvas(canvasRef.current.clientWidth, canvasRef.current.clientHeight); // Ensure canvas resizes dynamically
+          sketch.resizeCanvas(canvasRef.current.clientWidth, canvasRef.current.clientHeight);
           sketch.background("#0B4464");
-          Line(sketch, Walls);
-          movePaddle(sketch, player1.player, player2.player, socketRef.current);
-          
-          sketch.rect(player1.player['x'], (Walls.wallsHeight / 20) - Player.paddleHeight, Player.paddleWidth, Player.paddleHeight, 50, 50, 0, 0);
+          if (sketch.keyIsPressed)
+            {
+              if (sketch.keyIsDown(68) && playerInfo)
+              {
+                console.log('player click', playerInfo.name, playerInfo.player_id);
+                socketRef.current.send(JSON.stringify({ type: 'move', direction: 'right', player_id: playerInfo.player_id, name: playerInfo.name , game_channel: game_channel}));
+              }
+              else if (sketch.keyIsDown(65) && playerInfo)
+                {
+                  socketRef.current.send(JSON.stringify({ type: 'move', direction: 'left', player_id: playerInfo.player_id, name: playerInfo.name , game_channel: game_channel}));
+              }
+            }
+          sketch.fill("#00A88C");
+          sketch.stroke("#58FFE3");
+          sketch.rect(4, (canvasRef.current.clientHeight / 20) - canvasRef.current.clientHeight/40, canvasRef.current.clientWidth/4, canvasRef.current.clientHeight / 40, 50, 50, 0, 0);
+          sketch.rect(4, canvasRef.current.clientHeight - canvasRef.current.clientHeight / 20, canvasRef.current.clientWidth/4, canvasRef.current.clientHeight / 40, 0, 0, 50, 50);
         };
       }, canvasRef.current);
 
       const handleResize = () => {
         if (canvasRef.current) {
           p.resizeCanvas(canvasRef.current.clientWidth, canvasRef.current.clientHeight);
-          initializeGame();
         }
       };
 
@@ -133,13 +117,3 @@ export default function Table() {
   );
 }
 
-function drawBall(sketch: p5, B: ball, W: walls): void {
-  sketch.fill("#009DFF");
-  sketch.stroke("#009DFF");
-  sketch.circle(B.ballPosX, B.ballPosY, W.wallsHeight / 25);
-}
-
-function Line(sketch: p5, Walls: walls): void {
-  sketch.stroke(100, 128);
-  sketch.line(0, Walls.wallsHeight / 2, Walls.wallsWidth, Walls.wallsHeight / 2);
-}

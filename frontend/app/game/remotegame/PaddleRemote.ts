@@ -1,5 +1,4 @@
 import { player } from './Object';
-import { Walls , walls} from './Object';
 import p5 from 'p5';
 
 

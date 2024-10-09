@@ -16,12 +16,17 @@ def check_conversation_exists(user1, user2):
     return conversation.objects.filter(user1_id=user1.id, user2_id=user2.id).exists()
 
 @database_sync_to_async
-def create_conversation(user1, user2):
-    return conversation.objects.create(user1_id=user1, user2_id=user2)
+def create_conversation(user1, user2, last_message=None):
+    return conversation.objects.create(user1_id=user1, user2_id=user2, last_message=last_message)
 
 @database_sync_to_async
 def get_conversation(user1, user2):
     return conversation.objects.get(user1_id=user1.id, user2_id=user2.id)
+
+@database_sync_to_async
+def set_conversation_last_msg(conversation_obj, last_message):
+    conversation_obj.last_message = last_message
+    conversation_obj.save()
 
 @database_sync_to_async
 def create_message(conversation, sender, receiver, content):
@@ -42,7 +47,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.accept()
 
     async def disconnect(self, close_code):
-        print("disconnected")
+        print("disconnected\n")
 
     async def receive(self, text_data):
         data = json.loads(text_data)
@@ -50,11 +55,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         sent_to_user = data['sent_to_user']
         sender = await get_user(sent_by_user)
         receiver = await get_user(sent_to_user)
+        message = data['message']
         conversation_exists = await check_conversation_exists(sender, receiver)
         if not conversation_exists:
-            await create_conversation(sender, receiver)
-        message = data['message']
-        await create_message(await get_conversation(sender, receiver), sender, receiver, message)
+            await create_conversation(sender, receiver, message)
+        conversation_obj = await get_conversation(sender, receiver)
+        await set_conversation_last_msg(conversation_obj, message)
+        await create_message(conversation_obj, sender, receiver, message)
         other_user_room_group_name = f'chat_{sent_to_user}'
         await self.channel_layer.group_send(
             other_user_room_group_name,

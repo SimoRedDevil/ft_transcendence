@@ -15,6 +15,18 @@ def get_user(username):
 def check_conversation_exists(user1, user2):
     return conversation.objects.filter(user1_id=user1.id, user2_id=user2.id).exists()
 
+@database_sync_to_async
+def create_conversation(user1, user2):
+    return conversation.objects.create(user1_id=user1, user2_id=user2)
+
+@database_sync_to_async
+def get_conversation(user1, user2):
+    return conversation.objects.get(user1_id=user1.id, user2_id=user2.id)
+
+@database_sync_to_async
+def create_message(conversation, sender, receiver, content):
+    return message.objects.create(conversation_id=conversation, sender_id=sender, receiver_id=receiver, content=content)
+
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         user = self.scope['user']
@@ -31,7 +43,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         print("disconnected")
-    
+
     async def receive(self, text_data):
         data = json.loads(text_data)
         sent_by_user = data['sent_by_user']
@@ -39,9 +51,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         sender = await get_user(sent_by_user)
         receiver = await get_user(sent_to_user)
         conversation_exists = await check_conversation_exists(sender, receiver)
-        print (conversation_exists)
-
+        if not conversation_exists:
+            await create_conversation(sender, receiver)
         message = data['message']
+        await create_message(await get_conversation(sender, receiver), sender, receiver, message)
         other_user_room_group_name = f'chat_{sent_to_user}'
         await self.channel_layer.group_send(
             other_user_room_group_name,

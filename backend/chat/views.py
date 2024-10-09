@@ -5,11 +5,8 @@ from .serializers import ConversationSerializer, MessageSerializer
 from rest_framework.permissions import IsAuthenticated
 
 class ConversationViewSet(viewsets.ModelViewSet):
-    # queryset = conversation.objects.all()
+    queryset = conversation.objects.all()
     serializer_class = ConversationSerializer
-    # permission_classes = [IsAuthenticated]
-    def get_queryset(self):
-        return conversation.objects.filter(user1_id=self.request.user.id) | conversation.objects.filter(user2_id=self.request.user.id)
 
 class MessageViewSet(viewsets.ModelViewSet):
     queryset = message.objects.all()

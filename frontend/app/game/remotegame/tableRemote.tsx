@@ -2,12 +2,12 @@ import React, { useRef, useEffect, useState } from 'react';
 import {getRandomName} from './Collision';
 import p5 from 'p5';
 import { player } from './Object';
-import { any } from 'prop-types';
+
 
 
 let playerInfo: player = { player_id: '', name: '' };
 let game_channel: string = '';
-let paddles = any;
+let paddles = [];
 
 export default function Table() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -17,12 +17,13 @@ export default function Table() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      socketRef.current = new WebSocket('ws://10.12.10.12:8000/ws/game/remotegame');
+      socketRef.current = new WebSocket('ws://10.11.2.4:8000/ws/game/remotegame');
       socketRef.current.onopen = () => {
         console.log('WebSocket connected');
         const firtsData = { username: getRandomName() , 
                             x: 4/ canvasRef.current.clientWidth,
-                            pw: (canvasRef.current.clientWidth/4) / canvasRef.current.clientWidth };
+                            pw: (canvasRef.current.clientWidth/4) / canvasRef.current.clientWidth ,
+                            sp: 8 / canvasRef.current.clientWidth,};
         socketRef.current.send(JSON.stringify({ type: 'connection', data: firtsData }));
       };
 
@@ -37,9 +38,13 @@ export default function Table() {
           console.log('player move:', data);
         }
         if (data.type === 'start_game') {
-          console.log('game start:', data);
           paddles = data.paddles;
+          console.log('game start:', paddles);
           game_channel = data.game_channel
+        }
+        if (data.type === 'paddle_update') {
+          paddles[data['playernumber']] = data.paddle;
+          console.log('paddle update:', paddles);
         }
 
       };
@@ -75,10 +80,13 @@ export default function Table() {
                   socketRef.current.send(JSON.stringify({ type: 'move', direction: 'left', player_id: playerInfo.player_id, name: playerInfo.name , game_channel: game_channel}));
               }
             }
-          sketch.fill("#00A88C");
-          sketch.stroke("#58FFE3");
-          sketch.rect(4, (canvasRef.current.clientHeight / 20) - canvasRef.current.clientHeight/40, canvasRef.current.clientWidth/4, canvasRef.current.clientHeight / 40, 50, 50, 0, 0);
-          sketch.rect(4, canvasRef.current.clientHeight - canvasRef.current.clientHeight / 20, canvasRef.current.clientWidth/4, canvasRef.current.clientHeight / 40, 0, 0, 50, 50);
+          if (paddles['player1'] && paddles['player2'])
+          {
+            sketch.fill("#00A88C");
+            sketch.stroke("#58FFE3");
+            sketch.rect(paddles['player1'].x * canvasRef.current.clientWidth, (canvasRef.current.clientHeight / 20) - canvasRef.current.clientHeight/40, canvasRef.current.clientWidth/4, canvasRef.current.clientHeight / 40, 50, 50, 0, 0);
+            sketch.rect(paddles['player2'].x * canvasRef.current.clientWidth, canvasRef.current.clientHeight - canvasRef.current.clientHeight / 20, canvasRef.current.clientWidth/4, canvasRef.current.clientHeight / 40, 0, 0, 50, 50);
+          }
         };
       }, canvasRef.current);
 

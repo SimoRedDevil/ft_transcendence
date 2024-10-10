@@ -32,7 +32,6 @@ export default function Table() {
             UpPaddle(sketch, Walls);
             Ball.ballPosX += Ball.velocityX;
             Ball.ballPosY += Ball.velocityY;
-            let pla = (Ball.ballPosY > Walls.wallsHeight / 2) ? Player1 : Player2;
             if (Collision(Ball, Player1))
             {
               handleCollision(Ball, Player1, Walls);

@@ -4,6 +4,8 @@ import "./styles/global.css";
 import { usePathname } from 'next/navigation';
 import Header from '../components/Header'
 import Sidebar from '../components/Sidebar'
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function RootLayout({
     children,
@@ -12,6 +14,19 @@ export default function RootLayout({
   }) {
     const pathname = usePathname(); 
     const exclude = ['/login', '/']
+    // const router = useRouter();
+    // useEffect(() => {
+    //   const checkAuth = async () => {
+    //     // Replace with your logic to check authentication
+    //     const response = await fetch('http://localhost:8000/api/auth/check/'); // A backend endpoint to check auth status
+    //     if (!response.ok) {
+    //       router.push('/login'); // Redirect to login if not authenticated
+    //     }
+    //   };
+  
+    //   checkAuth();
+    // }, []);
+
     return (
       <html lang="en">
         <head>

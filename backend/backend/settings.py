@@ -64,11 +64,15 @@ SITE_ID = 1
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
+
 SOCIALACCOUNT_PROVIDERS = {
     'oauth2': {
         'APP': {
-            'client_id': 'u-s4t2ud-d28e9829df125623cb079f92c8a5b9008eab4cbd49465c1ab45a053590c23bea',
-            'secret': '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',
+            'client_id': 'u-s4t2ud-92bd4e0625503a1a3d309256cffd60297d8692b8710fce9d6d657fe60899bfd4',
+            'secret': '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',
             'key': '',
         },
         'SCOPE': ['public'],
@@ -78,8 +82,20 @@ SOCIALACCOUNT_PROVIDERS = {
         'ACCESS_TOKEN_URL': 'https://api.intra.42.fr/oauth/token',
         'PROFILE_URL': 'https://api.intra.42.fr/v2/me',  # For getting user data
         'REDIRECT_URI': 'http://localhost:8000/accounts/42/callback/',
+    },
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        }
     }
 }
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '386950283719-41fur79opnie0henf8sjbs3cgp22rcg4.apps.googleusercontent.com'  # Your Client ID
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'  # Your Secret Key
 
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -108,6 +124,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'authentication.middleware.AuthRequiredMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -132,9 +149,9 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 
 # 42 API OAuth settings
-INTRA_42_CLIENT_ID = 'u-s4t2ud-1c073e814ca362dbc74fa34720dc03f709a4212438b8669de754f3398b85be70'
-INTRA_42_CLIENT_SECRET = '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'
-INTRA_42_REDIRECT_URI = 'http://localhost:3000/dashboard'
+INTRA_42_CLIENT_ID = 'u-s4t2ud-92bd4e0625503a1a3d309256cffd60297d8692b8710fce9d6d657fe60899bfd4'
+INTRA_42_CLIENT_SECRET = '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'
+INTRA_42_REDIRECT_URI = 'http://localhost:3000'
 INTRA_42_TOKEN_URL = 'https://api.intra.42.fr/oauth/token'
 INTRA_42_AUTH_URL = 'https://api.intra.42.fr/oauth/authorize'
 

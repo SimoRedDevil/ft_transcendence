@@ -9,10 +9,25 @@ from .models import CustomUser
 from django.http import JsonResponse
 import requests
 from rest_framework_simplejwt.tokens import RefreshToken
-
 from django.shortcuts import redirect
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import SessionAuthentication
+
+class ProtectedResourceView(APIView):
+    """
+    Example view that requires authentication.
+    """
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # The user is authenticated, return the protected resource
+        data = {
+            "message": "This is a protected resource."
+        }
+        return JsonResponse(data)
 
 # 42 API Authorization URL
 INTRA_42_AUTH_URL = settings.INTRA_42_AUTH_URL

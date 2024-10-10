@@ -1,11 +1,12 @@
 `use client`;
-import React from "react";
-import { FaEnvelope, FaUserAlt } from "react-icons/fa";
+import { FaEnvelope } from "react-icons/fa";
 import PasswordHelper from "./passwordHelper";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import axios from 'axios';
 interface SigninPageProps {
   onNavigate?: () => void;
 }
@@ -17,27 +18,24 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
 
   const handleSignin = async (e) => {
     e.preventDefault();
-
+  
     // Create the body object to send in the request
     const body = {
       email,
       password,
     };
-
+  
     try {
-      // Send the signin request
-      const response = await fetch("http://localhost:8000/api/auth/login/", {
-        method: "POST",
+      // Send the signin request using axios with a POST method
+      const response = await axios.post("http://localhost:8000/api/auth/signin", body, {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(body),
       });
-
-      // Parse the response
-      const data = await response.json();
-
-      if (response.ok) {
+  
+      const data = response.data;
+  
+      if (response.status === 200) {
         alert("Signin successful");
         router.push("/settings");
       } else {
@@ -46,41 +44,65 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
       }
     } catch (error) {
       // Handle any network errors
-      console.error("Error during signin:", error);
+      console.error("Error during signin:", error.response ? error.response.data : error.message);
       alert("An error occurred. Please try again later.");
+    }
+  };  
+
+  const API_URL = 'http://localhost:8000/api/auth/42'; // Adjust to your backend URL
+
+  // Function to initiate login with 42 API
+  const loginWith42 = () => {
+    // Redirect user to the Django login endpoint
+    window.location.href = `${API_URL}/login/`;
+  };
+  
+  // Function to handle the callback after login
+  const handle42Callback = async (code) => {
+    try {
+      const response = await axios.get(`${API_URL}/callback/`, {
+        params: { code }, // Query parameter handled by Axios
+      });
+  
+      // Access the response data
+      const data = response.data;
+      console.log('Authentication successful:', data);
+      return data; // This should include the tokens and user info
+    } catch (error) {
+      // Enhanced error logging
+      if (error.response) {
+        console.error('Server responded with an error:', error.response.data);
+      } else if (error.request) {
+        console.error('No response received from server:', error.request);
+      } else {
+        console.error('Error during request setup:', error.message);
+      }
+      throw error;
     }
   };
 
-const API_URL = 'http://localhost:8000/api/auth/42'; // Adjust to your backend URL
-
-// Function to initiate login with 42 API
-const loginWith42 = () => {
-  // Redirect user to the Django login endpoint
-  window.location.href = `${API_URL}/login/`;
-};
-
-// Function to handle the callback after login
-const handle42Callback = async (code) => {
-  try {
-    const response = await fetch(`${API_URL}/callback/?code=${code}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to authenticate');
+  useEffect(() => {
+    // Capture the code from the URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+  
+    // If the code exists, process it
+    if (code) {
+      // Handle the 42 callback with the code
+      handle42Callback(code)
+        .then((data) => {
+          console.log('User authenticated:', data);
+          alert('Successfully authenticated with 42!');
+          // Redirect to game after successful authentication
+          window.location.href = '/game';
+        })
+        .catch((error) => {
+          console.error('Failed to authenticate:', error);
+          alert('Failed to authenticate with 42, please try again.');
+        });
     }
-
-    const data = await response.json();
-    return data; // This should include the tokens and user info
-  } catch (error) {
-    console.error('Error during authentication:', error);
-    throw error;
-  }
-};
-
+  }, [router]); // Include `router` in the dependency array
+  
   return (
     <motion.form className=" flex flex-col items-center justify-center h-screen w-screen overflow-auto fixed">
       <div
@@ -108,8 +130,7 @@ const handle42Callback = async (code) => {
                  border-gray-500 rounded-tl-[10px] rounded-br-[10px] 
                 rounded-tr-[20px] text-sm border-r-2
                 rounded-bl-[20px]
-                ${onNavigate ? "bg-[#293B45]" : "bg-[#131E24]"}`}
-              >
+                ${onNavigate ? "bg-[#293B45]" : "bg-[#131E24]"}`}>
                 Login
               </div>
               <button
@@ -125,13 +146,8 @@ const handle42Callback = async (code) => {
               <img
                 src="/images/logo42.png"
                 alt="Intra Icon"
-                className="w-6 h-6 mr-2"
-              />
-              <Link
-                href="/login"
-                className="text-xs">
+                className="w-6 h-6 mr-2"/>
                 Sign in with Intra
-              </Link>
             </button>
             <button className="flex items-center bg-[#131E24] text-white w-[75%] mobile:w-[90%]
             less-than-mobile:w-[90%] py-2 rounded mt-4  hover:bg-[#1E2E36] rounded-tl-[9px]
@@ -141,12 +157,7 @@ const handle42Callback = async (code) => {
                 src="/images/logo_google.png"
                 alt="Google Icon"
               />
-              <Link
-                href="/login"
-                className="text-xs"
-              >
                 Sign in with Google
-              </Link>
             </button>
             <div className="flex items-center justify-center w-10/12 mt-2 text-[#949DA2]">
               <img

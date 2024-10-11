@@ -3,10 +3,10 @@ import { FaEnvelope } from "react-icons/fa";
 import PasswordHelper from "./passwordHelper";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import axios from 'axios';
+import { handle42Callback } from './auth'
 interface SigninPageProps {
   onNavigate?: () => void;
 }
@@ -15,6 +15,7 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+  const hasHandledCallback = useRef(false);
 
   const handleSignin = async (e) => {
     e.preventDefault();
@@ -27,17 +28,16 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
   
     try {
       // Send the signin request using axios with a POST method
-      const response = await axios.post("http://localhost:8000/api/auth/signin", body, {
+      const response = await axios.post("http://localhost:8000/api/auth/login/", body, {
         headers: {
           "Content-Type": "application/json",
         },
       });
-  
       const data = response.data;
   
       if (response.status === 200) {
         alert("Signin successful");
-        router.push("/settings");
+        router.push("/game");
       } else {
         // If the response is not successful, display the error message
         alert(data.message || "Signin failed, please try again.");
@@ -49,62 +49,28 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
     }
   };  
 
-  const API_URL = 'http://localhost:8000/api/auth/42'; // Adjust to your backend URL
-
-  // Function to initiate login with 42 API
-  const loginWith42 = () => {
-    // Redirect user to the Django login endpoint
-    window.location.href = `${API_URL}/login/`;
-  };
-  
-  // Function to handle the callback after login
-  const handle42Callback = async (code) => {
-    try {
-      const response = await axios.get(`${API_URL}/callback/`, {
-        params: { code }, // Query parameter handled by Axios
-      });
-  
-      // Access the response data
-      const data = response.data;
-      console.log('Authentication successful:', data);
-      return data; // This should include the tokens and user info
-    } catch (error) {
-      // Enhanced error logging
-      if (error.response) {
-        console.error('Server responded with an error:', error.response.data);
-      } else if (error.request) {
-        console.error('No response received from server:', error.request);
-      } else {
-        console.error('Error during request setup:', error.message);
-      }
-      throw error;
-    }
-  };
-
   useEffect(() => {
-    // Capture the code from the URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
-  
-    // If the code exists, process it
-    if (code) {
-      // Handle the 42 callback with the code
+
+    if (code && !hasHandledCallback.current) {
+      hasHandledCallback.current = true;
       handle42Callback(code)
         .then((data) => {
           console.log('User authenticated:', data);
           alert('Successfully authenticated with 42!');
-          // Redirect to game after successful authentication
-          window.location.href = '/game';
+          router.push('/game');
         })
         .catch((error) => {
           console.error('Failed to authenticate:', error);
           alert('Failed to authenticate with 42, please try again.');
         });
     }
-  }, [router]); // Include `router` in the dependency array
-  
+  }, []); // Empty array ensures this runs only once
+
   return (
-    <motion.form className=" flex flex-col items-center justify-center h-screen w-screen overflow-auto fixed">
+    <motion.form onSubmit={(e) => e.preventDefault()} 
+    className=" flex flex-col items-center justify-center h-screen w-screen overflow-auto fixed">
       <div
         className="flex items-center justify-center h-full w-full laptop:w-[850px]
       tablet:w-[620px] tablet:h-[770px] desktop:h-[760px] desktop:w-[950px] mobile:w-[500px]
@@ -140,15 +106,24 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
                 Sign up
               </button>
             </div>
-            <button onClick={loginWith42}
-            className="flex items-center bg-[#131E24] text-white w-[75%] mobile:w-[90%] less-than-mobile:w-[90%] justify-center py-2 rounded mt-7 
-              hover:bg-[#1E2E36] rounded-tl-[13px] rounded-bl-[22px] rounded-tr-[22px] rounded-br-[10px] border border-gray-500">
-              <img
-                src="/images/logo42.png"
-                alt="Intra Icon"
-                className="w-6 h-6 mr-2"/>
+            <Link href="http://localhost:8000/api/auth/42/login/" passHref
+              className="
+                w-full flex justify-center items-center
+              "
+            >
+              <button
+               
+                className="flex items-center bg-[#131E24] text-white w-[75%] mobile:w-[90%] less-than-mobile:w-[90%] justify-center py-2 rounded mt-7 
+                  hover:bg-[#1E2E36] rounded-tl-[13px] rounded-bl-[22px] rounded-tr-[22px] rounded-br-[10px] border border-gray-500"
+              >
+                <img
+                  src="/images/logo42.png"
+                  alt="Intra Icon"
+                  className="w-6 h-6 mr-2"
+                />
                 Sign in with Intra
-            </button>
+              </button>
+            </Link>
             <button className="flex items-center bg-[#131E24] text-white w-[75%] mobile:w-[90%]
             less-than-mobile:w-[90%] py-2 rounded mt-4  hover:bg-[#1E2E36] rounded-tl-[9px]
             rounded-bl-[18px] rounded-tr-[22px] rounded-br-[10px] border border-gray-500  justify-center">

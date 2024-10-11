@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import SignUpView, LoginView, UserViewSet, intra_42_callback, intra_42_login, ProtectedResourceView
+from .views import SignUpView, LoginView, UserViewSet, intra_42_login, intra_42_callback, ProtectedResourceView
 
 urlpatterns = [
     path('signup/', SignUpView.as_view(), name='signup'),
@@ -8,7 +8,6 @@ urlpatterns = [
     path('42/login/', intra_42_login, name='intra_42_login'),
     path('42/callback/', intra_42_callback, name='42_callback'),
     path('check/', ProtectedResourceView.as_view(), name='check'),
-#     path('42/', initiate_oauth, name='42_initiate'),  # This view should start the OAuth flow
 
 
 ]

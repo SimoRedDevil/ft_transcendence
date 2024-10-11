@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from rest_framework import viewsets
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate
 from .serializers import SignUpSerializer, LoginSerializer, UserSerializer
 from .models import CustomUser
 from django.http import JsonResponse
@@ -80,7 +80,7 @@ def intra_42_callback(request):
     else:
         # Error in token exchange
         return JsonResponse({
-            "error": "Failed to exchange authorization code for tokens"
+            "error": "Failed to exchange authorization code for access token."
         }, status=400)
 
 
@@ -112,12 +112,26 @@ class LoginView(APIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            user = serializer.validated_data
-            login(request, user)
-            refresh = RefreshToken.for_user(user)
-        access_token = str(refresh.access_token)
-        return Response({"access": access_token, "refresh": str(refresh)}, status=status.HTTP_200_OK)
-        return Response("Invalid credentials", status=status.HTTP_401_UNAUTHORIZED)
+            # Extract the email and password
+            email = serializer.validated_data['email']
+            password = serializer.validated_data['password']
+            # Get user by email
+            try:
+                user = CustomUser.objects.get(email=email)
+            except CustomUser.DoesNotExist:
+                return Response("Invalid credentials", status=status.HTTP_401_UNAUTHORIZED)
+
+            # Authenticate the user
+            user = authenticate(username=user.username, password=password)
+            if user is not None:
+                login(request, user)
+                refresh = RefreshToken.for_user(user)
+                access_token = str(refresh.access_token)
+                return Response({"access": access_token, "refresh": str(refresh)}, status=status.HTTP_200_OK)
+            else:
+                return Response("Invalid credentials", status=status.HTTP_401_UNAUTHORIZED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()

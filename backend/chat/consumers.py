@@ -49,6 +49,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         print("disconnected\n")
 
+    async def broadcast_message(self, info):
+        await self.channel_layer.group_send(
+            info['room_group_name'],
+            {
+                'type': 'send_message',
+                'sent_by_user': info['sent_by_user'],
+                'message': info['message']
+            }
+        ) 
+
     async def receive(self, text_data):
         data = json.loads(text_data)
         sent_by_user = data['sent_by_user']
@@ -63,14 +73,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await set_conversation_last_msg(conversation_obj, message)
         await create_message(conversation_obj, sender, receiver, message)
         other_user_room_group_name = f'chat_{sent_to_user}'
-        await self.channel_layer.group_send(
-            other_user_room_group_name,
-            {
-                'type': 'send_message',
-                'sent_by_user': sent_by_user,
-                'message': message
-            }
-        )
+        await self.broadcast_message({'room_group_name': self.room_group_name, 'sent_by_user': sent_by_user, 'message': message})
+        await self.broadcast_message({'room_group_name': other_user_room_group_name, 'sent_by_user': sent_by_user, 'message': message})
     
     async def send_message(self, event):
         sent_by_user = event['sent_by_user']

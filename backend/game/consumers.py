@@ -3,12 +3,14 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 
 class paddles:
-    def __init__(self, x, width, speed, color, chan_name):
+    def __init__(self, x, width, speed, color, chan_name, playerNu, username):
         self.x = x
         self.width = width
         self.color = color
         self.speed = speed
         self.chan_name = chan_name
+        self.username = username
+        self.playerNu = playerNu
         
     def to_dict(self):
         return {
@@ -16,7 +18,9 @@ class paddles:
             'width': self.width,
             'color': self.color,
             'speed': self.speed,
-            'chan_name': self.chan_name
+            'chan_name': self.chan_name,
+            'playerNu': self.playerNu,
+            'username': self.username,
         }
         
 class ball:
@@ -45,6 +49,7 @@ class Game(AsyncWebsocketConsumer):
     players = []
     match_making = []
     paddles = {}
+    games = {}
     Ball = {}
     async def connect(self):
         await self.accept()
@@ -70,23 +75,26 @@ class Game(AsyncWebsocketConsumer):
             await self.matchmaking(data)
         if data['type'] == 'move':
             if data['direction'] == 'right':
-                if (self.paddles[self.player['player_id']].x + self.paddles[self.player['player_id']].width + self.paddles[self.player['player_id']].speed > 1):
-                    self.paddles[self.player['player_id']].x = 1 - self.paddles[self.player['player_id']].width
+                if (self.games[data['game_channel']][self.player['player_id']].x + self.games[data['game_channel']][self.player['player_id']].width + self.games[data['game_channel']][self.player['player_id']].speed > 1):
+                    self.games[data['game_channel']][self.player['player_id']].x = 1 - self.games[data['game_channel']][self.player['player_id']].width
                 else:
-                    self.paddles[self.player['player_id']].x += self.paddles[self.player['player_id']].speed
+                    self.games[data['game_channel']][self.player['player_id']].x += self.games[data['game_channel']][self.player['player_id']].speed
             if data['direction'] == 'left':
-                if self.paddles[self.player['player_id']].x - self.paddles[self.player['player_id']].speed > 0:
-                    self.paddles[self.player['player_id']].x -= self.paddles[self.player['player_id']].speed
+                if self.games[data['game_channel']][self.player['player_id']].x - self.games[data['game_channel']][self.player['player_id']].speed > 0:
+                    self.games[data['game_channel']][self.player['player_id']].x -= self.games[data['game_channel']][self.player['player_id']].speed
                 else:
-                    self.paddles[self.player['player_id']].x = 0
-
+                    self.games[data['game_channel']][self.player['player_id']].x = 0
+            
             await self.channel_layer.group_send(
-            data['game_channel'],
-            {
-                'type': 'paddle_update',
-                'playernumber': self.player['player_id'],
-                'paddle': self.paddles[self.player['player_id']].to_dict()
-            })
+                data['game_channel'],
+                {
+                    'type': 'paddle_update',
+                    'paddle': self.games[data['game_channel']][self.player['player_id']].to_dict(),
+                    'playernumber': self.games[data['game_channel']][self.player['player_id']].playerNu
+                }
+            )
+        
+    
         if data['type'] == 'update_ball':
             self.Ball.x += self.Ball.directionX
             self.Ball.y += self.Ball.directionY
@@ -97,7 +105,7 @@ class Game(AsyncWebsocketConsumer):
                     'ball': self.Ball.to_dict()
                 }
             )
-            
+    
     async def disconnect(self, close_code):
         pass
 
@@ -118,13 +126,19 @@ class Game(AsyncWebsocketConsumer):
                 self.game_channel,
                 player2['id']
             )
-            self.paddles[player1['player_id']] = paddles(data['data']['x'], data['data']['pw'], data['data']['sp'], 'white', player1['id'])
-            self.paddles[player2['player_id']] = paddles(data['data']['x'], data['data']['pw'], data['data']['sp'], 'white', player2['id'])
+            self.paddles['player1'] = paddles(data['data']['x'], data['data']['pw'], data['data']['sp'], 'white', player1['id'], 1, player1['name'])
+            self.paddles['player2'] = paddles(data['data']['x'], data['data']['pw'], data['data']['sp'], 'white', player2['id'], 2, player2['name'])
             self.Ball = ball(0.5, 0.5, data['data']['Walls']['wallsHeight']/25/2, 'white')
-            ball_json = self.Ball.to_dict()
+            self.games[self.game_channel] = {
+                'player1' : self.paddles['player1'],
+                'player2' : self.paddles['player2'],
+                'ball' : self.Ball,
+            }
             
-            paddles_serialized = {
-            player_id: paddle.to_dict() for player_id, paddle in self.paddles.items()
+            game_serialized = {
+                'player1': self.games[self.game_channel]['player1'].to_dict(),
+                'player2': self.games[self.game_channel]['player2'].to_dict(),
+                'ball': self.games[self.game_channel]['ball'].to_dict()
             }
             await self.channel_layer.group_send(
                 self.game_channel,
@@ -132,8 +146,7 @@ class Game(AsyncWebsocketConsumer):
                     'type': 'start_game',
                     'players': [player1, player2],
                     'game_channel': self.game_channel,
-                    'paddles': paddles_serialized,
-                    'ball': ball_json,
+                    'game_serialized': game_serialized,
                 }
             )
     
@@ -142,18 +155,18 @@ class Game(AsyncWebsocketConsumer):
             'type': 'start_game',
             'players': event['players'],
             'game_channel': event['game_channel'],
-            'paddles': event['paddles'],
-            'ball': event['ball']
+            'game_serialized': event['game_serialized']
         }))
     
     async def paddle_update(self, event):
         paddle_data = event['paddle']
+        playernumber = event['playernumber']
         await self.send(text_data=json.dumps({
             'type': 'paddle_update',
-            'playernumber': event['playernumber'],
-            'paddle': paddle_data,  
+            'paddle': paddle_data,
+            'playernumber': playernumber
         }))
-    
+        
     async def update_ball(self, event):
         ball_data = event['ball']
         await self.send(text_data=json.dumps({

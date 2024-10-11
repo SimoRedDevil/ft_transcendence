@@ -12,7 +12,7 @@ import { walls } from './Object';
 let playerInfo: player = { player_id: '', name: '' };
 let game_channel: string = '';
 let playeNum: string = '';
-let paddles = [];
+let game_state = {};
 let Balls: ball = { x: 0, y: 0, radius: 0, color: '', directionX: 0, directionY: 0, speed: 0 };
 let socketIsOpen = false;
 let gameIsStarted = false;
@@ -44,14 +44,16 @@ export default function Table() {
           playerInfo.name = data.player.name;
         }
         if (data.type === 'start_game') {
-          paddles = data.paddles;
-          console.log('paddles', paddles);
-          Balls = data.ball;
-          gameIsStarted = true;
-          game_channel = data.game_channel
+          game_state = data.game_serialized;
+          game_channel = data.game_channel;
+          console.log('game_state', game_state);
+          console.log('game_channel', game_channel);
         }
         if (data.type === 'paddle_update') {
-          paddles[data['playernumber']] = data.paddle;
+          if (data.playernumber === 1)
+            game_state['player1'] = data.paddle;
+          else
+            game_state['player2'] = data.paddle;
         }
         if (data.type === 'update_ball') {
           Balls = data.ball;
@@ -81,8 +83,8 @@ export default function Table() {
           sketch.resizeCanvas(canvasRef.current.clientWidth, canvasRef.current.clientHeight);
           sketch.background("#0B4464");
           movePaddle(sketch, playerInfo, game_channel, socketRef.current);
-          if (paddles['player1'] && paddles['player2'])
-            tableDraw(sketch, paddles, Balls ,Walls, playerInfo);
+          if (game_state['player1'] && game_state['player2'])
+            tableDraw(sketch, game_state ,Walls, playerInfo);
         };
       }, canvasRef.current);
 

@@ -25,24 +25,24 @@ export function getRandomName(): string {
   }
   
 
-export function tableDraw(sketch: p5, paddles: any[], Balls: ball ,Walls: walls, playerInofo: player): void {
+export function tableDraw(sketch: p5, game_state: {} ,Walls: walls, playerInofo: player): void {
     
     Score1(sketch, Walls, 0);
     Score2(sketch, Walls, 0);
     sketch.fill("#00A88C");
     sketch.stroke("#58FFE3");
-    if (paddles['player1'].chan_name === playerInofo.player_id) {
-    sketch.rect(paddles['player2'].x * Walls.wallsWidth, (Walls.wallsHeight / 20) - Walls.wallsHeight/40, Walls.wallsWidth/4, Walls.wallsHeight / 40, 50, 50, 0, 0);
-    sketch.rect(paddles['player1'].x * Walls.wallsWidth, Walls.wallsHeight - Walls.wallsHeight / 20, Walls.wallsWidth/4, Walls.wallsHeight / 40, 0, 0, 50, 50);
+    if (game_state['player1'].chan_name === playerInofo.player_id) {
+    sketch.rect(game_state['player2'].x * Walls.wallsWidth, (Walls.wallsHeight / 20) - Walls.wallsHeight/40, Walls.wallsWidth/4, Walls.wallsHeight / 40, 50, 50, 0, 0);
+    sketch.rect(game_state['player1'].x * Walls.wallsWidth, Walls.wallsHeight - Walls.wallsHeight / 20, Walls.wallsWidth/4, Walls.wallsHeight / 40, 0, 0, 50, 50);
     }
     else {
-      sketch.rect(paddles['player1'].x * Walls.wallsWidth, (Walls.wallsHeight / 20) - Walls.wallsHeight/40, Walls.wallsWidth/4, Walls.wallsHeight / 40, 50, 50, 0, 0);
-      sketch.rect(paddles['player2'].x * Walls.wallsWidth, Walls.wallsHeight - Walls.wallsHeight / 20, Walls.wallsWidth/4, Walls.wallsHeight / 40, 0, 0, 50, 50);
+      sketch.rect(game_state['player1'].x * Walls.wallsWidth, (Walls.wallsHeight / 20) - Walls.wallsHeight/40, Walls.wallsWidth/4, Walls.wallsHeight / 40, 50, 50, 0, 0);
+      sketch.rect(game_state['player2'].x * Walls.wallsWidth, Walls.wallsHeight - Walls.wallsHeight / 20, Walls.wallsWidth/4, Walls.wallsHeight / 40, 0, 0, 50, 50);
     }
     Line(sketch, Walls);
     sketch.fill("#009DFF");
     sketch.stroke("#009DFF");
-    sketch.circle(Balls.x * Walls.wallsWidth, Balls.y * Walls.wallsHeight, Walls.wallsHeight / 25);
+    sketch.circle(game_state['ball'].x * Walls.wallsWidth, game_state['ball'].y * Walls.wallsHeight, Walls.wallsHeight / 25);
 
 }
 

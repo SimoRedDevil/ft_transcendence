@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -45,58 +46,51 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'authentication',
-    'allauth',
-    'allauth.socialaccount',
-    'allauth.account',
-    'authentication.providers.fortytwo',  # Your provider app
-    'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.oauth2',
-    'rest_framework_simplejwt',
-]
 
-AUTHENTICATION_BACKENDS = [
-    # 'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
+    'django.contrib.sites',  # Required for allauth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',  # Google provider
+
+    'rest_framework_simplejwt',
 ]
 
 SITE_ID = 1
 
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
 
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
+ACCOUNT_EMAIL_VERIFICATION = 'none'  # Change as needed
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'  # Choose method
+ACCOUNT_EMAIL_REQUIRED = True  # Require email
+LOGIN_REDIRECT_URL = 'http://localhost:3000/game'  # Redirect after login
+LOGOUT_REDIRECT_URL = 'http://localhost:3000'  # Redirect after logout
+
+GOOGLE_CLIENT_ID = 'u-s4t2ud-92bd4e0625503a1a3d309256cffd60297d8692b8710fce9d6d657fe60899bfd4'
 
 SOCIALACCOUNT_PROVIDERS = {
     'oauth2': {
         'APP': {
-            'client_id': 'u-s4t2ud-92bd4e0625503a1a3d309256cffd60297d8692b8710fce9d6d657fe60899bfd4',
+            'client_id': GOOGLE_CLIENT_ID,
             'secret': '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',
             'key': '',
         },
-        'SCOPE': ['public'],
-        'AUTH_PARAMS': {'access_type': 'offline'},
-        'METHOD': 'oauth2',
-        'AUTHORIZE_URL': 'https://api.intra.42.fr/oauth/authorize',
-        'ACCESS_TOKEN_URL': 'https://api.intra.42.fr/oauth/token',
-        'PROFILE_URL': 'https://api.intra.42.fr/v2/me',  # For getting user data
-        'REDIRECT_URI': 'http://localhost:8000/accounts/42/callback/',
     },
     'google': {
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
-        }
+        'METHOD': 'oauth2',
+        'SCOPE': ['profile', 'email'],  # Scopes to request
+        'AUTH_PARAMS': {'access_type': 'online'},
+        'CLIENT_ID': '1044566227728-u6kf090diec8d8osln6c66cfb24jskip.apps.googleusercontent.com',  # Your Client ID
+        'SECRET': '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',  # Your Client Secret
     }
 }
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '386950283719-41fur79opnie0henf8sjbs3cgp22rcg4.apps.googleusercontent.com'  # Your Client ID
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'  # Your Secret Key
-
+# We need these lines below to allow the Google sign in popup to work.
+SECURE_REFERRER_POLICY = 'no-referrer-when-downgrade'
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 
 CORS_ALLOW_ALL_ORIGINS = True
 

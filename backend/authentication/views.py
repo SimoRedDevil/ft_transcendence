@@ -6,28 +6,16 @@ from rest_framework import viewsets
 from django.contrib.auth import login, authenticate
 from .serializers import SignUpSerializer, LoginSerializer, UserSerializer
 from .models import CustomUser
-from django.http import JsonResponse
-import requests
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import redirect
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import SessionAuthentication
+from django.contrib.auth import get_user_model
+import json
+from google.auth.transport import requests
+from google.oauth2 import id_token
+from django.conf import settings
 
-class ProtectedResourceView(APIView):
-    """
-    Example view that requires authentication.
-    """
-    authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        # The user is authenticated, return the protected resource
-        data = {
-            "message": "This is a protected resource."
-        }
-        return JsonResponse(data)
 
 # 42 API Authorization URL
 INTRA_42_AUTH_URL = settings.INTRA_42_AUTH_URL
@@ -61,15 +49,15 @@ def intra_42_callback(request):
     response = requests.post(token_url, data=data)
 
     if response.status_code == 200:
-        # Successful token exchange
+        # here Successful token exchange
         tokens = response.json()
         access_token = tokens['access_token']
         refresh_token = tokens.get('refresh_token', None)
 
-        # Use the access token to fetch user data from 42 API
+        # fetch data from api 42 using the access token
         user_info = fetch_42_user_data(access_token)
 
-        # Handle user login/registration in your app, e.g., create a user session
+        # handle user registration and login here
         return JsonResponse({
             "message": "Login successful",
             "access_token": access_token,
@@ -82,7 +70,6 @@ def intra_42_callback(request):
         return JsonResponse({
             "error": "Failed to exchange authorization code for access token."
         }, status=400)
-
 
 def fetch_42_user_data(access_token):
     """
@@ -99,7 +86,51 @@ def fetch_42_user_data(access_token):
         return response.json()
     return None
 
+@csrf_exempt  # Exempt from CSRF validation for simplicity in this example
+def auth_google(request):
+    """
+    Endpoint to authenticate users with Google.
+    Expects a POST request with a JSON body containing 'credential'.
+    """
+    if request.method == 'POST':
+        try:
+            # Parse the request body for the token
+            body = json.loads(request.body)
+            token = body.get('credential')
 
+            # Verify the token
+            idinfo = id_token.verify_oauth2_token(
+                token, 
+                requests.Request(), 
+                settings.GOOGLE_CLIENT_ID
+            )
+
+            # Extract user information from the token
+            user_email = idinfo['email']
+            user_name = idinfo['name']
+
+            # Get the user model
+            User = get_user_model()
+
+            # Get or create the user
+            user, created = User.objects.get_or_create(
+                email=user_email,
+                defaults={'username': user_name}
+            )
+
+            # If the user is created, you can set additional fields here if needed
+
+            # Authenticate the user
+            # You may want to create a session or return a token here
+            return JsonResponse({'status': 'success', 'user_id': user.id}, status=200)
+        
+        except ValueError as e:
+            # Token is invalid or expired
+            return JsonResponse({'error': str(e)}, status=403)
+        except Exception as e:
+            return JsonResponse({'error': 'An error occurred: ' + str(e)}, status=500)
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 # Sign Up View
 class SignUpView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()

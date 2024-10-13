@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -99,6 +100,8 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'  # Your
 
 
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -108,10 +111,17 @@ REST_FRAMEWORK = {
 }
 AUTH_USER_MODEL = 'authentication.CustomUser'
 
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),  # Short lifetime for access token
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),    # Longer lifetime for refresh token
+    'ROTATE_REFRESH_TOKENS': True,                 # Rotate refresh tokens on refresh
+    'BLACKLIST_AFTER_ROTATION': True,              # Blacklist old tokens
+}
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',  # Your Next.js frontend
     'http://127.0.0.1:3000',
+    'https://*',
 ]
 
 MIDDLEWARE = [

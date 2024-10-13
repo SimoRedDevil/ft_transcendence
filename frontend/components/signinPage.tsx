@@ -19,25 +19,25 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
 
   const handleSignin = async (e) => {
     e.preventDefault();
-  
     // Create the body object to send in the request
     const body = {
       email,
       password,
     };
-  
     try {
       // Send the signin request using axios with a POST method
       const response = await axios.post("http://localhost:8000/api/auth/login/", body, {
         headers: {
           "Content-Type": "application/json",
         },
+        withCredentials: true,
       });
       const data = response.data;
   
       if (response.status === 200) {
-        alert("Signin successful");
+        // alert("Signin successful");
         router.push("/game");
+        console.log(data);
       } else {
         // If the response is not successful, display the error message
         alert(data.message || "Signin failed, please try again.");
@@ -67,6 +67,7 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
         });
     }
   }, []); // Empty array ensures this runs only once
+
 
   return (
     <motion.form onSubmit={(e) => e.preventDefault()} 

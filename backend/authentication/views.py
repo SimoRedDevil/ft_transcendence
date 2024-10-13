@@ -14,6 +14,9 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import AccessToken
+from datetime import timedelta
 
 class ProtectedResourceView(APIView):
     """
@@ -120,18 +123,40 @@ class LoginView(APIView):
                 user = CustomUser.objects.get(email=email)
             except CustomUser.DoesNotExist:
                 return Response("Invalid credentials", status=status.HTTP_401_UNAUTHORIZED)
-
             # Authenticate the user
             user = authenticate(username=user.username, password=password)
             if user is not None:
                 login(request, user)
                 refresh = RefreshToken.for_user(user)
                 access_token = str(refresh.access_token)
-                return Response({"access": access_token, "refresh": str(refresh)}, status=status.HTTP_200_OK)
+                refresh_token = str(refresh)
+                response= Response(status=status.HTTP_200_OK)
+                response.set_cookie(
+                 key='access_token',
+                 value=str(refresh.access_token),
+                 httponly=True,  # More secure as it prevents JavaScript access
+                 secure=True,  # Use it in production with HTTPS
+                 )
+                return response
             else:
                 return Response("Invalid credentials", status=status.HTTP_401_UNAUTHORIZED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ValidateTokenView(APIView):
+    def get(self, request):
+        access_token = request.COOKIES.get('access_token')
+
+        if not access_token:
+            return Response({'error': 'Access token not found in cookies'}, status=401)
+
+        try:
+            # Validate the access token
+            decoded_token = AccessToken(access_token)
+            user_id = decoded_token.get('user_id')
+            return Response({'valid': True, 'user_id': user_id}, status=status.HTTP_200_OK)
+        except Exception:
+            return Response({'valid': False, 'error': 'Invalid or expired access token'}, status=status.HTTP_401_UNAUTHORIZED)
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()

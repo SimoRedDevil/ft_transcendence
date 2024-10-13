@@ -4,6 +4,11 @@ import "./styles/global.css";
 import { usePathname } from 'next/navigation';
 import Header from '../components/Header'
 import Sidebar from '../components/Sidebar'
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
+import { useState } from 'react';
+
 
 export default function RootLayout({
     children,
@@ -12,6 +17,33 @@ export default function RootLayout({
   }) {
     const pathname = usePathname(); 
     const exclude = ['/login', '/']
+    const router = useRouter();
+    const [valid, setIsValid] = useState(false);
+
+    const validateToken = async () => {
+
+      try {
+        const response = await axios.get('http://localhost:8000/api/auth/token/', {
+            withCredentials: true,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        setIsValid(response.data.valid);
+    } catch (error) {
+        console.log('Error validating token:', error.response ? error.response.data : error.message);
+        if (error.response) {
+        }
+    }
+    }
+
+    useEffect(() => {
+      validateToken();
+      if (!valid) {
+        router.push('/login');
+      }
+    }, []);
     return (
       <html lang="en">
         <head>

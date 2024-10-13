@@ -1,13 +1,12 @@
 `use client`;
-import React from "react";
-import { FaEnvelope, FaUserAlt } from "react-icons/fa";
+import { FaEnvelope } from "react-icons/fa";
 import PasswordHelper from "./passwordHelper";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from 'next/navigation';
-
-
+import axios from 'axios';
+import { handle42Callback } from './auth'
 interface SigninPageProps {
   onNavigate?: () => void;
 }
@@ -16,51 +15,63 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+  const hasHandledCallback = useRef(false);
 
   const handleSignin = async (e) => {
     e.preventDefault();
-
     // Create the body object to send in the request
     const body = {
       email,
       password,
     };
-
     try {
-      // Send the signin request
-      const response = await fetch("http://localhost:8000/api/auth/login/", {
-        method: "POST",
+      // Send the signin request using axios with a POST method
+      const response = await axios.post("http://localhost:8000/api/auth/login/", body, {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(body),
+        withCredentials: true,
       });
-
-      // Parse the response
-      const data = await response.json();
-
-      if (response.ok) {
-        alert("Signin successful");
-        localStorage.setItem("token", data.token); // Storing token in local storage after login !!
-        router.push("/settings");
+      const data = response.data;
+  
+      if (response.status === 200) {
+        // alert("Signin successful");
+        router.push("/game");
+        console.log(data);
       } else {
         // If the response is not successful, display the error message
         alert(data.message || "Signin failed, please try again.");
       }
     } catch (error) {
       // Handle any network errors
-      console.error("Error during signin:", error);
+      console.error("Error during signin:", error.response ? error.response.data : error.message);
       alert("An error occurred. Please try again later.");
     }
-  };
+  };  
 
-//   const handleLogin = () => {
-//     const redirectUri = encodeURIComponent("http://localhost:8000/accounts/42/callback/");
-//     window.location.href = `https://api.intra.42.fr/oauth/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=${redirectUri}&response_type=code`;
-// };
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+
+    if (code && !hasHandledCallback.current) {
+      hasHandledCallback.current = true;
+      handle42Callback(code)
+        .then((data) => {
+          console.log('User authenticated:', data);
+          alert('Successfully authenticated with 42!');
+          router.push('/game');
+        })
+        .catch((error) => {
+          console.error('Failed to authenticate:', error);
+          alert('Failed to authenticate with 42, please try again.');
+        });
+    }
+  }, []); // Empty array ensures this runs only once
+
 
   return (
-    <motion.form className=" flex flex-col items-center justify-center h-screen w-screen overflow-auto fixed">
+    <motion.form onSubmit={(e) => e.preventDefault()} 
+    className=" flex flex-col items-center justify-center h-screen w-screen overflow-auto fixed">
       <div
         className="flex items-center justify-center h-full w-full laptop:w-[850px]
       tablet:w-[620px] tablet:h-[770px] desktop:h-[760px] desktop:w-[950px] mobile:w-[500px]
@@ -86,8 +97,7 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
                  border-gray-500 rounded-tl-[10px] rounded-br-[10px] 
                 rounded-tr-[20px] text-sm border-r-2
                 rounded-bl-[20px]
-                ${onNavigate ? "bg-[#293B45]" : "bg-[#131E24]"}`}
-              >
+                ${onNavigate ? "bg-[#293B45]" : "bg-[#131E24]"}`}>
                 Login
               </div>
               <button
@@ -97,22 +107,24 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
                 Sign up
               </button>
             </div>
-            <button
-            className="flex items-center bg-[#131E24] text-white w-[75%] mobile:w-[90%] less-than-mobile:w-[90%] justify-center py-2 rounded mt-7 
-              hover:bg-[#1E2E36] rounded-tl-[13px] rounded-bl-[22px] rounded-tr-[22px] rounded-br-[10px] border border-gray-500">
-              <img
-                src="/images/logo42.png"
-                alt="Intra Icon"
-                className="w-6 h-6 mr-2"
-              />
-              <Link
-                href="/login"
-                className="text-xs
+            <Link href="http://localhost:8000/api/auth/42/login/" passHref
+              className="
+                w-full flex justify-center items-center
               "
+            >
+              <button
+               
+                className="flex items-center bg-[#131E24] text-white w-[75%] mobile:w-[90%] less-than-mobile:w-[90%] justify-center py-2 rounded mt-7 
+                  hover:bg-[#1E2E36] rounded-tl-[13px] rounded-bl-[22px] rounded-tr-[22px] rounded-br-[10px] border border-gray-500"
               >
+                <img
+                  src="/images/logo42.png"
+                  alt="Intra Icon"
+                  className="w-6 h-6 mr-2"
+                />
                 Sign in with Intra
-              </Link>
-            </button>
+              </button>
+            </Link>
             <button className="flex items-center bg-[#131E24] text-white w-[75%] mobile:w-[90%]
             less-than-mobile:w-[90%] py-2 rounded mt-4  hover:bg-[#1E2E36] rounded-tl-[9px]
             rounded-bl-[18px] rounded-tr-[22px] rounded-br-[10px] border border-gray-500  justify-center">
@@ -121,12 +133,7 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
                 src="/images/logo_google.png"
                 alt="Google Icon"
               />
-              <Link
-                href="/login"
-                className="text-xs"
-              >
                 Sign in with Google
-              </Link>
             </button>
             <div className="flex items-center justify-center w-10/12 mt-2 text-[#949DA2]">
               <img

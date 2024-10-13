@@ -30,9 +30,15 @@ export default function Table() {
         console.log('WebSocket connected');
         const firtsData = { username: getRandomName() , 
                             x: 4/ Walls.wallsWidth,
+                            y1: (Walls.wallsHeight - Walls.wallsHeight / 20) / Walls.wallsHeight,
+                            y2: ((Walls.wallsHeight / 20) - (Walls.wallsHeight/40)) / Walls.wallsHeight,
                             pw: (Walls.wallsWidth/4) / Walls.wallsWidth ,
+                            ph: (Walls.wallsHeight/40) / Walls.wallsHeight,
                             sp: 8 / Walls.wallsWidth,
-                            Walls: Walls};
+                            radi: 5 / Walls.wallsWidth,
+                            dirY: 9/ Walls.wallsHeight,
+                            Walls: Walls,
+                            game_channel: game_channel};
         socketIsOpen = true;
         socketRef.current.send(JSON.stringify({ type: 'connection', data: firtsData }));
       };
@@ -56,8 +62,9 @@ export default function Table() {
             game_state['player2'] = data.paddle;
         }
         if (data.type === 'update_ball') {
-          Balls = data.ball;
-          console.log('update ball', Balls);
+          game_state['ball'] = data.ball;
+          game_state['player1'] = data.player1;
+          game_state['player2'] = data.player2;
         }
         
       };

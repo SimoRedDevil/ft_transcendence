@@ -27,22 +27,42 @@ export function getRandomName(): string {
 
 export function tableDraw(sketch: p5, game_state: {} ,Walls: walls, playerInofo: player): void {
     
-    Score1(sketch, Walls, 0);
-    Score2(sketch, Walls, 0);
+    Score1(sketch, Walls, game_state['player1'].score);
+    Score2(sketch, Walls, game_state['player2'].score);
+    let player1Y = game_state['player1'].y;
+    let player2Y = game_state['player2'].y;
+    let ballY = game_state['ball'].y;
+    let br = 0;
+    let bl = 0;
+    let detailX = 50;
+    let detailY = 50;
+    let br2 = 50;
+    let bl2 = 50;
+    let detailX2 = 0;
+    let detailY2 = 0;
+    let isplayeR2 = playerInofo.player_id === game_state['player2'].chan_name
+    if (isplayeR2) 
+    {
+      player1Y = 1 - game_state['player1'].y - (Walls.wallsHeight/40) / Walls.wallsHeight;
+      player2Y = 1 - game_state['player2'].y - (Walls.wallsHeight/40) / Walls.wallsHeight;
+      ballY = 1 - game_state['ball'].y;
+      br = 50;
+      bl = 50;
+      detailX = 0;
+      detailY = 0;
+      br2 = 0;
+      bl2 = 0;
+      detailX2 = 50;
+      detailY2 = 50;
+    }
     sketch.fill("#00A88C");
     sketch.stroke("#58FFE3");
-    if (game_state['player1'].chan_name === playerInofo.player_id) {
-    sketch.rect(game_state['player2'].x * Walls.wallsWidth, (Walls.wallsHeight / 20) - Walls.wallsHeight/40, Walls.wallsWidth/4, Walls.wallsHeight / 40, 50, 50, 0, 0);
-    sketch.rect(game_state['player1'].x * Walls.wallsWidth, Walls.wallsHeight - Walls.wallsHeight / 20, Walls.wallsWidth/4, Walls.wallsHeight / 40, 0, 0, 50, 50);
-    }
-    else {
-      sketch.rect(game_state['player1'].x * Walls.wallsWidth, (Walls.wallsHeight / 20) - Walls.wallsHeight/40, Walls.wallsWidth/4, Walls.wallsHeight / 40, 50, 50, 0, 0);
-      sketch.rect(game_state['player2'].x * Walls.wallsWidth, Walls.wallsHeight - Walls.wallsHeight / 20, Walls.wallsWidth/4, Walls.wallsHeight / 40, 0, 0, 50, 50);
-    }
+    sketch.rect(game_state['player1'].x * Walls.wallsWidth,  player1Y * Walls.wallsHeight, Walls.wallsWidth/4, Walls.wallsHeight / 40, br, bl, detailX, detailY);
+    sketch.rect(game_state['player2'].x * Walls.wallsWidth, player2Y * Walls.wallsHeight, Walls.wallsWidth/4, Walls.wallsHeight / 40, br2, bl2, detailX2, detailY2);
     Line(sketch, Walls);
     sketch.fill("#009DFF");
     sketch.stroke("#009DFF");
-    sketch.circle(game_state['ball'].x * Walls.wallsWidth, game_state['ball'].y * Walls.wallsHeight, Walls.wallsHeight / 25);
+    sketch.circle(game_state['ball'].x * Walls.wallsWidth,  ballY * Walls.wallsHeight, Walls.wallsHeight / 25);
 
 }
 
@@ -53,11 +73,6 @@ function Line(sketch: p5, Walls: walls):void {
 }
 
 
-function drawBall(sketch: p5, B: any, W: walls):void {
-  sketch.fill("#009DFF");
-  sketch.stroke("#009DFF");
-  sketch.circle(B.x, B.y, W.wallsHeight / 25);
-}
 function Score1(sketch: p5, Walls : walls,  Scor1: number):void {
   sketch.fill(200, 20);
   sketch.stroke(0, 36);

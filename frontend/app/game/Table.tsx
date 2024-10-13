@@ -50,13 +50,13 @@ export default function Table() {
               Ball.ballPosX = Walls.wallsWidth - Ball.radius;
               Ball.velocityX *= -1;
             }
-            else if (Ball.ballPosY < 0)
+            else if (Ball.ballPosY <= 0)
             {
               Ball.initialize(canvasRef.current);
               Ball.velocityY *= -1;
               Player2.score += 1;
             }
-            else if (Ball.ballPosY > Walls.wallsHeight)
+            else if (Ball.ballPosY >= Walls.wallsHeight)
             {
               Ball.initialize(canvasRef.current);
               Ball.velocityY *= -1;

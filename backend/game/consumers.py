@@ -1,37 +1,45 @@
 import json
+import math
+import asyncio
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 
 class paddles:
-    def __init__(self, x, width, speed, color, chan_name, playerNu, username):
+    def __init__(self, x, y,width, height, speed, color, chan_name, playerNu, username):
         self.x = x
+        self.y = y
         self.width = width
+        self.height = height
         self.color = color
         self.speed = speed
         self.chan_name = chan_name
         self.username = username
         self.playerNu = playerNu
+        self.score = 0
         
     def to_dict(self):
         return {
             'x': self.x,
+            'y': self.y,
             'width': self.width,
+            'height': self.height,
             'color': self.color,
             'speed': self.speed,
             'chan_name': self.chan_name,
             'playerNu': self.playerNu,
             'username': self.username,
+            'score': self.score
         }
         
 class ball:
-    def __init__(self, x, y, radius, color):
+    def __init__(self, x, y, radius, dirrectionY, speed,color):
         self.x = x
         self.y = y
         self.radius = radius
         self.color = color
-        self.directionX = 1
-        self.directionY = 1
-        self.speed = 1
+        self.directionX = 0
+        self.directionY = dirrectionY
+        self.speed = speed
 
     def to_dict(self):
         return {
@@ -57,7 +65,6 @@ class Game(AsyncWebsocketConsumer):
         self.game_channel = None
         self.playerID = None
         
-    
     async def receive(self, text_data):
         data = json.loads(text_data)
         if data['type'] == 'connection':
@@ -93,7 +100,6 @@ class Game(AsyncWebsocketConsumer):
                     'playernumber': self.games[data['game_channel']][self.player['player_id']].playerNu
                 }
             )
-        
     
         if data['type'] == 'update_ball':
             self.Ball.x += self.Ball.directionX
@@ -126,9 +132,9 @@ class Game(AsyncWebsocketConsumer):
                 self.game_channel,
                 player2['id']
             )
-            self.paddles['player1'] = paddles(data['data']['x'], data['data']['pw'], data['data']['sp'], 'white', player1['id'], 1, player1['name'])
-            self.paddles['player2'] = paddles(data['data']['x'], data['data']['pw'], data['data']['sp'], 'white', player2['id'], 2, player2['name'])
-            self.Ball = ball(0.5, 0.5, data['data']['Walls']['wallsHeight']/25/2, 'white')
+            self.paddles['player1'] = paddles(data['data']['x'],data['data']['y1'], data['data']['pw'], data['data']['ph'] ,data['data']['sp'], 'white', player1['id'], 1, player1['name'])
+            self.paddles['player2'] = paddles(data['data']['x'],data['data']['y2'],data['data']['pw'], data['data']['ph'], data['data']['sp'], 'white', player2['id'], 2, player2['name'])
+            self.Ball = ball(0.5, 0.5, data['data']['Walls']['wallsHeight']/25/2/data['data']['Walls']['wallsHeight'], data['data']['radi'], data['data']['dirY'] ,'white')
             self.games[self.game_channel] = {
                 'player1' : self.paddles['player1'],
                 'player2' : self.paddles['player2'],
@@ -149,6 +155,67 @@ class Game(AsyncWebsocketConsumer):
                     'game_serialized': game_serialized,
                 }
             )
+            asyncio.create_task(self.update_ball_loop(self.game_channel))
+    
+    async def colletion(self, player, ball):
+        topBall  = ball.y - ball.radius
+        topPadd = player.y
+        
+        leftBall = ball.x - ball.radius
+        leftPadd = player.x
+        
+        rightBall = ball.x + ball.radius
+        rightPadd = player.x + player.width
+        
+        bottomBall = ball.y + ball.radius
+        bottomPadd = player.y + player.height
+        return (topBall < bottomPadd and leftBall < rightPadd and rightBall > leftPadd and bottomBall > topPadd)
+    
+    async def handleCollision(self, player, ball):
+        colPoint = ball.x - (player.x + player.width/2)
+        colPoint = colPoint / (player.width/2)
+        angle = colPoint * (math.pi /4)
+        direc = 1 if ball.y < 0.5 else -1
+        
+        ball.directionY = direc * ball.speed * math.cos(angle)
+        ball.directionX = ball.speed * math.sin(angle)
+        
+    async def update_ball_loop(self, game_channel):
+        while True:
+            self.games[game_channel]['ball'].x += self.games[game_channel]['ball'].directionX
+            self.games[game_channel]['ball'].y += self.games[game_channel]['ball'].directionY
+            if await self.colletion(self.games[game_channel]['player1'], self.games[game_channel]['ball']):
+                await self.handleCollision(self.games[game_channel]['player1'], self.games[game_channel]['ball'])
+            if await self.colletion(self.games[game_channel]['player2'], self.games[game_channel]['ball']):
+                await self.handleCollision(self.games[game_channel]['player2'], self.games[game_channel]['ball'])
+            if self.games[game_channel]['ball'].x <= 0:
+                self.games[game_channel]['ball'].x = 0
+                self.games[game_channel]['ball'].directionX *= -1
+            if self.games[game_channel]['ball'].x + self.games[game_channel]['ball'].radius >= 1:
+                self.games[game_channel]['ball'].x = 1 - self.games[game_channel]['ball'].radius
+                self.games[game_channel]['ball'].directionX *= -1
+            if self.games[game_channel]['ball'].y <= 0:
+                self.games[game_channel]['ball'].directionX = 0
+                self.games[game_channel]['ball'].y = 0.5
+                self.games[game_channel]['ball'].x = 0.5
+                self.games[game_channel]['ball'].directionY *= -1
+                self.games[game_channel]['player1'].score += 1
+            if self.games[game_channel]['ball'].y >= 1:
+                self.games[game_channel]['ball'].directionX = 0
+                self.games[game_channel]['ball'].y = 0.5
+                self.games[game_channel]['ball'].x = 0.5
+                self.games[game_channel]['ball'].directionY *= -1
+                self.games[game_channel]['player2'].score += 1
+            await self.channel_layer.group_send(
+                game_channel,
+                {
+                    'type': 'update_ball',
+                    'ball': self.games[game_channel]['ball'].to_dict(),
+                    'player1': self.games[game_channel]['player1'].to_dict(),
+                    'player2': self.games[game_channel]['player2'].to_dict()
+                }
+            )
+            await asyncio.sleep(1/60) 
     
     async def start_game(self, event):
         await self.send(text_data=json.dumps({
@@ -171,5 +238,7 @@ class Game(AsyncWebsocketConsumer):
         ball_data = event['ball']
         await self.send(text_data=json.dumps({
             'type': 'update_ball',
-            'ball': ball_data
+            'ball': ball_data,
+            'player1': event['player1'],
+            'player2': event['player2']
         }))

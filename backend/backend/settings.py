@@ -47,10 +47,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'authentication',
     'allauth',
-    'allauth.socialaccount',
-    'allauth.account',
-    'authentication.providers.fortytwo',  # Your provider app
-    'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.oauth2',
     'rest_framework_simplejwt',
 ]
@@ -59,15 +55,6 @@ AUTHENTICATION_BACKENDS = [
     # 'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
-
-SITE_ID = 1
-
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
-
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
 
 SOCIALACCOUNT_PROVIDERS = {
     'oauth2': {
@@ -84,20 +71,7 @@ SOCIALACCOUNT_PROVIDERS = {
         'PROFILE_URL': 'https://api.intra.42.fr/v2/me',  # For getting user data
         'REDIRECT_URI': 'http://localhost:8000/accounts/42/callback/',
     },
-    'google': {
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
-        }
-    }
 }
-
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '386950283719-41fur79opnie0henf8sjbs3cgp22rcg4.apps.googleusercontent.com'  # Your Client ID
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'  # Your Secret Key
-
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True

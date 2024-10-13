@@ -37,14 +37,12 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
       if (response.status === 200) {
         // alert("Signin successful");
         router.push("/game");
-        console.log(data);
       } else {
-        // If the response is not successful, display the error message
         alert(data.message || "Signin failed, please try again.");
       }
     } catch (error) {
       // Handle any network errors
-      console.error("Error during signin:", error.response ? error.response.data : error.message);
+      //console.error("Error during signin:", error.response ? error.response.data : error.message);
       alert("An error occurred. Please try again later.");
     }
   };  
@@ -57,12 +55,11 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
       hasHandledCallback.current = true;
       handle42Callback(code)
         .then((data) => {
-          console.log('User authenticated:', data);
           alert('Successfully authenticated with 42!');
           router.push('/game');
         })
         .catch((error) => {
-          console.error('Failed to authenticate:', error);
+          //console.error('Failed to authenticate:', error);
           alert('Failed to authenticate with 42, please try again.');
         });
     }

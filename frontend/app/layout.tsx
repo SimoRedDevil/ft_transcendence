@@ -18,32 +18,45 @@ export default function RootLayout({
     const pathname = usePathname(); 
     const exclude = ['/login', '/']
     const router = useRouter();
-    const [valid, setIsValid] = useState(false);
 
-    const validateToken = async () => {
-
+    const silentFetch = async (url, options) => {
       try {
-        const response = await axios.get('http://localhost:8000/api/auth/token/', {
-            withCredentials: true,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-
-        setIsValid(response.data.valid);
-    } catch (error) {
-        console.log('Error validating token:', error.response ? error.response.data : error.message);
-        if (error.response) {
+        const response = await axios.get(url, options);
+        return response;
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          // Handle unauthorized errors silently
+          return null; // or handle it differently
         }
-    }
-    }
-
-    useEffect(() => {
-      validateToken();
-      if (!valid) {
+        // For other types of errors, suppress them
+        return null; // Return null or appropriate response
+      }
+    };
+    
+    // Usage
+    const validateToken = async () => {
+      const response = await silentFetch('http://localhost:8000/api/auth/token/', {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    
+      if (response) {
+    
+        if (!response.data.valid) {
+          router.push('/login');
+        }
+      } else {
+        // Token invalid or fetch failed, handle silently
         router.push('/login');
       }
+    };
+    
+    useEffect(() => {
+      validateToken();
     }, []);
+  
     return (
       <html lang="en">
         <head>

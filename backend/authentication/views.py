@@ -18,20 +18,6 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import AccessToken
 from datetime import timedelta
 
-class ProtectedResourceView(APIView):
-    """
-    Example view that requires authentication.
-    """
-    authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        # The user is authenticated, return the protected resource
-        data = {
-            "message": "This is a protected resource."
-        }
-        return JsonResponse(data)
-
 # 42 API Authorization URL
 INTRA_42_AUTH_URL = settings.INTRA_42_AUTH_URL
 
@@ -43,14 +29,8 @@ def intra_42_login(request):
         f'{INTRA_42_AUTH_URL}?client_id={settings.INTRA_42_CLIENT_ID}&redirect_uri={settings.INTRA_42_REDIRECT_URI}&response_type=code'
     )
 
-@csrf_exempt
 def intra_42_callback(request):
-    """
-    Handle the callback from 42 Intra API after the user authorizes.
-    Exchanges the authorization code for an access token.
-    """
     code = request.GET.get('code')
-
     # Exchange the authorization code for an access token
     token_url = settings.INTRA_42_TOKEN_URL
     data = {
@@ -61,31 +41,29 @@ def intra_42_callback(request):
         'redirect_uri': settings.INTRA_42_REDIRECT_URI
     }
 
-    response = requests.post(token_url, data=data)
-
+    response = requests.post(token_url, data=data) # Send a POST request to the token URL
     if response.status_code == 200:
         # Successful token exchange
         tokens = response.json()
         access_token = tokens['access_token']
         refresh_token = tokens.get('refresh_token', None)
-
         # Use the access token to fetch user data from 42 API
         user_info = fetch_42_user_data(access_token)
-
-        # Handle user login/registration in your app, e.g., create a user session
-        return JsonResponse({
-            "message": "Login successful",
-            "access_token": access_token,
-            "refresh_token": refresh_token,
-            "user_info": user_info
-        })
+        # Create the response
+        response = JsonResponse({})
+        response.set_cookie(
+            key='access_token', 
+            value=access_token, 
+            httponly=True, 
+            secure=True,  # Use secure=True in production to ensure cookies are sent over HTTPS
+        )
+        return response
 
     else:
         # Error in token exchange
         return JsonResponse({
             "error": "Failed to exchange authorization code for access token."
         }, status=400)
-
 
 def fetch_42_user_data(access_token):
     """

@@ -17,7 +17,7 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import AccessToken
 from datetime import timedelta
-
+from rest_framework.decorators import api_view, permission_classes
 # 42 API Authorization URL
 INTRA_42_AUTH_URL = settings.INTRA_42_AUTH_URL
 
@@ -108,7 +108,7 @@ class LoginView(APIView):
                 refresh = RefreshToken.for_user(user)
                 access_token = str(refresh.access_token)
                 refresh_token = str(refresh)
-                response= Response(status=status.HTTP_200_OK)
+                response= Response(status=status.HTTP_200_OK,)
                 response.set_cookie(
                  key='access_token',
                  value=str(refresh.access_token),
@@ -137,5 +137,23 @@ class ValidateTokenView(APIView):
             return Response({'valid': False, 'error': 'Invalid or expired access token'}, status=status.HTTP_401_UNAUTHORIZED)
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = CustomUser.objects.all()
+    authentication_classes = [SessionAuthentication]
     serializer_class = UserSerializer
+    def get_queryset(self):
+        return CustomUser.objects.all()
+
+class AuthenticatedUser(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        user_data = {
+            "username": user.username,
+            "email": user.email,
+            "full_name": getattr(user, 'full_name', 'N/A'),
+            # "tournament_name": getattr(user, 'tournament_name', 'N/A'),
+            # "tournament_score": getattr(user, 'tournament_score', 0),
+            "avatar_url": getattr(user, 'avatar_url', 'N/A'),
+        }
+        return Response(user_data, status=status.HTTP_200_OK)

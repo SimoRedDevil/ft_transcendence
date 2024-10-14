@@ -7,6 +7,19 @@ class CustomUser(BaseUser):
     tournament_name = models.CharField(max_length=50, blank=True, null=True)
     tournament_score = models.IntegerField(default=0)
     avatar_url = models.URLField(blank=True, null=True)
+    # level = models.IntegerField(default=0)
+    # matches = models.IntegerField(default=0)
+    # wins = models.IntegerField(default=0)
+    # losses = models.IntegerField(default=0)
+    # profile_visited = models.IntegerField(default=0)
+    # friends_count = models.IntegerField(default=0)
+    # top_score = models.IntegerField(default=0)
+    # tournaments = models.IntegerField(default=0)
+    # online_matches = models.IntegerField(default=0)
+    # offline_matches = models.IntegerField(default=0)
+    # current_xp = models.IntegerField(default=0)
+    # target_xp = models.IntegerField(default=0)
+    # online = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'full_name']  # Specify any additional required fields

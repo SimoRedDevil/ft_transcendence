@@ -7,8 +7,7 @@ import Sidebar from '../components/Sidebar'
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import { useState } from 'react';
-
+import {UserProvider} from '../components/context/usercontext';
 
 export default function RootLayout({
     children,
@@ -48,7 +47,6 @@ export default function RootLayout({
           router.push('/login');
         }
       } else {
-        // Token invalid or fetch failed, handle silently
         router.push('/login');
       }
     };
@@ -79,7 +77,9 @@ export default function RootLayout({
               </div>
             )}
               <div className='h-[calc(100%_-_100px)] w-full'>
+                <UserProvider>
                 {children}
+                </UserProvider>
               </div>
             </div>
           </div>

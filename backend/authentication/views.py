@@ -18,6 +18,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import AccessToken
 from datetime import timedelta
 from rest_framework.decorators import api_view, permission_classes
+from django.forms.models import model_to_dict
 # 42 API Authorization URL
 INTRA_42_AUTH_URL = settings.INTRA_42_AUTH_URL
 
@@ -148,12 +149,8 @@ class AuthenticatedUser(APIView):
 
     def get(self, request):
         user = request.user
-        user_data = {
-            "username": user.username,
-            "email": user.email,
-            "full_name": getattr(user, 'full_name', 'N/A'),
-            # "tournament_name": getattr(user, 'tournament_name', 'N/A'),
-            # "tournament_score": getattr(user, 'tournament_score', 0),
-            "avatar_url": getattr(user, 'avatar_url', 'N/A'),
-        }
+        user_data = model_to_dict(user)
+        fields_to_remove = ['password', 'groups', 'user_permissions']
+        for field in fields_to_remove:
+            user_data.pop(field, None)
         return Response(user_data, status=status.HTTP_200_OK)

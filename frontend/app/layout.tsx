@@ -38,12 +38,12 @@ export default function RootLayout({
     }
     }
 
-    useEffect(() => {
-      validateToken();
-      if (!valid) {
-        router.push('/login');
-      }
-    }, []);
+    // useEffect(() => {
+    //   validateToken();
+    //   if (!valid) {
+    //     router.push('/login');
+    //   }
+    // }, []);
     return (
       <html lang="en">
         <head>

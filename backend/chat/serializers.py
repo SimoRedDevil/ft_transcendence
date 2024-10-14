@@ -3,10 +3,11 @@ from .models import conversation, message
 from authentication.serializers import UserSerializer
 
 class ConversationSerializer(serializers.ModelSerializer):
-    receiver_info = UserSerializer(source='user2_id', read_only=True)
+    user1_info = UserSerializer(source='user1_id', read_only=True)
+    user2_info = UserSerializer(source='user2_id', read_only=True)
     class Meta:
         model = conversation
-        fields = ['id', 'user1_id', 'creation_time', 'last_message', 'receiver_info']
+        fields = ['id', 'user1_info', 'creation_time', 'last_message', 'user2_info']
 
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:

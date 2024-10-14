@@ -38,13 +38,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if user.is_anonymous or not user.is_authenticated:
             await self.close()
         else:
+
             self.user = user
             self.room_group_name = f'chat_{user.username}'
             await self.channel_layer.group_add(
                 self.room_group_name,
                 self.channel_name
             )
-            await self.accept()
+        await self.accept()
 
     async def disconnect(self, close_code):
         print("disconnected\n")
@@ -57,7 +58,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'sent_by_user': info['sent_by_user'],
                 'message': info['message']
             }
-        ) 
+        )
 
     async def receive(self, text_data):
         data = json.loads(text_data)

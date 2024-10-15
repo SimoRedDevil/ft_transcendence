@@ -6,7 +6,7 @@ import axios from 'axios';
 const UserContext = createContext(null);
 
 export const UserProvider = ({ children }) => {
-    const [users, setUsers] = useState([null]);
+    const [users, setUsers] = useState(null); // Set to null initially
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -32,7 +32,7 @@ export const UserProvider = ({ children }) => {
     }, []);
 
     return (
-        <UserContext.Provider value={{ users, loading, error }}>
+        <UserContext.Provider value={{ users, loading, error, fetchUsers }}> {/* Expose fetchUsers */}
             {children}
         </UserContext.Provider>
     );
@@ -41,7 +41,7 @@ export const UserProvider = ({ children }) => {
 export const useUserContext = () => {
     const context = useContext(UserContext);
     if (context === null) {
-       
+        throw new Error('useUserContext must be used within a UserProvider'); // Handle null context
     }
     return context;
 };

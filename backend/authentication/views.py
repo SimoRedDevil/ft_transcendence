@@ -182,11 +182,11 @@ class EnableTwoFactorView(APIView):
         user = request.user
 
         key, otp, qrcode_path = twofactorAuth(user.username)
+        user.enabeld_2fa = True
         user.twofa_secret = key
         user.save()
-        qrcode_url = urljoin(settings.MEDIA_URL, qrcode_path)
-        enabeld_2fa = True
-        return Response({'qrcode_url': qrcode_url}, status=status.HTTP_200_OK)
+        user.qrcode_path = urljoin(settings.MEDIA_URL, qrcode_path)
+        return Response({'qrcode_url': user.qrcode_path}, status=status.HTTP_200_OK)
 
 class VerifyTwoFactorView(APIView):
     authentication_classes = [SessionAuthentication]
@@ -226,13 +226,5 @@ class GetQRCodeView(APIView):
 
     def get(self, request):
         user = request.user
-
-        # Generate the key, OTP, and QR code path using your utility function
-        key, otp, qrcode_path = twofactorAuth(user.username)
-        user.twofa_secret = key
-        user.save()
-
-        # Generate the QR code URL (if using MEDIA_URL)
-        qrcode_url = f"{settings.MEDIA_URL}{qrcode_path}"
-
-        return Response({'qrcode_url': qrcode_url}, status=status.HTTP_200_OK)
+        EnableTwoFactorView().post(request)
+        return Response({'qrcode_url': user.qrcode_path}, status=status.HTTP_200_OK)

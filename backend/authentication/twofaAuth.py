@@ -14,7 +14,7 @@ def twofactorAuth(username):
     qrcode_dir = "/app/authentication/qrcodes"
     if not os.path.exists(qrcode_dir):
         os.makedirs(qrcode_dir)
-    qrcode_path = os.path.join(qrcode_dir, f'{username}_qrcode.png')
+    qrcode_path = os.path.join(qrcode_dir, f'{username}.png')
     qrcode.make(url).save(qrcode_path)
     otp = totp.now()
     return key, otp, qrcode_path

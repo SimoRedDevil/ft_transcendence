@@ -119,6 +119,7 @@ class LoginView(APIView):
                  value=str(refresh.access_token),
                  httponly=True,  # More secure as it prevents JavaScript access
                  secure=True,  # Use it in production with HTTPS
+                 max_age=3600,  # Set the max age of the cookie
                  )
                 return response
             else:
@@ -184,7 +185,7 @@ class EnableTwoFactorView(APIView):
         user.twofa_secret = key
         user.save()
         qrcode_url = urljoin(settings.MEDIA_URL, qrcode_path)
-
+        enabeld_2fa = True
         return Response({'qrcode_url': qrcode_url}, status=status.HTTP_200_OK)
 
 class VerifyTwoFactorView(APIView):

@@ -2,57 +2,65 @@ import React from "react";
 import { GrKey } from "react-icons/gr";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { UserProvider, useUserContext} from '../components/context/usercontext';
 
 export default function Security() {
 
   // const [qrcodeUrl, setQrcodeUrl] = useState(null);
-  // const [loading, setLoading] = useState(false);
-  // const [error, setError] = useState(null);
 
+  // // Fetch cookies (including access_token)
   // const getCookies = async () => {
   //   try {
   //     const response = await axios.get('http://localhost:8000/api/auth/cookies/', {
-  //       withCredentials: true,
+  //       withCredentials: true, // Ensure cookies are included in the request
   //     });
-  //     return response.data; // Return the cookies data
+  //     return response.data; // Assuming the response contains cookies in response.data
   //   } catch (error) {
   //     console.error("Error getting cookies:", error);
   //     return null; // Return null if there's an error
   //   }
   // };
-
-  // const enableTwoFactorAuth = async () => {
-  //   setLoading(true);
-  //   setError(null);
-
+  
+  // // Enable 2FA with the access_token retrieved from cookies
+  // const enable2FA = async () => {
+  //   const cookies = (await getCookies()).cookies;
+  //   const accessToken = cookies?.access_token?.trim();
+  //   if (!cookies || !cookies.access_token) {
+  //     console.error("Access token not found in cookies");
+  //     return;
+  //   }
   //   try {
-  //     // Call the enable 2FA endpoint
-  //     const cookies = await getCookies(); // Get the cookies
   //     const response = await axios.post(
   //       'http://localhost:8000/api/auth/enable-2fa/',
   //       {},
   //       {
   //         headers: {
-  //           Authorization: `Bearer ${cookies.access_token}`,
+  //           Authorization: `Bearer ${accessToken}`, // Use the access token from cookies
   //         },
-  //         withCredentials: true,
+  //         withCredentials: true, // Ensure credentials are sent
   //       }
   //     );
-
-  //     setQrcodeUrl(response.data.qrcode_url); // Set the QR code URL from the response
-  //   } catch (err) {
-  //     console.error('Error enabling 2FA:', err);
-  //     setError('Failed to enable Two-Factor Authentication');
-  //   } finally {
-  //     setLoading(false);
+  //     setQrcodeUrl(response.data.qrcode_url); // Store the QR code URL
+  //   } catch (error) {
+  //     console.error("Error enabling 2FA:", error);
   //   }
   // };
-
+  
+  // // Run the 2FA enabling on component mount
   // useEffect(() => {
-  //   enableTwoFactorAuth();
+  //   enable2FA();
   // }, []);
-
+  
+  const { users, loading, error } = useUserContext();
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+  const username = users && users.username.length > 0 ? users.username : 'default_username';
   return (
+    <UserProvider>
     <div
       className="text-white w-full h-full flex items-center laptop:justify-center flex-col
         overflow-y-auto no-scrollbar overflow-x-hidden tablet:mb-3 laptop:flex-row
@@ -128,9 +136,7 @@ export default function Security() {
                 "
             >
               <h1
-                className="text-[22px] text-center 
-                  "
-              >
+                className="text-[22px] text-center">
                 Submit
               </h1>
             </button>
@@ -151,7 +157,8 @@ export default function Security() {
                     less-than-tablet:mb-3
                     rounded-[30px]
                     "
-                src="http://localhost:8000/qrcodes/aben_qrcode.png/"
+                src={`http://localhost:8000/qrcodes/${username}.png
+                `} alt="2fa QR Code"
             />
             <div className="laptop:w-1/2 h-[300px] flex flex-col mx-3 justify-center ">
               <p
@@ -196,8 +203,8 @@ export default function Security() {
             >
               <button
                 className="rounded-[50px] border-[0.5px] border-white border-opacity-40 desktop:h-[80px] w-[556px] bg-gradient-to-r from-[#1A1F26]/90 to-[#000]/70
-        less-than-tablet:w-[85%] less-than-tablet:mb-3 laptop:h-[50px] laptop:my-0 tablet:h-[50px] 
-        less-than-tablet:h-[50px] tablet:w-[75%] tablet:mb-5">
+                            less-than-tablet:w-[85%] less-than-tablet:mb-3 laptop:h-[50px] laptop:my-0 tablet:h-[50px] 
+                            less-than-tablet:h-[50px] tablet:w-[75%] tablet:mb-5">
                 <h1 className="text-[22px] text-center">Enable 2FA</h1>
               </button>
             </div>
@@ -205,5 +212,6 @@ export default function Security() {
         </div>
       </div>
     </div>
+    </UserProvider>
   );
 }

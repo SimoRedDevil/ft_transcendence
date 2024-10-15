@@ -21,6 +21,7 @@ build:
 
 fclean:
 	rm -rf  database/*
+	rm -rf  redis/*
 	docker system prune -a -f
 	docker builder prune -a -f
 

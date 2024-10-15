@@ -35,8 +35,7 @@ export default function Table() {
                             pw: (Walls.wallsWidth/4) / Walls.wallsWidth ,
                             ph: (Walls.wallsHeight/40) / Walls.wallsHeight,
                             sp: 8 / Walls.wallsWidth,
-                            radi: 5 / Walls.wallsWidth,
-                            dirY: 9/ Walls.wallsHeight,
+                            dirY: 5/ Walls.wallsHeight,
                             Walls: Walls,
                             game_channel: game_channel};
         socketIsOpen = true;
@@ -66,7 +65,12 @@ export default function Table() {
           game_state['player1'] = data.player1;
           game_state['player2'] = data.player2;
         }
-        
+        if (data.type === 'game_over') {
+          console.log('Game Over');
+          console.log('Winner:', data.winner);
+          game_state = {};
+          game_channel = '';
+        }
       };
 
       socketRef.current.onclose = (event) => {

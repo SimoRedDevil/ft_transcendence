@@ -25,7 +25,6 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
       password,
     };
     try {
-      // Send the signin request using axios with a POST method
       const response = await axios.post("http://localhost:8000/api/auth/login/", body, {
         headers: {
           "Content-Type": "application/json",
@@ -35,14 +34,12 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
       const data = response.data;
   
       if (response.status === 200) {
-        // alert("Signin successful");
-        router.push("/game");
+        alert("Signin successful");
+        router.push("/");
       } else {
         alert(data.message || "Signin failed, please try again.");
       }
     } catch (error) {
-      // Handle any network errors
-      //console.error("Error during signin:", error.response ? error.response.data : error.message);
       alert("An error occurred. Please try again later.");
     }
   };  
@@ -56,14 +53,13 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
       handle42Callback(code)
         .then((data) => {
           alert('Successfully authenticated with 42!');
-          router.push('/game');
+          router.push('/');
         })
         .catch((error) => {
-          //console.error('Failed to authenticate:', error);
           alert('Failed to authenticate with 42, please try again.');
         });
     }
-  }, []); // Empty array ensures this runs only once
+  }, []);
 
 
   return (

@@ -1,7 +1,57 @@
 import React from "react";
 import { GrKey } from "react-icons/gr";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 export default function Security() {
+
+  // const [qrcodeUrl, setQrcodeUrl] = useState(null);
+  // const [loading, setLoading] = useState(false);
+  // const [error, setError] = useState(null);
+
+  // const getCookies = async () => {
+  //   try {
+  //     const response = await axios.get('http://localhost:8000/api/auth/cookies/', {
+  //       withCredentials: true,
+  //     });
+  //     return response.data; // Return the cookies data
+  //   } catch (error) {
+  //     console.error("Error getting cookies:", error);
+  //     return null; // Return null if there's an error
+  //   }
+  // };
+
+  // const enableTwoFactorAuth = async () => {
+  //   setLoading(true);
+  //   setError(null);
+
+  //   try {
+  //     // Call the enable 2FA endpoint
+  //     const cookies = await getCookies(); // Get the cookies
+  //     const response = await axios.post(
+  //       'http://localhost:8000/api/auth/enable-2fa/',
+  //       {},
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${cookies.access_token}`,
+  //         },
+  //         withCredentials: true,
+  //       }
+  //     );
+
+  //     setQrcodeUrl(response.data.qrcode_url); // Set the QR code URL from the response
+  //   } catch (err) {
+  //     console.error('Error enabling 2FA:', err);
+  //     setError('Failed to enable Two-Factor Authentication');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   enableTwoFactorAuth();
+  // }, []);
+
   return (
     <div
       className="text-white w-full h-full flex items-center laptop:justify-center flex-col
@@ -101,7 +151,7 @@ export default function Security() {
                     less-than-tablet:mb-3
                     rounded-[30px]
                     "
-              src="/images/qrcode.png "
+                src="http://localhost:8000/qrcodes/aben_qrcode.png/"
             />
             <div className="laptop:w-1/2 h-[300px] flex flex-col mx-3 justify-center ">
               <p

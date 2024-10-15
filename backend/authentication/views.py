@@ -19,7 +19,11 @@ from rest_framework_simplejwt.tokens import AccessToken
 from datetime import timedelta
 from rest_framework.decorators import api_view, permission_classes
 from django.forms.models import model_to_dict
-# 42 API Authorization URL
+from authentication.twofaAuth import twofactorAuth
+import pyotp
+from django.http import HttpResponse
+from urllib.parse import urljoin
+
 INTRA_42_AUTH_URL = settings.INTRA_42_AUTH_URL
 
 def intra_42_login(request):
@@ -109,7 +113,7 @@ class LoginView(APIView):
                 refresh = RefreshToken.for_user(user)
                 access_token = str(refresh.access_token)
                 refresh_token = str(refresh)
-                response= Response(status=status.HTTP_200_OK,)
+                response= Response(status=status.HTTP_200_OK)
                 response.set_cookie(
                  key='access_token',
                  value=str(refresh.access_token),
@@ -127,7 +131,7 @@ class ValidateTokenView(APIView):
         access_token = request.COOKIES.get('access_token')
 
         if not access_token:
-            return Response({'error': 'Access token not found in cookies'}, status=401)
+            return Response({'error': 'Access token not found in cookies'}, status=status.HTTP_401_UNAUTHORIZED)
 
         try:
             # Validate the access token
@@ -150,7 +154,84 @@ class AuthenticatedUser(APIView):
     def get(self, request):
         user = request.user
         user_data = model_to_dict(user)
-        fields_to_remove = ['password', 'groups', 'user_permissions']
+        fields_to_remove = ['password', 'groups', 'user_permissions', 'twofa_secret']
         for field in fields_to_remove:
             user_data.pop(field, None)
         return Response(user_data, status=status.HTTP_200_OK)
+
+# class logout(APIView):
+#     def get(self, request):
+#         response = Response()
+#         response.delete_cookie('access_token')
+#         return response
+
+class EnableTwoFactorView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    # def get(self, request):
+    #     user = request.user
+
+    #     key, otp = twofactorAuth(user.username)
+    #     user.twofa_secret = key
+    #     user.save()
+    #     return HttpResponse(f"Generated OTP: {otp} | Key: {key}", content_type="text/plain")
+
+    def post(self, request):
+        user = request.user
+
+        key, otp, qrcode_path = twofactorAuth(user.username)
+        user.twofa_secret = key
+        user.save()
+        qrcode_url = urljoin(settings.MEDIA_URL, qrcode_path)
+
+        return Response({'qrcode_url': qrcode_url}, status=status.HTTP_200_OK)
+
+class VerifyTwoFactorView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        user_code = request.data.get('code')
+
+        if not user.twofa_secret:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        totp = pyotp.TOTP(user.twofa_secret)
+
+        if totp.verify(user_code):
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+class GetCookies(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Access cookies from the request
+        cookies = request.COOKIES
+
+        # You can format the cookies as needed
+        cookie_data = {key: value for key, value in cookies.items()}
+
+        return Response({'cookies': cookie_data}, status=200)
+
+
+class GetQRCodeView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        # Generate the key, OTP, and QR code path using your utility function
+        key, otp, qrcode_path = twofactorAuth(user.username)
+        user.twofa_secret = key
+        user.save()
+
+        # Generate the QR code URL (if using MEDIA_URL)
+        qrcode_url = f"{settings.MEDIA_URL}{qrcode_path}"
+
+        return Response({'qrcode_url': qrcode_url}, status=status.HTTP_200_OK)

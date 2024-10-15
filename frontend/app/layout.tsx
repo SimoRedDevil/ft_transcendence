@@ -24,15 +24,11 @@ export default function RootLayout({
         return response;
       } catch (error) {
         if (error.response && error.response.status === 401) {
-          // Handle unauthorized errors silently
-          return null; // or handle it differently
+          return null;
         }
-        // For other types of errors, suppress them
-        return null; // Return null or appropriate response
+        return null;
       }
     };
-    
-    // Usage
     const validateToken = async () => {
       const response = await silentFetch('http://localhost:8000/api/auth/token/', {
         withCredentials: true,
@@ -40,17 +36,16 @@ export default function RootLayout({
           'Content-Type': 'application/json',
         },
       });
-    
       if (response) {
-    
         if (!response.data.valid) {
           router.push('/login');
+        }else if(response.data.valid && pathname === '/login'){
+          router.push('/');
         }
       } else {
         router.push('/login');
       }
     };
-    
     useEffect(() => {
       validateToken();
     }, []);

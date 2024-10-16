@@ -6,3 +6,4 @@ database/*
 backend/game/migrations
 new_env/*
 node_modules
+redis 

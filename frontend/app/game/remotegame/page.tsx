@@ -22,9 +22,9 @@ export default function Game() {
                             md:border md:border-white md:border-opacity-30 md:space-y-[30px]
                              md:bg-black md:bg-opacity-20
                             md:rounded-[50px]">
-                        <Player1 image="/images/sara.png"/> 
+                        <Player1 image="/images/sara.png" name="@aaghbal" gameStarted={true} /> 
                         <Table />
-                        <Player2 image="/images/abdellah.png"/>
+                        <Player2 image="/images/abdellah.png" name="@mel-yous" gameStarted={true} />
             </div>
         </div>
     );

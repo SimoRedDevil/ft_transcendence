@@ -88,25 +88,28 @@ class Game(AsyncWebsocketConsumer):
             }))
             await self.matchmaking(data)
         if data['type'] == 'move':
-            if data['direction'] == 'right':
-                if (self.games[data['game_channel']][self.player['player_id']].x + self.games[data['game_channel']][self.player['player_id']].width + self.games[data['game_channel']][self.player['player_id']].speed > 1):
-                    self.games[data['game_channel']][self.player['player_id']].x = 1 - self.games[data['game_channel']][self.player['player_id']].width
-                else:
-                    self.games[data['game_channel']][self.player['player_id']].x += self.games[data['game_channel']][self.player['player_id']].speed
-            if data['direction'] == 'left':
-                if self.games[data['game_channel']][self.player['player_id']].x - self.games[data['game_channel']][self.player['player_id']].speed > 0:
-                    self.games[data['game_channel']][self.player['player_id']].x -= self.games[data['game_channel']][self.player['player_id']].speed
-                else:
-                    self.games[data['game_channel']][self.player['player_id']].x = 0
-            
-            await self.channel_layer.group_send(
-                data['game_channel'],
-                {
-                    'type': 'paddle_update',
-                    'paddle': self.games[data['game_channel']][self.player['player_id']].to_dict(),
-                    'playernumber': self.games[data['game_channel']][self.player['player_id']].playerNu
-                }
-            )
+            game_channel = data.get('game_channel')
+            player_id = self.player.get('player_id')
+            if game_channel in self.games and player_id in self.games[game_channel]:
+                if data['direction'] == 'right':
+                    if (self.games[game_channel][player_id].x + self.games[game_channel][player_id].width + self.games[game_channel][player_id].speed > 1):
+                        self.games[game_channel][player_id].x = 1 - self.games[game_channel][player_id].width
+                    else:
+                        self.games[game_channel][player_id].x += self.games[game_channel][player_id].speed
+                if data['direction'] == 'left':
+                    if self.games[game_channel][player_id].x - self.games[game_channel][player_id].speed > 0:
+                        self.games[game_channel][player_id].x -= self.games[game_channel][player_id].speed
+                    else:
+                        self.games[game_channel][player_id].x = 0
+                
+                await self.channel_layer.group_send(
+                    game_channel,
+                    {
+                        'type': 'paddle_update',
+                        'paddle': self.games[game_channel][player_id].to_dict(),
+                        'playernumber': self.games[game_channel][player_id].playerNu
+                    }
+                )
     
         if data['type'] == 'update_ball':
             self.Ball.x += self.Ball.directionX
@@ -190,6 +193,7 @@ class Game(AsyncWebsocketConsumer):
         ball.directionX = ball.speed * math.sin(angle)
         
     async def update_ball_loop(self, game_channel):
+        await asyncio.sleep(3)
         while True:
             self.games[game_channel]['ball'].x += self.games[game_channel]['ball'].directionX
             self.games[game_channel]['ball'].y += self.games[game_channel]['ball'].directionY
@@ -224,6 +228,7 @@ class Game(AsyncWebsocketConsumer):
                 if self.games[game_channel]['player2'].score == 6:
                     winer = self.games[game_channel]['player2']
                     loser = self.games[game_channel]['player1']
+                    Tscore = winer.score - loser.score
                     await self.gameOver(game_channel, winer.username, loser.username, winer.chan_name, loser.chan_name, Tscore)
                     break
             await self.channel_layer.group_send(

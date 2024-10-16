@@ -5,6 +5,7 @@ import { movePaddle } from './PaddleRemote';
 import p5 from 'p5';
 import { player , ball } from './Object';
 import { walls } from './Object';
+import { countdown } from './ScoreRemote';
 
 
 
@@ -20,6 +21,9 @@ let gameIsStarted = false;
 export default function Table() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const socketRef = useRef<WebSocket | null>(null);
+  let count = 3; 
+  let startTime = 0;
+  let Duration = 1000;
 
   
   useEffect(() => {
@@ -38,7 +42,6 @@ export default function Table() {
                             dirY: 5/ Walls.wallsHeight,
                             Walls: Walls,
                             game_channel: game_channel};
-        socketIsOpen = true;
         socketRef.current.send(JSON.stringify({ type: 'connection', data: firtsData }));
       };
 
@@ -51,8 +54,7 @@ export default function Table() {
         if (data.type === 'start_game') {
           game_state = data.game_serialized;
           game_channel = data.game_channel;
-          console.log('game_state', game_state);
-          console.log('game_channel', game_channel);
+          socketIsOpen = true;
         }
         if (data.type === 'paddle_update') {
           if (data.playernumber === 1)
@@ -86,6 +88,7 @@ export default function Table() {
         sketch.setup = () => {
           if (canvasRef.current) {
             sketch.createCanvas(canvasRef.current.clientWidth, canvasRef.current.clientHeight);
+            startTime = sketch.millis();
           }
         };
 
@@ -93,6 +96,40 @@ export default function Table() {
         sketch.draw = () => {
           sketch.resizeCanvas(canvasRef.current.clientWidth, canvasRef.current.clientHeight);
           sketch.background("#0B4464");
+          if (socketIsOpen) {
+            if (!gameIsStarted) {
+                const elapsedTime = sketch.millis() - startTime;
+
+                if (elapsedTime >= Duration) {
+                    count -= 1;
+                    startTime = sketch.millis();
+
+                    if (count <= 0) {
+                        gameIsStarted = true;
+                        socketIsOpen = false;
+                    }
+                }
+
+                countdown(sketch, Walls, count);
+                return;
+            }
+              movePaddle(sketch, playerInfo, game_channel, socketRef.current);
+              if (game_state['player1'] && game_state['player2'])
+                tableDraw(sketch, game_state ,Walls, playerInfo);
+            const elapsedTime = sketch.millis() - startTime;
+
+            if (elapsedTime >= Duration) {
+                count -= 1;
+                startTime = sketch.millis();
+
+                if (count <= 0) {
+                    gameIsStarted = true;
+                }
+            }
+
+            countdown(sketch, Walls, count);
+            return;
+        }
           movePaddle(sketch, playerInfo, game_channel, socketRef.current);
           if (game_state['player1'] && game_state['player2'])
             tableDraw(sketch, game_state ,Walls, playerInfo);

@@ -19,16 +19,16 @@ export default function passwordHelper(
         <input value={password}
          onChange={(e) => setPassword(e.target.value)}
         type={showPassword ? "text" : "password"} className=" border-b-[1px] border-[#949DA2] mb-4 h-[34px] w-full
-        focus:outline-none bg-[#131E24] password-circles 
+        focus:outline-none bg-[#131E24] password-circles pr-6
         " />
         <button
                 type="button"
                 onClick={togglePasswordVisibility}
-                className="absolute right-0.5 text-[#949DA2] focus:outline-none">
+                className="absolute right-0.5 text-[#949DA2] focus:outline-none top-1">
                 {showPassword ? (
                     <FaEyeSlash className="text-[#949DA2]" />
                 ) : (
-                    <FaEye className="text-[#949DA2]" />
+                    <FaEye className="text-[#949DA2] " />
                 )}
             </button>
         </div>

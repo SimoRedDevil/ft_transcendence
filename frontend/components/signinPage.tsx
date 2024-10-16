@@ -162,9 +162,9 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
               <div className="relative flex">
                 <input value={email} onChange={(e) => setEmail(e.target.value)}
                   type="email"
-                  className="border-b-[1px] border-[#949DA2] mb-7 h-[34px] w-full focus:outline-none bg-[#131E24]"
+                  className="border-b-[1px] border-[#949DA2] mb-7 h-[34px] w-full focus:outline-none bg-[#131E24] pr-6"
                 />
-                <FaEnvelope className="absolute right-0.5 text-[#949DA2]" />
+                <FaEnvelope className="absolute right-0.5 text-[#949DA2] top-1" />
               </div>
             </div>
             <PasswordHelper setPassword={setPassword} password={password}/>

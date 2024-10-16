@@ -7,14 +7,18 @@ import { BsFillSendFill } from "react-icons/bs";
 import { MdEmojiEmotions } from "react-icons/md";
 import EmojiPicker from 'emoji-picker-react';
 import { useState } from 'react';
+import { useEffect } from 'react';
+import axios from 'axios';
 
 type ChatProps = {
-  data: any
+  conversationID: any
 }
 
-function Chat() {
+function Chat({conversationID}: ChatProps) {
   const [showEmoji, setShowEmoji] = useState(false)
   const [input, setInput] = useState('')
+  const [messages, setMessages] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   const handleEmoji = () => {
     setShowEmoji(!showEmoji)
@@ -24,19 +28,45 @@ function Chat() {
     setInput((prevInput) => prevInput + emojiObject.emoji)
   }
 
+  const fetchMessages = async (conversationID) => {
+    try {
+      const response = await axios.get('http://localhost:8000/api/chat/messages/', {
+          withCredentials: true,
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          params: {
+            conversation_id: conversationID
+          }
+      });
+      setMessages(response.data)
+      console.log(response.data)
+      setIsLoading(false)
+    } catch (error) {
+      setIsLoading(false)
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchMessages(conversationID)
+  }, [conversationID])
+
+  if (isLoading) return <div></div>;
+
   return (
     <div className='lg:w-[calc(100%_-_400px)] 2xl:w-[calc(100%_-_550px)] hidden lg:flex'>
       <div className='flex items-center'>
         <hr className='border border-white h-[90%] border-opacity-30'></hr>
       </div>
-      {/* <div className='w-full flex flex-col'>
+      <div className='w-full flex flex-col'>
         <div className='flex p-[20px] justify-between'>
           <div className='flex flex-row gap-3'>
-            <div className='rounded-full h-[60px] w-[60px]'>
-              <Image className='rounded-full' src={data[0].image} width={60} height={60} alt='avatar'/>
+            <div className='rounded-full h-[60px] w-[60px] bg-red-700'>
+              {/* <Image className='rounded-full' src={data[0].image} width={60} height={60} alt='avatar'/> */}
             </div>
             <div className='flex flex-col'>
-              <span className='text-[1rem]'>{data[0].name}</span>
+              <span className='text-[1rem]'>{messages[0].receiver_info.full_name}</span>
               <span className='text-[0.9rem] text-white text-opacity-65'>Active now</span>
             </div>
           </div>
@@ -51,8 +81,16 @@ function Chat() {
         </div>
         <div className='p-[20px] h-full w-full flex flex-col justify-between items-center'>
           <div className='w-full h-[calc(100%_-_120px)] relative'>
-            <div className='h-full'>
-              message
+            <div className='h-full border'>
+              {
+                messages.map((message) => (
+                    <div key={message.id} className='flex flex-col gap-20'>
+                        <div className='border'>
+                            <span className='text-white text-opacity-60 text-[0.9rem]'>{message.content}</span>
+                        </div>
+                    </div>
+                ))
+              }
             </div>
             <div className={(showEmoji) ? 'flex absolute top-[calc(100%_-_430px)] left-[calc(100%_-_400px)] overflow-hidden' : 'hidden'}>
               <EmojiPicker onEmojiClick={handleEmojiClick} width={400} theme='dark' emojiStyle='google' searchDisabled={false} lazyLoadEmojis={true}/>
@@ -70,7 +108,7 @@ function Chat() {
             </div>
           </div>
         </div>
-      </div> */}
+      </div>
     </div>
   )
 }

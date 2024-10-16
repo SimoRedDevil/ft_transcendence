@@ -5,9 +5,12 @@ import { axiosInstance } from '../../utils/axiosInstance';
 import { cookies } from 'next/headers';
 import axios from 'axios'
 
-function Conversations() {
+type ConversationProps = {
+  receivedMsg: any,
+}
+
+function Conversations({setSelectedConversation}) {
   const [conversations, setConversations] = useState(null)
-  const [messages, setMessages] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
 
   const fetchConversations = async () => {
@@ -24,30 +27,12 @@ function Conversations() {
     }
   }
 
-  const fetchMessages = async (conversationID) => {
-    try {
-      const response = await axios.get('http://localhost:8000/api/chat/messages/', {
-          withCredentials: true,
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          params: {
-            conversation_id: conversationID
-          }
-      });
-      setMessages(response.data)
-      console.log(response.data)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
   useEffect(() => {
     fetchConversations()
   }, [])
 
   function handleConversationClick(conversationID) {
-      fetchMessages(conversationID)
+      setSelectedConversation(conversationID)
   }
 
   return (

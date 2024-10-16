@@ -61,6 +61,20 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
     }
   }, []);
 
+  const handleEnterPress = (event) => {
+    if (event.key === 'Enter') {
+      handleSignin(event);
+    }
+  };
+
+  
+  useEffect(() => {
+    window.addEventListener('keydown', handleEnterPress);
+    return () => {
+      window.removeEventListener('keydown', handleEnterPress);
+  };
+}
+, [email, password]);
 
   return (
     <motion.form onSubmit={(e) => e.preventDefault()} 

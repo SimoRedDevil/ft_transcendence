@@ -1,9 +1,8 @@
 'use client';
-import React from "react";
 import { FaEnvelope, FaUserAlt } from "react-icons/fa";
 import PasswordHelper from "./passwordHelper";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 interface SignupPageProps {
   onNavigate?: () => void;
@@ -48,9 +47,22 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
       alert("An error occurred. Please try again later.");
     }
   };
-  
+
+  const handleEnterPress = (event) => {
+    if (event.key === 'Enter') {
+      handleSignup(event);
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleEnterPress);
+    return () => {
+      window.removeEventListener('keydown', handleEnterPress);
+    };
+  }, [full_name, username, email, password]);
+
     return (
-    <motion.form onSubmit={handleSignup}
+    <motion.form onSubmit={(e) => e.preventDefault()} 
     className="flex flex-col items-center justify-center h-screen w-screen overflow-auto fixed">
       <div className="flex items-center justify-center h-full w-full laptop:w-[850px] tablet:w-[620px] tablet:h-[770px] desktop:h-[750px]
        desktop:w-[950px] mobile:w-[500px] mobile:h-[680px] laptop:h-[770px] less-than-mobile:h-[680px] less-than-mobile:w-[500px]  fixed overflow-auto
@@ -136,7 +148,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
               </div>
             </div>
             <PasswordHelper setPassword={setPassword} password={password}/>
-            <button type="submit"
+            <button type="submit" onClick={handleSignup}
              className="text-md  bg-[#293B45] w-10/12 h-[50px] mt-[20px] rounded-custom-Radius
              border-gray-500 border less-than-mobile:h-[40px] less-than-mobile:mt-[10px]
              less-than-tablet:h-[40px] less-than-tablet:mt-[10px]">

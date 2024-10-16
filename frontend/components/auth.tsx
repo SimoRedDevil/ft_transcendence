@@ -11,16 +11,15 @@ export const handle42Callback = async (code) => {
 
     // Access the response data
     const data = response.data;
-    console.log('Authentication successful:', data);
     return data; // This should include the tokens and user info
   } catch (error) {
     // Enhanced error logging
     if (error.response) {
-      console.error('Server responded with an error:', error.response.data);
+      //console.error('Server responded with an error:', error.response.data);
     } else if (error.request) {
-      console.error('No response received from server:', error.request);
+      //console.error('No response received from server:', error.request);
     } else {
-      console.error('Error during request setup:', error.message);
+      //console.error('Error during request setup:', error.message);
     }
     throw error;
   }

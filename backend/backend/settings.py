@@ -12,11 +12,16 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Adjust this if needed for other media files
 
-
+# Add a MEDIA_ROOT for qrcodes
+QRCODE_URL = '/qrcodes/'
+QRCODE_ROOT = os.path.join(BASE_DIR, 'authentication/qrcodes')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -49,10 +54,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'authentication',
     'allauth',
-    'allauth.socialaccount',
-    'allauth.account',
-    'authentication.providers.fortytwo',  # Your provider app
-    'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.oauth2',
     'rest_framework_simplejwt',
 ]
@@ -92,20 +93,7 @@ SOCIALACCOUNT_PROVIDERS = {
         'PROFILE_URL': 'https://api.intra.42.fr/v2/me',  # For getting user data
         'REDIRECT_URI': 'http://localhost:8000/accounts/42/callback/',
     },
-    'google': {
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
-        }
-    }
 }
-
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '386950283719-41fur79opnie0henf8sjbs3cgp22rcg4.apps.googleusercontent.com'  # Your Client ID
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'  # Your Secret Key
-
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
@@ -120,7 +108,7 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'authentication.CustomUser'
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),  # Short lifetime for access token
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=50),  # Short lifetime for access token
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),    # Longer lifetime for refresh token
     'ROTATE_REFRESH_TOKENS': True,                 # Rotate refresh tokens on refresh
     'BLACKLIST_AFTER_ROTATION': True,              # Blacklist old tokens
@@ -146,6 +134,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'backend.urls'
+
+
 
 TEMPLATES = [
     {

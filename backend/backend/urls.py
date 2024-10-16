@@ -16,12 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-# from allauth.socialaccount import urls as socialaccount_urls
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('authentication.urls')),
-    # path('accounts/', include('allauth.urls')),
     path('api/chat/', include('chat.urls')),
-    # path('accounts/42/', include(socialaccount_urls)),  # This line includes allauth URLs for 42
-]
+]+ static(settings.QRCODE_URL, document_root=settings.QRCODE_ROOT)

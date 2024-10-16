@@ -7,8 +7,7 @@ import Sidebar from '../components/Sidebar'
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import { useState } from 'react';
-
+import {UserProvider} from '../components/context/usercontext';
 
 export default function RootLayout({
     children,
@@ -18,32 +17,39 @@ export default function RootLayout({
     const pathname = usePathname(); 
     const exclude = ['/login', '/']
     const router = useRouter();
-    const [valid, setIsValid] = useState(false);
 
-    const validateToken = async () => {
-
+    const silentFetch = async (url, options) => {
       try {
-        const response = await axios.get('http://localhost:8000/api/auth/token/', {
-            withCredentials: true,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-
-        setIsValid(response.data.valid);
-    } catch (error) {
-        console.log('Error validating token:', error.response ? error.response.data : error.message);
-        if (error.response) {
+        const response = await axios.get(url, options);
+        return response;
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          return null;
         }
-    }
-    }
-
-    // useEffect(() => {
-    //   validateToken();
-    //   if (!valid) {
-    //     router.push('/login');
-    //   }
-    // }, []);
+        return null;
+      }
+    };
+    const validateToken = async () => {
+      const response = await silentFetch('http://localhost:8000/api/auth/token/', {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (response) {
+        if (!response.data.valid) {
+          router.push('/login');
+        }else if(response.data.valid && pathname === '/login'){
+          router.push('/');
+        }
+      } else {
+        router.push('/login');
+      }
+    };
+    useEffect(() => {
+      validateToken();
+    }, []);
+  
     return (
       <html lang="en">
         <head>
@@ -66,7 +72,9 @@ export default function RootLayout({
               </div>
             )}
               <div className='h-[calc(100%_-_100px)] w-full'>
+                <UserProvider>
                 {children}
+                </UserProvider>
               </div>
             </div>
           </div>

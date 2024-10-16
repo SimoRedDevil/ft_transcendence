@@ -17,22 +17,13 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import AccessToken
 from datetime import timedelta
+from rest_framework.decorators import api_view, permission_classes
+from django.forms.models import model_to_dict
+from authentication.twofaAuth import twofactorAuth
+import pyotp
+from django.http import HttpResponse
+from urllib.parse import urljoin
 
-class ProtectedResourceView(APIView):
-    """
-    Example view that requires authentication.
-    """
-    authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        # The user is authenticated, return the protected resource
-        data = {
-            "message": "This is a protected resource."
-        }
-        return JsonResponse(data)
-
-# 42 API Authorization URL
 INTRA_42_AUTH_URL = settings.INTRA_42_AUTH_URL
 
 def intra_42_login(request):
@@ -43,14 +34,8 @@ def intra_42_login(request):
         f'{INTRA_42_AUTH_URL}?client_id={settings.INTRA_42_CLIENT_ID}&redirect_uri={settings.INTRA_42_REDIRECT_URI}&response_type=code'
     )
 
-@csrf_exempt
 def intra_42_callback(request):
-    """
-    Handle the callback from 42 Intra API after the user authorizes.
-    Exchanges the authorization code for an access token.
-    """
     code = request.GET.get('code')
-
     # Exchange the authorization code for an access token
     token_url = settings.INTRA_42_TOKEN_URL
     data = {
@@ -61,31 +46,29 @@ def intra_42_callback(request):
         'redirect_uri': settings.INTRA_42_REDIRECT_URI
     }
 
-    response = requests.post(token_url, data=data)
-
+    response = requests.post(token_url, data=data) # Send a POST request to the token URL
     if response.status_code == 200:
         # Successful token exchange
         tokens = response.json()
         access_token = tokens['access_token']
         refresh_token = tokens.get('refresh_token', None)
-
         # Use the access token to fetch user data from 42 API
         user_info = fetch_42_user_data(access_token)
-
-        # Handle user login/registration in your app, e.g., create a user session
-        return JsonResponse({
-            "message": "Login successful",
-            "access_token": access_token,
-            "refresh_token": refresh_token,
-            "user_info": user_info
-        })
+        # Create the response
+        response = JsonResponse({})
+        response.set_cookie(
+            key='access_token', 
+            value=access_token, 
+            httponly=True, 
+            secure=True,  # Use secure=True in production to ensure cookies are sent over HTTPS
+        )
+        return response
 
     else:
         # Error in token exchange
         return JsonResponse({
             "error": "Failed to exchange authorization code for access token."
         }, status=400)
-
 
 def fetch_42_user_data(access_token):
     """
@@ -136,6 +119,7 @@ class LoginView(APIView):
                  value=str(refresh.access_token),
                  httponly=True,  # More secure as it prevents JavaScript access
                  secure=True,  # Use it in production with HTTPS
+                 max_age=3600,  # Set the max age of the cookie
                  )
                 return response
             else:
@@ -148,7 +132,7 @@ class ValidateTokenView(APIView):
         access_token = request.COOKIES.get('access_token')
 
         if not access_token:
-            return Response({'error': 'Access token not found in cookies'}, status=401)
+            return Response({'error': 'Access token not found in cookies'}, status=status.HTTP_401_UNAUTHORIZED)
 
         try:
             # Validate the access token
@@ -159,5 +143,88 @@ class ValidateTokenView(APIView):
             return Response({'valid': False, 'error': 'Invalid or expired access token'}, status=status.HTTP_401_UNAUTHORIZED)
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = CustomUser.objects.all()
+    authentication_classes = [SessionAuthentication]
     serializer_class = UserSerializer
+    def get_queryset(self):
+        return CustomUser.objects.all()
+
+class AuthenticatedUser(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        user_data = model_to_dict(user)
+        fields_to_remove = ['password', 'groups', 'user_permissions', 'twofa_secret']
+        for field in fields_to_remove:
+            user_data.pop(field, None)
+        return Response(user_data, status=status.HTTP_200_OK)
+
+# class logout(APIView):
+#     def get(self, request):
+#         response = Response()
+#         response.delete_cookie('access_token')
+#         return response
+
+class EnableTwoFactorView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    # def get(self, request):
+    #     user = request.user
+
+    #     key, otp = twofactorAuth(user.username)
+    #     user.twofa_secret = key
+    #     user.save()
+    #     return HttpResponse(f"Generated OTP: {otp} | Key: {key}", content_type="text/plain")
+
+    def post(self, request):
+        user = request.user
+
+        key, otp, qrcode_path = twofactorAuth(user.username)
+        user.enabeld_2fa = True
+        user.twofa_secret = key
+        user.save()
+        user.qrcode_path = urljoin(settings.MEDIA_URL, qrcode_path)
+        return Response({'qrcode_url': user.qrcode_path}, status=status.HTTP_200_OK)
+
+class VerifyTwoFactorView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        user_code = request.data.get('code')
+
+        if not user.twofa_secret:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        totp = pyotp.TOTP(user.twofa_secret)
+
+        if totp.verify(user_code):
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+class GetCookies(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Access cookies from the request
+        cookies = request.COOKIES
+
+        # You can format the cookies as needed
+        cookie_data = {key: value for key, value in cookies.items()}
+
+        return Response({'cookies': cookie_data}, status=200)
+
+
+class GetQRCodeView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        EnableTwoFactorView().post(request)
+        return Response({'qrcode_url': user.qrcode_path}, status=status.HTTP_200_OK)

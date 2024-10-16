@@ -1,8 +1,68 @@
 import React from "react";
 import { GrKey } from "react-icons/gr";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { FaLock } from "react-icons/fa";
+import { UserProvider, useUserContext} from '../components/context/usercontext';
 
 export default function Security() {
+  const { users, loading, error, fetchUsers} = useUserContext();
+  const [username, setUsername] = useState('');
+  const [enable2FA, setEnable2FA] = useState(false);
+
+  const enableTwoFactorAuth = async () => {
+    try {
+        
+        const response = await axios.get('http://localhost:8000/api/auth/get-qrcode/', {
+            withCredentials: true, // Ensure cookies are included in the request
+        }
+      );
+        return response.data; // Return response data if needed
+
+    } 
+    catch (error) {
+        // Handle error
+        console.error('Error enabling 2FA:', error);
+        return null;
+    }
+};
+
+  const enabel2fabutton = async () => {
+    if (loading) {
+      return <div>Loading...</div>;
+    }
+    if (error) {
+      return <div>Error: {error.message}</div>;
+    }
+    if (users) {
+      setUsername(users.username);
+      await enableTwoFactorAuth()
+      setEnable2FA(users.enabeld_2fa);
+      await fetchUsers();
+    }
+  }
+  const desable2fabutton = async () => {
+    if (loading) {
+      return <div>Loading...</div>;
+    }
+    if (error) {
+      return <div>Error: {error.message}</div>;
+    }
+    if (users) {
+      setUsername(users.username);
+      setEnable2FA(
+        !users.enabeld_2fa
+      );
+      await fetchUsers();
+    }
+  }
+ useEffect(() => {
+    enableTwoFactorAuth();
+    fetchUsers();
+},[users.enabeld_2fa]);
+
   return (
+    <UserProvider>
     <div
       className="text-white w-full h-full flex items-center laptop:justify-center flex-col
         overflow-y-auto no-scrollbar overflow-x-hidden tablet:mb-3 laptop:flex-row
@@ -78,9 +138,7 @@ export default function Security() {
                 "
             >
               <h1
-                className="text-[22px] text-center 
-                  "
-              >
+                className="text-[22px] text-center">
                 Submit
               </h1>
             </button>
@@ -95,14 +153,23 @@ export default function Security() {
           mt-5"
           >
             <img
-              className="h-full bg-white text-white ml-5 mb-5 desktop:w-[250px]
-                    laptop:w-[170px] laptop:h-[170px] tablet:w-[250px] tablet:h-[250px] less-than-tablet:w-[200px] 
-                    less-than-tablet:h-[200px] less-than-tablet:ml-0 desktop:h-[250px]
-                    less-than-tablet:mb-3
-                    rounded-[30px]
-                    "
-              src="/images/qrcode.png "
-            />
+              className={`h-full bg-white text-white ml-5 mb-5 desktop:w-[250px]
+              laptop:w-[170px] laptop:h-[170px] tablet:w-[250px] tablet:h-[250px] 
+              less-than-tablet:w-[200px] less-than-tablet:h-[200px] less-than-tablet:ml-0 
+              desktop:h-[250px] less-than-tablet:mb-3 rounded-[30px] 
+              ${!enable2FA ? 'opacity-30' : 'opacity-100'}`}
+
+                  src={
+                    enable2FA ? `http://localhost:8000/qrcodes/${username}.png` :  
+                    `images/qrcode.png`
+                    
+                  } alt="2fa QR Code"
+                  />
+                  {
+                    !enable2FA ?
+                    <FaLock className="text-white text-7xl relative right-[160px] flex justify-center " />
+                    : null
+                  }
             <div className="laptop:w-1/2 h-[300px] flex flex-col mx-3 justify-center ">
               <p
                 className="desktop:text-sm desktop:mb-8 mb-3 text-white opacity-70 max-w-[10rem] text-center
@@ -138,22 +205,28 @@ export default function Security() {
                 className="w-full tablet:h-[50px] laptop:h-[70px] rounded-[50px] mt-2 
         bg-white bg-opacity-10 text-white p-4 pl-12 border-[0.5px] border-gray-500 focus:outline-none mb-7
         less-than-tablet:h-[50px] less-than-tablet:mb-3"
+        readOnly={enable2FA ? true : false}
               />
             </div>
             <div
               className="w-full flex laptop:justify-center
           "
             >
-              <button
+              <button onClick={
+                enable2FA ? desable2fabutton : enabel2fabutton
+              }
                 className="rounded-[50px] border-[0.5px] border-white border-opacity-40 desktop:h-[80px] w-[556px] bg-gradient-to-r from-[#1A1F26]/90 to-[#000]/70
-        less-than-tablet:w-[85%] less-than-tablet:mb-3 laptop:h-[50px] laptop:my-0 tablet:h-[50px] 
-        less-than-tablet:h-[50px] tablet:w-[75%] tablet:mb-5">
-                <h1 className="text-[22px] text-center">Enable 2FA</h1>
+                            less-than-tablet:w-[85%] less-than-tablet:mb-3 laptop:h-[50px] laptop:my-0 tablet:h-[50px] 
+                            less-than-tablet:h-[50px] tablet:w-[75%] tablet:mb-5">
+                <h1 className="text-[22px] text-center">
+                {`${enable2FA ? 'Disable' : 'Enable'} 2FA`}
+                  </h1>
               </button>
             </div>
           </div>
         </div>
       </div>
     </div>
+    </UserProvider>
   );
 }

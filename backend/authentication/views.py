@@ -129,10 +129,10 @@ class LoginView(APIView):
 
 class ValidateTokenView(APIView):
     def get(self, request):
-        access_token = request.COOKIES.get('access_token')
+        # access_token = request.COOKIES.get('access_token')
 
-        if not access_token:
-            return Response({'error': 'Access token not found in cookies'}, status=status.HTTP_401_UNAUTHORIZED)
+        # if not access_token:
+        #     return Response({'error': 'Access token not found in cookies'}, status=status.HTTP_401_UNAUTHORIZED)
 
         try:
             # Validate the access token

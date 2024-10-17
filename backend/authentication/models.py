@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser as BaseUser
 from django.db import models
 
+
 class CustomUser(BaseUser):
     full_name = models.CharField(max_length=50)
     email = models.EmailField(unique=True)
@@ -23,7 +24,6 @@ class CustomUser(BaseUser):
     offline_matches = models.IntegerField(default=0)
     current_xp = models.IntegerField(default=0)
     target_xp = models.IntegerField(default=0)
-    online = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'full_name']  # Specify any additional required fields

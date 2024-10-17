@@ -9,6 +9,7 @@ import EmojiPicker from 'emoji-picker-react';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import axios from 'axios';
+import { useUserContext } from '../../components/context/usercontext';
 
 type ChatProps = {
   conversationID: any
@@ -19,6 +20,7 @@ function Chat({conversationID}: ChatProps) {
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
+  const user = useUserContext()
 
   const handleEmoji = () => {
     setShowEmoji(!showEmoji)
@@ -40,7 +42,6 @@ function Chat({conversationID}: ChatProps) {
           }
       });
       setMessages(response.data)
-      console.log(response.data)
       setIsLoading(false)
     } catch (error) {
       setIsLoading(false)
@@ -52,7 +53,11 @@ function Chat({conversationID}: ChatProps) {
     fetchMessages(conversationID)
   }, [conversationID])
 
-  if (isLoading) return <div></div>;
+  const handleSendMessage = () => {
+    console.log('Send message')
+  }
+
+  if (isLoading) return;
 
   return (
     <div className='lg:w-[calc(100%_-_400px)] 2xl:w-[calc(100%_-_550px)] hidden lg:flex'>
@@ -85,7 +90,7 @@ function Chat({conversationID}: ChatProps) {
               {
                 messages.map((message) => (
                     <div key={message.id} className='flex flex-col gap-20'>
-                        <div className='border'>
+                        <div className='border text-right'>
                             <span className='text-white text-opacity-60 text-[0.9rem]'>{message.content}</span>
                         </div>
                     </div>
@@ -102,7 +107,7 @@ function Chat({conversationID}: ChatProps) {
               <button onClick={handleEmoji}>
                 <MdEmojiEmotions className={!showEmoji ? 'text-white text-opacity-90 w-[40px] h-[40px] hover:text-opacity-100' : 'text-[#4682B4] text-opacity-100 w-[40px] h-[40px]'} />
               </button>
-              <button>
+              <button onClick={handleSendMessage}>
                 <BsFillSendFill className='text-white text-opacity-90 w-[35px] h-[35px] hover:text-opacity-100' />
               </button>
             </div>

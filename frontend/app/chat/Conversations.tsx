@@ -3,15 +3,14 @@ import Image from "next/image";
 import TextBox from '../../components/TextBox';
 import { axiosInstance } from '../../utils/axiosInstance';
 import { cookies } from 'next/headers';
+import { useUserContext } from '../../components/context/usercontext';
 import axios from 'axios'
-
-type ConversationProps = {
-  receivedMsg: any,
-}
 
 function Conversations({setSelectedConversation}) {
   const [conversations, setConversations] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
+  const user = useUserContext()
+  const [other_user, setOtherUser] = useState(null)
 
   const fetchConversations = async () => {
     try {
@@ -22,6 +21,7 @@ function Conversations({setSelectedConversation}) {
           },
       });
       setConversations(response.data)
+      setIsLoading(false)
     } catch (error) {
       console.log(error)
     }
@@ -30,6 +30,8 @@ function Conversations({setSelectedConversation}) {
   useEffect(() => {
     fetchConversations()
   }, [])
+
+  if (isLoading) return ;
 
   function handleConversationClick(conversationID) {
       setSelectedConversation(conversationID)
@@ -43,7 +45,7 @@ function Conversations({setSelectedConversation}) {
                   {/* <Image className='rounded-full' src='' width={60} height={60} alt='avatar'/> */}
                 </div>
                 <div className='flex flex-col'>
-                  <span className='text-[1rem]'>Name</span>
+                  <span className='text-[1rem]'>{user.users.full_name}</span>
                   <span className='text-[0.9rem] text-white text-opacity-65'>Active Now</span>
                 </div>
               </div>
@@ -65,8 +67,10 @@ function Conversations({setSelectedConversation}) {
                   {/* <Image className='rounded-full' src='' width={50} height={50} alt='avatar'/> */}
                 </div>
                 <div className='flex flex-col gap-3'>
-                  {conversation.user1_info.username === 'mel-yous' ? <span className='text-[1rem]'>{conversation.user2_info.full_name}</span> : <span className='text-[1rem]'>{conversation.user1_info.full_name}</span>}  
-                  {/* <span className='text-[1rem]'>{conversation.user1_info.full_name}</span> */}
+                  {
+                    
+                    conversation.user1_info.username === user.users.username ? <span className='text-[1rem]'>{conversation.user2_info.full_name}</span> : <span className='text-[1rem]'>{conversation.user1_info.full_name}</span>
+                  }  
                   <span className='text-[0.9rem] text-white text-opacity-65'>{conversation.last_message}</span>
                 </div>
               </div>

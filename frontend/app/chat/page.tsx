@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Conversations from './Conversations'
 import Chat from './Chat'
 import axios from 'axios'
@@ -8,10 +8,11 @@ import axios from 'axios'
 function ChatPage() {
   const [receivedMsg, setReceivedMsg] = useState(null)
   const [selectedConversation, setSelectedConversation] = useState(null)
+  const socket = useRef(null)
 
   useEffect(() => {
-    const socket = new WebSocket('ws://localhost:8000/chat/')
-    socket.onopen = () => {
+    socket.current = new WebSocket('ws://localhost:8000/chat/')
+    socket.current.onopen = () => {
       console.log('Connected to the chat server')
       // socket.send(JSON.stringify({
       //   'message': 'Hi there',
@@ -19,18 +20,18 @@ function ChatPage() {
       //   'sent_to_user': 'aaghbal'
       // }))
     }
-    socket.onmessage = (message) => {
+    socket.current.onmessage = (message) => {
       console.log('Message: ', message)
       setReceivedMsg(message)
     }
-    socket.onclose = () => {
+    socket.current.onclose = () => {
       console.log('Disconnected from the chat server')
     }
-    socket.onerror = (error) => {
+    socket.current.onerror = (error) => {
       console.log('Error: ', error)
     }
     return () => {
-      socket.readyState === WebSocket.OPEN && socket.close()
+      socket.current.readyState === WebSocket.OPEN && socket.current.close()
     }
   }, [])
   return (

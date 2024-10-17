@@ -65,7 +65,6 @@ class Game(AsyncWebsocketConsumer):
         await self.accept()
         self.player = None
         self.game_channel = None
-        self.playerID = None
         
         
     async def receive(self, text_data):
@@ -78,7 +77,8 @@ class Game(AsyncWebsocketConsumer):
             self.player = {
                 'name': data['data']['username'],
                 'id': self.channel_name,
-                'player_id': ''
+                'player_id': '',
+                'group_name': ''
             }
             Game.players.append(self.player)
             Game.match_making.append(self.player)
@@ -123,8 +123,27 @@ class Game(AsyncWebsocketConsumer):
             )
     
     async def disconnect(self, close_code):
-        pass
-
+        if self.player in Game.players:
+            other_player_id = 'player1' if self.player['player_id'] == 'player2' else 'player2'
+            game = self.games.get(self.player['group_name'])
+            if self.player['group_name'] in self.games:
+                await self.channel_layer.group_send(
+                    self.player['group_name'],
+                    {
+                        'type': 'game_over',
+                        'winner': game[other_player_id].username
+                    }
+                )
+                await self.channel_layer.group_discard(
+                    self.player['group_name'],
+                    self.player['id']
+                )
+                await self.channel_layer.group_discard(
+                    self.player['group_name'],
+                    game[other_player_id].chan_name
+                )
+                del self.games[self.player['group_name']]
+                
 
     async def matchmaking(self, data):
         if len(Game.match_making) >= 2:
@@ -133,6 +152,8 @@ class Game(AsyncWebsocketConsumer):
             player2 = Game.match_making.pop(0)
             player2['player_id'] = 'player2'
             self.game_channel = f'game{player1["name"]}vs{player2["name"]}'
+            player1['group_name'] = self.game_channel
+            player2['group_name'] = self.game_channel
             await self.channel_layer.group_add(
                 self.game_channel,
                 player1['id']
@@ -195,52 +216,53 @@ class Game(AsyncWebsocketConsumer):
     async def update_ball_loop(self, game_channel):
         await asyncio.sleep(3)
         while True:
-            self.games[game_channel]['ball'].x += self.games[game_channel]['ball'].directionX
-            self.games[game_channel]['ball'].y += self.games[game_channel]['ball'].directionY
-            if await self.colletion(self.games[game_channel]['player1'], self.games[game_channel]['ball']):
-                await self.handleCollision(self.games[game_channel]['player1'], self.games[game_channel]['ball'])
-            if await self.colletion(self.games[game_channel]['player2'], self.games[game_channel]['ball']):
-                await self.handleCollision(self.games[game_channel]['player2'], self.games[game_channel]['ball'])
-            if self.games[game_channel]['ball'].x <= 0:
-                self.games[game_channel]['ball'].x = 0
-                self.games[game_channel]['ball'].directionX *= -1
-            if self.games[game_channel]['ball'].x + self.games[game_channel]['ball'].radius >= 1:
-                self.games[game_channel]['ball'].x = 1 - self.games[game_channel]['ball'].radius
-                self.games[game_channel]['ball'].directionX *= -1
-            if self.games[game_channel]['ball'].y <= 0:
-                self.games[game_channel]['ball'].directionX = 0
-                self.games[game_channel]['ball'].y = 0.5
-                self.games[game_channel]['ball'].x = 0.5
-                self.games[game_channel]['ball'].directionY *= -1
-                self.games[game_channel]['player1'].score += 1
-                if self.games[game_channel]['player1'].score == 6:
-                    winer = self.games[game_channel]['player1']
-                    loser = self.games[game_channel]['player2']
-                    Tscore = winer.score - loser.score
-                    await self.gameOver(game_channel, winer.username, loser.username, winer.chan_name, loser.chan_name, Tscore)
-                    break
-            if self.games[game_channel]['ball'].y >= 1:
-                self.games[game_channel]['ball'].directionX = 0
-                self.games[game_channel]['ball'].y = 0.5
-                self.games[game_channel]['ball'].x = 0.5
-                self.games[game_channel]['ball'].directionY *= -1
-                self.games[game_channel]['player2'].score += 1
-                if self.games[game_channel]['player2'].score == 6:
-                    winer = self.games[game_channel]['player2']
-                    loser = self.games[game_channel]['player1']
-                    Tscore = winer.score - loser.score
-                    await self.gameOver(game_channel, winer.username, loser.username, winer.chan_name, loser.chan_name, Tscore)
-                    break
-            await self.channel_layer.group_send(
-                game_channel,
-                {
-                    'type': 'update_ball',
-                    'ball': self.games[game_channel]['ball'].to_dict(),
-                    'player1': self.games[game_channel]['player1'].to_dict(),
-                    'player2': self.games[game_channel]['player2'].to_dict()
-                }
-            )
-            await asyncio.sleep(1/60)
+            if game_channel in self.games:
+                self.games[game_channel]['ball'].x += self.games[game_channel]['ball'].directionX
+                self.games[game_channel]['ball'].y += self.games[game_channel]['ball'].directionY
+                if await self.colletion(self.games[game_channel]['player1'], self.games[game_channel]['ball']):
+                    await self.handleCollision(self.games[game_channel]['player1'], self.games[game_channel]['ball'])
+                if await self.colletion(self.games[game_channel]['player2'], self.games[game_channel]['ball']):
+                    await self.handleCollision(self.games[game_channel]['player2'], self.games[game_channel]['ball'])
+                if self.games[game_channel]['ball'].x <= 0:
+                    self.games[game_channel]['ball'].x = 0
+                    self.games[game_channel]['ball'].directionX *= -1
+                if self.games[game_channel]['ball'].x + self.games[game_channel]['ball'].radius >= 1:
+                    self.games[game_channel]['ball'].x = 1 - self.games[game_channel]['ball'].radius
+                    self.games[game_channel]['ball'].directionX *= -1
+                if self.games[game_channel]['ball'].y <= 0:
+                    self.games[game_channel]['ball'].directionX = 0
+                    self.games[game_channel]['ball'].y = 0.5
+                    self.games[game_channel]['ball'].x = 0.5
+                    self.games[game_channel]['ball'].directionY *= -1
+                    self.games[game_channel]['player1'].score += 1
+                    if self.games[game_channel]['player1'].score == 6:
+                        winer = self.games[game_channel]['player1']
+                        loser = self.games[game_channel]['player2']
+                        Tscore = winer.score - loser.score
+                        await self.gameOver(game_channel, winer.username, loser.username, winer.chan_name, loser.chan_name, Tscore)
+                        break
+                if self.games[game_channel]['ball'].y >= 1:
+                    self.games[game_channel]['ball'].directionX = 0
+                    self.games[game_channel]['ball'].y = 0.5
+                    self.games[game_channel]['ball'].x = 0.5
+                    self.games[game_channel]['ball'].directionY *= -1
+                    self.games[game_channel]['player2'].score += 1
+                    if self.games[game_channel]['player2'].score == 6:
+                        winer = self.games[game_channel]['player2']
+                        loser = self.games[game_channel]['player1']
+                        Tscore = winer.score - loser.score
+                        await self.gameOver(game_channel, winer.username, loser.username, winer.chan_name, loser.chan_name, Tscore)
+                        break
+                await self.channel_layer.group_send(
+                    game_channel,
+                    {
+                        'type': 'update_ball',
+                        'ball': self.games[game_channel]['ball'].to_dict(),
+                        'player1': self.games[game_channel]['player1'].to_dict(),
+                        'player2': self.games[game_channel]['player2'].to_dict()
+                    }
+                )
+                await asyncio.sleep(1/60)
     
     
     async def gameOver(self, game_chan ,winer, loser, chan_name1, chan_name2, Tscore):

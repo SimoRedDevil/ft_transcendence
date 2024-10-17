@@ -28,7 +28,7 @@ export default function Table() {
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      socketRef.current = new WebSocket('ws://10.11.2.2:8000/ws/game/remotegame');
+      socketRef.current = new WebSocket('ws://10.11.2.2:8000/ws/game/');
       let Walls : walls = { wallsWidth: canvasRef.current.clientWidth, wallsHeight: canvasRef.current.clientHeight };
       socketRef.current.onopen = () => {
         console.log('WebSocket connected');

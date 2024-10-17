@@ -24,6 +24,8 @@ class CustomUser(BaseUser):
     offline_matches = models.IntegerField(default=0)
     current_xp = models.IntegerField(default=0)
     target_xp = models.IntegerField(default=0)
+    online = models.BooleanField(default=False)
+
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'full_name']  # Specify any additional required fields

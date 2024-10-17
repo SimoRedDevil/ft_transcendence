@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.socialaccount.providers.oauth2',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -82,6 +83,12 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 
+CSRF_COOKIE_HTTPONLY = False
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
+CSRF_USE_SESSIONS = False  # Unless explicitly using sessions for CSRF
+CSRF_COOKIE_NAME = "csrftoken"  # Ensure this matches what you're using on the client-side
+
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
@@ -91,7 +98,7 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'authentication.CustomUser'
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=50),  # Short lifetime for access token
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Short lifetime for access token
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),    # Longer lifetime for refresh token
     'ROTATE_REFRESH_TOKENS': True,                 # Rotate refresh tokens on refresh
     'BLACKLIST_AFTER_ROTATION': True,              # Blacklist old tokens

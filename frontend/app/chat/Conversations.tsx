@@ -31,7 +31,7 @@ function Conversations({setSelectedConversation}) {
     fetchConversations()
   }, [])
 
-  if (isLoading) return ;
+  if (isLoading || user === null || user.users === null) return <div>Loading...</div> ;
 
   function handleConversationClick(conversationID) {
       setSelectedConversation(conversationID)
@@ -40,11 +40,11 @@ function Conversations({setSelectedConversation}) {
   return (
     <div className='w-full h-full lg:w-[400px] 2xl:w-[550px] flex flex-col'>
             <div className='h-[200px]'>
-              <div className='h-[100px] flex gap-[10px] p-[20px]'>
-                <div className='h-[60px] w-[60px] rounded-full bg-blue-800'>
+              <div className='h-[120px] flex gap-[10px] p-[20px]'>
+                <div className='h-[80px] w-[80px] rounded-full bg-blue-800'>
                   {/* <Image className='rounded-full' src='' width={60} height={60} alt='avatar'/> */}
                 </div>
-                <div className='flex flex-col'>
+                <div className='flex flex-col justify-center gap-3'>
                   <span className='text-[1rem]'>{user.users.full_name}</span>
                   <span className='text-[0.9rem] text-white text-opacity-65'>Active Now</span>
                 </div>
@@ -68,7 +68,6 @@ function Conversations({setSelectedConversation}) {
                 </div>
                 <div className='flex flex-col gap-3'>
                   {
-                    
                     conversation.user1_info.username === user.users.username ? <span className='text-[1rem]'>{conversation.user2_info.full_name}</span> : <span className='text-[1rem]'>{conversation.user1_info.full_name}</span>
                   }  
                   <span className='text-[0.9rem] text-white text-opacity-65'>{conversation.last_message}</span>

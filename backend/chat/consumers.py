@@ -3,6 +3,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from authentication.models import CustomUser
 from .models import conversation, message
+from django.db.models import Q
 
 @database_sync_to_async
 def get_user(username):
@@ -13,7 +14,8 @@ def get_user(username):
 
 @database_sync_to_async
 def check_conversation_exists(user1, user2):
-    return conversation.objects.filter(user1_id=user1.id, user2_id=user2.id).exists()
+    return conversation.objects.filter(Q(user1_id=user1.id, user2_id=user2.id) | Q(user1_id=user2.id, user2_id=user1.id)).exists()
+    # return conversation.objects.filter(user1_id=user1.id, user2_id=user2.id).exists()
 
 @database_sync_to_async
 def create_conversation(user1, user2, last_message=None):
@@ -67,6 +69,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         receiver = await get_user(sent_to_user)
         message = data['message']
         conversation_exists = await check_conversation_exists(sender, receiver)
+        print(conversation_exists)
         if not conversation_exists:
             await create_conversation(sender, receiver, message)
         conversation_obj = await get_conversation(sender, receiver)

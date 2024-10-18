@@ -14,4 +14,4 @@ class MessageSerializer(serializers.ModelSerializer):
     receiver_info = UserSerializer(source='receiver_id', read_only=True)
     class Meta:
         model = message
-        fields = ['id', 'conversation_id', 'sender_info', 'receiver_info', 'content', 'timestamp', 'seen']
+        fields = ['id', 'conversation_id', 'sender_info', 'receiver_info', 'content', 'timestamp', 'seen', 'get_human_readable_time']

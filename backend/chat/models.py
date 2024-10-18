@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import datetime
 
 # Create your models here.
 
@@ -17,3 +18,5 @@ class message(models.Model):
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     seen = models.BooleanField(default=False)
+    def get_human_readable_time(self):
+        return self.timestamp.strftime("%A, %I:%M %p")

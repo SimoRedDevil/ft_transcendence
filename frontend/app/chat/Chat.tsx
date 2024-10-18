@@ -12,10 +12,11 @@ import axios from 'axios';
 import { useUserContext } from '../../components/context/usercontext';
 
 type ChatProps = {
-  conversationID: any
+  conversationID: any,
+  socket: any,
 }
 
-function Chat({conversationID}: ChatProps) {
+function Chat({conversationID, socket}: ChatProps) {
   const [showEmoji, setShowEmoji] = useState(false)
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState(null)
@@ -54,10 +55,14 @@ function Chat({conversationID}: ChatProps) {
   }, [conversationID])
 
   const handleSendMessage = () => {
-    console.log('Send message')
+    socket.current.send(JSON.stringify({
+      'message': input,
+      'sent_by_user': user.users.username,
+      'sent_to_user': messages[0].receiver_info.username
+    }))
   }
 
-  if (isLoading) return;
+  if (isLoading || user === null || user.users === null) return <div>Loading...</div> ;
 
   return (
     <div className='lg:w-[calc(100%_-_400px)] 2xl:w-[calc(100%_-_550px)] hidden lg:flex'>
@@ -67,12 +72,12 @@ function Chat({conversationID}: ChatProps) {
       <div className='w-full flex flex-col'>
         <div className='flex p-[20px] justify-between'>
           <div className='flex flex-row gap-3'>
-            <div className='rounded-full h-[60px] w-[60px] bg-red-700'>
+            <div className='rounded-full h-[80px] w-[80px] bg-red-700'>
               {/* <Image className='rounded-full' src={data[0].image} width={60} height={60} alt='avatar'/> */}
             </div>
-            <div className='flex flex-col'>
-              <span className='text-[1rem]'>{messages[0].receiver_info.full_name}</span>
-              <span className='text-[0.9rem] text-white text-opacity-65'>Active now</span>
+            <div className='flex flex-col justify-center gap-3'>
+              <span className='text-[20px]'>{messages[0].receiver_info.full_name}</span>
+              <span className='text-[18px] text-white text-opacity-65'>Active now</span>
             </div>
           </div>
           <div className='w-[140px] flex gap-2'>
@@ -86,13 +91,42 @@ function Chat({conversationID}: ChatProps) {
         </div>
         <div className='p-[20px] h-full w-full flex flex-col justify-between items-center'>
           <div className='w-full h-[calc(100%_-_120px)] relative'>
-            <div className='h-full border'>
+            <div className='h-full'>
               {
                 messages.map((message) => (
-                    <div key={message.id} className='flex flex-col gap-20'>
-                        <div className='border text-right'>
-                            <span className='text-white text-opacity-60 text-[0.9rem]'>{message.content}</span>
+                    <div key={message.id} className='flex flex-col gap-20 mb-5'>
+                        {/* {message.sent_by_user === user.users.username ? <span className='text-white text-opacity-60 text-[0.9rem] text-right'>{message.sent_by_user}</span> : <span className='text-white text-opacity-60 text-[0.9rem]'>{message.sent_by_user}</span>} */}
+                        {
+                          message.sender_info.username === user.users.username ?
+                          <div className='flex flex-col gap-3'>
+                            <div className='flex flex-row gap-3 justify-end'>
+                              {/* <div className='flex flex-col justify-center gap-3'>
+                                <span className='text-white text-[20px]'>{message.sender_info.full_name}</span>
+                                <span className='text-white text-opacity-60 text-[18px]'>{message.get_human_readable_time}</span>
+                              </div> */}
+                              {/* <div className='rounded-full h-[80px] w-[80px] bg-red-700'></div> */}
+                            </div>
+                            <div className='w-[100%] flex justify-end'>
+                              <div className='border border-white border-opacity-20 rounded-[30px] p-[20px] bg-black max-w-[75%]'>
+                                <span className='text-white text-[20px]'>{message.content}</span>
+                              </div>
+                            </div>
+                          </div> :
+                          <div className='flex flex-col gap-3'>
+                            <div className='flex flex-row gap-3 justify-start'>
+                              {/* <div className='rounded-full h-[80px] w-[80px] bg-red-700'></div>
+                              <div className='flex flex-col justify-center gap-3'>
+                                <span className='text-white text-[20px]'>{message.sender_info.full_name}</span>
+                                <span className='text-white text-opacity-60 text-[18px]'>{message.get_human_readable_time}</span>
+                              </div> */}
+                            </div>
+                            <div className='w-[100%] flex justify-start'>
+                              <div className='border border-white border-opacity-20 rounded-[30px] p-[20px] bg-[#0D161A] max-w-[75%]'>
+                                <span className='text-white text-[20px]'>{message.content}</span>
+                              </div>
+                            </div>
                         </div>
+                        }
                     </div>
                 ))
               }

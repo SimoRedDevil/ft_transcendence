@@ -52,13 +52,14 @@ INSTALLED_APPS = [
     'corsheaders',
     'authentication',
     'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
     'allauth.socialaccount.providers.oauth2',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
 ]
 
 AUTHENTICATION_BACKENDS = [
-    # 'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
@@ -102,6 +103,8 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),    # Longer lifetime for refresh token
     'ROTATE_REFRESH_TOKENS': True,                 # Rotate refresh tokens on refresh
     'BLACKLIST_AFTER_ROTATION': True,              # Blacklist old tokens
+    'UPDATE_LAST_LOGIN': True,                   # Update last login on token refresh
+    'BLACKLIST_AFTER_ROTATION': True,              # Blacklist old tokens
 }
 
 CORS_ALLOWED_ORIGINS = [
@@ -119,8 +122,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
-    'authentication.middleware.AuthRequiredMiddleware',
+    'allauth.account.middleware.AccountMiddleware', 
+    'authentication.middleware.AuthRequiredMiddleware', 
 ]
 
 ROOT_URLCONF = 'backend.urls'

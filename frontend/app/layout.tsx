@@ -15,7 +15,7 @@ export default function RootLayout({
     children: React.ReactNode
   }) {
     const pathname = usePathname(); 
-    const exclude = ['/login', '/']
+    const exclude = ['/login'];
     const router = useRouter();
 
     const silentFetch = async (url, options) => {

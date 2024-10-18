@@ -38,7 +38,8 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
   
       if (response.ok) {
         alert("Signup successful");
-        router.push("/login");
+        onNavigate();
+        // router.push("/login");
       } else {
         alert(data.message || "Signup failed, please try again.");
       }

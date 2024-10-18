@@ -9,7 +9,6 @@ class CustomUser(BaseUser):
     tournament_score = models.IntegerField(default=0)
     enabeld_2fa = models.BooleanField(default=False)
     twofa_secret = models.CharField(max_length=32, blank=True, null=True)
-    qrcode_path = models.CharField(max_length=255, blank=True, null=True)
     # avatar_url = models.ImageField(upload_to='avatars/', default='avatars/default.png')
     level = models.IntegerField(default=0)
     matches = models.IntegerField(default=0)

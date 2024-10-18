@@ -23,6 +23,9 @@ from authentication.twofaAuth import twofactorAuth
 import pyotp
 from django.http import HttpResponse
 from urllib.parse import urljoin
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
+
 
 INTRA_42_AUTH_URL = settings.INTRA_42_AUTH_URL
 
@@ -161,15 +164,52 @@ class GenerateAccessToken(APIView):
 
         if not refresh_token:
             return Response({"error": "Refresh token is required"}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
-            # Decode the refresh token to regenerate the access token
+            # Decode the refresh token
             refresh = RefreshToken(refresh_token)
+
+            # Check if the refresh token has already been blacklisted
+            jti = refresh['jti']  # Extract the JWT ID from the refresh token
+            if BlacklistedToken.objects.filter(token__jti=jti).exists():
+                return Response({"error": "Refresh token is blacklisted"}, status=status.HTTP_401_UNAUTHORIZED)
+
+            # Blacklist the old refresh token explicitly
+            try:
+                refresh.blacklist()  # Blacklist the current refresh token
+            except BlacklistError:
+                return Response({"error": "Could not blacklist the token"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            # Generate new access token and refresh token (because of ROTATE_REFRESH_TOKENS=True)
             access_token = str(refresh.access_token)
-
-            return Response({"access": access_token}, status=status.HTTP_200_OK)
+            new_refresh_token = str(RefreshToken())  # Explicitly generate a new refresh token
+            response = Response(status=status.HTTP_200_OK)
+            response.set_cookie(
+                key='access',
+                value=access_token,
+                httponly=True,
+                secure=False,  # Set to True in production
+                samesite='Lax',  # Optional, but recommended
+            )
+            response.set_cookie(
+                key='refresh',
+                value=new_refresh_token,
+                httponly=True,
+                secure=False,  # Set to True in production
+                samesite='Lax',  # Optional, but recommended
+            )
+            response.data = {
+                'access': access_token,
+                'refresh': new_refresh_token
+            }
+            return response
         except TokenError as e:
-            return Response({"error": "Invalid or expired refresh token", "details": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({"error": "Invalid or expired refresh token"}, status=status.HTTP_401_UNAUTHORIZED)
 
+    def get(self, request):
+        cookies = request.COOKIES
+        cookie_data = {key: value for key, value in cookies.items()}
+        return Response({'cookies': cookie_data}, status=status.HTTP_200_OK)
 
 class UserViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication]
@@ -212,14 +252,6 @@ class EnableTwoFactorView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
-    # def get(self, request):
-    #     user = request.user
-
-    #     key, otp = twofactorAuth(user.username)
-    #     user.twofa_secret = key
-    #     user.save()
-    #     return HttpResponse(f"Generated OTP: {otp} | Key: {key}", content_type="text/plain")
-
     def post(self, request):
         user = request.user
 
@@ -229,6 +261,17 @@ class EnableTwoFactorView(APIView):
         user.save()
         user.qrcode_path = urljoin(settings.MEDIA_URL, qrcode_path)
         return Response({'qrcode_url': user.qrcode_path}, status=status.HTTP_200_OK)
+
+class DisableTwoFactorView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        user.enabeld_2fa = False
+        user.twofa_secret = None
+        user.save()
+        return Response(status=status.HTTP_200_OK)
 
 class VerifyTwoFactorView(APIView):
     authentication_classes = [SessionAuthentication]
@@ -258,9 +301,7 @@ class GetCookies(APIView):
 
         # You can format the cookies as needed
         cookie_data = {key: value for key, value in cookies.items()}
-
         return Response({'cookies': cookie_data}, status=200)
-
 
 class GetQRCodeView(APIView):
     authentication_classes = [SessionAuthentication]

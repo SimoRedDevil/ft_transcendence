@@ -27,6 +27,23 @@ export default function Security() {
     }
 };
 
+const disableTwoFactorAuth = async () => {
+  try {
+      
+      const response = await axios.get('http://localhost:8000/api/auth/disable-2fa/', {
+          withCredentials: true, // Ensure cookies are included in the request
+      }
+    );
+      return response.data; // Return response data if needed
+
+  } 
+  catch (error) {
+      // Handle error
+      console.error('Error disabling 2FA:', error);
+      return null;
+  }
+}
+
   const enabel2fabutton = async () => {
     if (loading) {
       return <div>Loading...</div>;
@@ -50,9 +67,8 @@ export default function Security() {
     }
     if (users) {
       setUsername(users.username);
-      setEnable2FA(
-        !users.enabeld_2fa
-      );
+      await disableTwoFactorAuth();
+      setEnable2FA(users.enabeld_2fa);
       await fetchUsers();
     }
   }
@@ -157,19 +173,19 @@ export default function Security() {
               laptop:w-[170px] laptop:h-[170px] tablet:w-[250px] tablet:h-[250px] 
               less-than-tablet:w-[200px] less-than-tablet:h-[200px] less-than-tablet:ml-0 
               desktop:h-[250px] less-than-tablet:mb-3 rounded-[30px] 
-              ${!enable2FA ? 'opacity-30' : 'opacity-100'}`}
+              `}
 
                   src={
                     enable2FA ? `http://localhost:8000/qrcodes/${username}.png` :  
-                    `images/qrcode.png`
+                    `images/qrcode1.png`
                     
                   } alt="2fa QR Code"
                   />
-                  {
+                  {/* {
                     !enable2FA ?
-                    <FaLock className="text-white text-7xl relative right-[160px] flex justify-center " />
+                    <FaLock className="text-white tablet:text-7xl less-than-tablet:text-5xl less-than-tablet:bottom-[150px] relative desktop:right-[160px] tablet:right-[160px] tablet:bottom-3 flex justify-center " />
                     : null
-                  }
+                  } */}
             <div className="laptop:w-1/2 h-[300px] flex flex-col mx-3 justify-center ">
               <p
                 className="desktop:text-sm desktop:mb-8 mb-3 text-white opacity-70 max-w-[10rem] text-center

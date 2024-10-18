@@ -61,7 +61,6 @@ export default function Home() {
             justify-center
             h-screen
             flex-col
-            bg-gray-800
             text-white
         '>
             hello world

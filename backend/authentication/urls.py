@@ -10,6 +10,7 @@ urlpatterns = [
     path('token/', ValidateTokenView.as_view(), name='get_token'),
     path('user/', AuthenticatedUserView.as_view(), name='AuthenticatedUser'),
     path('enable-2fa/', EnableTwoFactorView.as_view(), name='enable_2fa'),
+    path('disable-2fa/', DisableTwoFactorView.as_view(), name='disable_2fa'),
     path('verify-2fa/', VerifyTwoFactorView.as_view(), name='verify_2fa'),
     path('cookies/', GetCookies.as_view(), name='get_cookies'),
     path('get-qrcode/', GetQRCodeView.as_view(), name='get-qrcode'),

@@ -45,12 +45,6 @@ const disableTwoFactorAuth = async () => {
 }
 
   const enabel2fabutton = async () => {
-    if (loading) {
-      return <div>Loading...</div>;
-    }
-    if (error) {
-      return <div>Error: {error.message}</div>;
-    }
     if (users) {
       setUsername(users.username);
       await enableTwoFactorAuth()
@@ -59,12 +53,6 @@ const disableTwoFactorAuth = async () => {
     }
   }
   const desable2fabutton = async () => {
-    if (loading) {
-      return <div>Loading...</div>;
-    }
-    if (error) {
-      return <div>Error: {error.message}</div>;
-    }
     if (users) {
       setUsername(users.username);
       await disableTwoFactorAuth();
@@ -73,9 +61,9 @@ const disableTwoFactorAuth = async () => {
     }
   }
  useEffect(() => {
-    enableTwoFactorAuth();
     fetchUsers();
-},[users.enabeld_2fa]);
+    setEnable2FA(users.enabeld_2fa);
+});
 
   return (
     <UserProvider>

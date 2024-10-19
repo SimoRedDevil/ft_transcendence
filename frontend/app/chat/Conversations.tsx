@@ -6,11 +6,11 @@ import { cookies } from 'next/headers';
 import { useUserContext } from '../../components/context/usercontext';
 import axios from 'axios'
 
-function Conversations({setSelectedConversation}) {
+function Conversations({setSelectedConversation, setOtherUser, receivedMsg}) {
   const [conversations, setConversations] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [conversationIsSelected, setConversationIsSelected] = useState(false)
   const user = useUserContext()
-  const [other_user, setOtherUser] = useState(null)
 
   const fetchConversations = async () => {
     try {
@@ -29,12 +29,21 @@ function Conversations({setSelectedConversation}) {
 
   useEffect(() => {
     fetchConversations()
-  }, [])
+  }, [receivedMsg])
 
   if (isLoading || user === null || user.users === null) return <div>Loading...</div> ;
 
   function handleConversationClick(conversationID) {
+      let conversation = conversations.find(conversation => conversation.id === conversationID)
+      setOtherUser(conversation.user1_info.username === user.users.username ? conversation.user2_info : conversation.user1_info)
       setSelectedConversation(conversationID)
+      setConversationIsSelected(true)
+  }
+
+  function truncateMessage(message, maxLength) {
+    if (message.length > maxLength)
+      return message.substring(0, maxLength) + '...';
+    return message;
   }
 
   return (
@@ -62,7 +71,7 @@ function Conversations({setSelectedConversation}) {
                <span className='text-[22px]'>No conversations</span>
             </div>) : <div>
             {conversations.map((conversation) => (
-              <div key={conversation.id} onClick={() => handleConversationClick(conversation.id)} className='h-[120px] flex items-center gap-4 p-[20px] hover:bg-white hover:bg-opacity-10 cursor-pointer'>
+              <div key={conversation.id} onClick={() => handleConversationClick(conversation.id)} className={`h-[120px] flex items-center gap-4 p-[20px] hover:bg-white hover:bg-opacity-10 cursor-pointer ${conversationIsSelected && 'bg-white bg-opacity-10'}`}>
                 <div className='h-[80px] w-[80px] rounded-full bg-blue-800'>
                   {/* <Image className='rounded-full' src='' width={50} height={50} alt='avatar'/> */}
                 </div>
@@ -70,7 +79,7 @@ function Conversations({setSelectedConversation}) {
                   {
                     conversation.user1_info.username === user.users.username ? <span className='text-[1rem]'>{conversation.user2_info.full_name}</span> : <span className='text-[1rem]'>{conversation.user1_info.full_name}</span>
                   }  
-                  <span className='text-[0.9rem] text-white text-opacity-65'>{conversation.last_message}</span>
+                  <span className='text-[0.9rem] text-white text-opacity-65'>{truncateMessage(conversation.last_message, 50)}</span>
                 </div>
               </div>
             ))}

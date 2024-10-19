@@ -14,9 +14,10 @@ import { useUserContext } from '../../components/context/usercontext';
 type ChatProps = {
   conversationID: any,
   socket: any,
+  otherUser: any
 }
 
-function Chat({conversationID, socket}: ChatProps) {
+function Chat({conversationID, socket, otherUser}: ChatProps) {
   const [showEmoji, setShowEmoji] = useState(false)
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState(null)
@@ -55,10 +56,12 @@ function Chat({conversationID, socket}: ChatProps) {
   }, [conversationID])
 
   const handleSendMessage = () => {
+    console.log(otherUser.username)
     socket.current.send(JSON.stringify({
+      'conversation_id': conversationID,
       'message': input,
       'sent_by_user': user.users.username,
-      'sent_to_user': messages[0].receiver_info.username
+      'sent_to_user': otherUser.username
     }))
   }
 
@@ -76,7 +79,7 @@ function Chat({conversationID, socket}: ChatProps) {
               {/* <Image className='rounded-full' src={data[0].image} width={60} height={60} alt='avatar'/> */}
             </div>
             <div className='flex flex-col justify-center gap-3'>
-              <span className='text-[20px]'>{messages[0].receiver_info.full_name}</span>
+              <span className='text-[20px]'>{otherUser.full_name}</span>
               <span className='text-[18px] text-white text-opacity-65'>Active now</span>
             </div>
           </div>

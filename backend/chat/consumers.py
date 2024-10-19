@@ -13,17 +13,20 @@ def get_user(username):
         return None
 
 @database_sync_to_async
-def check_conversation_exists(user1, user2):
-    return conversation.objects.filter(Q(user1_id=user1.id, user2_id=user2.id) | Q(user1_id=user2.id, user2_id=user1.id)).exists()
-    # return conversation.objects.filter(user1_id=user1.id, user2_id=user2.id).exists()
+def check_conversation_exists(conversation_id):
+    try:
+        conversation.objects.get(id=conversation_id)
+        return True
+    except conversation.DoesNotExist:
+        return False
 
 @database_sync_to_async
 def create_conversation(user1, user2, last_message=None):
     return conversation.objects.create(user1_id=user1, user2_id=user2, last_message=last_message)
 
 @database_sync_to_async
-def get_conversation(user1, user2):
-    return conversation.objects.get(user1_id=user1.id, user2_id=user2.id)
+def get_conversation(conversation_id):
+    return conversation.objects.get(id=conversation_id)
 
 @database_sync_to_async
 def set_conversation_last_msg(conversation_obj, last_message):
@@ -63,16 +66,22 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
+        conversation_id = data['conversation_id']
         sent_by_user = data['sent_by_user']
         sent_to_user = data['sent_to_user']
         sender = await get_user(sent_by_user)
         receiver = await get_user(sent_to_user)
         message = data['message']
-        conversation_exists = await check_conversation_exists(sender, receiver)
+        conversation_exists = await check_conversation_exists(conversation_id)
+        conversation_obj = None
         print(conversation_exists)
+        print(conversation_id)
+
         if not conversation_exists:
-            await create_conversation(sender, receiver, message)
-        conversation_obj = await get_conversation(sender, receiver)
+            conversation_obj = await create_conversation(sender, receiver, message)
+        else:
+            conversation_obj = await get_conversation(conversation_id)
+
         await set_conversation_last_msg(conversation_obj, message)
         await create_message(conversation_obj, sender, receiver, message)
         other_user_room_group_name = f'chat_{sent_to_user}'

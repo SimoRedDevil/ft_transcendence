@@ -223,10 +223,7 @@ class AuthenticatedUserView(APIView):
 
     def get(self, request):
         user = request.user
-        user_data = model_to_dict(user)
-        fields_to_remove = ['password', 'groups', 'user_permissions', 'twofa_secret']
-        for field in fields_to_remove:
-            user_data.pop(field, None)
+        user_data = UserSerializer(user).data
         return Response(user_data, status=status.HTTP_200_OK)
 
 # Logout View

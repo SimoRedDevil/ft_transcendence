@@ -16,8 +16,12 @@ import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Adjust this if needed for other media files
+
+STATIC_URL = "avatars/"
+
+STATICFILES_DIRS = [
+    BASE_DIR / "./avatars",
+]
 
 # Add a MEDIA_ROOT for qrcodes
 QRCODE_URL = '/qrcodes/'

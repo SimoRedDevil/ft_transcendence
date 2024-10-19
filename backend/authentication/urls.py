@@ -1,5 +1,7 @@
 from django.urls import path
 from .views import *
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('signup/', SignUpView.as_view(), name='signup'),
@@ -16,6 +18,8 @@ urlpatterns = [
     path('get-qrcode/', GetQRCodeView.as_view(), name='get-qrcode'),
     path('logout/', Logout.as_view(), name='logout'),
     path('new-access/', GenerateAccessToken.as_view(), name='new-access'),
-
+    # path('refresh-access/', RefreshAccessToken.as_view(), name='refresh-access'),
 
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

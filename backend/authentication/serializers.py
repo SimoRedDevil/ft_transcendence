@@ -6,7 +6,8 @@ class SignUpSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['full_name', 'username', 'email', 'password']
-        extra_kwargs = {'password': {'write_only': True}}
+        extra_kwargs = {'password': {'write_only': True},
+        }
 
     def create(self, validated_data):
         user = CustomUser.objects.create_user(
@@ -37,6 +38,16 @@ class LoginSerializer(serializers.Serializer):
         raise serializers.ValidationError("Invalid credentials")
 
 class UserSerializer(serializers.ModelSerializer):
+    avatar_url = serializers.SerializerMethodField()
+
     class Meta:
         model = CustomUser
         fields = '__all__'
+        extra_kwargs = {
+            'password': {'write_only': True},
+        }
+
+    def get_avatar_url(self, obj):
+        if obj.avatar_url:
+            return f"http://localhost:8000/api/auth/{obj.avatar_url.url}"
+        return None  # or return a default URL if no avatar exists

@@ -1,17 +1,20 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 import {
   UserProvider,
   useUserContext,
 } from "../components/context/usercontext";
 import { enableTwoFactorAuth, disableTwoFactorAuth } from "./twoFa";
+import { headers } from "next/headers";
 
 const Popup = (
-  { isOpen, setIsOpen }
+  { isOpen, setIsOpen, enable2FA, setEnable2FA, code, setCode
+   }
 ) => {
   const [values, setValues] = useState(['', '', '', '', '', '']);
-  const [enable2FA, setEnable2FA] = useState(false);
   const [username, setUsername] = useState('');
   const { users, fetchUsers } = useUserContext();
+
   
 
   const handleChange = (e, index) => {
@@ -23,6 +26,9 @@ const Popup = (
       // Focus on the next input
       if (index < 5) {
         document.getElementById(`digit-${index + 1}`).focus();
+      }
+      if (index === 5) {
+        setCode(newValues.join(''));
       }
     }
   };
@@ -38,6 +44,12 @@ const Popup = (
       }
     }
   };
+
+  const clearValues = () => {
+    setValues(['', '', '', '', '', '']);
+    setCode('');
+    setIsOpen(false);
+  }
 
   const enabel2fabutton = async () => {
     if (users) {
@@ -56,16 +68,24 @@ const Popup = (
     }
   };
 
+const verify2FA = async () => {
+  try {
+    const response = await axios.get(`http://localhost:8000/api/auth/verify-2fa/?code=${code}`, {  // Use backticks here
+      withCredentials: true, // Ensure cookies are included in the request
+    });
+  } catch (error) {
+    console.error("Error verifying 2FA:", error);
+  }
+}
+
+
   useEffect(() => {
     fetchUsers();
     if (users && users.username) {
       setUsername(users.username);
       setEnable2FA(users.enabeld_2fa);
     }
-  }, [
-    users ?
-    users.enabeld_2fa
-    : null]);
+  }, [users && enable2FA]);
 
   return (
     <div>
@@ -109,9 +129,9 @@ const Popup = (
                 type="submit"
                 className='bg-gradient-to-r from-[#1A1F26]/90 to-[#000]/70 text-white p-2 px-4 rounded-lg border-[0.5px] border-white border-opacity-40 '
                 onClick={() => {
-                  enable2FA ? desable2fabutton() && console.log('2FA Disabled') :
-                  enabel2fabutton() && console.log('2FA Enabled');
-                  isOpen ? setIsOpen(false) : setIsOpen(true);
+                  !enable2FA ? enabel2fabutton() && verify2FA() : desable2fabutton();
+                  isOpen ? setIsOpen(false) && setEnable2FA(false)
+                  : setIsOpen(true) && setEnable2FA(true);
                 }
                 }
                 disabled={values.some((val) => val === '')} // Disable until all fields are filled
@@ -120,7 +140,7 @@ const Popup = (
               </button>
               <button
                 className='bg-gradient-to-r from-[#1A1F26]/90 to-[#000]/70 text-white p-2 px-4 rounded-lg border-[0.5px] border-white border-opacity-40 '
-                onClick={() => setIsOpen(false)}
+                onClick={() => clearValues()}
               >
                 Close
               </button>

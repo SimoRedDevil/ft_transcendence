@@ -16,23 +16,8 @@ export default function Security() {
   const [username, setUsername] = useState("");
   const [enable2FA, setEnable2FA] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [code, setCode] = useState("");
 
-  // const enabel2fabutton = async () => {
-  //   if (users) {
-  //     setUsername(users.username);
-  //     await enableTwoFactorAuth();
-  //     setEnable2FA(users.enabeld_2fa);
-  //     await fetchUsers();
-  //   }
-  // };
-  // const desable2fabutton = async () => {
-  //   if (users) {
-  //     setUsername(users.username);
-  //     await disableTwoFactorAuth();
-  //     setEnable2FA(users.enabeld_2fa);
-  //     await fetchUsers();
-  //   }
-  // };
   useEffect(() => {
     fetchUsers();
     if (users)
@@ -40,7 +25,7 @@ export default function Security() {
         setUsername(users.username);
         setEnable2FA(users.enabeld_2fa);
       }
-  }, [users.enabeld_2fa]);
+  }, [users]);
 
   return (
     <UserProvider>
@@ -196,40 +181,8 @@ export default function Security() {
               </span>
             </div>
             <div className="flex justify-center">
-              <Popup isOpen={isPopupOpen} setIsOpen={setIsPopupOpen} />
+              <Popup isOpen={isPopupOpen} setIsOpen={setIsPopupOpen} {...{ enable2FA, setEnable2FA }} {...{code, setCode}} />
             </div>
-            {/* <div
-            className="flex flex-col w-full items-start pl-5">
-            <h1
-              className="text-sm text-white opacity-70 my-2">
-              Enter the code generated from your authenticator app
-            </h1>
-            <div className="relative less-than-tablet:w-[85%] tablet:w-[80%] laptop:w-[90%]">
-              <GrKey className="absolute less-than-tablet:top-1/2 tablet:top-[40%] left-4 transform -translate-y-1/2 tablet:text-2xl less-than-tablet:text-xl text-white" />
-              <input
-                type="text"
-                className="w-full tablet:h-[50px] laptop:h-[70px] rounded-[50px] mt-2 
-        bg-white bg-opacity-10 text-white p-4 pl-12 border-[0.5px] border-gray-500 focus:outline-none mb-7
-        less-than-tablet:h-[50px] less-than-tablet:mb-3"
-        readOnly={enable2FA ? true : false}
-              />
-            </div>
-            <div
-              className="w-full flex laptop:justify-center
-          "
-            >
-              <button onClick={
-                enable2FA ? desable2fabutton : enabel2fabutton
-              }
-                className="rounded-[50px] border-[0.5px] border-white border-opacity-40 desktop:h-[80px] w-[556px] bg-gradient-to-r from-[#1A1F26]/90 to-[#000]/70
-                            less-than-tablet:w-[85%] less-than-tablet:mb-3 laptop:h-[50px] laptop:my-0 tablet:h-[50px] 
-                            less-than-tablet:h-[50px] tablet:w-[75%] tablet:mb-5">
-                <h1 className="text-[22px] text-center">
-                {`${enable2FA ? 'Disable' : 'Enable'} 2FA`}
-                  </h1>
-              </button>
-            </div>
-          </div> */}
           </div>
         </div>
       </div>

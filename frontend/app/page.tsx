@@ -58,12 +58,12 @@ export default function Home() {
         <div className='
             flex
             items-center
-            justify-center
+            w-[20%]
+            justify-around
             h-screen
-            flex-col
+            ml-[1000px]
             text-white
         '>
-            hello world
             <Link href="/login">
                 Login
             </Link>

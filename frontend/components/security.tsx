@@ -28,7 +28,6 @@ export default function Security() {
   }, [users]);
 
   return (
-    <UserProvider>
       <div
         className="text-white w-full h-full flex items-center laptop:justify-center flex-col
         overflow-y-auto no-scrollbar overflow-x-hidden tablet:mb-3 laptop:flex-row
@@ -186,6 +185,5 @@ export default function Security() {
           </div>
         </div>
       </div>
-    </UserProvider>
   );
 }

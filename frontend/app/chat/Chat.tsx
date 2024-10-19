@@ -93,8 +93,8 @@ function Chat({conversationID, socket, otherUser}: ChatProps) {
           </div>
         </div>
         <div className='p-[20px] h-full w-full flex flex-col justify-between items-center'>
-          <div className='w-full h-[calc(100%_-_120px)] relative'>
-            <div className='h-full'>
+          <div className='w-full max-h-[calc(100%_-_200px)] relative'>
+            <div className='h-full no-scrollbar overflow-y-auto scroll-smooth'>
               {
                 messages.map((message) => (
                     <div key={message.id} className='flex flex-col gap-20 mb-5'>
@@ -137,17 +137,19 @@ function Chat({conversationID, socket, otherUser}: ChatProps) {
             <div className={(showEmoji) ? 'flex absolute top-[calc(100%_-_430px)] left-[calc(100%_-_400px)] overflow-hidden' : 'hidden'}>
               <EmojiPicker onEmojiClick={handleEmojiClick} width={400} theme='dark' emojiStyle='google' searchDisabled={false} lazyLoadEmojis={true}/>
             </div>
-          </div>
-          <div className='flex justify-between h-[80px] w-full rounded-[30px] border border-white border-opacity-30 bg-black bg-opacity-50'>
-            <TextBox input={input} onChange={(e) => setInput(e.target.value)} placeholder='Type a message...' icon={undefined} className='w-full h-full bg-transparent rounded-[30px] p-[20px]'></TextBox>
-            <div className='w-[140px] flex items-center justify-center gap-3'>
-              <button onClick={handleEmoji}>
-                <MdEmojiEmotions className={!showEmoji ? 'text-white text-opacity-90 w-[40px] h-[40px] hover:text-opacity-100' : 'text-[#4682B4] text-opacity-100 w-[40px] h-[40px]'} />
-              </button>
-              <button onClick={handleSendMessage}>
-                <BsFillSendFill className='text-white text-opacity-90 w-[35px] h-[35px] hover:text-opacity-100' />
-              </button>
+          <div className='w-full h-[100px] bg-transparent flex items-center justify-center'>
+            <div className='flex justify-between h-[80px] w-full rounded-[30px] border border-white border-opacity-30 bg-black bg-opacity-50'>
+              <TextBox input={input} onChange={(e) => setInput(e.target.value)} placeholder='Type a message...' icon={undefined} className='w-full h-full bg-transparent rounded-[30px] p-[20px]'></TextBox>
+              <div className='w-[140px] flex items-center justify-center gap-3'>
+                <button onClick={handleEmoji}>
+                  <MdEmojiEmotions className={!showEmoji ? 'text-white text-opacity-90 w-[40px] h-[40px] hover:text-opacity-100' : 'text-[#4682B4] text-opacity-100 w-[40px] h-[40px]'} />
+                </button>
+                <button onClick={handleSendMessage}>
+                  <BsFillSendFill className='text-white text-opacity-90 w-[35px] h-[35px] hover:text-opacity-100' />
+                </button>
+              </div>
             </div>
+          </div>
           </div>
         </div>
       </div>

@@ -74,14 +74,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = data['message']
         conversation_exists = await check_conversation_exists(conversation_id)
         conversation_obj = None
-        print(conversation_exists)
-        print(conversation_id)
-
         if not conversation_exists:
             conversation_obj = await create_conversation(sender, receiver, message)
         else:
             conversation_obj = await get_conversation(conversation_id)
-
         await set_conversation_last_msg(conversation_obj, message)
         await create_message(conversation_obj, sender, receiver, message)
         other_user_room_group_name = f'chat_{sent_to_user}'

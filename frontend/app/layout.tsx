@@ -48,7 +48,7 @@ export default function RootLayout({
     };
     useEffect(() => {
       validateToken();
-    }, []);
+    }, []); /** To be fixed */
   
     return (
       <html lang="en">

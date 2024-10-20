@@ -21,10 +21,9 @@ function ChatPage() {
       //   'sent_to_user': 'aaghbal'
       // }))
     }
-    socket.current.onmessage = (message) => {
-      console.log('Message: ', message)
-      setReceivedMsg(message)
-    }
+    // socket.current.onmessage = (message) => {
+    //   setReceivedMsg(message)
+    // }
     socket.current.onclose = () => {
       console.log('Disconnected from the chat server')
     }
@@ -39,7 +38,7 @@ function ChatPage() {
     <div className='w-full h-full flex items-center justify-center'>
       <div className='text-white w-[97%] h-full flex flex-col bg-black bg-opacity-60 rounded-[50px] border border-white border-opacity-30 sm:border sm:border-white sm:border-opacity-30 sm:rounded-[50px] sm:w-[90%] sm:h-[90%] xl:w-[80%] xl:h-[90%] lg:flex-row'>
         <Conversations setSelectedConversation={setSelectedConversation} setOtherUser={setOtherUser} receivedMsg={receivedMsg} />
-        {selectedConversation && <Chat conversationID={selectedConversation} socket={socket} otherUser={other_user} />}
+        {selectedConversation && <Chat conversationID={selectedConversation} socket={socket} otherUser={other_user} receivedMsg={receivedMsg} />}
       </div>
     </div>
   )

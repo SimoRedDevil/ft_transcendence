@@ -59,7 +59,7 @@ function TextFieledTmp({
                 ">
                     {label3}
                 </h1>
-                <input type={type} defaultValue={defaultValue3} className="less-than-tablet:w-[90%] laptop:h-[70px] rounded-[50px] 
+                <input type={type} placeholder={defaultValue3} className="less-than-tablet:w-[90%] laptop:h-[70px] rounded-[50px] 
                     bg-white bg-opacity-10 text-white p-4 border-[0.5px] border-gray-500 focus:outline-none 
                     h-[50px] less-than-tablet:mb-3 tablet:w-[80%] 
                     "/>

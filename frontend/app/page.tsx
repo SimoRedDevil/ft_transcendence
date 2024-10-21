@@ -4,13 +4,14 @@ import Login from './login/page'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-import { UserProvider, useUserContext} from '../components/context/usercontext'
 import { redirect } from 'next/dist/server/api-utils';
 import { useRouter } from 'next/navigation';
+import {UserContext} from "../components/context/usercontext";
+import { useContext } from "react";
 
 export default function Home() {
-    const users = useUserContext();
     const router = useRouter();
+    const setIsAuthenticated = useContext(UserContext);
 
     const getCookies = async () => {
         try {
@@ -35,6 +36,7 @@ export default function Home() {
                 xsrfCookieName: 'csrftoken',  // This is the default name for the CSRF cookie in Django
                 xsrfHeaderName: 'X-CSRFToken',  // This is the header Django looks for
             });
+            setIsAuthenticated(false);
             return response.data;
         } catch (error) {
             console.error('Error trying to logout:', error);
@@ -71,7 +73,7 @@ export default function Home() {
                 handleLogout
 
             }>
-                log out <span>{users.username}</span>
+                log out
             </button>
         </div>
     )

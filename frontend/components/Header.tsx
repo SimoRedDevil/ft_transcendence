@@ -4,8 +4,11 @@ import { FaSearch } from "react-icons/fa";
 import { IoIosNotifications } from "react-icons/io";
 import TextBox from './TextBox';
 import Link from 'next/link';
-
+import {UserContext} from './context/usercontext';
+import { useContext } from 'react';
+import { useState, useEffect } from 'react';
 function Header() {
+  const {users, loading, error, isAuthenticated, setIsAuthenticated} = useContext(UserContext);
   return (
     <header className='text-white flex justify-between items-center p-[10px]'>
       <div>

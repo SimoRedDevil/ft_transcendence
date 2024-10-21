@@ -19,7 +19,6 @@ export default function Security() {
   const [code, setCode] = useState("");
 
   useEffect(() => {
-    fetchUsers();
     if (users)
       {
         setUsername(users.username);

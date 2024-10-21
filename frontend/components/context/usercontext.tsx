@@ -1,14 +1,13 @@
-"use client";
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
 const UserContext = createContext(null);
 
 export const UserProvider = ({ children }) => {
-    const [users, setUsers] = useState(null); // Set to null initially
+    const [users, setUsers] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     const fetchUsers = async () => {
         try {
@@ -18,10 +17,17 @@ export const UserProvider = ({ children }) => {
                     'Content-Type': 'application/json',
                 },
             });
-            setUsers(response.data);
+            const user = response.data;
+            setUsers(user);
+            if (user) {
+                setIsAuthenticated(true);
+            } else {
+                setIsAuthenticated(false);
+            }
         } catch (error) {
             console.error('Error fetching users:', error);
             setError(error);
+            setIsAuthenticated(false);
         } finally {
             setLoading(false);
         }
@@ -29,10 +35,10 @@ export const UserProvider = ({ children }) => {
 
     useEffect(() => {
         fetchUsers();
-    }, []);
+    }, [users]);
 
     return (
-        <UserContext.Provider value={{ users, loading, error, fetchUsers }}> {/* Expose fetchUsers */}
+        <UserContext.Provider value={{ users, loading, error, isAuthenticated, setIsAuthenticated }}>
             {children}
         </UserContext.Provider>
     );
@@ -41,7 +47,12 @@ export const UserProvider = ({ children }) => {
 export const useUserContext = () => {
     const context = useContext(UserContext);
     if (context === null) {
-        throw new Error('useUserContext must be used within a UserProvider'); // Handle null context
+        throw new Error('useUserContext must be used within a UserProvider');
     }
     return context;
 };
+
+
+
+// Export the UserContext directly for access in components
+export { UserContext };

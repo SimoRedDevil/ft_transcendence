@@ -56,7 +56,7 @@ const Popup = (
       setUsername(users.username);
       await enableTwoFactorAuth();
       setEnable2FA(users.enabeld_2fa);
-      await fetchUsers();
+      // await fetchUsers();
     }
   };
   const desable2fabutton = async () => {
@@ -64,7 +64,7 @@ const Popup = (
       setUsername(users.username);
       await disableTwoFactorAuth();
       setEnable2FA(users.enabeld_2fa);
-      await fetchUsers();
+      // await fetchUsers();
     }
   };
 
@@ -80,7 +80,7 @@ const verify2FA = async () => {
 
 
   useEffect(() => {
-    fetchUsers();
+    // fetchUsers();
     if (users && users.username) {
       setUsername(users.username);
       setEnable2FA(users.enabeld_2fa);

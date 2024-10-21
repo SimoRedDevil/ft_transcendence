@@ -9,6 +9,7 @@ import Security from "../../components/security";
 import Others from "../../components/others";
 import { TfiLayoutGrid3Alt } from "react-icons/tfi";
 import { useState } from "react";
+import {UserProvider, useUserContext} from "../../components/context/usercontext";
 
 export default function Home() {
     const [activeComponent, setActiveComponent] = useState('information');

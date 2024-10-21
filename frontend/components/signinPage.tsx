@@ -7,6 +7,8 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { handle42Callback } from './auth'
+import { useContext } from "react";
+
 interface SigninPageProps {
   onNavigate?: () => void;
 }

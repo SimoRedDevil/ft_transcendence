@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { handle42Callback } from './auth'
 import { useContext } from "react";
+import { UserContext } from "./context/usercontext";
 
 interface SigninPageProps {
   onNavigate?: () => void;
@@ -18,6 +19,7 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
   const [password, setPassword] = useState("");
   const router = useRouter();
   const hasHandledCallback = useRef(false);
+  const { setIsAuthenticated } = useContext(UserContext);
 
   const handleSignin = async (e) => {
     e.preventDefault();
@@ -37,12 +39,15 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
   
       if (response.status === 200) {
         alert("Signin successful");
+        setIsAuthenticated(true);
         router.push("/");
       } else {
         alert(data.message || "Signin failed, please try again.");
+        setIsAuthenticated(false);
       }
     } catch (error) {
       alert("An error occurred. Please try again later.");
+      setIsAuthenticated(false);
     }
   };  
 

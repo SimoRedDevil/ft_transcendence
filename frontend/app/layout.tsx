@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useContext, CSSProperties, useState } from 'react';
+import React, { useEffect, useContext, CSSProperties} from 'react';
 import ClipLoader from "react-spinners/ClipLoader";
 import "./styles/global.css";
 import { usePathname, useRouter } from 'next/navigation';
@@ -7,11 +7,6 @@ import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import { UserProvider, UserContext } from '../components/context/usercontext';
 
-const override: CSSProperties = {
-    display: "block",
-    margin: "0 auto",
-    borderColor: "red",
-};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname(); 
@@ -20,32 +15,25 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
     const AuthProtectedLayout = () => {
         const { isAuthenticated, loading } = useContext(UserContext);
-        const [color] = useState("#ff0000"); // Set your desired loader color
 
         useEffect(() => {
-            if (!loading) {
-                if (!isAuthenticated && !exclude.includes(pathname)) {
-                    router.push('/login');
-                } else if (isAuthenticated && pathname === '/login') {
-                    router.push('/'); // Redirect authenticated users away from the login page
-                }
+            if (!isAuthenticated) {
+              router.push('/login');
             }
-        }, [isAuthenticated, loading, pathname, router]);
-
+          }, [isAuthenticated, router]);
+          
         // Show a loading screen until the authentication status is determined
         if (loading) {
-            return (
-                <div className="loading-screen">
-                    <ClipLoader
-                        color={color}
-                        loading={loading}
-                        cssOverride={override}
-                        size={150}
-                        aria-label="Loading Spinner"
-                        data-testid="loader"
-                    />
-                </div>
-            );
+            return <div className="
+                     flex justify-center items-center h-screen w-screen bg-main-bg border
+                    border-black bg-cover bg-no-repeat bg-center fixed min-w-[280px] min-h-[800px]">
+                <ClipLoader color="#949DA2" loading={loading} size={70}
+                 />
+                </div>;
+        }
+        // Once loading is complete, allow rendering only if the user is authenticated
+        if (!isAuthenticated && !exclude.includes(pathname)) {
+            return null; // Or keep the loading spinner to prevent flashing the protected page
         }
 
         return (

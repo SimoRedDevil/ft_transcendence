@@ -18,6 +18,9 @@ export const UserProvider = ({ children }) => {
                 },
             });
             const user = response.data;
+            // while (user) {
+            //     await new Promise((resolve) => setTimeout(resolve, 1000));
+            // }
             setUsers(user);
             if (user) {
                 setIsAuthenticated(true);

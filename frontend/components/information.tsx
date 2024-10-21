@@ -4,12 +4,11 @@ import {UserContext} from "./context/usercontext";
 import { useContext } from "react";
 
 export default function Information() {
-  const {users, loading, isAuthenticated} = useContext(UserContext);
+  const {users, loading} = useContext(UserContext);
 
   if (loading || !users) {
     return <div>Loading...</div>;
   }
-  console.log("isAuthenticated", isAuthenticated);
   return (
     <div
       className=" text-white w-full h-full flex items-center laptop:justify-evenly less-than-tablet:flex-col

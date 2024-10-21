@@ -11,7 +11,7 @@ import { useContext } from "react";
 
 export default function Home() {
     const router = useRouter();
-    const setIsAuthenticated = useContext(UserContext);
+    const {setIsAuthenticated} = useContext(UserContext);
 
     const getCookies = async () => {
         try {
@@ -40,6 +40,7 @@ export default function Home() {
             return response.data;
         } catch (error) {
             console.error('Error trying to logout:', error);
+            setIsAuthenticated(false);
             return null;
         }
     };

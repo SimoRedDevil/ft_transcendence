@@ -30,7 +30,6 @@ function Chat({conversationID, socket, otherUser, receivedMsg}: ChatProps) {
   socket.current.onmessage = (message) => {
     const newMessage = JSON.parse(message.data)
     setInstantMessages((prevMessages) => [...prevMessages, newMessage])
-    console.log(instantMessages)
   }
 
   const handleEmoji = () => {
@@ -193,6 +192,7 @@ function Chat({conversationID, socket, otherUser, receivedMsg}: ChatProps) {
             <div className={(showEmoji) ? 'flex absolute top-[calc(100%_-_430px)] left-[calc(100%_-_400px)] overflow-hidden' : 'hidden'}>
               <EmojiPicker onEmojiClick={handleEmojiClick} width={400} theme='dark' emojiStyle='google' searchDisabled={false} lazyLoadEmojis={true}/>
             </div>
+          </div>
           <div className='w-full h-[100px] bg-transparent flex items-center justify-center'>
             <div className='flex justify-between h-[80px] w-full rounded-[30px] border border-white border-opacity-30 bg-black bg-opacity-50'>
               <TextBox input={input} onChange={(e) => setInput(e.target.value)} placeholder='Type a message...' icon={undefined} className='w-full h-full bg-transparent rounded-[30px] p-[20px]'></TextBox>
@@ -205,7 +205,6 @@ function Chat({conversationID, socket, otherUser, receivedMsg}: ChatProps) {
                 </button>
               </div>
             </div>
-          </div>
           </div>
         </div>
       </div>

@@ -37,9 +37,21 @@ function ChatPage() {
   return (
     <div className='w-full h-full flex items-center justify-center'>
       <div className='text-white w-[97%] h-full flex flex-col bg-black bg-opacity-60 rounded-[50px] border border-white border-opacity-30 sm:border sm:border-white sm:border-opacity-30 sm:rounded-[50px] sm:w-[90%] sm:h-[90%] xl:w-[80%] xl:h-[90%] lg:flex-row'>
-        <Conversations setSelectedConversation={setSelectedConversation} setOtherUser={setOtherUser} receivedMsg={receivedMsg} />
+        <Conversations setSelectedConversation={setSelectedConversation} setOtherUser={setOtherUser} />
         {selectedConversation && <Chat conversationID={selectedConversation} socket={socket} otherUser={other_user} receivedMsg={receivedMsg} />}
       </div>
+      {/* <div className='border h-[100px] w-[200px] text-white'>
+        <button onClick={
+          async () => {
+            socket.current.send(JSON.stringify({
+              'message': 'Hi there',
+              'sent_by_user': 'mel-yous',
+              'sent_to_user': 'aaghbal',
+              'conversation_id': '-1'
+            }))
+          }
+        }>initial message</button>
+      </div> */}
     </div>
   )
 }

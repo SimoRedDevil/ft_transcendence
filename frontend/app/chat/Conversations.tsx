@@ -6,7 +6,7 @@ import { cookies } from 'next/headers';
 import { useUserContext } from '../../components/context/usercontext';
 import axios from 'axios'
 
-function Conversations({setSelectedConversation, setOtherUser, receivedMsg}) {
+function Conversations({setSelectedConversation, setOtherUser}) {
   const [conversations, setConversations] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [conversationIsSelected, setConversationIsSelected] = useState(false)
@@ -29,7 +29,7 @@ function Conversations({setSelectedConversation, setOtherUser, receivedMsg}) {
 
   useEffect(() => {
     fetchConversations()
-  }, [receivedMsg])
+  }, [])
 
   if (isLoading || user === null || user.users === null) return <div>Loading...</div> ;
 

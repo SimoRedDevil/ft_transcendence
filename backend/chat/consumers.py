@@ -4,6 +4,7 @@ from channels.db import database_sync_to_async
 from authentication.models import CustomUser
 from .models import conversation, message
 from django.db.models import Q
+from django.utils import timezone
 
 @database_sync_to_async
 def get_user(username):
@@ -60,7 +61,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             {
                 'type': 'send_message',
                 'sent_by_user': info['sent_by_user'],
-                'message': info['message']
+                'message': info['message'],
+                'timestamp': timezone.now().strftime("%A, %I:%M %p")
             }
         )
 
@@ -87,7 +89,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def send_message(self, event):
         sent_by_user = event['sent_by_user']
         message = event['message']
+        timestamp = event['timestamp']
         await self.send(text_data=json.dumps({
             'sent_by_user': sent_by_user,
-            'message': message
+            'message': message,
+            'timestamp': timestamp
         }))

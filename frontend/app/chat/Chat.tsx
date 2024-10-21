@@ -15,21 +15,22 @@ type ChatProps = {
   conversationID: any,
   socket: any,
   otherUser: any,
-  receivedMsg: any
+  lastMessageRef: any,
+  data: any
 }
 
-function Chat({conversationID, socket, otherUser, receivedMsg}: ChatProps) {
+function Chat({conversationID, socket, otherUser, lastMessageRef, data}: ChatProps) {
   const [showEmoji, setShowEmoji] = useState(false)
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const user = useUserContext()
   const refScroll = useRef(null)
-  const [instantMessages, setInstantMessages] = useState([])
 
-  socket.current.onmessage = (message) => {
-    const newMessage = JSON.parse(message.data)
-    setInstantMessages((prevMessages) => [...prevMessages, newMessage])
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSendMessage()
+    }
   }
 
   const handleEmoji = () => {
@@ -71,7 +72,7 @@ function Chat({conversationID, socket, otherUser, receivedMsg}: ChatProps) {
 
   useEffect(() => {
     scrollToLastMessage()
-  }, [instantMessages])
+  }, [data, conversationID])
 
   const handleSendMessage = () => {
     console.log(otherUser.username)
@@ -81,6 +82,7 @@ function Chat({conversationID, socket, otherUser, receivedMsg}: ChatProps) {
       'sent_by_user': user.users.username,
       'sent_to_user': otherUser.username
     }))
+    setInput('')
   }
 
   if (isLoading || user === null || user.users === null) return <div>Loading...</div> ;
@@ -99,7 +101,7 @@ function Chat({conversationID, socket, otherUser, receivedMsg}: ChatProps) {
             </div>
             <div className='flex flex-col justify-center gap-3'>
               <span className='text-[20px]'>{otherUser.full_name}</span>
-              <span className='text-[18px] text-white text-opacity-65'>Active now</span>
+              <span className='text-[18px] text-white text-opacity-65'>{otherUser.online === true ? 'Active Now' : 'Offline'}</span>
             </div>
           </div>
           <div className='w-[140px] flex gap-2'>
@@ -111,39 +113,35 @@ function Chat({conversationID, socket, otherUser, receivedMsg}: ChatProps) {
             </button>
           </div>
         </div>
-        <div className='p-[20px] h-full w-full flex flex-col justify-between items-center'>
-          <div className='w-full max-h-[calc(100%_-_200px)] relative'>
+        <div className='p-[20px] h-[90%] w-full flex flex-col justify-between items-center overflow-hidden'>
+          <div className='w-full h-[89%] relative'>
             <div className='h-full no-scrollbar overflow-y-auto scroll-smooth'>
               {
                 messages.map((message) => (
                     <div ref={message.id === messages.length - 1 ? refScroll : null} key={message.id} className='flex flex-col gap-20 mb-5'>
                         {
                           message.sender_info.username === user.users.username ?
-                          <div className='flex flex-col gap-3'>
-                            <div className='flex flex-row gap-3 justify-end'>
-                              {/* <div className='flex flex-col justify-center gap-3'>
-                                <span className='text-white text-[20px]'>{message.sender_info.full_name}</span>
-                                <span className='text-white text-opacity-60 text-[18px]'>{message.get_human_readable_time}</span>
-                              </div> */}
-                              {/* <div className='rounded-full h-[80px] w-[80px] bg-red-700'></div> */}
-                            </div>
+                          <div className='flex flex-col gap-2'>
                             <div className='w-[100%] flex justify-end'>
                               <div className='border border-white border-opacity-20 rounded-[30px] p-[20px] bg-black max-w-[75%]'>
                                 <span className='text-white text-[20px]'>{message.content}</span>
                               </div>
                             </div>
-                          </div> :
-                          <div className='flex flex-col gap-3'>
-                            <div className='flex flex-row gap-3 justify-start'>
-                              {/* <div className='rounded-full h-[80px] w-[80px] bg-red-700'></div>
-                              <div className='flex flex-col justify-center gap-3'>
-                                <span className='text-white text-[20px]'>{message.sender_info.full_name}</span>
-                                <span className='text-white text-opacity-60 text-[18px]'>{message.get_human_readable_time}</span>
-                              </div> */}
+                            <div className='w-[100%] flex justify-end'>
+                              <div className='flex flex-col justify-center'>
+                                <span className='text-white text-opacity-60 text-[16px]'>{message.get_human_readable_time}</span>
+                              </div>
                             </div>
+                          </div> :
+                          <div className='flex flex-col gap-2'>
                             <div className='w-[100%] flex justify-start'>
                               <div className='border border-white border-opacity-20 rounded-[30px] p-[20px] bg-[#0D161A] max-w-[75%]'>
                                 <span className='text-white text-[20px]'>{message.content}</span>
+                              </div>
+                            </div>
+                            <div className='max-w-[75%] flex justify-start'>
+                              <div className='flex flex-col justify-center'>
+                                <span className='text-white text-opacity-60 text-[16px]'>{message.get_human_readable_time}</span>
                               </div>
                             </div>
                         </div>
@@ -152,37 +150,33 @@ function Chat({conversationID, socket, otherUser, receivedMsg}: ChatProps) {
                 ))
               }
               {
-                instantMessages.map((message, index) => (
-                  <div ref={index === instantMessages.length - 1 ? refScroll : null} key={index} className='flex flex-col gap-20 mb-5'>
+                data.map((message, index) => (
+                  <div ref={index === data.length - 1 ? refScroll : null} key={index} className='flex flex-col gap-20 mb-5'>
                     {
                       message.sent_by_user === user.users.username ?
                       <div className='flex flex-col gap-3'>
-                        <div className='flex flex-row gap-3 justify-end'>
-                          {/* <div className='flex flex-col justify-center gap-3'>
-                            <span className='text-white text-[20px]'>{message.sender_info.full_name}</span>
-                            <span className='text-white text-opacity-60 text-[18px]'>{message.get_human_readable_time}</span>
-                          </div> */}
-                          {/* <div className='rounded-full h-[80px] w-[80px] bg-red-700'></div> */}
-                        </div>
                         <div className='w-[100%] flex justify-end'>
                           <div className='border border-white border-opacity-20 rounded-[30px] p-[20px] bg-black max-w-[75%]'>
                             <span className='text-white text-[20px]'>{message.message}</span>
                           </div>
                         </div>
+                        <div className='max-w-[100%] flex justify-end'>
+                            <div className='flex flex-col justify-center'>
+                              <span className='text-white text-opacity-60 text-[16px]'>{message.timestamp}</span>
+                            </div>
+                        </div>
                       </div> :
                       <div className='flex flex-col gap-3'>
-                        <div className='flex flex-row gap-3 justify-start'>
-                          {/* <div className='rounded-full h-[80px] w-[80px] bg-red-700'></div>
-                          <div className='flex flex-col justify-center gap-3'>
-                            <span className='text-white text-[20px]'>{message.sender_info.full_name}</span>
-                            <span className='text-white text-opacity-60 text-[18px]'>{message.get_human_readable_time}</span>
-                          </div> */}
-                        </div>
                         <div className='w-[100%] flex justify-start'>
                           <div className='border border-white border-opacity-20 rounded-[30px] p-[20px] bg-[#0D161A] max-w-[75%]'>
                             <span className='text-white text-[20px]'>{message.message}</span>
                           </div>
                         </div>
+                        <div className='max-w-[100%] flex justify-start'>
+                            <div className='flex flex-col justify-center'>
+                              <span className='text-white text-opacity-60 text-[16px]'>{message.timestamp}</span>
+                            </div>
+                          </div>
                     </div>
                     }
                   </div>
@@ -194,7 +188,7 @@ function Chat({conversationID, socket, otherUser, receivedMsg}: ChatProps) {
             </div>
           </div>
           <div className='w-full h-[100px] bg-transparent flex items-center justify-center'>
-            <div className='flex justify-between h-[80px] w-full rounded-[30px] border border-white border-opacity-30 bg-black bg-opacity-50'>
+            <div onKeyDown={handleKeyDown} className='flex justify-between h-[80px] w-full rounded-[30px] border border-white border-opacity-30 bg-black bg-opacity-50'>
               <TextBox input={input} onChange={(e) => setInput(e.target.value)} placeholder='Type a message...' icon={undefined} className='w-full h-full bg-transparent rounded-[30px] p-[20px]'></TextBox>
               <div className='w-[140px] flex items-center justify-center gap-3'>
                 <button onClick={handleEmoji}>

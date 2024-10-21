@@ -4,12 +4,15 @@ import TextBox from '../../components/TextBox';
 import { axiosInstance } from '../../utils/axiosInstance';
 import { cookies } from 'next/headers';
 import { useUserContext } from '../../components/context/usercontext';
+import { useRef } from 'react';
+import { truncateMessage } from '../../utils/tools';
 import axios from 'axios'
 
-function Conversations({setSelectedConversation, setOtherUser}) {
+function Conversations({setSelectedConversation, setOtherUser, lastMessageRef}) {
   const [conversations, setConversations] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [conversationIsSelected, setConversationIsSelected] = useState(false)
+  const [messageOwner, setMessageOwner] = useState(null)
   const user = useUserContext()
 
   const fetchConversations = async () => {
@@ -38,12 +41,6 @@ function Conversations({setSelectedConversation, setOtherUser}) {
       setOtherUser(conversation.user1_info.username === user.users.username ? conversation.user2_info : conversation.user1_info)
       setSelectedConversation(conversationID)
       setConversationIsSelected(true)
-  }
-
-  function truncateMessage(message, maxLength) {
-    if (message.length > maxLength)
-      return message.substring(0, maxLength) + '...';
-    return message;
   }
 
   return (
@@ -79,7 +76,7 @@ function Conversations({setSelectedConversation, setOtherUser}) {
                   {
                     conversation.user1_info.username === user.users.username ? <span className='text-[1rem]'>{conversation.user2_info.full_name}</span> : <span className='text-[1rem]'>{conversation.user1_info.full_name}</span>
                   }  
-                  <span className='text-[0.9rem] text-white text-opacity-65'>{truncateMessage(conversation.last_message, 50)}</span>
+                  <span ref={lastMessageRef} className='text-[0.9rem] text-white text-opacity-65'>{truncateMessage(conversation.last_message, 50)}</span>
                 </div>
               </div>
             ))}

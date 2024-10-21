@@ -110,6 +110,8 @@ class LoginView(APIView):
             user = authenticate(username=user.username, password=password)
             if user is not None:
                 login(request, user)
+                user.online = True
+                user.save()
                 refresh = RefreshToken.for_user(user)
                 access_token = str(refresh.access_token)
                 refresh_token = str(refresh)

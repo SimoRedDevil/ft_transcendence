@@ -9,6 +9,7 @@ import EmojiPicker from 'emoji-picker-react';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import axios from 'axios';
+import {checkStringEmpty} from '../../utils/tools';
 import { useUserContext } from '../../components/context/usercontext';
 
 type ChatProps = {
@@ -75,7 +76,7 @@ function Chat({conversationID, socket, otherUser, lastMessageRef, data}: ChatPro
   }, [data, conversationID])
 
   const handleSendMessage = () => {
-    console.log(otherUser.username)
+    if (checkStringEmpty(input)) return;
     socket.current.send(JSON.stringify({
       'conversation_id': conversationID,
       'message': input,
@@ -123,7 +124,7 @@ function Chat({conversationID, socket, otherUser, lastMessageRef, data}: ChatPro
                           message.sender_info.username === user.users.username ?
                           <div className='flex flex-col gap-2'>
                             <div className='w-[100%] flex justify-end'>
-                              <div className='border border-white border-opacity-20 rounded-[30px] p-[20px] bg-black max-w-[75%]'>
+                              <div className='whitespace-pre-wrap border border-white border-opacity-20 rounded-[30px] p-[20px] bg-black max-w-[75%]'>
                                 <span className='text-white text-[20px]'>{message.content}</span>
                               </div>
                             </div>
@@ -135,7 +136,7 @@ function Chat({conversationID, socket, otherUser, lastMessageRef, data}: ChatPro
                           </div> :
                           <div className='flex flex-col gap-2'>
                             <div className='w-[100%] flex justify-start'>
-                              <div className='border border-white border-opacity-20 rounded-[30px] p-[20px] bg-[#0D161A] max-w-[75%]'>
+                              <div className='whitespace-pre-wrap border border-white border-opacity-20 rounded-[30px] p-[20px] bg-[#0D161A] max-w-[75%]'>
                                 <span className='text-white text-[20px]'>{message.content}</span>
                               </div>
                             </div>
@@ -156,7 +157,7 @@ function Chat({conversationID, socket, otherUser, lastMessageRef, data}: ChatPro
                       message.sent_by_user === user.users.username ?
                       <div className='flex flex-col gap-3'>
                         <div className='w-[100%] flex justify-end'>
-                          <div className='border border-white border-opacity-20 rounded-[30px] p-[20px] bg-black max-w-[75%]'>
+                          <div className='whitespace-pre-wrap border border-white border-opacity-20 rounded-[30px] p-[20px] bg-black max-w-[75%]'>
                             <span className='text-white text-[20px]'>{message.message}</span>
                           </div>
                         </div>
@@ -168,7 +169,7 @@ function Chat({conversationID, socket, otherUser, lastMessageRef, data}: ChatPro
                       </div> :
                       <div className='flex flex-col gap-3'>
                         <div className='w-[100%] flex justify-start'>
-                          <div className='border border-white border-opacity-20 rounded-[30px] p-[20px] bg-[#0D161A] max-w-[75%]'>
+                          <div className='whitespace-pre-wrap border border-white border-opacity-20 rounded-[30px] p-[20px] bg-[#0D161A] max-w-[75%]'>
                             <span className='text-white text-[20px]'>{message.message}</span>
                           </div>
                         </div>

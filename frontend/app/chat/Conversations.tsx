@@ -72,10 +72,10 @@ function Conversations({setSelectedConversation, setOtherUser, lastMessageRef}) 
                 <div className='h-[80px] w-[80px] rounded-full bg-blue-800'>
                   {/* <Image className='rounded-full' src='' width={50} height={50} alt='avatar'/> */}
                 </div>
-                <div className='flex flex-col gap-3'>
+                <div className='whitespace-pre-wrap flex flex-col gap-3'>
                   {
                     conversation.user1_info.username === user.users.username ? <span className='text-[1rem]'>{conversation.user2_info.full_name}</span> : <span className='text-[1rem]'>{conversation.user1_info.full_name}</span>
-                  }  
+                  }
                   <span ref={lastMessageRef} className='text-[0.9rem] text-white text-opacity-65'>{truncateMessage(conversation.last_message, 50)}</span>
                 </div>
               </div>

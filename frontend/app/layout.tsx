@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useContext, CSSProperties} from 'react';
-import ClipLoader from "react-spinners/ClipLoader";
+import ScaleLoader from "react-spinners/ScaleLoader";
 import "./styles/global.css";
 import { usePathname, useRouter } from 'next/navigation';
 import Header from '../components/Header';
@@ -18,22 +18,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         useEffect(() => {
             if (!isAuthenticated) {
+                console.log('User is not authenticated. Redirecting to login page...');
               router.push('/login');
             }
-          }, [isAuthenticated, router]);
+          }, [isAuthenticated, loading, router]);
           
         // Show a loading screen until the authentication status is determined
         if (loading) {
-            return <div className="
-                     flex justify-center items-center h-screen w-screen bg-main-bg border
+            return <div className="flex justify-center items-center h-screen w-screen bg-main-bg border
                     border-black bg-cover bg-no-repeat bg-center fixed min-w-[280px] min-h-[800px]">
-                <ClipLoader color="#949DA2" loading={loading} size={70}
-                 />
+                <ScaleLoader color="#949DA2" loading={loading} size={150}/>
                 </div>;
         }
-        // Once loading is complete, allow rendering only if the user is authenticated
         if (!isAuthenticated && !exclude.includes(pathname)) {
-            return null; // Or keep the loading spinner to prevent flashing the protected page
+            router.push('/login');
         }
 
         return (
@@ -44,7 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     </div>
                 )}
                 <div className='h-[calc(100%_-_100px)] flex flex-col-reverse sm:flex-row'>
-                    {!exclude.includes(pathname) && (
+                    {!exclude.includes(pathname) && isAuthenticated && (
                         <div className='flex sm:flex-col w-full sm:w-[100px]'>
                             <Sidebar />
                         </div>

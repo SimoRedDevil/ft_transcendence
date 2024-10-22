@@ -24,6 +24,7 @@ export const UserProvider = ({ children }) => {
             setUsers(user);
             if (user) {
                 setIsAuthenticated(true);
+                console.log('User is authenticated------------------------------------');
             } else {
                 setIsAuthenticated(false);
             }

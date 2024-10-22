@@ -39,15 +39,12 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
   
       if (response.status === 200) {
         alert("Signin successful");
-        setIsAuthenticated(true);
         router.push("/");
       } else {
         alert(data.message || "Signin failed, please try again.");
-        setIsAuthenticated(false);
       }
     } catch (error) {
       alert("An error occurred. Please try again later.");
-      setIsAuthenticated(false);
     }
   };  
 

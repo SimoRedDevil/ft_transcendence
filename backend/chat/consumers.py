@@ -76,7 +76,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = data['message']
         conversation_exists = await check_conversation_exists(conversation_id)
         conversation_obj = None
-        if not conversation_exists or conversation_id == -1:
+        if not conversation_exists:
             conversation_obj = await create_conversation(sender, receiver, message)
         else:
             conversation_obj = await get_conversation(conversation_id)

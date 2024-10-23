@@ -13,18 +13,12 @@ import {checkStringEmpty} from '../../utils/tools';
 import { useUserContext } from '../../components/context/usercontext';
 
 type ChatProps = {
-  conversationID: any,
-  socket: any,
-  otherUser: any,
-  lastMessageRef: any,
-  data: any
+
 }
 
-function Chat({conversationID, socket, otherUser, lastMessageRef, data}: ChatProps) {
+function Chat() {
   const [showEmoji, setShowEmoji] = useState(false)
   const [input, setInput] = useState('')
-  const [messages, setMessages] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
   const user = useUserContext()
   const refScroll = useRef(null)
 
@@ -42,51 +36,18 @@ function Chat({conversationID, socket, otherUser, lastMessageRef, data}: ChatPro
     setInput((prevInput) => prevInput + emojiObject.emoji)
   }
 
-  const fetchMessages = async (conversationID) => {
-    try {
-      const response = await axios.get('http://localhost:8000/api/chat/messages/', {
-          withCredentials: true,
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          params: {
-            conversation_id: conversationID
-          }
-      });
-      setMessages(response.data)
-      setIsLoading(false)
-    } catch (error) {
-      setIsLoading(false)
-      console.log(error)
-    }
-  }
-
   const scrollToLastMessage = () => {
     if (refScroll.current) {
       refScroll.current.scrollIntoView({ behavior: 'smooth' })
     }
   };
 
-  useEffect(() => {
-    fetchMessages(conversationID)
-  }, [conversationID])
-
-  useEffect(() => {
-    scrollToLastMessage()
-  }, [data, conversationID])
-
   const handleSendMessage = () => {
     if (checkStringEmpty(input)) return;
-    socket.current.send(JSON.stringify({
-      'conversation_id': conversationID,
-      'message': input,
-      'sent_by_user': user.users.username,
-      'sent_to_user': otherUser.username
-    }))
     setInput('')
   }
 
-  if (isLoading || user === null || user.users === null) return <div>Loading...</div> ;
+  if (user === null || user.users === null || refScroll === null) return <div>Loading...</div> ;
 
 
   return (
@@ -101,8 +62,8 @@ function Chat({conversationID, socket, otherUser, lastMessageRef, data}: ChatPro
               {/* <Image className='rounded-full' src={data[0].image} width={60} height={60} alt='avatar'/> */}
             </div>
             <div className='flex flex-col justify-center gap-3'>
-              <span className='text-[20px]'>{otherUser.full_name}</span>
-              <span className='text-[18px] text-white text-opacity-65'>{otherUser.online === true ? 'Active Now' : 'Offline'}</span>
+              {/* <span className='text-[20px]'>{otherUser.full_name}</span>
+              <span className='text-[18px] text-white text-opacity-65'>{otherUser.online === true ? 'Active Now' : 'Offline'}</span> */}
             </div>
           </div>
           <div className='w-[140px] flex gap-2'>
@@ -117,72 +78,7 @@ function Chat({conversationID, socket, otherUser, lastMessageRef, data}: ChatPro
         <div className='p-[20px] h-[90%] w-full flex flex-col justify-between items-center overflow-hidden'>
           <div className='w-full h-[89%] relative'>
             <div className='h-full no-scrollbar overflow-y-auto scroll-smooth'>
-              {
-                messages.map((message) => (
-                    <div ref={message.id === messages.length - 1 ? refScroll : null} key={message.id} className='flex flex-col gap-20 mb-5'>
-                        {
-                          message.sender_info.username === user.users.username ?
-                          <div className='flex flex-col gap-2'>
-                            <div className='w-[100%] flex justify-end'>
-                              <div className='whitespace-pre-wrap border border-white border-opacity-20 rounded-[30px] p-[20px] bg-black max-w-[75%]'>
-                                <span className='text-white text-[20px]'>{message.content}</span>
-                              </div>
-                            </div>
-                            <div className='w-[100%] flex justify-end'>
-                              <div className='flex flex-col justify-center'>
-                                <span className='text-white text-opacity-60 text-[16px]'>{message.get_human_readable_time}</span>
-                              </div>
-                            </div>
-                          </div> :
-                          <div className='flex flex-col gap-2'>
-                            <div className='w-[100%] flex justify-start'>
-                              <div className='whitespace-pre-wrap border border-white border-opacity-20 rounded-[30px] p-[20px] bg-[#0D161A] max-w-[75%]'>
-                                <span className='text-white text-[20px]'>{message.content}</span>
-                              </div>
-                            </div>
-                            <div className='max-w-[75%] flex justify-start'>
-                              <div className='flex flex-col justify-center'>
-                                <span className='text-white text-opacity-60 text-[16px]'>{message.get_human_readable_time}</span>
-                              </div>
-                            </div>
-                        </div>
-                        }
-                    </div>
-                ))
-              }
-              {
-                data.map((message, index) => (
-                  <div ref={index === data.length - 1 ? refScroll : null} key={index} className='flex flex-col gap-20 mb-5'>
-                    {
-                      message.sent_by_user === user.users.username ?
-                      <div className='flex flex-col gap-3'>
-                        <div className='w-[100%] flex justify-end'>
-                          <div className='whitespace-pre-wrap border border-white border-opacity-20 rounded-[30px] p-[20px] bg-black max-w-[75%]'>
-                            <span className='text-white text-[20px]'>{message.message}</span>
-                          </div>
-                        </div>
-                        <div className='max-w-[100%] flex justify-end'>
-                            <div className='flex flex-col justify-center'>
-                              <span className='text-white text-opacity-60 text-[16px]'>{message.timestamp}</span>
-                            </div>
-                        </div>
-                      </div> :
-                      <div className='flex flex-col gap-3'>
-                        <div className='w-[100%] flex justify-start'>
-                          <div className='whitespace-pre-wrap border border-white border-opacity-20 rounded-[30px] p-[20px] bg-[#0D161A] max-w-[75%]'>
-                            <span className='text-white text-[20px]'>{message.message}</span>
-                          </div>
-                        </div>
-                        <div className='max-w-[100%] flex justify-start'>
-                            <div className='flex flex-col justify-center'>
-                              <span className='text-white text-opacity-60 text-[16px]'>{message.timestamp}</span>
-                            </div>
-                          </div>
-                    </div>
-                    }
-                  </div>
-                ))    
-              }
+              {/* Messages here */}
             </div>
             <div className={(showEmoji) ? 'flex absolute top-[calc(100%_-_430px)] left-[calc(100%_-_400px)] overflow-hidden' : 'hidden'}>
               <EmojiPicker onEmojiClick={handleEmojiClick} width={400} theme='dark' emojiStyle='google' searchDisabled={false} lazyLoadEmojis={true}/>

@@ -16,4 +16,4 @@ class MessageViewSet(viewsets.ModelViewSet):
     serializer_class = MessageSerializer
     def get_queryset(self):
         conversation_id = self.request.GET.get('conversation_id')
-        return message.objects.all()
+        return message.objects.filter(conversation_id=conversation_id)

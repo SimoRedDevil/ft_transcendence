@@ -73,18 +73,23 @@ const Popup = ({
 
   const verify2FA = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:8000/api/auth/verify-2fa/?code=${code}`,
+      const csrftoken = document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1];
+      const response = await axios.post(
+        `http://localhost:8000/api/auth/verify-2fa/`,
+        { code: code },  // Keep the code in the body
         {
-          // Use backticks here
-          withCredentials: true, // Ensure cookies are included in the request
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken,  // CSRF token in headers
+          },
+          withCredentials: true,
         }
       );
     } catch (error) {
       console.error("Error verifying 2FA:", error);
     }
   };
-
+  
   useEffect(() => {
     // fetchUsers();
     if (users && users.username) {
@@ -132,8 +137,7 @@ const Popup = ({
                   className="bg-gradient-to-r from-[#1A1F26]/90 to-[#000]/70 text-white p-2 px-4 rounded-lg border-[0.5px] border-white border-opacity-40 "
                   onClick={() => {
                     !enable2FA
-                      ? enabel2fabutton() && verify2FA()
-                      : verify2FA() && desable2fabutton();
+                      ? verify2FA() : verify2FA() && desable2fabutton();
                     isOpen
                       ? setIsOpen(false) && setEnable2FA(false)
                       : setIsOpen(true) && setEnable2FA(true);

@@ -249,7 +249,15 @@ class EnableTwoFactorView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
+    # def post(self, request):
+    #     user = request.user
+
+    #     key, otp, qrcode_path = twofactorAuth(user.username)
+    #     user.twofa_secret = key
+    #     user.save()
+    #     user.qrcode_path = urljoin(settings.MEDIA_URL, qrcode_path)
+    #     return Response({'qrcode_url': user.qrcode_path}, status=status.HTTP_200_OK)
+    def get(self, request):
         user = request.user
 
         key, otp, qrcode_path = twofactorAuth(user.username)
@@ -273,21 +281,45 @@ class VerifyTwoFactorView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    # def get(self, request):
+    #     user = request.user
+    #     user_code = request.GET.get('code')
+
+    #     if not user.twofa_secret:
+    #         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    #     totp = pyotp.TOTP(user.twofa_secret)
+
+    #     if totp.verify(user_code):
+    #         user.enabeld_2fa = not user.enabeld_2fa
+    #         user.save()
+    #         return Response(status=status.HTTP_200_OK)
+    #     else:
+    #         return Response(status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request):
         user = request.user
-        user_code = request.GET.get('code')
+        user_code = request.data.get('code')
 
         if not user.twofa_secret:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                'error': 'Two-factor authentication is not enabled for this user'
+            },
+            status=status.HTTP_400_BAD_REQUEST)
 
         totp = pyotp.TOTP(user.twofa_secret)
 
         if totp.verify(user_code):
             user.enabeld_2fa = not user.enabeld_2fa
             user.save()
-            return Response(status=status.HTTP_200_OK)
+            return Response({
+                'message': 'Two-factor authentication has been enabled successfully'
+            },status=status.HTTP_200_OK)
         else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                'error': 'Invalid two-factor authentication code',
+                "totp.verify": totp.verify(user_code),
+                "user_code": user_code,
+            },status=status.HTTP_400_BAD_REQUEST)
 
 class GetCookies(APIView):
     authentication_classes = [SessionAuthentication]
@@ -307,5 +339,5 @@ class GetQRCodeView(APIView):
 
     def get(self, request):
         user = request.user
-        EnableTwoFactorView().post(request)
+        # EnableTwoFactorView().post(request)
         return Response({'qrcode_url': user.qrcode_path}, status=status.HTTP_200_OK)

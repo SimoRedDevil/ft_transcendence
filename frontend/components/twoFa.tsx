@@ -5,7 +5,7 @@ import axios from "axios";
 export const enableTwoFactorAuth = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8000/api/auth/get-qrcode/",
+        "http://localhost:8000/api/auth/enable-2fa/",
         {
           withCredentials: true, // Ensure cookies are included in the request
         }

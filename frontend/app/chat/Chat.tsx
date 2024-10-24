@@ -11,16 +11,22 @@ import { useEffect } from 'react';
 import axios from 'axios';
 import {checkStringEmpty} from '../../utils/tools';
 import { useUserContext } from '../../components/context/usercontext';
-
-type ChatProps = {
-
-}
+import { useChatContext } from '../../components/context/ChatContext';
 
 function Chat() {
   const [showEmoji, setShowEmoji] = useState(false)
   const [input, setInput] = useState('')
-  const user = useUserContext()
+  const {users, loading} = useUserContext()
   const refScroll = useRef(null)
+  const
+  {
+    Conversations,
+    fetchConversations,
+    conversationsLoading,
+    setSelectedConversation,
+    selectedConversation,
+    otherUser
+  } = useChatContext()
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
@@ -47,7 +53,9 @@ function Chat() {
     setInput('')
   }
 
-  if (user === null || user.users === null || refScroll === null) return <div>Loading...</div> ;
+  if (selectedConversation === null) return;
+
+  if (loading === true || refScroll === null) return <div>Loading...</div> ;
 
 
   return (

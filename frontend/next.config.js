@@ -1,4 +1,4 @@
 // next.config.js
 module.exports = {
-    reactStrictMode: false, // Disable React Strict Mode
+    reactStrictMode: true, // Disable React Strict Mode
   };

@@ -12,6 +12,7 @@ import axios from 'axios';
 import {checkStringEmpty} from '../../utils/tools';
 import { useUserContext } from '../../components/context/usercontext';
 import { useChatContext } from '../../components/context/ChatContext';
+import { get_human_readable_time } from '../../utils/tools';
 
 function Chat() {
   const [showEmoji, setShowEmoji] = useState(false)
@@ -48,10 +49,11 @@ function Chat() {
   const handleSendMessage = () => {
     if (checkStringEmpty(input)) return;
     ws.current.send(JSON.stringify({
-      'content': input,
-      'sender': users,
-      'receiver': otherUser,
-      'conversation_id': selectedConversation.id
+      'conversation_id': selectedConversation.id,
+      'sent_by_user': users.username,
+      'sent_to_user': otherUser.username,
+      'message': input,
+      'get_human_readable_time': get_human_readable_time()
     }))
     setInput('')
   }

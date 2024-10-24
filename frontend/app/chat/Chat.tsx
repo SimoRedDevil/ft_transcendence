@@ -20,12 +20,9 @@ function Chat() {
   const refScroll = useRef(null)
   const
   {
-    Conversations,
-    fetchConversations,
-    conversationsLoading,
-    setSelectedConversation,
     selectedConversation,
-    otherUser
+    otherUser,
+    ws
   } = useChatContext()
 
   const handleKeyDown = (e) => {
@@ -50,13 +47,18 @@ function Chat() {
 
   const handleSendMessage = () => {
     if (checkStringEmpty(input)) return;
+    ws.current.send(JSON.stringify({
+      'content': input,
+      'sender': users,
+      'receiver': otherUser,
+      'conversation_id': selectedConversation.id
+    }))
     setInput('')
   }
 
   if (selectedConversation === null) return;
 
   if (loading === true || refScroll === null) return <div>Loading...</div> ;
-
 
   return (
     <div className='lg:w-[calc(100%_-_400px)] 2xl:w-[calc(100%_-_550px)] hidden lg:flex'>
@@ -70,8 +72,8 @@ function Chat() {
               {/* <Image className='rounded-full' src={data[0].image} width={60} height={60} alt='avatar'/> */}
             </div>
             <div className='flex flex-col justify-center gap-3'>
-              {/* <span className='text-[20px]'>{otherUser.full_name}</span>
-              <span className='text-[18px] text-white text-opacity-65'>{otherUser.online === true ? 'Active Now' : 'Offline'}</span> */}
+              <span className='text-[20px]'>{otherUser.full_name}</span>
+              <span className='text-[18px] text-white text-opacity-65'>{otherUser.online === true ? 'Active Now' : 'Offline'}</span>
             </div>
           </div>
           <div className='w-[140px] flex gap-2'>
@@ -86,7 +88,17 @@ function Chat() {
         <div className='p-[20px] h-[90%] w-full flex flex-col justify-between items-center overflow-hidden'>
           <div className='w-full h-[89%] relative'>
             <div className='h-full no-scrollbar overflow-y-auto scroll-smooth'>
-              {/* Messages here */}
+              {
+                // messages.map((message) => {
+                //   return (
+                //     <div key={message.id} className={message.sent_by_user === users.username ? 'flex flex-row-reverse' : 'flex flex-row'}>
+                //       <div className={message.sent_by_user === users.username ? 'bg-blue-800' : 'bg-black'} style={{borderRadius: '20px'}}>
+                //         <span className='text-white text-opacity-90 p-[20px]'>{message.message}</span>
+                //       </div>
+                //     </div>
+                //   )
+                // })
+              }
             </div>
             <div className={(showEmoji) ? 'flex absolute top-[calc(100%_-_430px)] left-[calc(100%_-_400px)] overflow-hidden' : 'hidden'}>
               <EmojiPicker onEmojiClick={handleEmojiClick} width={400} theme='dark' emojiStyle='google' searchDisabled={false} lazyLoadEmojis={true}/>

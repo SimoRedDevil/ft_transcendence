@@ -10,8 +10,8 @@ class ConversationSerializer(serializers.ModelSerializer):
         fields = ['id', 'user1_info', 'creation_time', 'last_message', 'user2_info']
 
 class MessageSerializer(serializers.ModelSerializer):
-    sender_info = UserSerializer(source='sender_id', read_only=True)
-    receiver_info = UserSerializer(source='receiver_id', read_only=True)
+    sender = UserSerializer(source='sender_id', read_only=True)
+    receiver = UserSerializer(source='receiver_id', read_only=True)
     class Meta:
         model = message
-        fields = ['id', 'conversation_id', 'sender_info', 'receiver_info', 'content', 'timestamp', 'seen', 'get_human_readable_time']
+        fields = ['id', 'conversation_id', 'sender', 'receiver', 'content', 'get_human_readable_time']

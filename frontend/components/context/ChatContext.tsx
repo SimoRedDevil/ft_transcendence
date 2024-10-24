@@ -1,11 +1,13 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { axiosInstance } from '../../utils/axiosInstance';
 
 const ChatContext = createContext(null);
 
 export const ChatProvider = ({ children }) => {
+    const ws = useRef(null);
+
     const [messages, setMessages] = useState(null);
     const [Conversations, setConversations] = useState(null);
     const [selectedConversation, setSelectedConversation] = useState(null);
@@ -13,6 +15,26 @@ export const ChatProvider = ({ children }) => {
     const [messagesLoading, setMessagesLoading] = useState(true);
     const [otherUser, setOtherUser] = useState(null);
     const [error, setError] = useState(null);
+
+    useEffect(() => {
+        ws.current = new WebSocket('ws://localhost:8000/chat/');
+        ws.current.onopen = () => {
+            console.log('Connected to the chat server');
+        };
+        ws.current.onmessage = (message) => {
+            const newMessage = JSON.parse(message.data);
+            console.log('New message:', newMessage);
+        };
+        ws.current.onclose = () => {
+            console.log('Disconnected from the chat server');
+        };
+        ws.current.onerror = (error) => {
+            console.error('Error:', error);
+        };
+        return () => {
+            ws.current.readyState === WebSocket.OPEN && ws.current.close();
+        };
+    }, []);
 
     const fetchMessages = async () => {
         try {
@@ -57,7 +79,7 @@ export const ChatProvider = ({ children }) => {
 
     return (
         <ChatContext.Provider value={{ messages, Conversations, conversationsLoading, messagesLoading,
-            error, selectedConversation, fetchMessages, fetchConversations, setSelectedConversation, setOtherUser }}>
+            error, selectedConversation, otherUser, ws, fetchMessages, fetchConversations, setSelectedConversation, setOtherUser }}>
             {children}
         </ChatContext.Provider>
     );

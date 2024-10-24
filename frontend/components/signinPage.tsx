@@ -39,12 +39,15 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
   
       if (response.status === 200) {
         alert("Signin successful");
+        setIsAuthenticated(true);
         router.push("/");
       } else {
         alert(data.message || "Signin failed, please try again.");
+        setIsAuthenticated(false);
       }
     } catch (error) {
       alert("An error occurred. Please try again later.");
+      setIsAuthenticated(false);
     }
   };  
 
@@ -120,8 +123,7 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
             </div>
             <Link href="http://localhost:8000/api/auth/42/login/" passHref
               className="
-                w-full flex justify-center items-center
-              "
+                w-full flex justify-center items-center"
             >
               <button
                

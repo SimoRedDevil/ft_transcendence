@@ -15,11 +15,8 @@ export const handle42Callback = async (code) => {
   } catch (error) {
     // Enhanced error logging
     if (error.response) {
-      //console.error('Server responded with an error:', error.response.data);
     } else if (error.request) {
-      //console.error('No response received from server:', error.request);
     } else {
-      //console.error('Error during request setup:', error.message);
     }
     throw error;
   }

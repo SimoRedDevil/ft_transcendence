@@ -184,7 +184,7 @@ function Chat({conversationID, socket, otherUser, lastMessageRef, data}: ChatPro
               }
             </div>
             <div className={(showEmoji) ? 'flex absolute top-[calc(100%_-_430px)] left-[calc(100%_-_400px)] overflow-hidden' : 'hidden'}>
-              <EmojiPicker onEmojiClick={handleEmojiClick} width={400} theme='dark' emojiStyle='google' searchDisabled={false} lazyLoadEmojis={true}/>
+              {/* <EmojiPicker onEmojiClick={handleEmojiClick} width={400} theme='dark' emojiStyle='google' searchDisabled={false} lazyLoadEmojis={true}/> */}
             </div>
           </div>
           <div className='w-full h-[100px] bg-transparent flex items-center justify-center'>

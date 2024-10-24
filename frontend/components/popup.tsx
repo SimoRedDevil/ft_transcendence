@@ -132,7 +132,7 @@ const Popup = ({
                   className="bg-gradient-to-r from-[#1A1F26]/90 to-[#000]/70 text-white p-2 px-4 rounded-lg border-[0.5px] border-white border-opacity-40 "
                   onClick={() => {
                     !enable2FA
-                      ? enabel2fabutton() && verify2FA()
+                      ? verify2FA()
                       : verify2FA() && desable2fabutton();
                     isOpen
                       ? setIsOpen(false) && setEnable2FA(false)

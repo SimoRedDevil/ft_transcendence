@@ -14,26 +14,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     const router = useRouter();
 
     const AuthProtectedLayout = () => {
-        const { isAuthenticated, loading } = useContext(UserContext);
+        const {loading, isAuthenticated} = useContext(UserContext);
+       
 
-        useEffect(() => {
-            if (!isAuthenticated) {
-                console.log('User is not authenticated. Redirecting to login page...');
-              router.push('/login');
-            }
-          }, [isAuthenticated, loading, router]);
-          
-        // Show a loading screen until the authentication status is determined
         if (loading) {
             return <div className="flex justify-center items-center h-screen w-screen bg-main-bg border
                     border-black bg-cover bg-no-repeat bg-center fixed min-w-[280px] min-h-[800px]">
-                <ScaleLoader color="#949DA2" loading={loading} size={150}/>
+                <ScaleLoader color="#949DA2" loading={loading} height={40} width={6}/>
                 </div>;
         }
-        if (!isAuthenticated && !exclude.includes(pathname)) {
-            router.push('/login');
+        useEffect(() => {
+            if (isAuthenticated) {
+                if (exclude.includes(pathname)) {
+                    router.push('/');
+                }
+            }
         }
-
+        , [isAuthenticated, pathname ]);
         return (
             <div className='bg-main-bg border border-black w-screen h-full bg-cover bg-no-repeat bg-center fixed min-w-[280px] min-h-[800px]'>
                 {!exclude.includes(pathname) && (
@@ -42,7 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     </div>
                 )}
                 <div className='h-[calc(100%_-_100px)] flex flex-col-reverse sm:flex-row'>
-                    {!exclude.includes(pathname) && isAuthenticated && (
+                    {!exclude.includes(pathname) && (
                         <div className='flex sm:flex-col w-full sm:w-[100px]'>
                             <Sidebar />
                         </div>
@@ -62,7 +59,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                     <link rel="preconnect" href="https://fonts.googleapis.com" />
                     <link rel="preconnect" href="https://fonts.gstatic.com" />
-                    <link href="https://fonts.googleapis.com/css2?family=Anonymous+Pro:wght@0,400;1,400&display=swap" rel="stylesheet" />
                 </head>
                 <body className='h-screen'>
                     <AuthProtectedLayout />

@@ -21,7 +21,6 @@ export default function Home() {
             const csrfToken = response.data.cookies.csrftoken;
             return csrfToken;
         } catch (error) {
-            console.error('Error trying to get cookies:', error);
             return null;
         }
     };
@@ -39,7 +38,6 @@ export default function Home() {
             setIsAuthenticated(false);
             return response.data;
         } catch (error) {
-            console.error('Error trying to logout:', error);
             setIsAuthenticated(false);
             return null;
         }

@@ -144,7 +144,6 @@ class ValidateTokenView(APIView):
 
         if not access_token:
             return Response({'error': 'Access token not found in cookies'}, status=status.HTTP_401_UNAUTHORIZED)
-
         try:
             # Validate the access token
             decoded_token = AccessToken(access_token)
@@ -157,7 +156,7 @@ class ValidateTokenView(APIView):
             return Response({'valid': False, 'error': 'Invalid or expired access token'}, status=status.HTTP_401_UNAUTHORIZED)
 
 class GenerateAccessToken(APIView):
-    permission_classes = (AllowAny,)
+    permission_classes = (AllowAny)
 
     def post(self, request, *args, **kwargs):
         refresh_token = request.data.get("refresh")

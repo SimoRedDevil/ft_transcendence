@@ -13,7 +13,6 @@ export const enableTwoFactorAuth = async () => {
       return response.data; // Return response data if needed
     } catch (error) {
       // Handle error
-      console.error("Error enabling 2FA:", error);
       return null;
     }
   };
@@ -29,7 +28,6 @@ export  const disableTwoFactorAuth = async () => {
       return response.data; // Return response data if needed
     } catch (error) {
       // Handle error
-      console.error("Error disabling 2FA:", error);
       return null;
     }
   };

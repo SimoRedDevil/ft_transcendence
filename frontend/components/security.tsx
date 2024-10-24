@@ -164,6 +164,11 @@ export default function Security() {
                   checked={enable2FA}
                   onChange={() => {
                     setIsPopupOpen(true);
+                    if (!enable2FA) {
+                      enableTwoFactorAuth();
+                    } else {
+                      disableTwoFactorAuth();
+                    }
                   }
                   }
                 />

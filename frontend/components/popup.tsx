@@ -52,6 +52,7 @@ const Popup = ({
     setValues(["", "", "", "", "", ""]);
     setCode("");
     setIsOpen(false);
+    setEnable2FA(false);
   };
 
   const enabel2fabutton = async () => {
@@ -86,9 +87,9 @@ const Popup = ({
 
   useEffect(() => {
     // fetchAuthUser();
+    console.log("enable2FA", enable2FA);
     if (users && users.username) {
       setUsername(users.username);
-      setEnable2FA(users.enabeld_2fa);
     }
   }, [users]);
 
@@ -131,8 +132,8 @@ const Popup = ({
                   className="bg-gradient-to-r from-[#1A1F26]/90 to-[#000]/70 text-white p-2 px-4 rounded-lg border-[0.5px] border-white border-opacity-40 "
                   onClick={() => {
                     enable2FA
-                      ? verify2FA() && desable2fabutton() && setTry2fa(false) && console.log("2FA is disabled")
-                      : enabel2fabutton() && verify2FA() && console.log("2FA is enabled");
+                      ? verify2FA() && desable2fabutton() && setTry2fa(false) && setEnable2FA(false) && console.log("2FA is disabled")
+                      : enabel2fabutton() && verify2FA() && setEnable2FA(true) && console.log("2FA is enabled");
                     isOpen
                       ? setIsOpen(false) && setEnable2FA(false) && clearValues()
                       : setIsOpen(true) && setEnable2FA(true) && clearValues();
@@ -143,7 +144,7 @@ const Popup = ({
                 </button>
                 <button
                   className="bg-gradient-to-r from-[#1A1F26]/90 to-[#000]/70 text-white p-2 px-4 rounded-lg border-[0.5px] border-white border-opacity-40 "
-                  onClick={() => clearValues()}
+                  onClick={clearValues}
                 >
                   Close
                 </button>

@@ -17,4 +17,4 @@ def twofactorAuth(username):
     qrcode_path = os.path.join(qrcode_dir, f'{username}.png')
     qrcode.make(url).save(qrcode_path)
     otp = totp.now()
-    return key, otp, qrcode_path
+    return key, otp, qrcode_path, qrcode_dir

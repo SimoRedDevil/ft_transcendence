@@ -25,6 +25,7 @@ from django.http import HttpResponse
 from urllib.parse import urljoin
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
+import shutil
 
 
 INTRA_42_AUTH_URL = settings.INTRA_42_AUTH_URL
@@ -248,11 +249,12 @@ class EnableTwoFactorView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
+    def get(self, request):
         user = request.user
 
-        key, otp, qrcode_path = twofactorAuth(user.username)
+        key, otp, qrcode_path, qrcode_dir = twofactorAuth(user.username)
         user.twofa_secret = key
+        user.qrcode_dir = qrcode_dir
         user.save()
         user.qrcode_path = urljoin(settings.MEDIA_URL, qrcode_path)
         return Response({'qrcode_url': user.qrcode_path}, status=status.HTTP_200_OK)
@@ -265,6 +267,9 @@ class DisableTwoFactorView(APIView):
         user = request.user
         user.enabeld_2fa = False
         user.twofa_secret = None
+        if user.qrcode_dir:
+            shutil.rmtree(str(user.qrcode_dir))
+        user.qrcode_dir = None
         user.save()
         return Response(status=status.HTTP_200_OK)
 
@@ -306,5 +311,4 @@ class GetQRCodeView(APIView):
 
     def get(self, request):
         user = request.user
-        EnableTwoFactorView().post(request)
-        return Response({'qrcode_url': user.qrcode_path}, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)

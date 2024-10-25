@@ -6,7 +6,7 @@ backend/chat/migrations
 backend/chat/__pycache__
 backend/authentication/migrations
 backend/authentication/__pycache__
-backend/authentication/qrcodes/*
+backend/authentication/qrcodes
 backend/backend/__pycache__
 backend/backend/migrations
 frontend/db.json

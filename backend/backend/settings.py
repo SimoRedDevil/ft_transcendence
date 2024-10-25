@@ -145,6 +145,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'allauth.account.middleware.AccountMiddleware', 
     'authentication.middleware.AuthRequiredMiddleware', 
+    'authentication.middleware.TrailingSlashMiddleware', 
 ]
 
 ROOT_URLCONF = 'backend.urls'

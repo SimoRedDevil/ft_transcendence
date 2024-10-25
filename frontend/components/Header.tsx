@@ -8,6 +8,7 @@ import {UserContext} from './context/usercontext';
 import { useContext } from 'react';
 import { useState, useEffect } from 'react';
 function Header() {
+  const { users} = useContext(UserContext);
   return (
     <header className='text-white flex justify-between items-center p-[10px]'>
       <div>
@@ -19,7 +20,8 @@ function Header() {
       </div>
 
       <div className='w-[60px] h-[60px] rounded-full border border-white border-opacity-60'>
-        <Image src='/images/Me.png' height={60} width={60} alt='avatar' className='rounded-full'/>
+        <Image src={`${users.avatar_url}`}
+         height={60} width={60} alt='avatar' className='rounded-full'/>
       </div>
     </header>
   )

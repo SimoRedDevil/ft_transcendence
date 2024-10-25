@@ -23,7 +23,9 @@ function Chat() {
   {
     selectedConversation,
     otherUser,
-    ws
+    ws,
+    messages,
+    messagesLoading
   } = useChatContext()
 
   const handleKeyDown = (e) => {
@@ -52,7 +54,7 @@ function Chat() {
       'conversation_id': selectedConversation.id,
       'sent_by_user': users.username,
       'sent_to_user': otherUser.username,
-      'message': input,
+      'content': input,
       'get_human_readable_time': get_human_readable_time()
     }))
     setInput('')
@@ -60,7 +62,7 @@ function Chat() {
 
   if (selectedConversation === null) return;
 
-  if (loading === true || refScroll === null) return <div>Loading...</div> ;
+  if (loading === true || refScroll === null || messages === null) return <div>Loading...</div> ;
 
   return (
     <div className='lg:w-[calc(100%_-_400px)] 2xl:w-[calc(100%_-_550px)] hidden lg:flex'>
@@ -91,15 +93,15 @@ function Chat() {
           <div className='w-full h-[89%] relative'>
             <div className='h-full no-scrollbar overflow-y-auto scroll-smooth'>
               {
-                // messages.map((message) => {
-                //   return (
-                //     <div key={message.id} className={message.sent_by_user === users.username ? 'flex flex-row-reverse' : 'flex flex-row'}>
-                //       <div className={message.sent_by_user === users.username ? 'bg-blue-800' : 'bg-black'} style={{borderRadius: '20px'}}>
-                //         <span className='text-white text-opacity-90 p-[20px]'>{message.message}</span>
-                //       </div>
-                //     </div>
-                //   )
-                // })
+                messages.map((message) => {
+                  return (
+                    <div key={message.id} className={(message.sent_by_user === users.username || (message.sender !== undefined && message.sender.username === users.username)) ? 'flex flex-row-reverse' : 'flex flex-row'}>
+                      <div className={(message.sent_by_user === users.username || (message.sender !== undefined && message.sender.username === users.username)) ? 'bg-blue-800' : 'bg-black'} style={{borderRadius: '20px'}}>
+                        <span className='text-white text-opacity-90 p-[20px]'>{message.content}</span>
+                      </div>
+                    </div>
+                  )
+                })
               }
             </div>
             <div className={(showEmoji) ? 'flex absolute top-[calc(100%_-_430px)] left-[calc(100%_-_400px)] overflow-hidden' : 'hidden'}>

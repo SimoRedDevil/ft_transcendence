@@ -8,7 +8,7 @@ const ChatContext = createContext(null);
 export const ChatProvider = ({ children }) => {
     const ws = useRef(null);
 
-    const [messages, setMessages] = useState(null);
+    const [messages, setMessages] = useState([]);
     const [Conversations, setConversations] = useState(null);
     const [selectedConversation, setSelectedConversation] = useState(null);
     const [conversationsLoading, setConversationsLoading] = useState(true);
@@ -23,7 +23,7 @@ export const ChatProvider = ({ children }) => {
         };
         ws.current.onmessage = (message) => {
             const newMessage = JSON.parse(message.data);
-            console.log('New message:', newMessage);
+            setMessages((prevMessages) => [...prevMessages, newMessage]);
         };
         ws.current.onclose = () => {
             console.log('Disconnected from the chat server');
@@ -39,9 +39,10 @@ export const ChatProvider = ({ children }) => {
     const fetchMessages = async () => {
         try {
             setMessagesLoading(true);
-            axiosInstance.get(`/chat/messages/${selectedConversation.id}/`).then((response) => {
+            axiosInstance.get(`/chat/messages/`, 
+                { params: { conversation_id: selectedConversation.id } }
+            ).then((response) => {
                 setMessages(response.data)
-                console.log('Messages:', response.data)
             })
         } catch (error) {
             console.error('Error fetching messages:', error);

@@ -3,7 +3,7 @@ import { GrKey } from "react-icons/gr";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Popup from '../components/popup'
-import { enableTwoFactorAuth, disableTwoFactorAuth } from "./twoFa";
+import { enableTwoFactorAuth} from "./twoFa";
 
 
 import {
@@ -12,7 +12,7 @@ import {
 } from "../components/context/usercontext";
 
 export default function Security() {
-  const { users, fetchUsers } = useUserContext();
+  const { users, setTry2fa, try2fa, fetchAuthUser} = useUserContext();
   const [username, setUsername] = useState("");
   const [enable2FA, setEnable2FA] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -24,7 +24,7 @@ export default function Security() {
         setUsername(users.username);
         setEnable2FA(users.enabeld_2fa);
       }
-  }, [users]);
+  }, [users.enabeld_2fa]);
 
   return (
       <div
@@ -164,10 +164,9 @@ export default function Security() {
                   checked={enable2FA}
                   onChange={() => {
                     setIsPopupOpen(true);
-                    if (!enable2FA) {
+                    if (!enable2FA && !try2fa) {
                       enableTwoFactorAuth();
-                    } else {
-                      disableTwoFactorAuth();
+                      setTry2fa(true);
                     }
                   }
                   }

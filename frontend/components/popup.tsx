@@ -17,7 +17,7 @@ const Popup = ({
 }) => {
   const [values, setValues] = useState(["", "", "", "", "", ""]);
   const [username, setUsername] = useState("");
-  const { users, fetchUsers } = useUserContext();
+  const { users, setTry2fa, fetchAuthUser } = useUserContext();
 
   const handleChange = (e, index) => {
     const { value } = e.target;
@@ -57,9 +57,8 @@ const Popup = ({
   const enabel2fabutton = async () => {
     if (users) {
       setUsername(users.username);
-      await enableTwoFactorAuth();
       setEnable2FA(users.enabeld_2fa);
-      // await fetchUsers();
+      // await fetchAuthUser();
     }
   };
   const desable2fabutton = async () => {
@@ -67,7 +66,7 @@ const Popup = ({
       setUsername(users.username);
       await disableTwoFactorAuth();
       setEnable2FA(users.enabeld_2fa);
-      // await fetchUsers();
+      // await fetchAuthUser();
     }
   };
 
@@ -76,22 +75,22 @@ const Popup = ({
       const response = await axios.get(
         `http://localhost:8000/api/auth/verify-2fa/?code=${code}`,
         {
-          // Use backticks here
           withCredentials: true, // Ensure cookies are included in the request
         }
       );
-    } catch (error) {
-      console.error("Error verifying 2FA:", error);
+    } catch (error){
     }
   };
 
+
+
   useEffect(() => {
-    // fetchUsers();
+    // fetchAuthUser();
     if (users && users.username) {
       setUsername(users.username);
       setEnable2FA(users.enabeld_2fa);
     }
-  }, [users && enable2FA]);
+  }, [users]);
 
   return (
     <div>
@@ -131,12 +130,12 @@ const Popup = ({
                   type="submit"
                   className="bg-gradient-to-r from-[#1A1F26]/90 to-[#000]/70 text-white p-2 px-4 rounded-lg border-[0.5px] border-white border-opacity-40 "
                   onClick={() => {
-                    !enable2FA
-                      ? verify2FA()
-                      : verify2FA() && desable2fabutton();
+                    enable2FA
+                      ? verify2FA() && desable2fabutton() && setTry2fa(false) && console.log("2FA is disabled")
+                      : enabel2fabutton() && verify2FA() && console.log("2FA is enabled");
                     isOpen
-                      ? setIsOpen(false) && setEnable2FA(false)
-                      : setIsOpen(true) && setEnable2FA(true);
+                      ? setIsOpen(false) && setEnable2FA(false) && clearValues()
+                      : setIsOpen(true) && setEnable2FA(true) && clearValues();
                   }}
                   disabled={values.some((val) => val === "")} // Disable until all fields are filled
                 >

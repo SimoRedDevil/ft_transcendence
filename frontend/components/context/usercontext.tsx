@@ -11,10 +11,11 @@ export const UserProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [try2fa, setTry2fa] = useState(false);
     const pathname = usePathname();
     const router = useRouter();
 
-    const fetchUsers = async () => {
+    const fetchAuthUser = async () => {
         try {
             const response = await axios('http://localhost:8000/api/auth/user/', {
                 withCredentials: true,
@@ -40,16 +41,16 @@ export const UserProvider = ({ children }) => {
         } finally {
             setTimeout(() => {
                 setLoading(false);
-            }, 200);
+            }, 500);
         }
     };
 
     useEffect(() => {
-        fetchUsers();
-    }, [pathname]);
+        fetchAuthUser();
+    }, [pathname, users && router]);
     
     return (
-        <UserContext.Provider value={{ users, loading, error, isAuthenticated, setIsAuthenticated }}>
+        <UserContext.Provider value={{ users, loading, error, isAuthenticated, fetchAuthUser, setIsAuthenticated, setTry2fa, try2fa }}>
             {children}
         </UserContext.Provider>
     );

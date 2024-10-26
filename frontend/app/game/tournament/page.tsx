@@ -1,60 +1,68 @@
-"use client";
+'use client'
 
-import React, { useRef, useEffect, useState } from 'react';
-import { getRandomName } from './TableDraw';
-import Player1 from './Player1Remote';
-import Player2 from './Player2Remote';
-import Table from './tableRemote';
+import React from 'react'
+import { useState } from 'react'
 
-export default function Tournament() {
-  const socketRef = useRef<WebSocket | null>(null);
-  const [allPlayers, setAllPlayers] = useState([]);
-  const [game1, setGame1] = useState([]);
-  const [game2, setGame2] = useState([]);
-  const [name, setName] = useState('');
+export default function CreateTournament() {
+    const [player1, setPlayer1] = useState('')
+    const [player2, setPlayer2] = useState('')
+    const [player3, setPlayer3] = useState('')
+    const [player4, setPlayer4] = useState('')
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      socketRef.current = new WebSocket('ws://10.11.2.2:8000/ws/tournament/');
-      
-      socketRef.current.onopen = () => {
-        console.log('WebSocket connected');
-        const firstData = { username: getRandomName() };
-        socketRef.current.send(JSON.stringify({ type: 'connection', data: firstData }));
-      };
-
-      socketRef.current.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-
-        if (data.type === 'connection') {
-          console.log('Player connected:', data);
-          setName(data.player.name);
-        }
-        if (data.type === 'tournament_start') {
-          setAllPlayers(data.players);
-          setGame1(data.players.slice(0, 2));
-          setGame2(data.players.slice(2, 4));
-        }
-      };
-
-      socketRef.current.onclose = (event) => {
-        console.log('WebSocket closed:', event);
-      };
-
-      socketRef.current.onerror = (event) => {
-        console.error('WebSocket error:', event);
-      };
-
-      return () => {
-        socketRef.current?.close();
-      };
+    const handleSubmit = (e) => {
+        e.preventDefault()
+        console.log(player1, player2, player3, player4)
+        setPlayer1('')
+        setPlayer2('')
+        setPlayer3('')
+        setPlayer4('')
     }
-  }, []);
 
-  return (
-    <section className="flex justify-center items-center flex-col">
-       {allPlayers.length !== 4 && <div className="">Tournament</div>}
-      {allPlayers.length === 4 && <Table Name={name} socket={socketRef} />}
-    </section>
-  );
-}
+    return (
+      <div className='flex justify-center items-center mt-[200px]'>
+        <div className='w-[420px] h-[540px] mt-[60px] bg-deepSeaBlue rounded-lg
+                        border border-white border-opacity-30'>
+            <div className='text-white text-center text-2xl mt-5'>Create Tournament</div>
+            <form className='flex flex-col' onSubmit={handleSubmit}>
+                <div className='flex justify-between w-full'>
+                    <div className='flex flex-col w-[50%] space-y-2'>
+                        <label htmlFor="player1" className='text-sky-400 mt-3 ml-2'>player1</label>
+                        <input type="text" id="player1" name="player1" placeholder="Player 1" required
+                        value={player1}
+                        onChange={(e) => setPlayer1(e.target.value)}
+                        className='w-[70%] h-10 bg-transparent border-b ml-5
+                        border-white border-opacity-30 text-white text-center'/>
+                    </div>
+                    <div className='flex flex-col w-[50%] mt-[40px] space-y-2'>
+                        <label htmlFor="player2" className='text-sky-400 mt-3 mr-2 flex justify-end '>player2</label>
+                        <input type="text" id="player2" name="player2" placeholder="Player 2" required
+                        value={player2}
+                        onChange={(e) => setPlayer2(e.target.value)}
+                        className='w-[70%] h-10 bg-transparent border-b ml-[30px]
+                        border-white border-opacity-30 text-white text-center'/>
+                    </div>
+                </div>
+                <div className='flex justify-between w-full'>
+                    <div className='flex flex-col w-[50%] space-y-2'>
+                        <label htmlFor="player3" className='text-sky-400 mt-10 ml-2'>player3</label>
+                        <input type="text" id="player3" name="player3" placeholder="Player 3" required
+                        value={player3}
+                        onChange={(e) => setPlayer3(e.target.value)}
+                        className='w-[70%] h-10 bg-transparent border-b ml-5
+                        border-white border-opacity-30 text-white text-center'/>
+                    </div>
+                    <div className='flex flex-col w-[50%] mt-[30px] space-y-2'>
+                        <label htmlFor="player4" className='text-sky-400 mt-20 mr-2 flex justify-end '>player4</label>
+                        <input type="text" id="player4" name="player4" placeholder="Player 4" required
+                        value={player4}
+                        onChange={(e) => setPlayer4(e.target.value)}
+                        className='w-[70%] h-10 bg-transparent border-b ml-[30px]
+                        border-white border-opacity-30 text-white text-center'/>
+                    </div>
+                </div>
+                <button type="submit" className='w-[30%] h-10 bg-sky-400 text-white mt-5 ml-[35%] rounded-[30px]'>Go</button>
+            </form>
+          </div>
+        </div>
+    )
+  }

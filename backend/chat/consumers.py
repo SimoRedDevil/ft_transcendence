@@ -62,8 +62,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'type': 'send_message',
                 'id': info['id'],
                 'sent_by_user': info['sent_by_user'],
-                'content': info['content'],
-                'timestamp': timezone.now().strftime("%A, %I:%M %p")
+                'content': info['content']
             }
         )
 
@@ -90,11 +89,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def send_message(self, event):
         sent_by_user = event['sent_by_user']
         message = event['content']
-        timestamp = event['timestamp']
+        timestamp = timezone.now().strftime("%A, %I:%M %p")
         id = event['id']
         await self.send(text_data=json.dumps({
             'id': id,
             'sent_by_user': sent_by_user,
             'content': message,
-            'timestamp': timestamp
+            'get_human_readable_time': timestamp
         }))

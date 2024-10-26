@@ -25,7 +25,8 @@ function Chat() {
     otherUser,
     ws,
     messages,
-    messagesLoading
+    messagesLoading,
+    isMobile
   } = useChatContext()
 
   const handleKeyDown = (e) => {
@@ -54,8 +55,7 @@ function Chat() {
       'conversation_id': selectedConversation.id,
       'sent_by_user': users.username,
       'sent_to_user': otherUser.username,
-      'content': input,
-      'get_human_readable_time': get_human_readable_time()
+      'content': input
     }))
     setInput('')
   }
@@ -65,7 +65,7 @@ function Chat() {
   if (loading === true || refScroll === null || messages === null) return <div>Loading...</div> ;
 
   return (
-    <div className='lg:w-[calc(100%_-_400px)] 2xl:w-[calc(100%_-_550px)] hidden lg:flex'>
+    <div className={`lg:w-[calc(100%_-_400px)] 2xl:w-[calc(100%_-_550px)] lg:flex ${(isMobile && selectedConversation) ? 'flex' : 'hidden'}`}>
       <div className='flex items-center'>
         <hr className='border border-white h-[90%] border-opacity-30'></hr>
       </div>
@@ -95,11 +95,19 @@ function Chat() {
               {
                 messages.map((message) => {
                   return (
-                    <div key={message.id} className={(message.sent_by_user === users.username || (message.sender !== undefined && message.sender.username === users.username)) ? 'flex flex-row-reverse' : 'flex flex-row'}>
-                      <div className={(message.sent_by_user === users.username || (message.sender !== undefined && message.sender.username === users.username)) ? 'bg-blue-800' : 'bg-black'} style={{borderRadius: '20px'}}>
+                    <div key={message.id} className={`flex flex-col mb-4 ${(message.sent_by_user === users.username || (message.sender !== undefined && message.sender.username === users.username)) ? 'items-end' : 'items-start'}`}>
+                      <div className={`flex items-center border border-white border-opacity-20 rounded-[30px] min-h-[50px] max-w-[75%] ${(message.sent_by_user === users.username || (message.sender !== undefined && message.sender.username === users.username)) ? 'bg-[#0D161A]' : 'bg-black'}`}>
                         <span className='text-white text-opacity-90 p-[20px]'>{message.content}</span>
                       </div>
+                      <div className=''>
+                        <span className='text-white text-opacity-50 text-[0.8rem]'>{message.get_human_readable_time}</span>
+                      </div>
                     </div>
+                    // <div key={message.id} className={(message.sent_by_user === users.username || (message.sender !== undefined && message.sender.username === users.username)) ? 'flex flex-row-reverse' : 'flex flex-row'}>
+                    //   <div className={(message.sent_by_user === users.username || (message.sender !== undefined && message.sender.username === users.username)) ? 'bg-[#0D161A]' : 'bg-black'}>
+                    //     <span className='text-white text-opacity-90 p-[20px]'>{message.content}</span>
+                    //   </div>
+                    // </div>
                   )
                 })
               }

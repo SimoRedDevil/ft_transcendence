@@ -15,6 +15,20 @@ export const ChatProvider = ({ children }) => {
     const [messagesLoading, setMessagesLoading] = useState(true);
     const [otherUser, setOtherUser] = useState(null);
     const [error, setError] = useState(null);
+    const [isMobile, setIsMobile] = useState(false);
+    
+    useEffect(() => {
+        
+        const checkMobile = () => {
+            if (window.innerWidth < 1024) {
+                setIsMobile(true);
+            } else {
+                setIsMobile(false);
+            }
+        };
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     useEffect(() => {
         ws.current = new WebSocket('ws://localhost:8000/chat/');
@@ -80,7 +94,7 @@ export const ChatProvider = ({ children }) => {
 
     return (
         <ChatContext.Provider value={{ messages, Conversations, conversationsLoading, messagesLoading,
-            error, selectedConversation, otherUser, ws, fetchMessages, fetchConversations, setSelectedConversation, setOtherUser }}>
+            error, selectedConversation, otherUser, ws, isMobile, fetchMessages, fetchConversations, setSelectedConversation, setOtherUser }}>
             {children}
         </ChatContext.Provider>
     );

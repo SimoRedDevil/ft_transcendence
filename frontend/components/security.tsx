@@ -31,34 +31,37 @@ export default function Security() {
       if (response.status === 200 && qrcodepath )
       {
           const parts = qrcodepath.split('/');
-          const qr = parts[parts.length - 1];
+          var qr = parts[parts.length - 1];
           setQrcode(qr + "/" + users.username + ".png");
+          qr = "";
       }
   }
   catch (error) {
-      console.log("error ----------------------->", error);
+      //console.log("error ----------------------->", error);
   }
   };
   useEffect(() => {
     getqrcode();
     fetchAuthUser();
-    console.log("us: ", users.enabeld_2fa);
-    console.log("us22: ", enable2FA);
-    console.log("qr: ", qrcode);
+    //console.log("us: ", users.enabeld_2fa);
+    //console.log("us22: ", enable2FA);
+    //console.log("qr: ", qrcode);
     if(users.qrcode_dir)
       {
         setEnable2FA(true)
-        console.log("enable2FA-------------------->");
+        //console.log("enable2FA-------------------->");
       }
-  }, [users && users.qrcode_dir, enable2FA, qrcode]
+  }, [users && users.qrcode_dir, enable2FA]
   );
   const handelChange = async() => {
     {
       setIsPopupOpen(true);
       if (!users.enabeld_2fa && !try2fa) {
-        await enableTwoFactorAuth(fetchAuthUser);
+        enableTwoFactorAuth(fetchAuthUser);
+        fetchAuthUser();
         setEnable2FA(true);
         setTry2fa(true);
+        //console.log("enable 2fa called...........");
       }
     }
   };
@@ -213,7 +216,9 @@ export default function Security() {
               </span>
             </div>
             <div className="flex justify-center">
-              {enable2FA && <Popup isOpen={isPopupOpen} setIsOpen={setIsPopupOpen} {...{ enable2FA, setEnable2FA }} {...{code, setCode}} />}
+              {enable2FA && <Popup isOpen={isPopupOpen} setIsOpen={setIsPopupOpen} {...{ enable2FA, setEnable2FA }} {...{code, setCode}}
+                      qrcode={qrcode}
+               />}
             </div>
           </div>
         </div>

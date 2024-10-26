@@ -9,6 +9,7 @@ import { UserContext } from '../components/context/usercontext';
 import { headers } from "next/headers";
 
 
+
 const Popup = ({
   isOpen,
   setIsOpen,
@@ -16,6 +17,7 @@ const Popup = ({
   setEnable2FA,
   code,
   setCode,
+  qrcode,
 }) => {
   const [values, setValues] = useState(["", "", "", "", "", ""]);
   const [username, setUsername] = useState("");
@@ -36,6 +38,28 @@ const Popup = ({
         setCode(newValues.join(""));
       }
     }
+  };
+
+  const getqrcode = async () => {
+    try {
+      const response = await axios('http://localhost:8000/api/auth/get-qrcode/', {
+          withCredentials: true,
+          headers: {
+              'Content-Type': 'application/json',
+          },
+      });
+      // var qrcodepath = users.qrcode_dir;
+      // if (response.status === 200 && qrcodepath )
+      // {
+      //     const parts = qrcodepath.split('/');
+      //     var qr = parts[parts.length - 1];
+      //     setQrcode(qr + "/" + users.username + ".png");
+      //     qr = "";
+      // }
+  }
+  catch (error) {
+      //console.log("error ----------------------->", error);
+  }
   };
 
   const handleKeyDown = (e, index) => {
@@ -78,7 +102,7 @@ const Popup = ({
       if (response.status === 200) {
         if (users.enabeld_2fa) {
           desable2fabutton();
-          console.log("disable 2fa called");
+          //console.log("disable 2fa called");
         }
         clearValues();
         setIsOpen(false);
@@ -92,12 +116,13 @@ const Popup = ({
   const handelVerify = async () => {
     if (users.enabeld_2fa) {
       verify2FA() && setTry2fa(false)
-      console.log("2fa is disabled");
+      //console.log("2fa is disabled");
     } else {
       verify2FA() && setTry2fa(true);
-      console.log("2fa is enabled");
+      //console.log("2fa is enabled");
     }
     fetchAuthUser();
+    getqrcode();
   }
 
   useEffect(() => {
@@ -168,7 +193,7 @@ const Popup = ({
               less-than-tablet:w-[200px] less-than-tablet:h-[200px]
               desktop:h-[250px] rounded-[30px] 
               `}
-                src={`http://localhost:8000/qrcodes/${username}.png`}
+                src={`http://localhost:8000/${qrcode}`}
                 alt="2fa QR Code"
               />
             </div>

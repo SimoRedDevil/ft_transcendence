@@ -1,11 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import axios from "axios";
 import {
-  UserProvider,
   useUserContext,
 } from "../components/context/usercontext";
+import { useContext } from "react";
 import { enableTwoFactorAuth, disableTwoFactorAuth } from "./twoFa";
+import { UserContext } from '../components/context/usercontext';
 import { headers } from "next/headers";
+
+
 
 const Popup = ({
   isOpen,
@@ -14,10 +17,11 @@ const Popup = ({
   setEnable2FA,
   code,
   setCode,
+  qrcode,
 }) => {
   const [values, setValues] = useState(["", "", "", "", "", ""]);
   const [username, setUsername] = useState("");
-  const { users, setTry2fa, fetchAuthUser } = useUserContext();
+  var { users, setTry2fa, fetchAuthUser } = useContext(UserContext);
 
   const handleChange = (e, index) => {
     const { value } = e.target;
@@ -36,6 +40,28 @@ const Popup = ({
     }
   };
 
+  const getqrcode = async () => {
+    try {
+      const response = await axios('http://localhost:8000/api/auth/get-qrcode/', {
+          withCredentials: true,
+          headers: {
+              'Content-Type': 'application/json',
+          },
+      });
+      // var qrcodepath = users.qrcode_dir;
+      // if (response.status === 200 && qrcodepath )
+      // {
+      //     const parts = qrcodepath.split('/');
+      //     var qr = parts[parts.length - 1];
+      //     setQrcode(qr + "/" + users.username + ".png");
+      //     qr = "";
+      // }
+  }
+  catch (error) {
+      //console.log("error ----------------------->", error);
+  }
+  };
+
   const handleKeyDown = (e, index) => {
     if (e.key === "Backspace") {
       const newValues = [...values];
@@ -52,20 +78,15 @@ const Popup = ({
     setValues(["", "", "", "", "", ""]);
     setCode("");
     setIsOpen(false);
+    setEnable2FA(enable2FA);
+    setTry2fa(false);
   };
 
-  const enabel2fabutton = async () => {
-    if (users) {
-      setUsername(users.username);
-      setEnable2FA(users.enabeld_2fa);
-      // await fetchAuthUser();
-    }
-  };
   const desable2fabutton = async () => {
     if (users) {
-      setUsername(users.username);
-      await disableTwoFactorAuth();
-      setEnable2FA(users.enabeld_2fa);
+      disableTwoFactorAuth();
+      setEnable2FA(false);
+      await fetchAuthUser();
       // await fetchAuthUser();
     }
   };
@@ -78,19 +99,38 @@ const Popup = ({
           withCredentials: true, // Ensure cookies are included in the request
         }
       );
+      if (response.status === 200) {
+        if (users.enabeld_2fa) {
+          desable2fabutton();
+          //console.log("disable 2fa called");
+        }
+        clearValues();
+        setIsOpen(false);
+        setEnable2FA(users.enabeld_2fa);
+      }
     } catch (error){
     }
   };
 
 
+  const handelVerify = async () => {
+    if (users.enabeld_2fa) {
+      verify2FA() && setTry2fa(false)
+      //console.log("2fa is disabled");
+    } else {
+      verify2FA() && setTry2fa(true);
+      //console.log("2fa is enabled");
+    }
+    fetchAuthUser();
+    getqrcode();
+  }
 
   useEffect(() => {
-    // fetchAuthUser();
+     fetchAuthUser();
     if (users && users.username) {
       setUsername(users.username);
-      setEnable2FA(users.enabeld_2fa);
     }
-  }, [users]);
+  }, [users && users.enabeld_2fa, enable2FA, code, username]);
 
   return (
     <div>
@@ -129,21 +169,14 @@ const Popup = ({
                 <button
                   type="submit"
                   className="bg-gradient-to-r from-[#1A1F26]/90 to-[#000]/70 text-white p-2 px-4 rounded-lg border-[0.5px] border-white border-opacity-40 "
-                  onClick={() => {
-                    enable2FA
-                      ? verify2FA() && desable2fabutton() && setTry2fa(false) && console.log("2FA is disabled")
-                      : enabel2fabutton() && verify2FA() && console.log("2FA is enabled");
-                    isOpen
-                      ? setIsOpen(false) && setEnable2FA(false) && clearValues()
-                      : setIsOpen(true) && setEnable2FA(true) && clearValues();
-                  }}
+                  onClick={handelVerify}
                   disabled={values.some((val) => val === "")} // Disable until all fields are filled
                 >
                   Verify
                 </button>
                 <button
                   className="bg-gradient-to-r from-[#1A1F26]/90 to-[#000]/70 text-white p-2 px-4 rounded-lg border-[0.5px] border-white border-opacity-40 "
-                  onClick={() => clearValues()}
+                  onClick={clearValues}
                 >
                   Close
                 </button>
@@ -160,7 +193,7 @@ const Popup = ({
               less-than-tablet:w-[200px] less-than-tablet:h-[200px]
               desktop:h-[250px] rounded-[30px] 
               `}
-                src={`http://localhost:8000/qrcodes/${username}.png`}
+                src={`http://localhost:8000/${qrcode}`}
                 alt="2fa QR Code"
               />
             </div>

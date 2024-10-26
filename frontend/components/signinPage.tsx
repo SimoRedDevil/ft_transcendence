@@ -167,7 +167,7 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
               </label>
               <div className="relative flex">
                 <input value={email} onChange={(e) => setEmail(e.target.value)}
-                  type="email"
+                  type="email" autoFocus
                   className="border-b-[1px] border-[#949DA2] mb-7 h-[34px] w-full focus:outline-none bg-[#131E24] pr-6"
                 />
                 <FaEnvelope className="absolute right-0.5 text-[#949DA2] top-1" />

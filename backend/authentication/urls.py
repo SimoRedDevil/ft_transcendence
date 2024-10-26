@@ -2,6 +2,7 @@ from django.urls import path
 from .views import *
 from django.conf import settings
 from django.conf.urls.static import static
+from rest_framework_simplejwt.views import TokenVerifyView
 
 urlpatterns = [
     path('signup/', SignUpView.as_view(), name='signup'),
@@ -18,6 +19,7 @@ urlpatterns = [
     path('get-qrcode/', GetQRCodeView.as_view(), name='get-qrcode'),
     path('logout/', Logout.as_view(), name='logout'),
     path('new-access/', GenerateAccessToken.as_view(), name='new-access'),
+    path('verify/', TokenVerifyView.as_view(), name='token_verify'),
     # path('refresh-access/', RefreshAccessToken.as_view(), name='refresh-access'),
 
 ]

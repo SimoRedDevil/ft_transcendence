@@ -45,6 +45,23 @@ export const UserProvider = ({ children }) => {
         }
     };
 
+    // const  verifyToken = async () => {
+    //     try {
+    //         const response = await axios('http://localhost:8000/api/auth/verify/', {
+    //             withCredentials: true,
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'Token': users.access
+    //             },
+    //         });
+    //     } 
+    //     catch (error) {
+    //         setError(error);
+    //         setIsAuthenticated(false);
+    //         router.push('/login');
+    //     }
+    // }
+
     useEffect(() => {
         fetchAuthUser();
     }, [pathname, users && router]);

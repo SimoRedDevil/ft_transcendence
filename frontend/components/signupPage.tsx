@@ -118,7 +118,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
               </label>
               <div className="relative flex">
                 <input value={full_name} onChange={(e) => setFullName(e.target.value)}
-                  type="text"
+                  type="text" autoFocus
                   className="border-b-[1px] border-[#949DA2] mb-7 h-[34px] w-full focus:outline-none bg-[#131E24] pr-6"
                 />
                 <FaUserAlt className="absolute right-0.5 text-[#949DA2] top-1" />

@@ -224,6 +224,7 @@ class AuthenticatedUserView(APIView):
     def get(self, request):
         user = request.user
         user_data = UserSerializer(user).data
+        user_data['access'] = request.COOKIES.get('access')
         return Response(user_data, status=status.HTTP_200_OK)
 
 # Logout View
@@ -311,4 +312,5 @@ class GetQRCodeView(APIView):
 
     def get(self, request):
         user = request.user
-        return Response(status=status.HTTP_200_OK)
+        qrcode_path = "http://localhost:8000/qrcodes/" + user.username + ".png"
+        return Response({'qrcode_url': qrcode_path}, status=status.HTTP_200_OK)

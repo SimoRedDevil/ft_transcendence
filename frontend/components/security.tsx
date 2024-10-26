@@ -1,4 +1,4 @@
-import React from "react";
+import React, { use } from "react";
 import { GrKey } from "react-icons/gr";
 import { useState, useEffect } from "react";
 import axios from "axios";
@@ -7,7 +7,6 @@ import { enableTwoFactorAuth} from "./twoFa";
 
 
 import {
-  UserProvider,
   useUserContext,
 } from "../components/context/usercontext";
 
@@ -17,18 +16,59 @@ export default function Security() {
   const [enable2FA, setEnable2FA] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [code, setCode] = useState("");
+  const [qrcode, setQrcode] = useState("");
 
   if (loading || !users) {
     return <div>Loading...</div>;
   }
   
-  useEffect(() => {
-    if (users)
+
+  const getqrcode = async () => {
+    try {
+      const response = await axios('http://localhost:8000/api/auth/get-qrcode/', {
+          withCredentials: true,
+          headers: {
+              'Content-Type': 'application/json',
+          },
+      });
+      var qrcodepath = users.qrcode_dir;
+      if (response.status === 200 && qrcodepath )
       {
-        setUsername(users.username);
-        setEnable2FA(users.enabeld_2fa);
+          const parts = qrcodepath.split('/');
+          var qr = parts[parts.length - 1];
+          setQrcode(qr + "/" + users.username + ".png");
+          qr = "";
       }
-  }, [users.enabeld_2fa]);
+  }
+  catch (error) {
+      //console.log("error ----------------------->", error);
+  }
+  };
+  useEffect(() => {
+    getqrcode();
+    fetchAuthUser();
+    //console.log("us: ", users.enabeld_2fa);
+    //console.log("us22: ", enable2FA);
+    //console.log("qr: ", qrcode);
+    if(users.qrcode_dir)
+      {
+        setEnable2FA(true)
+        //console.log("enable2FA-------------------->");
+      }
+  }, [users && users.qrcode_dir, enable2FA]
+  );
+  const handelChange = async() => {
+    {
+      setIsPopupOpen(true);
+      if (!users.enabeld_2fa && !try2fa) {
+        enableTwoFactorAuth(fetchAuthUser);
+        fetchAuthUser();
+        setEnable2FA(true);
+        setTry2fa(true);
+        //console.log("enable 2fa called...........");
+      }
+    }
+  };
 
   return (
       <div
@@ -128,8 +168,8 @@ export default function Security() {
               desktop:h-[250px] less-than-tablet:mb-3 rounded-[30px] 
               `}
                 src={
-                  enable2FA
-                    ? `http://localhost:8000/qrcodes/${username}.png`
+                  users.enabeld_2fa
+                    ? `http://localhost:8000/${qrcode}`
                     : `images/qrcode.png`
                 }
                 alt="2fa QR Code"
@@ -165,15 +205,8 @@ export default function Security() {
                 <input
                   type="checkbox"
                   className="sr-only peer"
-                  checked={enable2FA}
-                  onChange={() => {
-                    setIsPopupOpen(true);
-                    if (!enable2FA && !try2fa) {
-                      enableTwoFactorAuth();
-                      setTry2fa(true);
-                    }
-                  }
-                  }
+                  checked={users.enabeld_2fa}
+                  onChange={handelChange}
                 />
                 <div
                   className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600
@@ -183,11 +216,13 @@ export default function Security() {
                 ></div>
               </label>
               <span className="text-lg font-medium">
-                {enable2FA ? "On" : "Off"}
+                {users.enabeld_2fa  ? "On" : "Off"}
               </span>
             </div>
             <div className="flex justify-center">
-              <Popup isOpen={isPopupOpen} setIsOpen={setIsPopupOpen} {...{ enable2FA, setEnable2FA }} {...{code, setCode}} />
+              {enable2FA && <Popup isOpen={isPopupOpen} setIsOpen={setIsPopupOpen} {...{ enable2FA, setEnable2FA }} {...{code, setCode}}
+                      qrcode={qrcode}
+               />}
             </div>
           </div>
         </div>

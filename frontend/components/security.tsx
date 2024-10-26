@@ -12,12 +12,16 @@ import {
 } from "../components/context/usercontext";
 
 export default function Security() {
-  const { users, setTry2fa, try2fa, fetchAuthUser} = useUserContext();
+  const { users, loading, setTry2fa, try2fa, fetchAuthUser} = useUserContext();
   const [username, setUsername] = useState("");
   const [enable2FA, setEnable2FA] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [code, setCode] = useState("");
 
+  if (loading || !users) {
+    return <div>Loading...</div>;
+  }
+  
   useEffect(() => {
     if (users)
       {

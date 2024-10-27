@@ -6,6 +6,7 @@ import { RiUserForbidFill } from "react-icons/ri";
 import { BsFillSendFill } from "react-icons/bs";
 import { MdEmojiEmotions } from "react-icons/md";
 import EmojiPicker from 'emoji-picker-react';
+import { IoIosArrowRoundBack } from "react-icons/io";
 import { useState } from 'react';
 import { useEffect } from 'react';
 import axios from 'axios';
@@ -65,10 +66,14 @@ function Chat() {
   if (loading === true || refScroll === null || messages === null) return <div>Loading...</div> ;
 
   return (
-    <div className={`lg:w-[calc(100%_-_400px)] 2xl:w-[calc(100%_-_550px)] lg:flex ${(isMobile && selectedConversation) ? 'flex' : 'hidden'}`}>
-      <div className='flex items-center'>
-        <hr className='border border-white h-[90%] border-opacity-30'></hr>
-      </div>
+    <div className={`h-full lg:w-[calc(100%_-_400px)] 2xl:w-[calc(100%_-_550px)] lg:flex ${(isMobile && selectedConversation) ? 'flex' : 'hidden'}`}>
+      {
+        (!isMobile) &&
+        <div className='flex items-center'>
+          <hr className='border border-white h-[90%] border-opacity-30'></hr>
+        </div>
+      }
+
       <div className='w-full flex flex-col'>
         <div className='flex p-[20px] justify-between'>
           <div className='flex flex-row gap-3'>

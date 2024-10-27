@@ -25,7 +25,6 @@ function Conversations() {
   if (loading === true || conversationsLoading === true) return <div>Loading...</div> ;
 
   const handleConversationClick = (conversation) => {
-    console.log(isMobile)
     setSelectedConversation(conversation)
     users.username === conversation.user1_info.username ? setOtherUser(conversation.user2_info) : setOtherUser(conversation.user1_info)
   }

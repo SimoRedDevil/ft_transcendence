@@ -18,7 +18,6 @@ export const ChatProvider = ({ children }) => {
     const [isMobile, setIsMobile] = useState(false);
     
     useEffect(() => {
-        
         const checkMobile = () => {
             if (window.innerWidth < 1024) {
                 setIsMobile(true);
@@ -26,6 +25,7 @@ export const ChatProvider = ({ children }) => {
                 setIsMobile(false);
             }
         };
+        checkMobile();
         window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
     }, []);

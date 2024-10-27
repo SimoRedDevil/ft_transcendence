@@ -30,71 +30,73 @@ import shutil
 
 INTRA_42_AUTH_URL = settings.INTRA_42_AUTH_URL
 
-def intra_42_login(request):
-    """
-    Redirects user to 42 Intra login page to authenticate.
-    """
-    return redirect(
-        f'{INTRA_42_AUTH_URL}?client_id={settings.INTRA_42_CLIENT_ID}&redirect_uri={settings.INTRA_42_REDIRECT_URI}&response_type=code'
-    )
-
-def intra_42_callback(request):
-    code = request.GET.get('code')
-    # Exchange the authorization code for an access token
-    token_url = settings.INTRA_42_TOKEN_URL
-    data = {
-        'grant_type': 'authorization_code',
-        'client_id': settings.INTRA_42_CLIENT_ID,
-        'client_secret': settings.INTRA_42_CLIENT_SECRET,
-        'code': code,
-        'redirect_uri': settings.INTRA_42_REDIRECT_URI
-    }
-
-    response = requests.post(token_url, data=data) # Send a POST request to the token URL
-    if response.status_code == 200:
-        # Successful token exchange
-        tokens = response.json()
-        access_token = tokens['access_token']
-        refresh_token = tokens.get('refresh_token', None)
-        # Use the access token to fetch user data from 42 API
-        user_info = fetch_42_user_data(access_token)
-        # Create the response
-        response = JsonResponse({})
-        response.set_cookie(
-            key='access_token', 
-            value=access_token, 
-            httponly=True, 
-            secure=True,  # Use secure=True in production to ensure cookies are sent over HTTPS
-        )
-        return response
-
-    else:
-        # Error in token exchange
-        return JsonResponse({
-            "error": "Failed to exchange authorization code for access token."
-        }, status=400)
-
-def fetch_42_user_data(access_token):
-    """
-    Fetches user data from the 42 API using the access token.
-    """
-    user_info_url = 'https://api.intra.42.fr/v2/me'
-    headers = {
-        'Authorization': f'Bearer {access_token}'
-    }
-
-    response = requests.get(user_info_url, headers=headers)
-
-    if response.status_code == 200:
-        return response.json()
-    return None
-
-
 # Sign Up View
 class SignUpView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = SignUpSerializer
 
+class GenerateAuthUrl(APIView):
+    def get(self, request):
+        auth_url = (
+            f"https://api.intra.42.fr/oauth/authorize?"
+            f"client_id={settings.INTRA_42_CLIENT_ID}&redirect_uri={settings.INTRA_42_REDIRECT_URI}"
+            "&response_type=code"
+        )
+        return redirect(auth_url)
+
+
+# Callback Intra View
+class intra_42_callback(APIView):
+    def get(self, request):
+        code = request.GET.get('code')
+        data = {
+            'grant_type': 'authorization_code',
+            'client_id': settings.INTRA_42_CLIENT_ID,
+            'client_secret': settings.INTRA_42_CLIENT_SECRET,
+            'code': code,
+            'redirect_uri': settings.INTRA_42_REDIRECT_URI
+        }
+        response = requests.post('https://api.intra.42.fr/oauth/token', data=data)
+        if response.status_code != 200:
+            return Response({'error': 'Invalid code'}, status=status.HTTP_400_BAD_REQUEST)
+        response_data = response.json()
+        access_token = response_data['access_token']
+        if not access_token:
+            return Response({'error': 'Invalid access token'}, status=status.HTTP_400_BAD_REQUEST)
+        user_data = requests.get('https://api.intra.42.fr/v2/me', headers={'Authorization': f'Bearer {access_token}'}).json()
+        user_data['username'] = user_data['login']
+        user_data['email'] = user_data['email']
+        user, created = CustomUser.objects.get_or_create(username=user_data['username'], email=user_data['email'])
+        if created:
+            user.set_unusable_password()
+            user.save()
+        user_data = model_to_dict(user)
+        user_data['access_token'] = access_token
+        user = authenticate(request, username=user_data['username'])
+        if user is not None:
+            login(request, user)
+            user.online = True
+            user.save()
+            refresh = RefreshToken.for_user(user)
+            response = Response(status=status.HTTP_200_OK)
+            # Set the access and refresh tokens in cookies
+            response.set_cookie(
+                key='access',
+                value=str(refresh.access_token),
+                httponly=True,
+                secure=False,  # Set to True in production
+                samesite='Lax',  # Optional, but recommended
+            )
+            response.set_cookie(
+                key='refresh',
+                value=str(refresh),
+                httponly=True,
+                secure=False,  # Set to True in production
+                samesite='Lax',  # Optional, but recommended
+            )
+            return response
+        else:
+            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 # Login View
 class LoginView(APIView):
     serializer_class = LoginSerializer

@@ -58,11 +58,11 @@ INSTALLED_APPS = [
     'corsheaders',
     'authentication',
     'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.oauth2',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    # 'allauth.account',
+    # 'allauth.socialaccount',
+    # 'allauth.socialaccount.providers.oauth2',
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -75,31 +75,23 @@ CHANNEL_LAYERS = {
     }
 }
 
-SITE_ID = 1
 
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
-
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
-
-SOCIALACCOUNT_PROVIDERS = {
-    'oauth2': {
-        'APP': {
-            'client_id': 'u-s4t2ud-92bd4e0625503a1a3d309256cffd60297d8692b8710fce9d6d657fe60899bfd4',
-            'secret': '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',
-            'key': '',
-        },
-        'SCOPE': ['public'],
-        'AUTH_PARAMS': {'access_type': 'offline'},
-        'METHOD': 'oauth2',
-        'AUTHORIZE_URL': 'https://api.intra.42.fr/oauth/authorize',
-        'ACCESS_TOKEN_URL': 'https://api.intra.42.fr/oauth/token',
-        'PROFILE_URL': 'https://api.intra.42.fr/v2/me',  # For getting user data
-        'REDIRECT_URI': 'http://localhost:8000/accounts/42/callback/',
-    },
-}
+# SOCIALACCOUNT_PROVIDERS = {
+#     'oauth2': {
+#         'APP': {
+#             'client_id': 'u-s4t2ud-92bd4e0625503a1a3d309256cffd60297d8692b8710fce9d6d657fe60899bfd4',
+#             'secret': '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',
+#             'key': '',
+#         },
+#         'SCOPE': ['public'],
+#         'AUTH_PARAMS': {'access_type': 'offline'},
+#         'METHOD': 'oauth2',
+#         'AUTHORIZE_URL': 'https://api.intra.42.fr/oauth/authorize',
+#         'ACCESS_TOKEN_URL': 'https://api.intra.42.fr/oauth/token',
+#         'PROFILE_URL': 'https://api.intra.42.fr/v2/me',  # For getting user data
+#         'REDIRECT_URI': 'http://localhost:8000/accounts/42/callback/',
+#     },
+# }
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
@@ -203,6 +195,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+            'OPTIONS': {
+                'min_length': 8,
+            }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',

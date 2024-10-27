@@ -1,7 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, use } from 'react';
 import axios from 'axios';
 import { usePathname, useRouter } from 'next/navigation';
-import path from 'path';
 
 
 const UserContext = createContext(null);
@@ -12,6 +11,7 @@ export const UserProvider = ({ children }) => {
     const [error, setError] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [try2fa, setTry2fa] = useState(false);
+    // const [code, setCode] = useState(null);
     const pathname = usePathname();
     const router = useRouter();
 
@@ -32,18 +32,40 @@ export const UserProvider = ({ children }) => {
                 setIsAuthenticated(true);
             } else {
                 setIsAuthenticated(false);
-                router.push('/login');
+                // router.push('/login');
             }
         } catch (error) {
             setError(error);
             setIsAuthenticated(false);
-            router.push('/login');
+            // router.push('/login');
         } finally {
             setTimeout(() => {
                 setLoading(false);
             }, 500);
         }
     };
+
+    const caallBack42 = async () => {
+        try {
+            const response = await axios('http://localhost:8000/api/auth/42/callback/', {
+                withCredentials: true,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            const user = response.data;
+            setUsers(user);
+            if (user) {
+                setIsAuthenticated(true);
+            } else {
+                setIsAuthenticated(false);
+            }
+        } catch (error) {
+            setError(error);
+            setIsAuthenticated(false);
+        }
+    }
+
 
     // const  verifyToken = async () => {
     //     try {
@@ -61,6 +83,10 @@ export const UserProvider = ({ children }) => {
     //         router.push('/login');
     //     }
     // }
+    useEffect(() => {
+    //    console.log("", code);
+    }
+    , [pathname, users && router]);
 
     useEffect(() => {
         fetchAuthUser();

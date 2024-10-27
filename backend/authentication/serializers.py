@@ -6,7 +6,8 @@ class SignUpSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['full_name', 'username', 'email', 'password']
-        extra_kwargs = {'password': {'write_only': True},
+        extra_kwargs = {'password': {'write_only': True, 'required': True,
+            'min_length': 8,},
         }
 
     def create(self, validated_data):

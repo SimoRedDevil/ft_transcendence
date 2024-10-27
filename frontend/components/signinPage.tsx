@@ -23,7 +23,6 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
 
   const handleSignin = async (e) => {
     e.preventDefault();
-    // Create the body object to send in the request
     const body = {
       email,
       password,
@@ -51,22 +50,6 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
     }
   };  
 
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-
-    if (code && !hasHandledCallback.current) {
-      hasHandledCallback.current = true;
-      handle42Callback(code)
-        .then((data) => {
-          alert('Successfully authenticated with 42!');
-          router.push('/');
-        })
-        .catch((error) => {
-          alert('Failed to authenticate with 42, please try again.');
-        });
-    }
-  }, []);
 
   const handleEnterPress = (event) => {
     if (event.key === 'Enter') {
@@ -74,7 +57,7 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
     }
   };
 
-  
+
   useEffect(() => {
     window.addEventListener('keydown', handleEnterPress);
     return () => {
@@ -121,12 +104,11 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
                 Sign up
               </button>
             </div>
-            <Link href="http://localhost:8000/api/auth/42/login/" passHref
+            <Link href="http://localhost:8000/api/auth/42/login/"
               className="
                 w-full flex justify-center items-center"
             >
               <button
-               
                 className="flex items-center bg-[#131E24] text-white w-[75%] mobile:w-[90%] less-than-mobile:w-[90%] justify-center py-2 rounded mt-7 
                   hover:bg-[#1E2E36] rounded-tl-[13px] rounded-bl-[22px] rounded-tr-[22px] rounded-br-[10px] border border-gray-500"
               >

@@ -21,7 +21,7 @@ export default function Home() {
             const csrfToken = response.data.cookies.csrftoken;
             return csrfToken;
         } catch (error) {
-            return null;
+            router.push('/login');
         }
     };
     
@@ -52,9 +52,6 @@ export default function Home() {
         }
     };
     
-    // useEffect(() => {
-    // }, [users.username]);
-
     return (
         <div className='
             flex

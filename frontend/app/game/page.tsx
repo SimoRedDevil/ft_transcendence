@@ -1,8 +1,11 @@
 "use client"
 
-import Table from "./Table";
-import Player1 from "./Player1";
-import Player2 from "./Player2";
+import dynamic from 'next/dynamic';
+import { useEffect, useState } from "react";
+
+const Table = dynamic(() => import('./Table'), { ssr: false });
+const Player1 = dynamic(() => import('./Player1'), { ssr: false });
+const Player2 = dynamic(() => import('./Player2'), { ssr: false });
 
 export default function Game() {
     return (
@@ -24,4 +27,3 @@ export default function Game() {
         </div>
     );
 }
-

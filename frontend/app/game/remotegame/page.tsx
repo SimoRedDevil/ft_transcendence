@@ -1,12 +1,10 @@
 "use client"
 
-import Table from "./tableRemote";
-import Player1 from "./Player1Remote";
-import Player2 from "./Player2Remote";
-import { useEffect, useRef, createContext } from "react";
+import dynamic from 'next/dynamic';
 
-
-export const socketContext = createContext<WebSocket | null>(null);
+const Table = dynamic(() => import('./tableRemote'), { ssr: false });
+const Player1 = dynamic(() => import('./Player1Remote'), { ssr: false });
+const Player2 = dynamic(() => import('./Player2Remote'), { ssr: false });
 
 export default function Game() {
     return (
@@ -29,4 +27,3 @@ export default function Game() {
         </div>
     );
 }
-

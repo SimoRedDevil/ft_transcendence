@@ -3,7 +3,6 @@ import { Walls , walls} from './Object';
 import p5 from 'p5';
 
 export function UpPaddle(sketch: p5, Walls: walls):void{
-
     sketch.fill("#00A88C");
     sketch.stroke("#58FFE3");
     if (sketch.keyIsPressed)
@@ -27,7 +26,6 @@ export function UpPaddle(sketch: p5, Walls: walls):void{
 }
     
 export function DownPaddle(sketch: p5, Walls: walls):void{
-      
       sketch.fill("#00A88C");
       sketch.stroke("#58FFE3");
       if (sketch.keyIsDown(sketch.RIGHT_ARROW))

@@ -6,6 +6,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      colors: {
+        'deepSeaBlue': '#0B4464',
+      },
       keyframes: {
         slideInLeft: {
           '0%': { transform: 'translateX(-100%)', opacity: '0' }, 

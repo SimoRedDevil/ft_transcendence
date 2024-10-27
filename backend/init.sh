@@ -1,7 +1,5 @@
 #!/bin/bash
 
-sleep 35
-
 python manage.py makemigrations
 
 python manage.py migrate

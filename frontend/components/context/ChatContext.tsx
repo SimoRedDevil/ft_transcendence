@@ -16,6 +16,7 @@ export const ChatProvider = ({ children }) => {
     const [otherUser, setOtherUser] = useState(null);
     const [error, setError] = useState(null);
     const [isMobile, setIsMobile] = useState(false);
+    const lastMessageRef = useRef(null);
     
     useEffect(() => {
         const checkMobile = () => {
@@ -37,7 +38,13 @@ export const ChatProvider = ({ children }) => {
         };
         ws.current.onmessage = (message) => {
             const newMessage = JSON.parse(message.data);
+            console.log(newMessage);
             setMessages((prevMessages) => [...prevMessages, newMessage]);
+            setConversations((prevConversations) =>
+                prevConversations.map((conversation) =>
+                    conversation.id === newMessage.conversation_id ? { ...conversation, last_message: newMessage.content } : conversation
+                )
+            );
         };
         ws.current.onclose = () => {
             console.log('Disconnected from the chat server');
@@ -82,6 +89,12 @@ export const ChatProvider = ({ children }) => {
         }
     }
 
+    const scrollToLastMessage = () => {
+        if (lastMessageRef.current) {
+            lastMessageRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
     useEffect(() => {
         fetchConversations();
     }, []);
@@ -92,9 +105,15 @@ export const ChatProvider = ({ children }) => {
         }
     }, [selectedConversation])
 
+    useEffect(() => {
+        if (messages.length > 0) {
+            scrollToLastMessage();
+        }
+    }, [messages]);
+
     return (
         <ChatContext.Provider value={{ messages, Conversations, conversationsLoading, messagesLoading,
-            error, selectedConversation, otherUser, ws, isMobile, fetchMessages, fetchConversations, setSelectedConversation, setOtherUser }}>
+            error, selectedConversation, otherUser, ws, isMobile, lastMessageRef, fetchMessages, fetchConversations, setSelectedConversation, setOtherUser }}>
             {children}
         </ChatContext.Provider>
     );

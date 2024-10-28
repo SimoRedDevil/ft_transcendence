@@ -61,6 +61,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             {
                 'type': 'send_message',
                 'id': info['id'],
+                'conversation_id': info['conversation_id'],
                 'sent_by_user': info['sent_by_user'],
                 'content': info['content']
             }
@@ -83,16 +84,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await set_conversation_last_msg(conversation_obj, message)
         message_obj = await create_message(conversation_obj, sender_obj, receiver_obj, message)
         other_user_room_group_name = f'chat_{sent_to_user}'
-        await self.broadcast_message({'room_group_name': self.room_group_name, 'sent_by_user': sent_by_user, 'content': message, 'id': message_obj.id})
-        await self.broadcast_message({'room_group_name': other_user_room_group_name, 'sent_by_user': sent_by_user, 'content': message, 'id': message_obj.id})
+        await self.broadcast_message({'room_group_name': self.room_group_name, 'sent_by_user': sent_by_user, 'content': message, 'id': message_obj.id, 'conversation_id': conversation_obj.id})
+        await self.broadcast_message({'room_group_name': other_user_room_group_name, 'sent_by_user': sent_by_user, 'content': message, 'id': message_obj.id, 'conversation_id': conversation_obj.id})
     
     async def send_message(self, event):
         sent_by_user = event['sent_by_user']
         message = event['content']
         timestamp = timezone.now().strftime("%A, %I:%M %p")
         id = event['id']
+        conversation_id = event['conversation_id']
         await self.send(text_data=json.dumps({
             'id': id,
+            'conversation_id': conversation_id,
             'sent_by_user': sent_by_user,
             'content': message,
             'get_human_readable_time': timestamp

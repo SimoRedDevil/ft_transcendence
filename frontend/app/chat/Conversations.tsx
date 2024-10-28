@@ -19,10 +19,17 @@ function Conversations() {
     setSelectedConversation,
     selectedConversation,
     setOtherUser,
-    isMobile
+    isMobile,
+    refScroll
   } = useChatContext()
 
   if (loading === true || conversationsLoading === true) return <div>Loading...</div> ;
+
+  const scrollToLastMessage = () => {
+    if (refScroll.current) {
+      refScroll.current.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
 
   const handleConversationClick = (conversation) => {
     setSelectedConversation(conversation)

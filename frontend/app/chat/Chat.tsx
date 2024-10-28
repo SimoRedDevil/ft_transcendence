@@ -19,7 +19,6 @@ function Chat() {
   const [showEmoji, setShowEmoji] = useState(false)
   const [input, setInput] = useState('')
   const {users, loading} = useUserContext()
-  const refScroll = useRef(null)
   const
   {
     selectedConversation,
@@ -27,7 +26,8 @@ function Chat() {
     ws,
     messages,
     messagesLoading,
-    isMobile
+    isMobile,
+    lastMessageRef
   } = useChatContext()
 
   const handleKeyDown = (e) => {
@@ -44,12 +44,6 @@ function Chat() {
     setInput((prevInput) => prevInput + emojiObject.emoji)
   }
 
-  const scrollToLastMessage = () => {
-    if (refScroll.current) {
-      refScroll.current.scrollIntoView({ behavior: 'smooth' })
-    }
-  };
-
   const handleSendMessage = () => {
     if (checkStringEmpty(input)) return;
     ws.current.send(JSON.stringify({
@@ -63,7 +57,7 @@ function Chat() {
 
   if (selectedConversation === null) return;
 
-  if (loading === true || refScroll === null || messages === null) return <div>Loading...</div> ;
+  if (loading === true || lastMessageRef === null || messages === null) return <div>Loading...</div> ;
 
   return (
     <div className={`h-full lg:w-[calc(100%_-_400px)] 2xl:w-[calc(100%_-_550px)] lg:flex ${(isMobile && selectedConversation) ? 'flex' : 'hidden'}`}>
@@ -98,16 +92,18 @@ function Chat() {
           <div className='w-full h-[89%] relative'>
             <div className='h-full no-scrollbar overflow-y-auto scroll-smooth'>
               {
-                messages.map((message) => {
+                messages.map((message, index) => {
+                  // console.log(message.conversation_id, message.content)
                   return (
-                    <div key={message.id} className={`flex flex-col mb-4 ${(message.sent_by_user === users.username || (message.sender !== undefined && message.sender.username === users.username)) ? 'items-end' : 'items-start'}`}>
+                    message.conversation_id === selectedConversation.id ?
+                    <div ref={index === messages.length - 1 ? lastMessageRef : null} key={message.id} className={`flex flex-col mb-4 ${(message.sent_by_user === users.username || (message.sender !== undefined && message.sender.username === users.username)) ? 'items-end' : 'items-start'}`}>
                       <div className={`flex items-center border border-white border-opacity-20 rounded-[30px] min-h-[50px] max-w-[75%] ${(message.sent_by_user === users.username || (message.sender !== undefined && message.sender.username === users.username)) ? 'bg-[#0D161A]' : 'bg-black'}`}>
                         <span className='text-white text-opacity-90 p-[20px]'>{message.content}</span>
                       </div>
                       <div className=''>
                         <span className='text-white text-opacity-50 text-[0.8rem]'>{message.get_human_readable_time}</span>
                       </div>
-                    </div>
+                    </div> : null
                     // <div key={message.id} className={(message.sent_by_user === users.username || (message.sender !== undefined && message.sender.username === users.username)) ? 'flex flex-row-reverse' : 'flex flex-row'}>
                     //   <div className={(message.sent_by_user === users.username || (message.sender !== undefined && message.sender.username === users.username)) ? 'bg-[#0D161A]' : 'bg-black'}>
                     //     <span className='text-white text-opacity-90 p-[20px]'>{message.content}</span>

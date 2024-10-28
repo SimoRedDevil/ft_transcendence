@@ -40,10 +40,14 @@ export const ChatProvider = ({ children }) => {
             const newMessage = JSON.parse(message.data);
             console.log(newMessage);
             setMessages((prevMessages) => [...prevMessages, newMessage]);
-            setConversations((prevConversations) =>
-                prevConversations.map((conversation) =>
+            setConversations((prevConversations) => {
+                const updatedConversations = prevConversations.map((conversation) =>
                     conversation.id === newMessage.conversation_id ? { ...conversation, last_message: newMessage.content } : conversation
                 )
+                const updatedConversation = updatedConversations.find(conv => conv.id === newMessage.conversation_id);
+                const otherConversations = updatedConversations.filter(conv => conv.id !== newMessage.conversation_id);
+                setConversations([updatedConversation, ...otherConversations]);
+            }
             );
         };
         ws.current.onclose = () => {

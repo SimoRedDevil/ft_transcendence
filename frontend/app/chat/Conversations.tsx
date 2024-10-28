@@ -11,6 +11,7 @@ import axios from 'axios'
 
 function Conversations() {
   const {users, loading} = useUserContext()
+  const [input, setInput] = useState('')
   const
   {
     Conversations,
@@ -36,30 +37,34 @@ function Conversations() {
     users.username === conversation.user1_info.username ? setOtherUser(conversation.user2_info) : setOtherUser(conversation.user1_info)
   }
 
+  const handleConversationSearch = (e) => {
+    console.log(e.target.value)
+  }
+
   return (
     <div className={`w-full h-full lg:w-[400px] 2xl:w-[550px] ${isMobile && selectedConversation ? 'hidden' : 'flex flex-col'}`}>
             <div className='h-[200px]'>
-              <div className='h-[120px] flex gap-[10px] p-[20px]'>
+              <div className='h-[120px] flex gap-4 p-[20px]'>
                 <div className='h-[80px] w-[80px] rounded-full bg-blue-800'>
                   {/* <Image className='rounded-full' src='' width={60} height={60} alt='avatar'/> */}
                 </div>
-                <div className='flex flex-col justify-center gap-3'>
+                <div className='flex flex-col justify-center gap-4'>
                   <span className='text-[1rem]'>{users.full_name}</span>
                   <span className='text-[0.9rem] text-white text-opacity-65'>Active Now</span>
                 </div>
               </div>
               <div className='h-[100px] flex items-center justify-center'>
-                <TextBox placeholder='Search...' icon='/icons/search.png' className='border border-white border-opacity-20 w-[95%] h-[70px] bg-white bg-opacity-10 rounded-[40px] flex items-center'></TextBox>
+                <TextBox onChange={(e) => handleConversationSearch(e)} placeholder='Search...' icon='/icons/search.png' className='border border-white border-opacity-20 w-[95%] h-[70px] bg-white bg-opacity-10 rounded-[40px] flex items-center'></TextBox>
               </div>
             </div>
         <div className='mt-[20px] h-[calc(100%_-_270px)] no-scrollbar overflow-y-auto scroll-smooth'>
           {Conversations !== null && Conversations.map((conversation) => {
             return (
-              <div onClick={() => handleConversationClick(conversation)} key={conversation.id} className='flex items-center gap-[10px] p-[20px] hover:bg-white hover:bg-opacity-10 cursor-pointer'>
+              <div onClick={() => handleConversationClick(conversation)} key={conversation.id} className='flex items-center gap-4 p-[20px] hover:bg-white hover:bg-opacity-10 cursor-pointer'>
                 <div className='h-[80px] w-[80px] rounded-full bg-blue-800'>
                   {/* <Image className='rounded-full' src={conversation.image} width={60} height={60} alt='avatar'/> */}
                 </div>
-                <div className='flex flex-col gap-3'>
+                <div className='flex flex-col gap-4'>
                   {
                     users.username === conversation.user1_info.username ?
                     <span className='text-[1rem]'>{conversation.user2_info.full_name}</span> :

@@ -70,11 +70,11 @@ function Chat() {
 
       <div className='w-full flex flex-col'>
         <div className='flex p-[20px] justify-between'>
-          <div className='flex flex-row gap-3'>
+          <div className='flex flex-row gap-4'>
             <div className='rounded-full h-[80px] w-[80px] bg-red-700'>
               {/* <Image className='rounded-full' src={data[0].image} width={60} height={60} alt='avatar'/> */}
             </div>
-            <div className='flex flex-col justify-center gap-3'>
+            <div className='flex flex-col justify-center gap-4'>
               <span className='text-[20px]'>{otherUser.full_name}</span>
               <span className='text-[18px] text-white text-opacity-65'>{otherUser.online === true ? 'Active Now' : 'Offline'}</span>
             </div>

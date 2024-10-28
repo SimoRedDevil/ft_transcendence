@@ -64,6 +64,7 @@ class intra_42_callback(APIView):
         if not access_token:
             return Response({'error': 'Invalid access token'}, status=status.HTTP_400_BAD_REQUEST)
         user_data = requests.get('https://api.intra.42.fr/v2/me', headers={'Authorization': f'Bearer {access_token}'}).json()
+        print(user_data)
         user_data['username'] = user_data['login']
         user_data['email'] = user_data['email']
         user, created = CustomUser.objects.get_or_create(username=user_data['username'], email=user_data['email'])
@@ -72,31 +73,35 @@ class intra_42_callback(APIView):
             user.save()
         user_data = model_to_dict(user)
         user_data['access_token'] = access_token
-        user = authenticate(request, username=user_data['username'])
-        if user is not None:
-            login(request, user)
-            user.online = True
-            user.save()
-            refresh = RefreshToken.for_user(user)
-            response = Response(status=status.HTTP_200_OK)
-            # Set the access and refresh tokens in cookies
-            response.set_cookie(
-                key='access',
-                value=str(refresh.access_token),
-                httponly=True,
-                secure=False,  # Set to True in production
-                samesite='Lax',  # Optional, but recommended
-            )
-            response.set_cookie(
-                key='refresh',
-                value=str(refresh),
-                httponly=True,
-                secure=False,  # Set to True in production
-                samesite='Lax',  # Optional, but recommended
-            )
-            return response
-        else:
-            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        user.username = user_data['username']
+        user.email = user_data['email']
+        user.full_name = user_data['full_name']
+        user.save()
+        authenticate(request, username=user_data['username'])
+        login(request, user)
+        user.online = True
+        user.save()
+        refresh = RefreshToken.for_user(user)
+        response = Response(status=status.HTTP_200_OK)
+        # Set the access and refresh tokens in cookies
+        response.set_cookie(
+            key='access',
+            value=str(refresh.access_token),
+            httponly=True,
+            secure=False,  # Set to True in production
+            samesite='Lax',  # Optional, but recommended
+        )
+        response.set_cookie(
+            key='refresh',
+            value=str(refresh),
+            httponly=True,
+            secure=False,  # Set to True in production
+            samesite='Lax',  # Optional, but recommended
+        )
+        response.data = {
+            'user': user_data
+        }
+        return response
 # Login View
 class LoginView(APIView):
     serializer_class = LoginSerializer

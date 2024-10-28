@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, use } from 'react';
 import axios from 'axios';
 import { usePathname, useRouter } from 'next/navigation';
+import { useParams } from 'react-router-dom';
 
 
 const UserContext = createContext(null);
@@ -11,7 +12,7 @@ export const UserProvider = ({ children }) => {
     const [error, setError] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [try2fa, setTry2fa] = useState(false);
-    // const [code, setCode] = useState(null);
+    const [code, setCode] = useState(null);
     const pathname = usePathname();
     const router = useRouter();
 
@@ -45,7 +46,15 @@ export const UserProvider = ({ children }) => {
         }
     };
 
+    useEffect(() => {
+        console.log("location: ", );
+}, []);
+
+
     const caallBack42 = async () => {
+        setCode(window.location.search.split('code=')[1])
+        const param = useParams();
+
         try {
             const response = await axios('http://localhost:8000/api/auth/42/callback/', {
                 withCredentials: true,

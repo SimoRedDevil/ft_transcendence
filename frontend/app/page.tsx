@@ -8,6 +8,7 @@ import { redirect } from 'next/dist/server/api-utils';
 import { useRouter } from 'next/navigation';
 import {UserContext} from "../components/context/usercontext";
 import { useContext } from "react";
+import Tournament from '../components/tournoment';
 
 export default function Home() {
     const router = useRouter();
@@ -56,13 +57,12 @@ export default function Home() {
         <div className='
             flex
             items-center
-            w-[20%]
-            justify-around
+            w-full
+            justify-center
             h-screen
-            ml-[1000px]
             text-white
         '>
-            <Link href="/login">
+            {/* <Link href="/login">
                 Login
             </Link>
             <button onClick={
@@ -70,7 +70,8 @@ export default function Home() {
 
             }>
                 log out
-            </button>
+            </button> */}
+            <Tournament />
         </div>
     )
 }

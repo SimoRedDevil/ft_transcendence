@@ -19,6 +19,7 @@ function Conversations() {
     conversationsLoading,
     setSelectedConversation,
     selectedConversation,
+    setConversations,
     setOtherUser,
     isMobile,
     refScroll
@@ -38,7 +39,20 @@ function Conversations() {
   }
 
   const handleConversationSearch = (e) => {
-    console.log(e.target.value)
+    let search = e.target.value
+    if (search.length === 0) {
+      fetchConversations()
+    } else {
+      axiosInstance.get(`/chat/search/`, {
+        params: {search: search}
+      })
+      .then((response) => {
+        setConversations(response.data)
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+    }
   }
 
   return (

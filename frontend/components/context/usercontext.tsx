@@ -46,34 +46,38 @@ export const UserProvider = ({ children }) => {
         }
     };
 
-    useEffect(() => {
-        console.log("location: ", );
-}, []);
-
-
     const caallBack42 = async () => {
-        setCode(window.location.search.split('code=')[1])
-        const param = useParams();
-
         try {
-            const response = await axios('http://localhost:8000/api/auth/42/callback/', {
-                withCredentials: true,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            const user = response.data;
-            setUsers(user);
-            if (user) {
-                setIsAuthenticated(true);
-            } else {
-                setIsAuthenticated(false);
+            const urls = new URLSearchParams(window.location.search);
+            const error = urls.get('error');
+            error && router.push('/login')
+            const code = urls.get('code');
+            if (code) 
+            {
+                const response = await axios.get(`http://localhost:8000/api/auth/42/callback/?code=${code}`,
+                {
+                    withCredentials: true
+                });
+                if (response.status === 200) {
+                    console.log(response);
+                    const user = response.data;
+                    setUsers(user);
+                    console.log(user);
+                    if (user) {
+                        setIsAuthenticated(true);
+                        router.push('/');
+                    } else {
+                        setIsAuthenticated(false);
+                        // router.push('/login');
+                    }
+                }
             }
-        } catch (error) {
-            setError(error);
-            setIsAuthenticated(false);
+            } catch (error) {
+                setError(error);
+                setIsAuthenticated(false);
+                // router.push('/login');
+            }
         }
-    }
 
 
     // const  verifyToken = async () => {
@@ -93,9 +97,9 @@ export const UserProvider = ({ children }) => {
     //     }
     // }
     useEffect(() => {
-    //    console.log("", code);
+        caallBack42();
     }
-    , [pathname, users && router]);
+    , [pathname]);
 
     useEffect(() => {
         fetchAuthUser();

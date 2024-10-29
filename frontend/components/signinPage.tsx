@@ -19,7 +19,7 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
   const [password, setPassword] = useState("");
   const router = useRouter();
   const hasHandledCallback = useRef(false);
-  const { setIsAuthenticated } = useContext(UserContext);
+  const { setIsAuthenticated, callback } = useContext(UserContext);
 
   const handleSignin = async (e) => {
     e.preventDefault();

@@ -31,20 +31,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }
 
 function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
-    const { loading, isAuthenticated, fetchAuthUser } = useContext(UserContext);
+    const {users, loading, isAuthenticated, fetchAuthUser } = useContext(UserContext);
 
     // Handle redirection based on authentication
     useEffect(() => {
-        isAuthenticated && fetchAuthUser();
+        isAuthenticated && fetchAuthUser()
         if (isAuthenticated && exclude.includes(pathname)) {
             router.push('/');
         }
-        if (!isAuthenticated && !exclude.includes(pathname)) {
+        if (!isAuthenticated && exclude.includes(pathname)) {
             router.push('/login');
         }
     }, [isAuthenticated, pathname, router]);
 
-    // Display loader while authentication is loading
+    useEffect(() => {
+        !isAuthenticated && fetchAuthUser();
+    }
+    , [pathname, router]);
+
     if (loading) {
         return (
             <div className="flex justify-center items-center h-screen w-screen bg-main-bg border
@@ -54,7 +58,6 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
         );
     }
 
-    // Layout rendering
     return (
         <div className="bg-main-bg border border-black w-screen h-full bg-cover bg-no-repeat bg-center fixed min-w-[280px] min-h-[800px]">
             {/* Render Header if pathname is not in exclude list */}

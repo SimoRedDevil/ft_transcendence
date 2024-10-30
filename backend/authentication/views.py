@@ -242,19 +242,11 @@ class Logout(APIView):
             user.online = False
             user.save()
 
-            refresh_token = request.COOKIES.get('refresh')
-            if refresh_token:
-                try:
-                    token = RefreshToken(refresh_token)
-                    token.blacklist()
-                except Exception as e:
-                    # Handle the exception (optional: log the error)
-                    return Response({'error': 'Could not blacklist token'}, status=status.HTTP_400_BAD_REQUEST)
-
             # Prepare the response and delete cookies
             response = Response(status=status.HTTP_200_OK)
             response.delete_cookie('access')
             response.delete_cookie('refresh')
+            response.delete_cookie('csrftoken')
             return response
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -303,7 +295,7 @@ class VerifyTwoFactorView(APIView):
         totp = pyotp.TOTP(user.twofa_secret)
 
         if totp.verify(user_code):
-            user.enabeld_2fa = not user.enabeld_2fa
+            user.enabeld_2fa = True
             user.save()
             return Response(status=status.HTTP_200_OK)
         else:

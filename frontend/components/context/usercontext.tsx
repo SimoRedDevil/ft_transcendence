@@ -96,7 +96,7 @@ export const UserProvider = ({ children }) => {
     , [pathname] );
 
     return (
-        <UserContext.Provider value={{ users, loading, error, isAuthenticated, fetchAuthUser, setIsAuthenticated, setTry2fa, try2fa }}>
+        <UserContext.Provider value={{ users, loading, error, isAuthenticated, fetchAuthUser, setIsAuthenticated, setTry2fa, try2fa}}>
             {children}
         </UserContext.Provider>
     );

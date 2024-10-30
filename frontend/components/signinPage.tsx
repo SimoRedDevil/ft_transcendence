@@ -9,17 +9,18 @@ import axios from 'axios';
 import { handle42Callback } from './auth'
 import { useContext } from "react";
 import { UserContext } from "./context/usercontext";
+import TwofaVerify from "./twofaVerify";
 
 interface SigninPageProps {
   onNavigate?: () => void;
+  onLoginSuccess: (is2FAEnabled: boolean) => void;
 }
 
-const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
+const SigninPage: React.FC<SigninPageProps> = ({ onNavigate, onLoginSuccess}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
-  const hasHandledCallback = useRef(false);
-  const { setIsAuthenticated, callback } = useContext(UserContext);
+  const { setIsAuthenticated, users } = useContext(UserContext);
 
   const handleSignin = async (e) => {
     e.preventDefault();
@@ -38,8 +39,14 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
   
       if (response.status === 200) {
         alert("Signin successful");
-        setIsAuthenticated(true);
-        router.push("/");
+        if (users && users.enabeld_2fa) {
+          onLoginSuccess(true);
+          console.log("2FA enabled");
+        }
+        else {
+          setIsAuthenticated(true);
+          router.push("/");
+        }
       } else {
         alert(data.message || "Signin failed, please try again.");
         setIsAuthenticated(false);

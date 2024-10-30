@@ -32,3 +32,15 @@ export  const disableTwoFactorAuth = async () => {
     }
   };
 
+  export const verify2FA = async (code) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/api/auth/verify-2fa/?code=${code}`,
+        {
+          withCredentials: true, // Ensure cookies are included in the request
+        }
+      );
+      return response.status;
+    } catch (error){
+    }
+  };

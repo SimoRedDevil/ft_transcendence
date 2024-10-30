@@ -11,12 +11,8 @@ import BounceLoader from "react-spinners/ClipLoader";
 import {usePathname} from 'next/navigation';
 
 function Header() {
-  const { users, loading, fetchAuthUser} = useContext(UserContext);
-  const path = usePathname();
+  const { users} = useContext(UserContext);
 
-  useEffect(() => {
-    users && fetchAuthUser();
-  }, [path]);
   return (
     <header className='text-white flex justify-between items-center p-[10px]'>
       <div>

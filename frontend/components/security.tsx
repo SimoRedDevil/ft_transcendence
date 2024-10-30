@@ -37,7 +37,6 @@ export default function Security() {
           setQrcode(qr); // Set QR code
       }
     } catch (error) {
-      console.error("Error fetching QR code:", error);
     } finally {
       setIsLoading(false); // Set loading to false after fetching
     }

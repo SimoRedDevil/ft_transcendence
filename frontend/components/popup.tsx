@@ -1,7 +1,7 @@
 import { useState, useEffect, use } from "react";
 import axios from "axios";
 import { useContext } from "react";
-import {disableTwoFactorAuth } from "./twoFa";
+import {disableTwoFactorAuth, verify2FA } from "./twoFa";
 import { UserContext } from '../components/context/usercontext';
 
 
@@ -63,33 +63,21 @@ const Popup = ({
     }
   };
 
-  const verify2FA = async () => {
-    try {
-      const response = await axios.get(
-        `http://localhost:8000/api/auth/verify-2fa/?code=${code}`,
-        {
-          withCredentials: true, // Ensure cookies are included in the request
-        }
-      );
-      if (response.status === 200) {
-        if (users.enabeld_2fa) {
-          desable2fabutton();
-          //console.log("disable 2fa called");
-        }
-        clearValues();
-        setIsOpen(false);
-        setEnable2FA(users.enabeld_2fa);
-      }
-    } catch (error){
-    }
-  };
-
   const handelVerify = async () => {
-    if (users.enabeld_2fa) {
-      verify2FA() && setTry2fa(false)
-    } else {
-      verify2FA() && setTry2fa(true);
-    }
+    const status = await verify2FA(code)
+    if (status == 200) {
+      if (users.enabeld_2fa) {
+        desable2fabutton()
+        setTry2fa(false)
+      } else {
+        if (status == 200) {
+          setTry2fa(true);
+        }
+      }
+    clearValues();
+    setIsOpen(false);
+    setEnable2FA(users.enabeld_2fa);
+  }
     fetchAuthUser();
     
   }

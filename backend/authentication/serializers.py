@@ -14,7 +14,7 @@ class SignUpSerializer(serializers.ModelSerializer):
                 'min_length': 9,
             },
             'username': {'required': True, 'max_length': 20,
-                'min_length': 9,
+                'min_length': 6,
             },
             'email': {'required': True, 'max_length': 50,
                 'min_length': 9,

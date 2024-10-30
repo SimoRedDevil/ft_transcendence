@@ -71,8 +71,8 @@ function Chat() {
       <div className='w-full flex flex-col'>
         <div className='flex p-[20px] justify-between'>
           <div className='flex flex-row gap-4'>
-            <div className='rounded-full h-[80px] w-[80px] bg-red-700'>
-              {/* <Image className='rounded-full' src={data[0].image} width={60} height={60} alt='avatar'/> */}
+            <div className='rounded-full h-[80px] w-[80px]'>
+              <Image className='rounded-full' src={otherUser.intra_avatar_url === null ? otherUser.avatar_url : otherUser.intra_avatar_url} width={80} height={80} alt='avatar'/>
             </div>
             <div className='flex flex-col justify-center gap-4'>
               <span className='text-[20px]'>{otherUser.full_name}</span>
@@ -114,7 +114,7 @@ function Chat() {
               }
             </div>
             <div className={(showEmoji) ? 'flex absolute top-[calc(100%_-_430px)] left-[calc(100%_-_400px)] overflow-hidden' : 'hidden'}>
-              {/* <EmojiPicker onEmojiClick={handleEmojiClick} width={400} theme='dark' emojiStyle='google' searchDisabled={false} lazyLoadEmojis={true}/> */}
+              <EmojiPicker onEmojiClick={handleEmojiClick} width={400} theme='dark' emojiStyle='google' searchDisabled={false} lazyLoadEmojis={true}/>
             </div>
           </div>
           <div className='w-full h-[100px] bg-transparent flex items-center justify-center'>

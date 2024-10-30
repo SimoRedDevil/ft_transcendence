@@ -79,7 +79,7 @@ function Conversations() {
         <div className='mt-[20px] h-[calc(100%_-_270px)] no-scrollbar overflow-y-auto scroll-smooth'>
           {Conversations !== null && Conversations.map((conversation) => {
             return (
-              <div onClick={() => handleConversationClick(conversation)} key={conversation.id} className='flex items-center gap-4 p-[20px] hover:bg-white hover:bg-opacity-10 cursor-pointer'>
+              <div onClick={() => handleConversationClick(conversation)} key={conversation.id} className={`${(selectedConversation && selectedConversation.id === conversation.id) && 'bg-white bg-opacity-10'} flex items-center gap-4 p-[20px]`}>
                 <div className='h-[80px] w-[80px] rounded-full bg-blue-800'>
                   <Image className='rounded-full' src={returnConversationImage(conversation)} width={80} height={80} alt='avatar'/>
                 </div>

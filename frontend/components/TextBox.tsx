@@ -8,7 +8,7 @@ type Props = {
     icon?: string,
     className: string,
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void,
-    input?: string
+    input?: string,
 }
 
 //border border-white border-opacity-30 w-full h-full bg-black bg-opacity-50 rounded-[30px] flex items-center

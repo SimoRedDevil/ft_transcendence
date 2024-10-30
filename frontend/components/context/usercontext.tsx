@@ -91,7 +91,7 @@ export const UserProvider = ({ children }) => {
     // }
     useEffect(() => {
         caallBack42();
-        (users && isAuthenticated) ? fetchAuthUser() : setLoading(false)
+        (users && isAuthenticated) ? fetchAuthUser() : setTimeout(() => {setLoading(false);}, 1000);
     }
     , [pathname] );
 

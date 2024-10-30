@@ -12,7 +12,6 @@ export const UserProvider = ({ children }) => {
     const [error, setError] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [try2fa, setTry2fa] = useState(false);
-    const [code, setCode] = useState(null);
     const pathname = usePathname();
     const router = useRouter();
 
@@ -33,16 +32,16 @@ export const UserProvider = ({ children }) => {
                 setIsAuthenticated(true);
             } else {
                 setIsAuthenticated(false);
-                // router.push('/login');
+                router.push('/login');
             }
         } catch (error) {
             setError(error);
             setIsAuthenticated(false);
-            // router.push('/login');
+            router.push('/login');
         } finally {
             setTimeout(() => {
                 setLoading(false);
-            }, 500);
+            }, 1000);
         }
     };
 
@@ -59,23 +58,17 @@ export const UserProvider = ({ children }) => {
                     withCredentials: true
                 });
                 if (response.status === 200) {
-                    console.log(response);
                     const user = response.data;
                     setUsers(user);
-                    console.log(user);
                     if (user) {
                         setIsAuthenticated(true);
                         router.push('/');
-                    } else {
-                        setIsAuthenticated(false);
-                        // router.push('/login');
                     }
                 }
             }
             } catch (error) {
-                setError(error);
                 setIsAuthenticated(false);
-                // router.push('/login');
+                router.push('/login');
             }
         }
 
@@ -98,13 +91,10 @@ export const UserProvider = ({ children }) => {
     // }
     useEffect(() => {
         caallBack42();
-    }
-    , [pathname]);
-
-    useEffect(() => {
         fetchAuthUser();
-    }, [pathname, users && router]);
-    
+    }
+    , []);
+
     return (
         <UserContext.Provider value={{ users, loading, error, isAuthenticated, fetchAuthUser, setIsAuthenticated, setTry2fa, try2fa }}>
             {children}

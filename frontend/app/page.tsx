@@ -56,22 +56,37 @@ export default function Home() {
     return (
         <div className='
             flex
-            items-center
             w-full
             justify-center
+            items-center
             h-screen
             text-white
         '>
-            {/* <Link href="/login">
+            <Link className='
+            bg-gradient-to-r from-[#00A88C] to-[#004237]
+            text-white
+            rounded-md
+            p-2
+            m-2
+            
+            ' href="/login">
                 Login
             </Link>
-            <button onClick={
+            <button className="
+            bg-gradient-to-r from-[#00A88C] to-[#004237]
+            text-white
+            rounded-md
+            p-2
+            m-2
+
+            "
+            onClick={
                 handleLogout
 
             }>
                 log out
-            </button> */}
-            <Tournament />
+            </button>
+            {/* <Tournament /> */}
         </div>
     )
 }

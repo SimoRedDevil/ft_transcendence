@@ -64,7 +64,6 @@ class intra_42_callback(APIView):
         if not access_token:
             return Response({'error': 'Invalid access token'}, status=status.HTTP_400_BAD_REQUEST)
         user_data = requests.get('https://api.intra.42.fr/v2/me', headers={'Authorization': f'Bearer {access_token}'}).json()
-        print(user_data)
         user_data['username'] = user_data['login']
         user_data['email'] = user_data['email']
         user, created = CustomUser.objects.get_or_create(username=user_data['username'], email=user_data['email'])
@@ -263,8 +262,9 @@ class EnableTwoFactorView(APIView):
         key, otp, qrcode_path, qrcode_dir = twofactorAuth(user.username)
         user.twofa_secret = key
         user.qrcode_dir = qrcode_dir
+        user.qrcode_path = qrcode_path
         user.save()
-        user.qrcode_path = urljoin(settings.MEDIA_URL, qrcode_path)
+        user.qrcode_path = qrcode_path
         return Response({'qrcode_url': user.qrcode_path}, status=status.HTTP_200_OK)
 
 class DisableTwoFactorView(APIView):
@@ -275,6 +275,7 @@ class DisableTwoFactorView(APIView):
         user = request.user
         user.enabeld_2fa = False
         user.twofa_secret = None
+        user.qrcode_path = None
         if user.qrcode_dir:
             shutil.rmtree(str(user.qrcode_dir))
         user.qrcode_dir = None
@@ -319,5 +320,8 @@ class GetQRCodeView(APIView):
 
     def get(self, request):
         user = request.user
-        qrcode_path = "http://localhost:8000/qrcodes/" + user.username + ".png"
+        if not user.twofa_secret:
+            return Response({'error': '2FA is not enabled'}, status=status.HTTP_400_BAD_REQUEST)
+        qr_user = user.qrcode_path.split('/')[-1]
+        qrcode_path = "http://localhost:8000/qrcodes/" + qr_user
         return Response({'qrcode_url': qrcode_path}, status=status.HTTP_200_OK)

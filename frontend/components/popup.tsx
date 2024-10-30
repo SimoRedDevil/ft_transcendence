@@ -1,13 +1,8 @@
 import { useState, useEffect, use } from "react";
 import axios from "axios";
-import {
-  useUserContext,
-} from "../components/context/usercontext";
 import { useContext } from "react";
-import { enableTwoFactorAuth, disableTwoFactorAuth } from "./twoFa";
+import {disableTwoFactorAuth } from "./twoFa";
 import { UserContext } from '../components/context/usercontext';
-import { headers } from "next/headers";
-
 
 
 const Popup = ({
@@ -21,7 +16,7 @@ const Popup = ({
 }) => {
   const [values, setValues] = useState(["", "", "", "", "", ""]);
   const [username, setUsername] = useState("");
-  var { users, setTry2fa, fetchAuthUser } = useContext(UserContext);
+  var { users, setTry2fa, fetchAuthUser} = useContext(UserContext);
 
   const handleChange = (e, index) => {
     const { value } = e.target;
@@ -38,28 +33,6 @@ const Popup = ({
         setCode(newValues.join(""));
       }
     }
-  };
-
-  const getqrcode = async () => {
-    try {
-      const response = await axios('http://localhost:8000/api/auth/get-qrcode/', {
-          withCredentials: true,
-          headers: {
-              'Content-Type': 'application/json',
-          },
-      });
-      // var qrcodepath = users.qrcode_dir;
-      // if (response.status === 200 && qrcodepath )
-      // {
-      //     const parts = qrcodepath.split('/');
-      //     var qr = parts[parts.length - 1];
-      //     setQrcode(qr + "/" + users.username + ".png");
-      //     qr = "";
-      // }
-  }
-  catch (error) {
-      //console.log("error ----------------------->", error);
-  }
   };
 
   const handleKeyDown = (e, index) => {
@@ -87,7 +60,6 @@ const Popup = ({
       disableTwoFactorAuth();
       setEnable2FA(false);
       await fetchAuthUser();
-      // await fetchAuthUser();
     }
   };
 
@@ -112,21 +84,18 @@ const Popup = ({
     }
   };
 
-
   const handelVerify = async () => {
     if (users.enabeld_2fa) {
       verify2FA() && setTry2fa(false)
-      //console.log("2fa is disabled");
     } else {
       verify2FA() && setTry2fa(true);
-      //console.log("2fa is enabled");
     }
     fetchAuthUser();
-    getqrcode();
+    
   }
-
+  
   useEffect(() => {
-     fetchAuthUser();
+    fetchAuthUser();
     if (users && users.username) {
       setUsername(users.username);
     }
@@ -193,7 +162,7 @@ const Popup = ({
               less-than-tablet:w-[200px] less-than-tablet:h-[200px]
               desktop:h-[250px] rounded-[30px] 
               `}
-                src={`http://localhost:8000/${qrcode}`}
+                src={`${qrcode}`}
                 alt="2fa QR Code"
               />
             </div>

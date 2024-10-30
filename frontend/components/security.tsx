@@ -17,6 +17,7 @@ export default function Security() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [code, setCode] = useState("");
   const [qrcode, setQrcode] = useState("");
+  const [isloading, setIsLoading] = useState(true);
 
   if (loading || !users) {
     return <div>Loading...</div>;
@@ -24,6 +25,7 @@ export default function Security() {
   
 
   const getqrcode = async () => {
+    setIsLoading(true); // Set loading to true before fetching
     try {
       const response = await axios('http://localhost:8000/api/auth/get-qrcode/', {
           withCredentials: true,
@@ -31,31 +33,32 @@ export default function Security() {
               'Content-Type': 'application/json',
           },
       });
-      var qrcodepath = users.qrcode_dir;
-      if (response.status === 200 && qrcodepath )
-      {
-          const parts = qrcodepath.split('/');
-          var qr = parts[parts.length - 1];
-          setQrcode(qr + "/" + users.username + ".png");
-          qr = "";
+      if (response.status === 200) {
+          const qr = response.data.qrcode_url;
+          setQrcode(qr); // Set QR code
       }
-  }
-  catch (error) {
-      //console.log("error ----------------------->", error);
-  }
+    } catch (error) {
+      console.error("Error fetching QR code:", error);
+    } finally {
+      setIsLoading(false); // Set loading to false after fetching
+    }
   };
+
   useEffect(() => {
-    getqrcode();
     fetchAuthUser();
-    //console.log("us: ", users.enabeld_2fa);
-    //console.log("us22: ", enable2FA);
-    //console.log("qr: ", qrcode);
     if(users.qrcode_dir)
       {
+        getqrcode();
         setEnable2FA(true)
-        //console.log("enable2FA-------------------->");
       }
-  }, [users && users.qrcode_dir, enable2FA]
+      
+    }, [users && users.qrcode_dir, enable2FA]
+  );
+  
+
+  useEffect(() => {
+    fetchAuthUser();
+  } , [users && users.qrcode_dir, enable2FA]
   );
   const handelChange = async() => {
     {
@@ -169,7 +172,7 @@ export default function Security() {
               `}
                 src={
                   users.enabeld_2fa
-                    ? `http://localhost:8000/${qrcode}`
+                    ? `${qrcode}`
                     : `images/qrcode.png`
                 }
                 alt="2fa QR Code"

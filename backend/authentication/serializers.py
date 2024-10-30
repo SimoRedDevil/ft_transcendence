@@ -39,7 +39,7 @@ class LoginSerializer(serializers.Serializer):
         raise serializers.ValidationError("Invalid credentials")
 
 class UserSerializer(serializers.ModelSerializer):
-    avatar_url = serializers.SerializerMethodField()
+    # avatar_url = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
@@ -48,7 +48,7 @@ class UserSerializer(serializers.ModelSerializer):
             'password': {'write_only': True},
         }
 
-    def get_avatar_url(self, obj):
-        if obj.avatar_url:
-            return f"http://localhost:8000/api/auth/{obj.avatar_url.url}"
-        return None  # or return a default URL if no avatar exists
+    # def get_avatar_url(self, obj):
+    #     if obj.avatar_url:
+    #         return f"http://localhost:8000/api/auth/{obj.avatar_url.url}"
+    #     return None  # or return a default URL if no avatar exists

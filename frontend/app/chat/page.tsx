@@ -40,9 +40,9 @@ function ChatPage() {
         <button onClick={
           async () => {
             socket.current.send(JSON.stringify({
-              'content': 'Hello abdellah, how are you?',
+              'content': 'Faayn akhay youssri',
               'sent_by_user': 'mel-yous',
-              'sent_to_user': 'aaghbal',
+              'sent_to_user': 'yoel-bas',
               'conversation_id': '-1'
             }))
           }

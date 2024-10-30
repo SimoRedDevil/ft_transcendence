@@ -61,7 +61,7 @@ function Conversations() {
   }
 
   return (
-    <div className={`w-full h-full lg:w-[400px] 2xl:w-[550px] ${isMobile && selectedConversation ? 'hidden' : 'flex flex-col'}`}>
+    <div className={`whitespace-pre-wrap w-full h-full lg:w-[400px] 2xl:w-[550px] ${isMobile && selectedConversation ? 'hidden' : 'flex flex-col'}`}>
             <div className='h-[200px]'>
               <div className='h-[120px] flex gap-4 p-[20px]'>
                 <div className='h-[80px] w-[80px] rounded-full'>

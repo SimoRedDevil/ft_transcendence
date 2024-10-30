@@ -90,10 +90,9 @@ function Chat() {
         </div>
         <div className='p-[20px] h-[90%] w-full flex flex-col justify-between items-center overflow-hidden'>
           <div className='w-full h-[89%] relative'>
-            <div className='h-full no-scrollbar overflow-y-auto scroll-smooth'>
+            <div className='h-full no-scrollbar overflow-y-auto scroll-smooth whitespace-pre-wrap'>
               {
                 messages.map((message, index) => {
-                  // console.log(message.conversation_id, message.content)
                   return (
                     message.conversation_id === selectedConversation.id ?
                     <div ref={index === messages.length - 1 ? lastMessageRef : null} key={message.id} className={`flex flex-col mb-4 ${(message.sent_by_user === users.username || (message.sender !== undefined && message.sender.username === users.username)) ? 'items-end' : 'items-start'}`}>

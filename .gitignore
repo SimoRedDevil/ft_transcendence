@@ -1,9 +1,10 @@
 frontend/node_modules
-env
-.env
+backend/.env
+backend/*/migrations
+backend/*/__pycache__
+frontend/db.json
 frontend/.next
+.env
 database/*
-backend/game/migrations
-new_env
-node_modules
-redis 
+virtualenv
+node_modules/

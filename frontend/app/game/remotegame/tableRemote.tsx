@@ -28,7 +28,11 @@ export default function Table() {
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
+<<<<<<< HEAD
       socketRef.current = new WebSocket('ws://10.11.3.2:8000/ws/game/');
+=======
+      socketRef.current = new WebSocket('ws://e1r3p1.1337.ma:8000/ws/game/');
+>>>>>>> auth
       let Walls : walls = { wallsWidth: canvasRef.current.clientWidth, wallsHeight: canvasRef.current.clientHeight };
       socketRef.current.onopen = () => {
         console.log('WebSocket connected');
@@ -38,7 +42,7 @@ export default function Table() {
                             y2: ((Walls.wallsHeight / 20) - (Walls.wallsHeight/40)) / Walls.wallsHeight,
                             pw: (Walls.wallsWidth/4) / Walls.wallsWidth ,
                             ph: (Walls.wallsHeight/40) / Walls.wallsHeight,
-                            sp: 8 / Walls.wallsWidth,
+                            sp: 13 / Walls.wallsWidth,
                             dirY: 5/ Walls.wallsHeight,
                             Walls: Walls,
                             game_channel: game_channel};

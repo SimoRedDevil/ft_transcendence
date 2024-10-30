@@ -262,7 +262,7 @@ class Game(AsyncWebsocketConsumer):
                         'player2': self.games[game_channel]['player2'].to_dict()
                     }
                 )
-                await asyncio.sleep(1/60)
+                await asyncio.sleep(1/40)
     
     
     async def gameOver(self, game_chan ,winer, loser, chan_name1, chan_name2, Tscore):

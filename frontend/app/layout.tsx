@@ -6,8 +6,11 @@ import { usePathname, useRouter } from 'next/navigation';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import { UserProvider, UserContext } from '../components/context/usercontext';
+import { appWithTranslation } from 'next-i18next';
+import '../i18n';
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+
+function RootLayout({ children }: any) {
     const pathname = usePathname();
     const exclude = ['/login'];
     const router = useRouter();
@@ -82,3 +85,5 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
         </div>
     );
 }
+
+export default appWithTranslation(RootLayout);

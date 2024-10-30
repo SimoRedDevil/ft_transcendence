@@ -91,7 +91,7 @@ export const UserProvider = ({ children }) => {
     // }
     useEffect(() => {
         caallBack42();
-        (users && isAuthenticated) ? fetchAuthUser() : setTimeout(() => {setLoading(false);}, 1000);
+        (users && isAuthenticated) ? fetchAuthUser() : setTimeout(() => {setLoading(false);}, 1000) && router.push('/login')
     }
     , [pathname] );
 

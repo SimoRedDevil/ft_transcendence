@@ -91,9 +91,9 @@ export const UserProvider = ({ children }) => {
     // }
     useEffect(() => {
         caallBack42();
-        fetchAuthUser();
+        (users && isAuthenticated) ? fetchAuthUser() : setLoading(false)
     }
-    , []);
+    , [pathname] );
 
     return (
         <UserContext.Provider value={{ users, loading, error, isAuthenticated, fetchAuthUser, setIsAuthenticated, setTry2fa, try2fa }}>

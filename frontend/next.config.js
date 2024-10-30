@@ -1,7 +1,7 @@
 // next.config.js
 module.exports = {
   images: {
-    domains: ['localhost'], // Add 'localhost' to the allowed domains
+    domains: ['localhost', 'cdn.intra.42.fr'],
   },
     reactStrictMode: false, // Disable React Strict Mode
   };

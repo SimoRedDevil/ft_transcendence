@@ -7,7 +7,18 @@ class SignUpSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ['full_name', 'username', 'email', 'password']
         extra_kwargs = {'password': {'write_only': True, 'required': True,
-            'min_length': 8,},
+            'min_length': 8,
+            'max_length': 20,
+            },
+            'full_name': {'required': True, 'max_length': 20,
+                'min_length': 9,
+            },
+            'username': {'required': True, 'max_length': 20,
+                'min_length': 9,
+            },
+            'email': {'required': True, 'max_length': 50,
+                'min_length': 9,
+            },
         }
 
     def create(self, validated_data):
@@ -38,8 +49,18 @@ class LoginSerializer(serializers.Serializer):
             return data
         raise serializers.ValidationError("Invalid credentials")
 
+
+class Intra42UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = '__all__'
+        extra_kwargs = {
+            'password': {'write_only': True},
+        }
+
 class UserSerializer(serializers.ModelSerializer):
-    # avatar_url = serializers.SerializerMethodField()
+    avatar_url = serializers.SerializerMethodField()
+    intra_avatar_url = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
@@ -48,7 +69,12 @@ class UserSerializer(serializers.ModelSerializer):
             'password': {'write_only': True},
         }
 
-    # def get_avatar_url(self, obj):
-    #     if obj.avatar_url:
-    #         return f"http://localhost:8000/api/auth/{obj.avatar_url.url}"
-    #     return None  # or return a default URL if no avatar exists
+    def get_avatar_url(self, obj):
+        if obj.avatar_url:
+            return f"http://localhost:8000/api/auth/{obj.avatar_url.url}"
+        return None  # or return a default URL if no avatar exists
+
+    def get_intra_avatar_url(self, obj):
+        if obj.intra_avatar_url:
+            return obj.intra_avatar_url
+        return None

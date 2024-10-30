@@ -4,7 +4,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from django.contrib.auth import login, authenticate, logout
-from .serializers import SignUpSerializer, LoginSerializer, UserSerializer
+from .serializers import SignUpSerializer, LoginSerializer, UserSerializer, Intra42UserSerializer
 from .models import CustomUser
 from django.http import JsonResponse
 import requests
@@ -24,7 +24,6 @@ import pyotp
 from django.http import HttpResponse
 from urllib.parse import urljoin
 from rest_framework_simplejwt.exceptions import TokenError
-from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
 import shutil
 
 
@@ -45,8 +44,16 @@ class GenerateAuthUrl(APIView):
         return redirect(auth_url)
 
 
+def fillUser(user, user_info):
+    user.full_name = user_info['displayname']
+    user.email = user_info['email']
+    user.online = True
+    user.intra_avatar_url = user_info['image']['link']
+    user.save()
+    return user
+
 # Callback Intra View
-class intra_42_callback(APIView):
+class Intra42Callback(APIView):
     def get(self, request):
         code = request.GET.get('code')
         data = {
@@ -63,26 +70,16 @@ class intra_42_callback(APIView):
         access_token = response_data['access_token']
         if not access_token:
             return Response({'error': 'Invalid access token'}, status=status.HTTP_400_BAD_REQUEST)
-        user_data = requests.get('https://api.intra.42.fr/v2/me', headers={'Authorization': f'Bearer {access_token}'}).json()
-        user_data['username'] = user_data['login']
-        user_data['email'] = user_data['email']
-        user, created = CustomUser.objects.get_or_create(username=user_data['username'], email=user_data['email'])
-        if created:
-            user.set_unusable_password()
-            user.save()
-        user_data = model_to_dict(user)
-        user_data['access_token'] = access_token
-        user.username = user_data['username']
-        user.email = user_data['email']
-        user.full_name = user_data['full_name']
-        user.save()
+        user_info = requests.get('https://api.intra.42.fr/v2/me', headers={'Authorization': f'Bearer {access_token}'}).json()
+
+        user, created = CustomUser.objects.get_or_create(username=user_info['login'])
+        user_data = Intra42UserSerializer(user).data
         authenticate(request, username=user_data['username'])
         login(request, user)
-        user.online = True
-        user.save()
+        user = fillUser(user, user_info)
         refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
         response = Response(status=status.HTTP_200_OK)
-        # Set the access and refresh tokens in cookies
         response.set_cookie(
             key='access',
             value=str(refresh.access_token),
@@ -97,9 +94,8 @@ class intra_42_callback(APIView):
             secure=False,  # Set to True in production
             samesite='Lax',  # Optional, but recommended
         )
-        response.data = {
-            'user': user_data
-        }
+        user_data = Intra42UserSerializer(user).data
+        response.data = user_data
         return response
 # Login View
 class LoginView(APIView):
@@ -237,20 +233,31 @@ class AuthenticatedUserView(APIView):
 class Logout(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
+
     def post(self, request):
         user = request.user
         if user.is_authenticated:
+            # Log the user out
             logout(request)
             user.online = False
             user.save()
+
+            refresh_token = request.COOKIES.get('refresh')
+            if refresh_token:
+                try:
+                    token = RefreshToken(refresh_token)
+                    token.blacklist()
+                except Exception as e:
+                    # Handle the exception (optional: log the error)
+                    return Response({'error': 'Could not blacklist token'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Prepare the response and delete cookies
             response = Response(status=status.HTTP_200_OK)
             response.delete_cookie('access')
             response.delete_cookie('refresh')
             return response
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
-
-
 
 class EnableTwoFactorView(APIView):
     authentication_classes = [SessionAuthentication]

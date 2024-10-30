@@ -1,7 +1,6 @@
 from django.contrib.auth.models import AbstractUser as BaseUser
 from django.db import models
 
-
 class CustomUser(BaseUser):
     full_name = models.CharField(max_length=50)
     email = models.EmailField(unique=True)
@@ -11,7 +10,8 @@ class CustomUser(BaseUser):
     twofa_secret = models.CharField(max_length=32, blank=True, null=True)
     qrcode_dir = models.CharField(max_length=100, blank=True, null=True)
     qrcode_path = models.CharField(max_length=100, blank=True, null=True)
-    # avatar_url = models.ImageField(upload_to='../avatars', default='../avatars/default.png')
+    avatar_url = models.ImageField(upload_to='../avatars', default='../avatars/default.png')
+    intra_avatar_url = models.CharField(max_length=100, blank=True, null=True)
     level = models.IntegerField(default=0)
     matches = models.IntegerField(default=0)
     wins = models.IntegerField(default=0)
@@ -27,10 +27,14 @@ class CustomUser(BaseUser):
     target_xp = models.IntegerField(default=0)
     online = models.BooleanField(default=False)
 
-
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'full_name']  # Specify any additional required fields
 
 
     def __str__(self):
         return self.username
+    
+    class Meta:
+        db_table = 'users'
+        db_table = 'users'
+        verbose_name_plural = 'users'

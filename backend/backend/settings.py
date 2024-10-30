@@ -54,15 +54,10 @@ INSTALLED_APPS = [
     'game',
     'chat',
     'rest_framework',
-    'rest_framework.authtoken',
     'corsheaders',
     'authentication',
     'allauth',
     'rest_framework_simplejwt',
-    'rest_framework_simplejwt.token_blacklist',
-    # 'allauth.account',
-    # 'allauth.socialaccount',
-    # 'allauth.socialaccount.providers.oauth2',
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -108,6 +103,8 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    # 'PAGE_SIZE': 1,
 }
 AUTH_USER_MODEL = 'authentication.CustomUser'
 

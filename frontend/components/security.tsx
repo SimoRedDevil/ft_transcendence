@@ -12,7 +12,6 @@ import {
 
 export default function Security() {
   const { users, loading, setTry2fa, try2fa, fetchAuthUser} = useUserContext();
-  const [username, setUsername] = useState("");
   const [enable2FA, setEnable2FA] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [code, setCode] = useState("");
@@ -45,7 +44,7 @@ export default function Security() {
   };
 
   useEffect(() => {
-    fetchAuthUser();
+    users && fetchAuthUser();
     if(users.qrcode_dir)
       {
         getqrcode();
@@ -57,7 +56,7 @@ export default function Security() {
   
 
   useEffect(() => {
-    fetchAuthUser();
+    users && fetchAuthUser();
   } , [users && users.qrcode_dir, enable2FA]
   );
   const handelChange = async() => {
@@ -68,7 +67,6 @@ export default function Security() {
         fetchAuthUser();
         setEnable2FA(true);
         setTry2fa(true);
-        //console.log("enable 2fa called...........");
       }
     }
   };

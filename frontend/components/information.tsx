@@ -5,6 +5,7 @@ import { useContext } from "react";
 
 export default function Information() {
   const {users, loading} = useContext(UserContext);
+  console.log("user: ", users);
 
   if (loading || !users) {
     return <div>Loading...</div>;

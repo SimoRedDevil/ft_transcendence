@@ -60,9 +60,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             info['room_group_name'],
             {
                 'type': 'send_message',
+                'id': info['id'],
+                'conversation_id': info['conversation_id'],
                 'sent_by_user': info['sent_by_user'],
-                'message': info['message'],
-                'timestamp': timezone.now().strftime("%A, %I:%M %p")
+                'content': info['content']
             }
         )
 
@@ -71,27 +72,31 @@ class ChatConsumer(AsyncWebsocketConsumer):
         conversation_id = data['conversation_id']
         sent_by_user = data['sent_by_user']
         sent_to_user = data['sent_to_user']
-        sender = await get_user(sent_by_user)
-        receiver = await get_user(sent_to_user)
-        message = data['message']
+        sender_obj = await get_user(sent_by_user)
+        receiver_obj = await get_user(sent_to_user)
+        message = data['content']
         conversation_exists = await check_conversation_exists(conversation_id)
         conversation_obj = None
-        if not conversation_exists or conversation_id == -1:
-            conversation_obj = await create_conversation(sender, receiver, message)
+        if not conversation_exists:
+            conversation_obj = await create_conversation(sender_obj, receiver_obj, message)
         else:
             conversation_obj = await get_conversation(conversation_id)
         await set_conversation_last_msg(conversation_obj, message)
-        await create_message(conversation_obj, sender, receiver, message)
+        message_obj = await create_message(conversation_obj, sender_obj, receiver_obj, message)
         other_user_room_group_name = f'chat_{sent_to_user}'
-        await self.broadcast_message({'room_group_name': self.room_group_name, 'sent_by_user': sent_by_user, 'message': message})
-        await self.broadcast_message({'room_group_name': other_user_room_group_name, 'sent_by_user': sent_by_user, 'message': message})
+        await self.broadcast_message({'room_group_name': self.room_group_name, 'sent_by_user': sent_by_user, 'content': message, 'id': message_obj.id, 'conversation_id': conversation_obj.id})
+        await self.broadcast_message({'room_group_name': other_user_room_group_name, 'sent_by_user': sent_by_user, 'content': message, 'id': message_obj.id, 'conversation_id': conversation_obj.id})
     
     async def send_message(self, event):
         sent_by_user = event['sent_by_user']
-        message = event['message']
-        timestamp = event['timestamp']
+        message = event['content']
+        timestamp = timezone.now().strftime("%A, %I:%M %p")
+        id = event['id']
+        conversation_id = event['conversation_id']
         await self.send(text_data=json.dumps({
+            'id': id,
+            'conversation_id': conversation_id,
             'sent_by_user': sent_by_user,
-            'message': message,
-            'timestamp': timestamp
+            'content': message,
+            'get_human_readable_time': timestamp
         }))

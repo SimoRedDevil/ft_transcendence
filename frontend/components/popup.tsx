@@ -95,7 +95,7 @@ const Popup = ({
   }
   
   useEffect(() => {
-    fetchAuthUser();
+    users && fetchAuthUser();
     if (users && users.username) {
       setUsername(users.username);
     }

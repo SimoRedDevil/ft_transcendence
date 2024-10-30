@@ -1,4 +1,3 @@
-
 interface PlayerProps{
     image: string;
     name: string;
@@ -17,10 +16,10 @@ export default function Player({image, name, gameStarted}: PlayerProps)
                             xl:w-[100px] xl:h-[100px]
                             2xl:w-[150px] 2xl:h-[150px]
                             3xl:w-[200px] 3xl:h-[200px]
-                            animate-slide-in-left 
+                            animate-slide-in-right
                         "
                     style={{ backgroundImage: `url(${image})` }}></div>
-            <div className="text-white animate-slide-in-left ">{name}</div>
+            <div className="text-white animate-slide-in-right">{name}</div>
         </div>
     );
 }

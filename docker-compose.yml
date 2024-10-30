@@ -1,7 +1,19 @@
 
 services:
-
-
+  redis:
+    container_name: redis
+    image: redis:latest
+    volumes:
+      - ./redis:/data
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    networks:
+      - mynetwork
+    depends_on:
+      backend:
+        condition: service_healthy
+  
   # frontend:
   #   container_name: frontend
   #   build: ./frontend
@@ -9,9 +21,11 @@ services:
   #     - "3000:3000"
   #   volumes:
   #     - ./frontend:/app
-  #   restart: always
   #   networks:
   #     - mynetwork
+  #   depends_on:
+  #     backend:
+  #       condition: service_healthy
       
   backend:
     container_name: backend
@@ -24,7 +38,13 @@ services:
     networks:
       - mynetwork
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "manage.py", "check"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   db:
     container_name: database
@@ -39,7 +59,11 @@ services:
       - ./database:/var/lib/postgresql/data
     networks:
       - mynetwork
-      
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 
 networks:

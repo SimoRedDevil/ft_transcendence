@@ -11,13 +11,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-<<<<<<< HEAD
-import os
-=======
 from datetime import timedelta
 import os
 
->>>>>>> auth
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -177,8 +173,8 @@ DATABASES = {
     'default': {
         "ENGINE": "django.db.backends.postgresql",
         'NAME': 'alienpong',
-        'USER': 'aben-nei',
-        'PASSWORD': 'aben-nei123',
+        'USER': 'aghbal',
+        'PASSWORD': 'aghbal123',
         'HOST': 'db',
         'PORT': '5432',
     }
@@ -232,24 +228,24 @@ CHANNEL_LAYERS = {
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': os.path.join('/var/log/backend', 'backend.log'),
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-    },
-}
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'file': {
+#             'level': 'DEBUG',
+#             'class': 'logging.FileHandler',
+#             'filename': os.path.join('/var/log/backend', 'backend.log'),
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['file'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#     },
+# }
 
 STATIC_URL = 'static/'
 

@@ -14,18 +14,18 @@ services:
       backend:
         condition: service_healthy
   
-  # frontend:
-  #   container_name: frontend
-  #   build: ./frontend
-  #   ports:
-  #     - "3000:3000"
-  #   volumes:
-  #     - ./frontend:/app
-  #   networks:
-  #     - mynetwork
-  #   depends_on:
-  #     backend:
-  #       condition: service_healthy
+  frontend:
+    container_name: frontend
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+    networks:
+      - mynetwork
+    depends_on:
+      backend:
+        condition: service_healthy
       
   backend:
     container_name: backend
@@ -34,7 +34,6 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app
-      - ./infrastructure/logs/backend:/var/log/backend
     restart: always
     networks:
       - mynetwork
@@ -58,8 +57,6 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - ./database:/var/lib/postgresql/data
-      - ./infrastructure/logs/database:/var/log/postgresql
-      - ./infrastructure/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
     networks:
       - mynetwork
     healthcheck:

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect} from 'react';
+import React, { useRef, useEffect, useState} from 'react';
 import { tableDraw } from './TableDraw';
 import {getRandomName} from './TableDraw';
 import { movePaddle } from './PaddleRemote';
@@ -6,10 +6,13 @@ import p5 from 'p5';
 import { player , ball } from './Object';
 import { walls } from './Object';
 import { countdown } from './ScoreRemote';
+import { useUserContext } from '../../../components/context/usercontext';
+import dynamic from 'next/dynamic';
 
 
 
-
+const Player1 = dynamic(() => import('./Player1Remote'), { ssr: false });
+const Player2 = dynamic(() => import('./Player2Remote'), { ssr: false });
 let playerInfo: player = { player_id: '', name: '' };
 let game_channel: string = '';
 let playeNum: string = '';
@@ -19,8 +22,10 @@ let socketIsOpen = false;
 let gameIsStarted = false;
 
 export default function Table() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<WebSocket | null>(null);
+  const {users, loading} = useUserContext();
+  const [gameStarted, setGameStarted] = useState(false);
   let count = 3; 
   let startTime = 0;
   let Duration = 1000;
@@ -28,15 +33,11 @@ export default function Table() {
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
-<<<<<<< HEAD
-      socketRef.current = new WebSocket('ws://10.11.3.2:8000/ws/game/');
-=======
-      socketRef.current = new WebSocket('ws://e1r3p1.1337.ma:8000/ws/game/');
->>>>>>> auth
+      socketRef.current = new WebSocket('ws://e1r2p4.1337.ma:8000/ws/game/');
       let Walls : walls = { wallsWidth: canvasRef.current.clientWidth, wallsHeight: canvasRef.current.clientHeight };
       socketRef.current.onopen = () => {
         console.log('WebSocket connected');
-        const firtsData = { username: getRandomName() , 
+        const firtsData = { username: users.username , 
                             x: 4/ Walls.wallsWidth,
                             y1: (Walls.wallsHeight - Walls.wallsHeight / 20) / Walls.wallsHeight,
                             y2: ((Walls.wallsHeight / 20) - (Walls.wallsHeight/40)) / Walls.wallsHeight,
@@ -59,6 +60,8 @@ export default function Table() {
           game_state = data.game_serialized;
           game_channel = data.game_channel;
           socketIsOpen = true;
+          setGameStarted(true);
+
         }
         if (data.type === 'paddle_update') {
           if (data.playernumber === 1)
@@ -84,10 +87,12 @@ export default function Table() {
         socketIsOpen = false;
       };
 
-      socketRef.current.onerror = (event) => {
+      socketRef.current.onerror = (event: Event) => {
         console.error('WebSocket error:', event);
-      };
-
+        if (event instanceof ErrorEvent) {
+            console.error('WebSocket error message:', event.message);
+        }
+    };
       const p = new p5((sketch) => {
         sketch.setup = () => {
           if (canvasRef.current) {
@@ -128,6 +133,7 @@ export default function Table() {
 
                 if (count <= 0) {
                     gameIsStarted = true;
+                    socketIsOpen = false;
                 }
             }
 
@@ -160,18 +166,37 @@ export default function Table() {
   }, []);
 
   return (
-    // @ts-ignore
-    <div ref={canvasRef} className="aspect-[3/4] w-[250px]
-                                      xs:w-[350px]
-                                      ls:w-[380px]
-                                      sm:w-[330px]
-                                      md:w-[350px]
-                                      lm:w-[400px]
-                                      2xl:w-[430px]
-                                      3xl:w-[530px]
-                                      4xl:w-[530px]
-                                      rounded-lg overflow-hidden 
-                                      border-2 border-teal-300
-                                      shadow-[0_0_12px_#fff]"/>
+    <div className="flex justify-center items-center">
+        <div className="w-[85%] h-[80vh] flex justify-center items-center flex-col mt-[5vh]
+                        space-y-[20px]
+                        md:border md:border-white md:border-opacity-30
+                        md:bg-black md:bg-opacity-20
+                        md:rounded-[50px]">
+                    { gameStarted && (
+                      <Player1 
+                          image={users.intra_avatar_url}
+                          name={game_state['player1'].username || ''} 
+                          />
+                        )}
+                        <div ref={canvasRef} className="aspect-[3/4] w-[250px]
+                                              xs:w-[350px]
+                                              ls:w-[380px]
+                                              sm:w-[330px]
+                                              md:w-[350px]
+                                              lm:w-[400px]
+                                              2xl:w-[430px]
+                                              3xl:w-[530px]
+                                              4xl:w-[530px]
+                                              rounded-lg overflow-hidden 
+                                              border-2 border-teal-300
+                                              shadow-[0_0_12px_#fff]"/>
+                        { gameStarted && (
+                      <Player2 
+                          image={users.intra_avatar_url}
+                          name={game_state['player2'].username || ''} 
+                      />
+                    )}
+        </div>
+    </div>
   );
 }

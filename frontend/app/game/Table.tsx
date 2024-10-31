@@ -11,6 +11,7 @@ import { Collision } from './Collision';
 import { handleCollision } from './Collision';
 import { countdown } from './Score';
 import p5 from 'p5';
+import { redirect } from 'next/navigation';
 
 
 export default function Table() {
@@ -74,13 +75,15 @@ export default function Table() {
                     Player2.score += 1;
                     if (Player2.score == 6) {
                         sketch.noLoop();
+                        redirect('/');
                     }
-                  } else if (Ball.ballPosY >= Walls.wallsHeight) {
+                } else if (Ball.ballPosY >= Walls.wallsHeight) {
                     Ball.initialize(canvasRef.current);
                     Ball.velocityY *= -1;
                     Player1.score += 1;
                     if (Player1.score == 6) {
                         sketch.noLoop();
+                        redirect('/');
                     }
                 }
                 DownPaddle(sketch, Walls);

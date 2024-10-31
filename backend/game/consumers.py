@@ -65,12 +65,14 @@ class Game(AsyncWebsocketConsumer):
         await self.accept()
         self.player = None
         self.game_channel = None
-        
-        
+
+
     async def receive(self, text_data):
         data = json.loads(text_data)
         if data['type'] == 'connection':
             username = data['data']['username']
+            print(username)
+            
             existPlayer = await sync_to_async(Player.objects.filter(username=username).exists)()
             if not existPlayer:
                 await self.create_player(username)
@@ -295,6 +297,7 @@ class Game(AsyncWebsocketConsumer):
             'game_serialized': event['game_serialized']
         }))
     
+
     async def paddle_update(self, event):
         paddle_data = event['paddle']
         playernumber = event['playernumber']
@@ -333,7 +336,8 @@ class Game(AsyncWebsocketConsumer):
                 tournamentCount=0,
                 is_active=True
             )
-        
+
+
     @sync_to_async
     def update_matchCount(self, username):
         player = Player.objects.get(username=username)
@@ -351,10 +355,11 @@ class Game(AsyncWebsocketConsumer):
         player = Player.objects.get(username=username)
         player.loses += 1
         player.save()
-        
+
     @sync_to_async
     def top_score(self, username, score):
         player = Player.objects.get(username=username)
         if player.topScore < score:
             player.topScore = score
             player.save()
+    

@@ -2,7 +2,7 @@
 all: up
 
 up :
-	docker-compose  up --build
+	docker-compose  up
 
 stop:
 	docker-compose  stop

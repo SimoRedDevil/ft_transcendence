@@ -1,7 +1,8 @@
 import p5 from 'p5';
 import { player } from './Object';
 import { walls } from './Object';
-import { ball } from './Object';
+import dynamic from 'next/dynamic';
+
 
 
 
@@ -27,6 +28,8 @@ export function getRandomName(): string {
 
 export function tableDraw(sketch: p5, game_state: {} ,Walls: walls, playerInofo: player): void {
     
+    const Player1 = dynamic(() => import('./Player1Remote'), { ssr: false });
+    const Player2 = dynamic(() => import('./Player2Remote'), { ssr: false });
     Score1(sketch, Walls, game_state['player1'].score);
     Score2(sketch, Walls, game_state['player2'].score);
     let player1Y = game_state['player1'].y;

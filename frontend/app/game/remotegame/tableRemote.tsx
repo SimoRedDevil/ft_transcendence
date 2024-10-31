@@ -88,10 +88,7 @@ export default function Table() {
       };
 
       socketRef.current.onerror = (event: Event) => {
-        console.error('WebSocket error:', event);
-        if (event instanceof ErrorEvent) {
-            console.error('WebSocket error message:', event.message);
-        }
+        console.log('WebSocket error:', event);
     };
       const p = new p5((sketch) => {
         sketch.setup = () => {
@@ -103,7 +100,9 @@ export default function Table() {
 
 
         sketch.draw = () => {
-          sketch.resizeCanvas(canvasRef.current.clientWidth, canvasRef.current.clientHeight);
+          if (canvasRef.current) {
+            p.resizeCanvas(canvasRef.current.clientWidth, canvasRef.current.clientHeight);
+        }
           sketch.background("#0B4464");
           if (socketIsOpen) {
             if (!gameIsStarted) {
@@ -167,8 +166,14 @@ export default function Table() {
 
   return (
     <div className="flex justify-center items-center">
-        <div className="w-[85%] h-[80vh] flex justify-center items-center flex-col mt-[5vh]
-                        space-y-[20px]
+        <div className="w-[85%] h-[80vh] flex justify-center items-center xl:flex-row  flex-col mt-[5vh]
+                          sm:space-y-[20px]
+                          lm:space-y-[40px]
+                          lg:space-y-[60px]
+                          xl:space-x-[60px]
+                          2xl:space-x-[200px]
+                          3xl:space-x-[250px]
+                          4xl:space-x-[300px]
                         md:border md:border-white md:border-opacity-30
                         md:bg-black md:bg-opacity-20
                         md:rounded-[50px]">

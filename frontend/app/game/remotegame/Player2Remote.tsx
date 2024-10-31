@@ -2,6 +2,7 @@
 interface PlayerProps{
     image: string;
     name: string;
+
 }
 
 export default function Player({image, name}: PlayerProps)

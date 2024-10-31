@@ -1,0 +1,238 @@
+{
+    "id": 1,
+    "username": "user123",
+    "full_name": "John Doe",
+    "email": "johndoe@example.com",
+    "password": "hashedpassword123",
+    "avatar": {
+      "url": "/images/Me.png"
+    },
+    "level": 10,
+    "matches": 20,
+    "win": 15,
+    "loss": 5,
+    "profile_visits": 120,
+    "friends_count": 50,
+    "top_score": 2000,
+    "tournaments": 3,
+    "online_matches": 10,
+    "offline_matches": 10,
+    "current_xp": 1500,
+    "target_xp": 2000,
+    "online": true,
+    "friends": [
+      {
+        "full_name": "Alice Smith",
+        "username": "aliceS",
+        "online": true
+      },
+      {
+        "full_name": "Alice Smith",
+        "username": "aliceS",
+        "online": true
+      },
+      {
+        "full_name": "Alice Smith",
+        "username": "aliceS",
+        "online": true
+      },
+      {
+        "full_name": "Alice Smith",
+        "username": "aliceS",
+        "online": true
+      },
+      {
+        "full_name": "Alice Smith",
+        "username": "aliceS",
+        "online": true
+      },
+      {
+        "full_name": "Alice Smith",
+        "username": "aliceS",
+        "online": true
+      },
+      {
+        "full_name": "Alice Smith",
+        "username": "aliceS",
+        "online": true
+      },
+      {
+        "full_name": "Bob Johnson",
+        "username": "bobbyJ",
+        "online": false
+      },
+      {
+        "full_name": "Charlie Brown",
+        "username": "charlieB",
+        "online": true
+      },
+      {
+        "full_name": "David Clark",
+        "username": "davidC",
+        "online": false
+      },
+      {
+        "full_name": "Eve Taylor",
+        "username": "eveT",
+        "online": true
+      }
+    ],
+    "achievements": [
+      {
+        "title": "First Win",
+        "description": "Won the first match.",
+        "date_earned": "2024-09-01",
+        "icon": "images/ach1.jpeg",
+        "status": true
+      },
+      {
+        "title": "Top Scorer",
+        "description": "Achieved the highest score in a single game.",
+        "date_earned": "2024-09-15",
+        "icon": "images/ach1.jpeg",
+        "status": true
+      },
+      {
+        "title": "Tournament Champion",
+        "description": "Won a local tournament.",
+        "date_earned": "2024-10-05",
+        "icon": "images/ach1.jpeg",
+        "status": false
+      },
+      {
+        "title": "Tournament Champion",
+        "description": "Won a local tournament.",
+        "date_earned": "2024-10-05",
+        "icon": "images/ach1.jpeg",
+        "status": false
+      },
+      {
+        "title": "Tournament Champion",
+        "description": "Won a local tournament.",
+        "date_earned": "2024-10-05",
+        "icon": "images/ach1.jpeg",
+        "status": false
+      },
+      {
+        "title": "Tournament Champion",
+        "description": "Won a local tournament.",
+        "date_earned": "2024-10-05",
+        "icon": "images/ach1.jpeg",
+        "status": false
+      },
+      {
+        "title": "Tournament Champion",
+        "description": "Won a local tournament.",
+        "date_earned": "2024-10-05",
+        "icon": "images/ach1.jpeg",
+        "status": false
+      },
+      {
+        "title": "Tournament Champion",
+        "description": "Won a local tournament.",
+        "date_earned": "2024-10-05",
+        "icon": "images/ach1.jpeg",
+        "status": false
+      },
+      {
+        "title": "Tournament Champion",
+        "description": "Won a local tournament.",
+        "date_earned": "2024-10-05",
+        "icon": "images/ach1.jpeg",
+        "status": false
+      },
+      {
+        "title": "Tournament Champion",
+        "description": "Won a local tournament.",
+        "date_earned": "2024-10-05",
+        "icon": "images/ach1.jpeg",
+        "status": false
+      },
+      {
+        "title": "Tournament Champion",
+        "description": "Won a local tournament.",
+        "date_earned": "2024-10-05",
+        "icon": "images/ach1.jpeg",
+        "status": false
+      },
+      {
+        "title": "Tournament Champion",
+        "description": "Won a local tournament.",
+        "date_earned": "2024-10-05",
+        "icon": "images/ach1.jpeg",
+        "status": false
+      },
+      {
+        "title": "Tournament Champion",
+        "description": "Won a local tournament.",
+        "date_earned": "2024-10-05",
+        "icon": "images/ach1.jpeg",
+        "status": false
+      },
+      {
+        "title": "Tournament Champion",
+        "description": "Won a local tournament.",
+        "date_earned": "2024-10-05",
+        "icon": "images/ach1.jpeg",
+        "status": false
+      },
+      {
+        "title": "Tournament Champion",
+        "description": "Won a local tournament.",
+        "date_earned": "2024-10-05",
+        "icon": "images/ach1.jpeg",
+        "status": false
+      }
+    ],
+    "results":[
+      {
+        "opponent": {
+          "name": "Hamid",
+          "avatar": "/images/opp.jpeg"
+        },
+        "result": "10 : 5"
+      },
+      {
+        "opponent": {
+          "name": "khalid",
+          "avatar": "/images/opp.jpeg"
+        },
+        "result": "7 : 4"
+      },
+      {
+        "opponent": {
+          "name": "nohaila",
+          "avatar": "/images/opp.jpeg"
+        },
+        "result": "5 : 5"
+      },
+      {
+        "opponent": {
+          "name": "chaima",
+          "avatar": "/images/opp.jpeg"
+        },
+        "result": "5 : 5"
+      },
+      {
+        "opponent": {
+          "name": "meriem",
+          "avatar": "/images/opp.jpeg"
+        },
+        "result": "5 : 5"
+      },
+      {
+        "opponent": {
+          "name": "karim",
+          "avatar": "/images/opp.jpeg"
+        },
+        "result": "5 : 5"
+      },
+      {
+        "opponent": {
+          "name": "Said",
+          "avatar": "/images/opp.jpeg"
+        },
+        "result": "5 : 15"
+      }
+    ]
+  }

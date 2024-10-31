@@ -1,31 +1,28 @@
 import React from 'react';
+import path from 'path';
 
-const ProfileCard = () => {
+const ProfileCard = ({ img, F_name , user, mail , lvl }) => {
   return (
-        <div className='h-full flex justify-around items-center'>
-            <div className='w-[50%] flex'>
-                <div className='rounded-full border-2 border-[#00FFF0] w-32 h-32 relative z-20'>
-                    <img className='rounded-full w-full h-full  ' src="/images/minipic.jpeg" alt="" />
-                </div>
-                <div className='line w-28'>
-                    <div className='w-[90%] bg-[#00FFF0] h-[2%] rotate-[145deg] relative right-[30%] top-7'></div>
-                    <div className='w-[90%] bg-[#00FFF0] h-[2%] rotate-[35deg] relative right-[30%] top-[76%]'></div>
-                    <div className='w-[80%] bg-[#00FFF0] h-[2%] rotate-[36deg] relative left-[42%] top-[16%] z-10'></div>
-                    <div className='w-[74%] bg-[#00FFF0] h-[2%] rotate-[150deg] relative left-[45%] top-[78%]'></div>
-                    <div className='w-2 h-2 bg-[#00FFF0] rounded-full relative left-[110%] top-[30%]' ></div>
-                    <div className='w-2 h-2 bg-[#00FFF0] rounded-full relative left-[110%] top-[52%]' ></div>
-                    <div className='w-[46%] bg-[#00FFF0] h-[2%] relative top-6 right-2'></div >
-                    <div className='w-[46%] bg-[#00FFF0] h-[2%] relative top-12 right-2'></div >
-                    {/* <div className='w-1 h-full bg-white relative left-14 bottom-8'></div>
-                    <div className='w-1 h-full bg-white rotate-90 relative left-14 bottom-44'></div>
-                    <div className='w-1 h-full bg-white rotate-90 relative left-14 bottom-64'></div> */}
-                </div>
-            </div>
-            <div className='w-44 border' ></div>
+       <div className=' h-[90%] w-[90%] flex xl:flex-row justify-around items-center gap-1 lg:flex-col  '>
+          <img className='rounded-full lg:w-28 lg:h-28 xl:w-36  xl:h-36 2xl:w-40 2xl:h-40  xl:p-1 border-2 border-[#00FFF0] ' src={img} alt="" />
+          <div className='flex flex-col justify-around xl:items-start  h-full lg:items-center'>
+              <p className='2xl:text-[3rem] xl:text-[1.9rem]  lg:text-[1.2rem] text-white'>{F_name}</p>
+              <p className='2xl:text-[0.8rem] xl:text-[0.6rem]  lg:text-[0.6rem] text-white'>username: {user}</p>
+              <p className='2xl:text-[0.8rem] xl:text-[0.6rem]  lg:text-[0.6rem] text-white'>email: {mail}</p>
+              <p className='2xl:text-[2rem]  xl:text-[1.4rem] lg:text-[1rem] text-white'>Level: {lvl}</p>
+          </div>
 
-        </div>
+       </div>
   );
 };
 
 export default ProfileCard;
+{/* <div className='2xl:w-[50%]  border-2   relative  2xl:h-44 '>
+    <img className='rounded-full xl:w-full  xl:h-full 2xl:w-44 2xl:h-44  xl:p-1 ' src={img} alt="" />
+    <img className='rounded-full xl:w-full  xl:h-full 2xl:w-44 2xl:h-44  xl:p-1 ' src={img} alt="" />
+</div>
+<div className='xl:w-44 2xl:w-72  relative xl:right-3 xl:h-32 flex ' >
+    <div className='xl:w-full flex flex-col items-center justify-around '>
+    </div>
+</div> */}
 

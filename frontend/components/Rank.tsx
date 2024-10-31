@@ -16,7 +16,6 @@ const get_first = async () => {
     let team
     let sortedTeams;
     try {
-        // Assuming this JSON data is in a file, e.g., 'rank.json'
         const filePath = path.join(process.cwd(), 'public', 'data', 'rank.json');
         const fileContent = fs.readFileSync(filePath, 'utf8');
         const data = JSON.parse(fileContent);
@@ -53,3 +52,5 @@ async function Rank(info, player: number) {
 }
 
 export default Rank;
+
+

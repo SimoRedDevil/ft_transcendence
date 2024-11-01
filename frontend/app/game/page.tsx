@@ -1,7 +1,6 @@
 "use client"
 
 import dynamic from 'next/dynamic';
-import { useEffect, useState } from "react";
 
 const Table = dynamic(() => import('./Table'), { ssr: false });
 const Player1 = dynamic(() => import('./Player1'), { ssr: false });

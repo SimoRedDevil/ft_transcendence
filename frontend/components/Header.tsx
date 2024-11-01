@@ -1,14 +1,10 @@
 import React from 'react'
 import Image from 'next/image'
-import { FaSearch } from "react-icons/fa";
-import { IoIosNotifications } from "react-icons/io";
 import TextBox from './TextBox';
 import Link from 'next/link';
 import {UserContext} from './context/usercontext';
 import { useContext } from 'react';
-import { useState, useEffect } from 'react';
 import BounceLoader from "react-spinners/ClipLoader";
-import {usePathname} from 'next/navigation';
 
 function Header() {
   const { users} = useContext(UserContext);
@@ -25,12 +21,14 @@ function Header() {
 
       <div className='w-[60px] h-[60px] rounded-full border border-white border-opacity-60'>
   {users && users.avatar_url?(
+    
       <Image 
-        src={users.intra_avatar_url ? users.intra_avatar_url : users.avatar_url} 
+        src={users.avatar_url}
         height={60} 
         width={60} 
         alt='avatar' 
         className='rounded-full'
+        unoptimized
       />
     ) : (
       <div className='

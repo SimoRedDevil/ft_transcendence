@@ -18,23 +18,23 @@ export  default async function Profile ()
     const data = JSON.parse(fileContent);
     const img = (data.avatar.url)
     return(
-        <div className='lg:w-[85%]  lg:h-[80vh] flex lg:flex-col items-center justify-center lg:relative lg:left-[8%]  lg:top-10 lg:gap-[5%] '>
-            <div className=' flex justify-between  lg:h-[30%] lg:w-[95%]'>
-                <div className='lg:w-[35%] user_info h-full flex justify-center items-center'>
+        <div className=' lg:w-[85%]  lg:h-[80vh] flex flex-col items-center justify-center relative lg:left-[8%] xs:gap-8  lg:top-10 lg:gap-[5%] xs:h-auto xs:hide-scrollbar xs:overflow-auto xs:w-full'>
+            <div className=' flex justify-between items-center  lg:h-[30%] lg:w-[95%] lg:flex-row xs:flex-col xs:h-auto xs:w-[95%] xs:gap-8 border'>
+                <div className='xs:w-full xs:h-[30vh]  lg:w-[35%] user_info lg:h-full flex justify-center items-center '>
                     <ProfileCard img={img} F_name={data.full_name} user={data.username} mail={data.email} lvl={data.level} />
                 </div>
-                <div className='lg:w-[60%] user_info flex '>
+                <div className='lg:w-[60%] lg:h-full user_info flex xs:h-[50vh] xs:w-full'>
                 <WeeklyStatsDashboard />
                 </div>
             </div>
-            <div className='flex justify-between items-center   lg:h-[55%] lg:w-[95%]'>
-                <div className=' h-full w-[40%] user_info flex justify-center items-start' >
+            <div className='flex justify-between items-center  lg:flex-row lg:h-[55%] lg:w-[95%] xs:flex-col xs:h-[100vh] xs:w-[95%] xs:gap-8 border pb-8'>
+                <div className='lg:h-full lg:w-[40%] user_info flex justify-center items-start xs:w-full xs:h-[60vh]' >
                     <AchievementsList achievements={data.achievements} />
                 </div>
-                <div className='h-full w-[20%] user_info'>
+                <div className='lg:h-full lg:w-[20%] user_info xs:w-full xs:h-[60vh]'>
                     <FriendsList friends={data.friends}/>
                 </div>
-                <div className='h-full w-[30%] user_info'>
+                <div className='lg:h-full lg:w-[30%] user_info xs:w-full xs:h-[80vh] ' >
                     <MatchList main_user_name={data.full_name} results={data.results} main_user_avatar={data.avatar}/>
                 </div>
             </div>

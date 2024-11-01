@@ -21,7 +21,7 @@ const WeeklyStatsDashboard = () => {
   const COLORS = ['#3b82f6', '#10b981'];
 
   return (
-    <div className=" flex w-full h-full  p-4 rounded-lg text-white">
+    <div className=" flex lg:flex-row w-full h-full  p-4 rounded-lg text-white xs:flex-col">
       <div className="lg:w-[60%] xl:w-1/3  relative">
         <ResponsiveContainer width="100%" height="100%" >
           <PieChart>

@@ -17,6 +17,7 @@ export const ChatProvider = ({ children }) => {
     const [error, setError] = useState(null);
     const [isMobile, setIsMobile] = useState(false);
     const lastMessageRef = useRef(null);
+    const [otherUserTyping, setOtherUserTyping] = useState(false);
     
     useEffect(() => {
         const checkMobile = () => {
@@ -49,6 +50,14 @@ export const ChatProvider = ({ children }) => {
                     setConversations([updatedConversation, ...otherConversations]);
                 }
                 );
+            }
+            else if (newMessage.type === 'typing') {
+                // if (newMessage.conversation_id !== selectedConversation.id) return;
+                setOtherUserTyping(true);
+            }
+            else if (newMessage.type === 'stop_typing') {
+                // if (newMessage.conversation_id !== selectedConversation.id) return;
+                setOtherUserTyping(false);
             }
         };
         ws.current.onclose = () => {
@@ -118,7 +127,7 @@ export const ChatProvider = ({ children }) => {
 
     return (
         <ChatContext.Provider value={{ messages, Conversations, conversationsLoading, messagesLoading,
-            error, selectedConversation, otherUser, ws, isMobile, lastMessageRef, setConversations, fetchMessages, fetchConversations, setSelectedConversation, setOtherUser }}>
+            error, selectedConversation, otherUser, ws, isMobile, lastMessageRef, otherUserTyping, setConversations, fetchMessages, fetchConversations, setSelectedConversation, setOtherUser }}>
             {children}
         </ChatContext.Provider>
     );

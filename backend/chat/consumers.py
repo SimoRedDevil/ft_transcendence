@@ -94,9 +94,20 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 other_user_room_group_name,
                 {
                     'type': 'send_typing',
+                    'sent_to_user': sent_to_user,
                     'sent_by_user': sent_by_user,
-                    'content': message,
-                    'sent_to_user': sent_to_user
+                    'content': message
+                }
+            )
+        elif msg_type == 'stop_typing':
+            other_user_room_group_name = f'chat_{sent_to_user}'
+            await self.channel_layer.group_send(
+                other_user_room_group_name,
+                {
+                    'type': 'send_stop_typing',
+                    'sent_to_user': sent_to_user,
+                    'sent_by_user': sent_by_user,
+                    'content': message
                 }
             )
 
@@ -120,6 +131,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'type': 'typing',
             'sent_by_user': sent_by_user,
-            'content': content,
-            'sent_to_user': sent_to_user
+            'sent_to_user': sent_to_user,
+            'content': content
+        }))
+    async def send_stop_typing(self, event):
+        sent_by_user = event['sent_by_user']
+        sent_to_user = event['sent_to_user']
+        content = event['content']
+        await self.send(text_data=json.dumps({
+            'type': 'stop_typing',
+            'sent_by_user': sent_by_user,
+            'sent_to_user': sent_to_user,
+            'content': content
         }))

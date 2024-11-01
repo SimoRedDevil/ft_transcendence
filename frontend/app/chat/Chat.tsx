@@ -19,7 +19,7 @@ function Chat() {
   const [showEmoji, setShowEmoji] = useState(false)
   const [input, setInput] = useState('')
   const {users, loading} = useUserContext()
-  const [isTyping, setIsTyping] = useState(false)
+  let typingTimeout;
 
   const
   {
@@ -29,7 +29,8 @@ function Chat() {
     messages,
     messagesLoading,
     isMobile,
-    lastMessageRef
+    lastMessageRef,
+    otherUserTyping,
   } = useChatContext()
 
   const handleKeyDown = (e) => {
@@ -60,15 +61,26 @@ function Chat() {
 
   const handleInputChange = (e) => {
     setInput(e.target.value)
-    if (e.target.value.length > 0) {
+    ws.current.send(JSON.stringify({
+      'type': 'typing',
+      'conversation_id': selectedConversation.id,
+      'sent_by_user': users.username,
+      'sent_to_user': otherUser.username,
+      'content': 'Typing...'
+    }))
+  }
+
+  const handleKeyUp = (e) => {
+    clearTimeout(typingTimeout)
+    typingTimeout = setTimeout(() => {
       ws.current.send(JSON.stringify({
-        'type': 'typing',
+        'type': 'stop_typing',
         'conversation_id': selectedConversation.id,
         'sent_by_user': users.username,
         'sent_to_user': otherUser.username,
-        'content': 'Typing...'
+        'content': 'Stop Typing...'
       }))
-    }
+    }, 1000)
   }
 
   if (selectedConversation === null) return;
@@ -92,7 +104,8 @@ function Chat() {
             </div>
             <div className='flex flex-col justify-center gap-4'>
               <span className='text-[20px]'>{otherUser.full_name}</span>
-              <span className='text-[18px] text-white text-opacity-65'>{otherUser.online === true ? 'Active Now' : 'Offline'}</span>
+              {/* otherUser.online === true ? 'Active Now' : 'Offline' */}
+              <span className='text-[18px] text-white text-opacity-65'>{otherUserTyping === true ? 'Typing...' : 'Active now'}</span>
             </div>
           </div>
           <div className='w-[140px] flex gap-2'>
@@ -134,7 +147,7 @@ function Chat() {
           </div>
           <div className='w-full h-[100px] bg-transparent flex items-center justify-center'>
             <div onKeyDown={handleKeyDown} className='flex justify-between h-[80px] w-full rounded-[30px] border border-white border-opacity-30 bg-black bg-opacity-50'>
-              <TextBox input={input} onChange={(e) => handleInputChange(e.target.value)} placeholder='Type a message...' icon={undefined} className='w-full h-full bg-transparent rounded-[30px] p-[20px]'></TextBox>
+              <TextBox input={input} onKeyUp={(e) => handleKeyUp(e)} onChange={(e) => handleInputChange(e)} placeholder='Type a message...' icon={undefined} className='w-full h-full bg-transparent rounded-[30px] p-[20px]'></TextBox>
               <div className='w-[140px] flex items-center justify-center gap-3'>
                 <button onClick={handleEmoji}>
                   <MdEmojiEmotions className={!showEmoji ? 'text-white text-opacity-90 w-[40px] h-[40px] hover:text-opacity-100' : 'text-[#4682B4] text-opacity-100 w-[40px] h-[40px]'} />

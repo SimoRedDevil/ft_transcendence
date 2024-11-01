@@ -60,7 +60,6 @@ class Intra42UserSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     avatar_url = serializers.SerializerMethodField()
-    intra_avatar_url = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
@@ -70,11 +69,6 @@ class UserSerializer(serializers.ModelSerializer):
         }
 
     def get_avatar_url(self, obj):
-        if obj.avatar_url:
-            return f"http://localhost:8000/api/auth/{obj.avatar_url.url}"
-        return None  # or return a default URL if no avatar exists
-
-    def get_intra_avatar_url(self, obj):
-        if obj.intra_avatar_url:
-            return obj.intra_avatar_url
-        return None
+        if not obj.intra_islogged:
+            return f"http://localhost:8000/{obj.avatar_url}"
+        return obj.avatar_url

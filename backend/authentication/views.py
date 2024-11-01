@@ -48,7 +48,8 @@ def fillUser(user, user_info):
     user.full_name = user_info['displayname']
     user.email = user_info['email']
     user.online = True
-    user.intra_avatar_url = user_info['image']['link']
+    user.avatar_url = user_info['image']['link']
+    user.intra_islogged = True
     user.save()
     return user
 

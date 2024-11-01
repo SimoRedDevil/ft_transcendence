@@ -29,3 +29,6 @@ urlpatterns = [
     path('matches/', get_all_matches),
     
 ]+ static(settings.QRCODE_URL, document_root=settings.QRCODE_ROOT)
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -39,6 +39,7 @@ export const ChatProvider = ({ children }) => {
         };
         ws.current.onmessage = (message) => {
             const newMessage = JSON.parse(message.data);
+            // console.log(newMessage);
             if (newMessage.type === 'message') {
                 setMessages((prevMessages) => [...prevMessages, newMessage]);
                 setConversations((prevConversations) => {

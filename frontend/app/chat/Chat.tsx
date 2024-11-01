@@ -19,6 +19,7 @@ function Chat() {
   const [showEmoji, setShowEmoji] = useState(false)
   const [input, setInput] = useState('')
   const {users, loading} = useUserContext()
+  const [scrollPosition, setScrollPosition] = useState(0)
   let typingTimeout;
 
   const
@@ -83,6 +84,20 @@ function Chat() {
     }, 1000)
   }
 
+  const handleScroll = (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    console.log(scrollTop, scrollHeight, clientHeight)
+    const position = Math.ceil(
+      (scrollTop / (scrollHeight - clientHeight)) * 100);
+    // console.log(position)
+    // if (e.target.scrollTop === 0) {
+    //   console.log('Top reached')
+    // }
+    // else if (e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight) {
+    //   console.log('Bottom reached')
+    // }
+  }
+
   if (selectedConversation === null) return;
 
   if (loading === true || lastMessageRef === null || messages === null) return <div>Loading...</div> ;
@@ -119,7 +134,7 @@ function Chat() {
         </div>
         <div className='p-[20px] h-[90%] w-full flex flex-col justify-between items-center overflow-hidden'>
           <div className='w-full h-[89%] relative'>
-            <div className='h-full no-scrollbar overflow-y-auto scroll-smooth whitespace-pre-wrap'>
+            <div onScroll={(e) => handleScroll(e)} className='border h-full overflow-y-auto scroll-smooth whitespace-pre-wrap'>
               {
                 messages.map((message, index) => {
                   return (

@@ -5,6 +5,9 @@ from .serializers import ConversationSerializer, MessageSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
+from .paginations import ChatPagination
 
 class ConversationViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication]
@@ -24,6 +27,7 @@ class SearchConversationViewSet(viewsets.ModelViewSet):
 
 class MessageViewSet(viewsets.ModelViewSet):
     serializer_class = MessageSerializer
+    # pagination_class = ChatPagination
     def get_queryset(self):
         conversation_id = self.request.GET.get('conversation_id')
         return message.objects.filter(conversation_id=conversation_id)

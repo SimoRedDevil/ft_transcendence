@@ -27,11 +27,11 @@ export default function RootLayout({
           <div className="h-[100px]">
             <Header />
           </div>
-          <div className="h-[calc(100%_-_100px)] flex flex-col-reverse lg:flex-row">
+          <div className="h-auto flex flex-col-reverse lg:flex-row">
             <div className="flex lg:flex-col w-full lg:w-[50px] lg:relative lg:right-1 xl:right-0 xl:w-[100px]">
               <Sidebar />
             </div>
-            <div className="h-auto w-full xs:h-full  ">{children}</div>
+            <div className="lg:h-auto lg:w-full xs:h-auto xs:flex xs:justify-center xs:items-center  ">{children}</div>
           </div>
         </div>
       </body>

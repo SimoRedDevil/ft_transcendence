@@ -19,7 +19,6 @@ function Chat() {
   const [showEmoji, setShowEmoji] = useState(false)
   const [input, setInput] = useState('')
   const {users, loading} = useUserContext()
-  const [scrollPosition, setScrollPosition] = useState(0)
   let typingTimeout;
 
   const
@@ -32,6 +31,8 @@ function Chat() {
     isMobile,
     lastMessageRef,
     otherUserTyping,
+    page,
+    setPage
   } = useChatContext()
 
   const handleKeyDown = (e) => {
@@ -81,21 +82,20 @@ function Chat() {
         'sent_to_user': otherUser.username,
         'content': 'Stop Typing...'
       }))
-    }, 1000)
+    }, 2000)
   }
 
   const handleScroll = (e) => {
-    const { scrollTop, scrollHeight, clientHeight } = e.target;
-    console.log(scrollTop, scrollHeight, clientHeight)
-    const position = Math.ceil(
-      (scrollTop / (scrollHeight - clientHeight)) * 100);
-    // console.log(position)
-    // if (e.target.scrollTop === 0) {
-    //   console.log('Top reached')
-    // }
-    // else if (e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight) {
-    //   console.log('Bottom reached')
-    // }
+    const scroll = e.target
+    const scrollTop = scroll.scrollTop
+    if (scrollTop === 0) {
+      setPage((prevPage) => prevPage + 1)
+    }
+    else if (scrollTop === scroll.scrollHeight - scroll.clientHeight) {
+      if (page > 1) {
+        setPage((prevPage) => prevPage - 1)
+      }
+    }
   }
 
   if (selectedConversation === null) return;

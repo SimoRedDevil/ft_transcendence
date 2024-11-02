@@ -27,7 +27,7 @@ class SearchConversationViewSet(viewsets.ModelViewSet):
 
 class MessageViewSet(viewsets.ModelViewSet):
     serializer_class = MessageSerializer
-    # pagination_class = ChatPagination
+    pagination_class = ChatPagination
     def get_queryset(self):
         conversation_id = self.request.GET.get('conversation_id')
-        return message.objects.filter(conversation_id=conversation_id)
+        return message.objects.order_by('-timestamp').all()

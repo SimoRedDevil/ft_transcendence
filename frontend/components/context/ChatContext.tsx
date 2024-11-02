@@ -18,6 +18,7 @@ export const ChatProvider = ({ children }) => {
     const [isMobile, setIsMobile] = useState(false);
     const lastMessageRef = useRef(null);
     const [otherUserTyping, setOtherUserTyping] = useState(false);
+    const [page, setPage] = useState(1);
     
     useEffect(() => {
         const checkMobile = () => {
@@ -75,10 +76,13 @@ export const ChatProvider = ({ children }) => {
     const fetchMessages = async () => {
         try {
             setMessagesLoading(true);
-            axiosInstance.get(`/chat/messages/`, 
+            axiosInstance.get(`/chat/messages/?page=${page}`, 
                 { params: { conversation_id: selectedConversation.id } }
             ).then((response) => {
-                setMessages(response.data)
+                setMessages([...response.data.results, ...messages]);
+                // setMessages((prevMessages) => [...response.data.results, ...prevMessages]);
+                // setMessages(response.data.results)
+                // console.log(response.data)
             })
         } catch (error) {
             console.error('Error fetching messages:', error);
@@ -118,7 +122,7 @@ export const ChatProvider = ({ children }) => {
         if (selectedConversation) {
             fetchMessages();
         }
-    }, [selectedConversation])
+    }, [selectedConversation, page]);
 
     useEffect(() => {
         if (messages.length > 0) {
@@ -128,7 +132,7 @@ export const ChatProvider = ({ children }) => {
 
     return (
         <ChatContext.Provider value={{ messages, Conversations, conversationsLoading, messagesLoading,
-            error, selectedConversation, otherUser, ws, isMobile, lastMessageRef, otherUserTyping, setConversations, fetchMessages, fetchConversations, setSelectedConversation, setOtherUser }}>
+            error, selectedConversation, otherUser, ws, isMobile, lastMessageRef, otherUserTyping, page, setConversations, fetchMessages, fetchConversations, setSelectedConversation, setOtherUser, setPage }}>
             {children}
         </ChatContext.Provider>
     );

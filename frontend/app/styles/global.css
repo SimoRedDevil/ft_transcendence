@@ -9,6 +9,12 @@
     /* border: solid red; */
 }
 
+@layer components {
+    .password-circles {
+      @apply font-sans text-sm;
+    }
+  }
+
 @layer utilities {
     .no-scrollbar::-webkit-scrollbar {
         display: none;

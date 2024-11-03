@@ -2,13 +2,11 @@
 import React from 'react';
 import PureComponent from './ProfileStats'
 import { PieChart, Area,Tooltip, AreaChart, CartesianGrid,Pie, Cell, LineChart, Line, XAxis, YAxis, ResponsiveContainer, Legend } from 'recharts';
-
 const WeeklyStatsDashboard = () => {
   const donutData = [
     { name: 'Win', value: 62.5 },
     { name: 'Losses', value: 37.5 },
   ];
-
   const lineData = [
     { day: 'M', value: 10 },
     { day: 'T', value: 70 },
@@ -19,9 +17,8 @@ const WeeklyStatsDashboard = () => {
     { day: 'S', value: 45 },
   ];
   const COLORS = ['#3b82f6', '#10b981'];
-
   return (
-    <div className=" flex lg:flex-row w-full h-full  p-4 rounded-lg text-white xs:flex-col">
+    <div className=" flex w-full h-full  p-4 rounded-lg text-white">
       <div className="lg:w-[60%] xl:w-1/3  relative">
         <ResponsiveContainer width="100%" height="100%" >
           <PieChart>
@@ -74,8 +71,4 @@ const WeeklyStatsDashboard = () => {
     </div>
   );
 };
-
 export default WeeklyStatsDashboard;
-
-
-/////

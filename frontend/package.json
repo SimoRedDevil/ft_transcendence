@@ -5,7 +5,7 @@
     "@headlessui/react": "^2.2.0",
     "@mui/material": "^6.1.6",
     "@mui/styled-engine-sc": "^6.1.6",
-    "@mui/x-charts": "^7.22.0",
+    "@mui/x-charts": "^7.22.1",
     "@remixicon/react": "^4.5.0",
     "@tremor/react": "^3.18.3",
     "apexcharts": "^3.54.1",
@@ -14,17 +14,23 @@
     "echarts": "^5.5.1",
     "emoji-mart": "^5.6.0",
     "emoji-picker-react": "^4.12.0",
+    "framer-motion": "^11.8.0",
+    "js-cookie": "^3.0.5",
     "json-server": "^1.0.0-beta.2",
-    "next": "^14.2.15",
-    "ng-apexcharts": "^1.12.0",
+    "next": "^15.0.2",
+    "nodemon": "^3.1.7",
+    "p5": "^1.10.0",
     "react": "^18.3.1",
     "react-apexcharts": "^1.5.0",
     "react-chartjs-2": "^5.2.0",
     "react-circular-progressbar": "^2.1.0",
     "react-dom": "^18.3.1",
     "react-icons": "^5.3.0",
-    "recharts": "^2.13.2",
-    "styled-components": "^6.1.13"
+    "react-router-dom": "^6.27.0",
+    "react-spinners": "^0.14.1",
+    "recharts": "^2.13.3",
+    "styled-components": "^6.1.13",
+    "tailwind-scrollbar": "^3.1.0"
   },
   "scripts": {
     "dev": "next dev",
@@ -34,11 +40,12 @@
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.9",
-    "@types/node": "22.1.0",
-    "@types/react": "18.3.3",
+    "@types/node": "22.8.6",
+    "@types/prop-types": "^15.7.13",
+    "@types/react": "18.3.12",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.14",
-    "typescript": "5.5.4"
+    "typescript": "5.6.3"
   }
 }

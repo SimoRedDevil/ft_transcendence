@@ -19,7 +19,7 @@ const Dashboard = () => {
         </div>
         <div className='lg:w-[25%]  lg:h-[89%] lg:border flex flex-col justify-center  items-center lg:bg-custom-gradient lg:gap-[8%] xl:gap-[4%] stats_holder xs:h-[60vh] xs:w-[96%] p-2 gap-4'>
             <div className='lg:w-full xs:w-[90%] sm:w-[60%]  flex justify-center '>
-              <Pie percentage={66} colour={"rgba(0, 225, 220, 0.8)"}   />
+              <Pie percentage={99} colour={"rgba(0, 225, 220, 0.8)"}   />
             </div>
             <div className=' h-[30%] w-full flex justify-center '>
               <div className=' w-[50%] flex flex-col justify-around items-center gap-2'>

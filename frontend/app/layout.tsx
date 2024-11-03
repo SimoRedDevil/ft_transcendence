@@ -6,10 +6,11 @@ import { usePathname, useRouter } from 'next/navigation';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import { UserProvider, UserContext } from '../components/context/usercontext';
+import { Toaster } from 'react-hot-toast';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const exclude = ['/login'];
+    const exclude = ['/login', '/twofa'];
     const router = useRouter();
 
     return (
@@ -33,13 +34,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
     const {users, loading, isAuthenticated, fetchAuthUser } = useContext(UserContext);
 
-    // Handle redirection based on authentication
     useEffect(() => {
         isAuthenticated && fetchAuthUser()
-        if (isAuthenticated && exclude.includes(pathname)) {
+        if (isAuthenticated && pathname === '/login') {
             router.push('/');
         }
-        if (!isAuthenticated && exclude.includes(pathname)) {
+        if (!isAuthenticated && pathname === '/login')  {
             router.push('/login');
         }
     }, [isAuthenticated, pathname, router]);
@@ -60,15 +60,14 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
 
     return (
         <div className="bg-main-bg border border-black w-screen h-full bg-cover bg-no-repeat bg-center fixed min-w-[280px] min-h-[800px]">
-            {/* Render Header if pathname is not in exclude list */}
-            {!exclude.includes(pathname) && (
+            {!exclude.includes(pathname) &&
+             (
                 <div className="h-[100px]">
                     <Header />
                 </div>
             )}
 
             <div className="h-[calc(100%_-_100px)] flex flex-col-reverse sm:flex-row">
-                {/* Render Sidebar if pathname is not in exclude list */}
                 {!exclude.includes(pathname) && (
                     <div className="flex sm:flex-col w-full sm:w-[100px]">
                         <Sidebar />
@@ -76,6 +75,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
                 )}
 
                 <div className="h-[calc(100%_-_100px)] w-full">
+                <Toaster position="top-center" reverseOrder={false}/>
                     {children}
                 </div>
             </div>

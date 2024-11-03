@@ -6,21 +6,19 @@ import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import { handle42Callback } from './auth'
 import { useContext } from "react";
 import { UserContext } from "./context/usercontext";
-import TwofaVerify from "./twofaVerify";
+import { toast } from 'react-hot-toast';
 
 interface SigninPageProps {
   onNavigate?: () => void;
-  onLoginSuccess: (is2FAEnabled: boolean) => void;
 }
 
-const SigninPage: React.FC<SigninPageProps> = ({ onNavigate, onLoginSuccess}) => {
+const SigninPage: React.FC<SigninPageProps> = ({ onNavigate}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
-  const { setIsAuthenticated, users } = useContext(UserContext);
+  const { setIsAuthenticated, users, fetchAuthUser} = useContext(UserContext);
 
   const handleSignin = async (e) => {
     e.preventDefault();
@@ -38,21 +36,19 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate, onLoginSuccess}) =>
       const data = response.data;
   
       if (response.status === 200) {
-        alert("Signin successful");
         if (users && users.enabeld_2fa) {
-          onLoginSuccess(true);
-          console.log("2FA enabled");
+          router.push("/twofa");
         }
         else {
           setIsAuthenticated(true);
-          router.push("/");
+          toast.success("login success");
         }
       } else {
-        alert(data.message || "Signin failed, please try again.");
+        toast.error("Signin failed");
         setIsAuthenticated(false);
       }
     } catch (error) {
-      alert("An error occurred. Please try again later.");
+      toast.error("Signin failed");
       setIsAuthenticated(false);
     }
   };  
@@ -73,13 +69,13 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate, onLoginSuccess}) =>
 }
 , [email, password]);
 
-  return (
+return (
     <motion.form onSubmit={(e) => e.preventDefault()} 
     className=" flex flex-col items-center justify-center h-screen w-screen overflow-auto fixed">
       <div
         className="flex items-center justify-center h-full w-full laptop:w-[850px]
-      tablet:w-[620px] tablet:h-[770px] desktop:h-[760px] desktop:w-[950px] mobile:w-[500px]
-      mobile:h-[700px] laptop:h-[770px]  less-than-mobile:h-[720px] less-than-mobile:w-[500px] fixed overflow-auto">
+        tablet:w-[620px] tablet:h-[770px] desktop:h-[760px] desktop:w-[950px] mobile:w-[500px]
+        mobile:h-[700px] laptop:h-[770px]  less-than-mobile:h-[720px] less-than-mobile:w-[500px] fixed overflow-auto">
         <motion.div
           initial={{ opacity: 1, x: "50%" }}
           animate={{ opacity: 1, x: "0" }}

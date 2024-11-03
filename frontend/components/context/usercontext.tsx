@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, use } from 'react';
 import axios from 'axios';
 import { usePathname, useRouter } from 'next/navigation';
-import { useParams } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 
 
 const UserContext = createContext(null);
@@ -41,7 +41,7 @@ export const UserProvider = ({ children }) => {
         } finally {
             setTimeout(() => {
                 setLoading(false);
-            }, 1000);
+            }, 3000);
         }
     };
 
@@ -61,8 +61,14 @@ export const UserProvider = ({ children }) => {
                     const user = response.data;
                     setUsers(user);
                     if (user) {
-                        setIsAuthenticated(true);
-                        router.push('/');
+                        if (user.enabeld_2fa) {
+                            router.push("/twofa");
+                        }
+                        else {
+                          setIsAuthenticated(true);
+                            toast.success("login success");
+                          router.push("/");
+                        }
                     }
                 }
             }
@@ -93,7 +99,7 @@ export const UserProvider = ({ children }) => {
         caallBack42();
         (users && isAuthenticated) ? fetchAuthUser() : setTimeout(() => {setLoading(false);}, 1000);
     }
-    , [pathname] );
+    , [pathname, router] );
 
     return (
         <UserContext.Provider value={{ users, loading, error, isAuthenticated, fetchAuthUser, setIsAuthenticated, setTry2fa, try2fa}}>

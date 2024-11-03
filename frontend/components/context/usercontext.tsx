@@ -25,19 +25,19 @@ export const UserProvider = ({ children }) => {
             });
             const user = response.data;
             // while (user || !user) {
-            //     await new Promise((resolve) => setTimeout(resolve, 1000));
-            // }
-            setUsers(user);
-            if (user) {
-                setIsAuthenticated(true);
-            } else {
-                setIsAuthenticated(false);
+                //     await new Promise((resolve) => setTimeout(resolve, 1000));
+                // }
+                setUsers(user);
+                if (user) {
+                    setIsAuthenticated(true);
+                } else {
+                    setIsAuthenticated(false);
+                    router.push('/login');
+                }
+            } catch (error) {
                 router.push('/login');
-            }
-        } catch (error) {
             setError(error);
             setIsAuthenticated(false);
-            router.push('/login');
         } finally {
             setTimeout(() => {
                 setLoading(false);
@@ -97,10 +97,13 @@ export const UserProvider = ({ children }) => {
     // }
     useEffect(() => {
         caallBack42();
-        (users && isAuthenticated) ? fetchAuthUser() : setTimeout(() => {setLoading(false);}, 1000);
     }
     , [pathname, router] );
 
+    useEffect(() => {
+    (users && isAuthenticated) ? fetchAuthUser() :setTimeout(() => {setLoading(false);}, 3000);
+    }
+    , [pathname, router, isAuthenticated, loading] );
     return (
         <UserContext.Provider value={{ users, loading, error, isAuthenticated, fetchAuthUser, setIsAuthenticated, setTry2fa, try2fa}}>
             {children}

@@ -88,14 +88,14 @@ class Intra42Callback(APIView):
             key='access',
             value=str(refresh.access_token),
             httponly=True,
-            secure=False,  # Set to True in production
+            secure=False, 
             samesite='Lax',  # Optional, but recommended
         )
         response.set_cookie(
             key='refresh',
             value=str(refresh),
             httponly=True,
-            secure=False,  # Set to True in production
+            secure=False, 
             samesite='Lax',  # Optional, but recommended
         )
         user_data = Intra42UserSerializer(user).data
@@ -130,14 +130,14 @@ class LoginView(APIView):
                     key='access',
                     value=acess_token,
                     httponly=True,
-                    secure=False,  # Set to True in production
+                    secure=False, 
                     samesite='Lax',  # Optional, but recommended
                 )
                 response.set_cookie(
                     key='refresh',
                     value=str(refresh),
                     httponly=True,
-                    secure=False,  # Set to True in production
+                    secure=False, 
                     samesite='Lax',  # Optional, but recommended
                 )
 
@@ -169,50 +169,6 @@ class GenerateAccessToken(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
-    # def post(self, request):
-    #     refresh_token = request.data.get("refresh")
-    #     access_token = request.COOKIES.get('access')
-
-    #     if not refresh_token:
-    #         return Response({"error": "Refresh token is required"}, status=status.HTTP_400_BAD_REQUEST)
-    #     try:
-    #         # Decode the refresh token
-    #         refresh = RefreshToken(refresh_token)
-
-    #         # Check if the refresh token has already been blacklisted
-    #         jti = refresh['jti']  # Extract the JWT ID from the refresh token
-    #         if BlacklistedToken.objects.filter(token__jti=jti).exists():
-    #             return Response({"error": "Refresh token is blacklisted"}, status=status.HTTP_401_UNAUTHORIZED)
-
-    #         # Blacklist the old refresh token explicitly
-    #         try:
-    #             refresh.blacklist()  # Blacklist the current refresh token
-    #         except BlacklistError:
-    #             return Response({"error": "Could not blacklist the token"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    #         # Generate new access token and refresh token (because of ROTATE_REFRESH_TOKENS=True)
-    #         access_token = str(refresh.access_token)
-    #         new_refresh_token = str(RefreshToken())  # Explicitly generate a new refresh token
-    #         response = Response(status=status.HTTP_200_OK)
-    #         response.set_cookie(
-    #             key='access',
-    #             value=access_token,
-    #             httponly=True,
-    #             secure=False,  # Set to True in production
-    #             samesite='Lax',  # Optional, but recommended
-    #         )
-    #         response.set_cookie(
-    #             key='refresh',
-    #             value=new_refresh_token,
-    #             httponly=True,
-    #             secure=False,  # Set to True in production
-    #             samesite='Lax',  # Optional, but recommended
-    #         )
-    #         response.data = {
-    #             'access': access_token,
-    #             'refresh': new_refresh_token
-    #         }
-    #         return response
     def post(self, request):
         code = request.COOKIES.get('refresh')
         data = {
@@ -220,8 +176,6 @@ class GenerateAccessToken(APIView):
             'X-CSRFToken': request.COOKIES.get('csrftoken')
         }
         respo = requests.post('http://0.0.0.0:8000/api/auth/refresh/', data=data)
-        # refresh = request.COOKIES.get('refresh')
-        # user_test = requests.post('http://localhost:8000/api/auth/refresh/', headers={'refresh': refresh})
         tokens = respo.json()
         access_token = tokens.get('access')
         refresh_token = tokens.get('refresh')
@@ -230,24 +184,22 @@ class GenerateAccessToken(APIView):
             key='access',
             value=access_token,
             httponly=True,
-            secure=False,  # Set to True in production
+            secure=False, 
             samesite='Lax',  # Optional, but recommended
         )
         response.set_cookie(
             key='refresh',
             value=refresh_token,
             httponly=True,
-            secure=False,  # Set to True in production
+            secure=False, 
             samesite='Lax',  # Optional, but recommended
         )
         return response
-        # except TokenError as e:
-        #     return Response({"error": "Invalid or expired refresh token"}, status=status.HTTP_401_UNAUTHORIZED)
 
-    # def get(self, request):
-    #     cookies = request.COOKIES
-    #     cookie_data = {key: value for key, value in cookies.items()}
-    #     return Response({'cookies': cookie_data}, status=status.HTTP_200_OK)
+    def get(self, request):
+        cookies = request.COOKIES
+        cookie_data = {key: value for key, value in cookies.items()}
+        return Response({'cookies': cookie_data}, status=status.HTTP_200_OK)
 
 class UserViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication]
@@ -255,14 +207,51 @@ class UserViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return CustomUser.objects.all()
 
+def generate_tokens(request):
+    res = requests.post('http://localhost:8000/api/auth/refresh/', data={'refresh': request.COOKIES.get('refresh'),
+    'X-CSRFToken': request.COOKIES.get('csrftoken')})
+    if res.status_code != 200:
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+    tokens = res.json()
+    print("tokens")
+    access_token = tokens.get('access')
+    refresh_token = tokens.get('refresh')
+    response = Response(status=res.status_code)
+    response.set_cookie(
+        key='access',
+        value=access_token,
+        httponly=True,
+        secure=False, 
+        samesite='Lax',  # Optional, but recommended
+    )
+    response.set_cookie(
+        key='refresh',
+        value=refresh_token,
+        httponly=True,
+        secure=False, 
+        samesite='Lax',  # Optional, but recommended
+    )
+    user = request.user
+    user_data = UserSerializer(user).data
+    response.data = user_data
+    return response
+
 class AuthenticatedUserView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
-
+    res = None
     def get(self, request):
         user = request.user
-        user_data = UserSerializer(user).data
-        return Response(user_data, status=status.HTTP_200_OK)
+        acces = request.COOKIES.get('access')
+        if not acces:
+            return generate_tokens(request)
+        else:
+            try:
+                valid = AccessToken(acces)
+            except Exception:
+                return generate_tokens(request)
+        return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
+
 
 # Logout View
 class Logout(APIView):

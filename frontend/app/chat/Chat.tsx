@@ -32,7 +32,8 @@ function Chat() {
     lastMessageRef,
     otherUserTyping,
     page,
-    setPage
+    setPage,
+    pageCount
   } = useChatContext()
 
   const handleKeyDown = (e) => {
@@ -89,13 +90,14 @@ function Chat() {
     const scroll = e.target
     const scrollTop = scroll.scrollTop
     if (scrollTop === 0) {
-      setPage((prevPage) => prevPage + 1)
+      if (page < pageCount)
+        setPage((prevPage) => prevPage + 1)
     }
-    else if (scrollTop === scroll.scrollHeight - scroll.clientHeight) {
-      if (page > 1) {
-        setPage((prevPage) => prevPage - 1)
-      }
-    }
+    // else if (scrollTop === scroll.scrollHeight - scroll.clientHeight) {
+    //   if (page > 1) {
+    //     setPage((prevPage) => prevPage - 1)
+    //   }
+    // }
   }
 
   if (selectedConversation === null) return;
@@ -134,7 +136,7 @@ function Chat() {
         </div>
         <div className='p-[20px] h-[90%] w-full flex flex-col justify-between items-center overflow-hidden'>
           <div className='w-full h-[89%] relative'>
-            <div onScroll={(e) => handleScroll(e)} className='border h-full overflow-y-auto scroll-smooth whitespace-pre-wrap'>
+            <div onScroll={(e) => handleScroll(e)} className='h-full scrollbar-none overflow-y-auto scroll-smooth whitespace-pre-wrap'>
               {
                 messages.map((message, index) => {
                   return (

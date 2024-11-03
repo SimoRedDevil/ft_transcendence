@@ -19,6 +19,7 @@ export const ChatProvider = ({ children }) => {
     const lastMessageRef = useRef(null);
     const [otherUserTyping, setOtherUserTyping] = useState(false);
     const [page, setPage] = useState(1);
+    const [pageCount, setPageCount] = useState(1);
     
     useEffect(() => {
         const checkMobile = () => {
@@ -40,7 +41,6 @@ export const ChatProvider = ({ children }) => {
         };
         ws.current.onmessage = (message) => {
             const newMessage = JSON.parse(message.data);
-            // console.log(newMessage);
             if (newMessage.type === 'message') {
                 setMessages((prevMessages) => [...prevMessages, newMessage]);
                 setConversations((prevConversations) => {
@@ -79,6 +79,8 @@ export const ChatProvider = ({ children }) => {
             axiosInstance.get(`/chat/messages/?page=${page}`, 
                 { params: { conversation_id: selectedConversation.id } }
             ).then((response) => {
+                setPageCount(Math.ceil(response.data.count / 10));
+                response.data.results.reverse();
                 setMessages([...response.data.results, ...messages]);
                 // setMessages((prevMessages) => [...response.data.results, ...prevMessages]);
                 // setMessages(response.data.results)
@@ -132,7 +134,7 @@ export const ChatProvider = ({ children }) => {
 
     return (
         <ChatContext.Provider value={{ messages, Conversations, conversationsLoading, messagesLoading,
-            error, selectedConversation, otherUser, ws, isMobile, lastMessageRef, otherUserTyping, page, setConversations, fetchMessages, fetchConversations, setSelectedConversation, setOtherUser, setPage }}>
+            error, selectedConversation, otherUser, ws, isMobile, lastMessageRef, otherUserTyping, page, pageCount, setConversations, fetchMessages, fetchConversations, setSelectedConversation, setOtherUser, setPage }}>
             {children}
         </ChatContext.Provider>
     );

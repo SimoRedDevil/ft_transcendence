@@ -25,6 +25,7 @@ from django.http import HttpResponse
 from urllib.parse import urljoin
 from rest_framework_simplejwt.exceptions import TokenError
 import shutil
+import os
 
 
 INTRA_42_AUTH_URL = settings.INTRA_42_AUTH_URL
@@ -275,10 +276,10 @@ class DisableTwoFactorView(APIView):
         user = request.user
         user.enabeld_2fa = False
         user.twofa_secret = None
-        user.qrcode_path = None
-        if user.qrcode_dir:
-            shutil.rmtree(str(user.qrcode_dir))
         user.qrcode_dir = None
+        if os.path.exists(str(user.qrcode_path)):
+            os.remove(str(user.qrcode_path))
+        user.qrcode_path = None
         user.save()
         return Response(status=status.HTTP_200_OK)
 

@@ -4,6 +4,7 @@ import PasswordHelper from "./passwordHelper";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
+import {toast} from 'react-hot-toast';
 interface SignupPageProps {
   onNavigate?: () => void;
 }
@@ -37,15 +38,14 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
       const data = await response.json();
   
       if (response.ok) {
-        alert("Signup successful");
+        toast.success("Account created successfully.");
         onNavigate();
-        // router.push("/login");
       } else {
-        alert(data.message || "Signup failed, please try again.");
+        toast.error("Something went wrong.");
       }
     } catch (error) {
       //console.error("Error during signup:", error);
-      alert("An error occurred. Please try again later.");
+      toast.error("Error during signup");
     }
   };
 

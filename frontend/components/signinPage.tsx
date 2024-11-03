@@ -44,11 +44,11 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate}) => {
           toast.success("login success");
         }
       } else {
-        toast.error("Signin failed");
+        toast.error("Something went wrong");
         setIsAuthenticated(false);
       }
     } catch (error) {
-      toast.error("Signin failed");
+      toast.error("Something went wrong");
       setIsAuthenticated(false);
     }
   };  

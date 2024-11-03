@@ -63,7 +63,11 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = '__all__'
+        fields = ['id', 'full_name', 'username', 'email', 'avatar_url', 'tournament_name', 
+            'tournament_score', 'enabeld_2fa', 'qrcode_dir', 'qrcode_path',
+            'level', 'matches', 'wins', 'losses', 'draws', 'profile_visited',
+            'friends_count', 'top_score', 'tournaments', 'online_matches',
+            'offline_matches', 'current_xp', 'target_xp', 'online']
         extra_kwargs = {
             'password': {'write_only': True},
         }

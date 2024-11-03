@@ -12,6 +12,7 @@ class CustomUser(BaseUser):
     qrcode_path = models.CharField(max_length=100, blank=True, null=True)
     avatar_url = models.CharField(max_length=100, blank=True, default='../avatars/default.png')
     intra_islogged = models.BooleanField(default=False)
+    oldToken = models.CharField(max_length=300, blank=True, null=True)
     level = models.IntegerField(default=0)
     matches = models.IntegerField(default=0)
     wins = models.IntegerField(default=0)

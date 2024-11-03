@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -58,6 +57,7 @@ INSTALLED_APPS = [
     'authentication',
     'allauth',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -107,6 +107,8 @@ REST_FRAMEWORK = {
     # 'PAGE_SIZE': 1,
 }
 AUTH_USER_MODEL = 'authentication.CustomUser'
+
+
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Short lifetime for access token

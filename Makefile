@@ -19,6 +19,11 @@ ps:
 build:
 	docker-compose  up --build
 
+push:
+	git add .; \
+    git commit -m "$(msg)"; \
+    git push
+
 fclean:
 	rm -rf  database/*
 	docker system prune -a -f

@@ -8,11 +8,12 @@ import Sidebar from '../components/Sidebar';
 import { UserProvider, UserContext } from '../components/context/usercontext';
 import { appWithTranslation } from 'next-i18next';
 import '../i18n';
+import { Toaster } from 'react-hot-toast';
 
 
 function RootLayout({ children }: any) {
     const pathname = usePathname();
-    const exclude = ['/login'];
+    const exclude = ['/login', '/twofa'];
     const router = useRouter();
 
     return (
@@ -36,21 +37,18 @@ function RootLayout({ children }: any) {
 function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
     const {users, loading, isAuthenticated, fetchAuthUser } = useContext(UserContext);
 
-    // Handle redirection based on authentication
     useEffect(() => {
-        isAuthenticated && fetchAuthUser()
-        if (isAuthenticated && exclude.includes(pathname)) {
-            router.push('/');
-        }
-        if (!isAuthenticated && exclude.includes(pathname)) {
+        !users && fetchAuthUser()
+        if (!users && !isAuthenticated) {
             router.push('/login');
         }
-    }, [isAuthenticated, pathname, router]);
-
-    useEffect(() => {
-        !isAuthenticated && fetchAuthUser();
-    }
-    , [pathname, router]);
+        else if (users && pathname === '/login') {
+            router.push('/');
+        }
+        else if (users && pathname !== '/login') {
+            router.push(pathname);
+        }
+    }, [users, isAuthenticated, pathname, router]);
 
     if (loading) {
         return (
@@ -63,15 +61,14 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
 
     return (
         <div className="bg-main-bg border border-black w-screen h-full bg-cover bg-no-repeat bg-center fixed min-w-[280px] min-h-[800px]">
-            {/* Render Header if pathname is not in exclude list */}
-            {!exclude.includes(pathname) && (
+            {!exclude.includes(pathname) &&
+             (
                 <div className="h-[100px]">
                     <Header />
                 </div>
             )}
 
             <div className="h-[calc(100%_-_100px)] flex flex-col-reverse sm:flex-row">
-                {/* Render Sidebar if pathname is not in exclude list */}
                 {!exclude.includes(pathname) && (
                     <div className="flex sm:flex-col w-full sm:w-[100px]">
                         <Sidebar />
@@ -79,6 +76,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
                 )}
 
                 <div className="h-[calc(100%_-_100px)] w-full">
+                <Toaster position="top-center" reverseOrder={false}/>
                     {children}
                 </div>
             </div>

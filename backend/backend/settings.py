@@ -13,11 +13,10 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-STATIC_URL = "avatars/"
+STATIC_URL = "/avatars/"
 
 STATICFILES_DIRS = [
     BASE_DIR / "./avatars",
@@ -35,9 +34,8 @@ SECRET_KEY = 'django-insecure-^3knd(m=5&aq8zx$uw@qfy8^h5dnx75bkd)^k)b!nyv#$tu443
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    'localhost',
-]
+ALLOWED_HOSTS = ['*']
+
 
 
 # Application definition
@@ -51,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'tournament',
     'game',
     'chat',
     'rest_framework',
@@ -58,6 +57,7 @@ INSTALLED_APPS = [
     'authentication',
     'allauth',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -107,6 +107,8 @@ REST_FRAMEWORK = {
     # 'PAGE_SIZE': 1,
 }
 AUTH_USER_MODEL = 'authentication.CustomUser'
+
+
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Short lifetime for access token
@@ -162,14 +164,12 @@ ASGI_APPLICATION = 'backend.asgi.application'
 
 # 42 API OAuth settings
 INTRA_42_CLIENT_ID = 'u-s4t2ud-92bd4e0625503a1a3d309256cffd60297d8692b8710fce9d6d657fe60899bfd4'
-INTRA_42_CLIENT_SECRET = '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'
+INTRA_42_CLIENT_SECRET = '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'
 INTRA_42_REDIRECT_URI = 'http://localhost:3000'
 INTRA_42_TOKEN_URL = 'https://api.intra.42.fr/oauth/token'
 INTRA_42_AUTH_URL = 'https://api.intra.42.fr/oauth/authorize'
 
 
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
@@ -217,12 +217,24 @@ USE_I18N = True
 USE_TZ = True
 
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
+    },
+}
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000", 
+]

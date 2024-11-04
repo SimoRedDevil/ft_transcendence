@@ -1,20 +1,21 @@
 
 from django.db import models
 
-class Post(models.Model):
-    title = models.CharField(max_length=100)
-    content = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
+class Player(models.Model):
+    username = models.CharField(max_length=100, default='')
+    wins = models.IntegerField(default=0)
+    loses = models.IntegerField(default=0)
+    topScore = models.IntegerField(default=0)
+    currentXP = models.IntegerField(default=0)
+    matchCount = models.IntegerField(default=0)
+    tournamentCount = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=False)
 
-    def __str__(self):
-        return self.title
 
+class Match(models.Model):
+    player1 = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='player1_in_match')
+    player2 = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='player2_in_match')
+    score1 = models.IntegerField(default=0)
+    score2 = models.IntegerField(default=0)
+    winer = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='match_winner')
 
-class Comment(models.Model):
-    post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE)
-    author = models.CharField(max_length=50)
-    text = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f'{self.author}: {self.text[:20]}...'

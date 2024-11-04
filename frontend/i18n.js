@@ -1,42 +1,25 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
+import ArLang  from "./public/locales/ar/translation.json";
+import EnLang  from "./public/locales/en/translation.json";
+import FrLang  from "./public/locales/fr/translation.json";
+import EsLang  from "./public/locales/es/translation.json";
 
 i18n
   .use(initReactI18next) // passes i18n down to react-i18next
   .init({
     resources: {
       en: {
-        translation: {
-            // Your English translations here
-            "Select Language": "Select Language",
-            "infoormation": "Information",
-            "security": "Security",
-            "others": "Others",
-        },
+        translation: EnLang,
       },
       ar: {
-        translation: {
-            "Select Language": "اختر اللغة",
-            "infoormation": "معلومات",
-            "security": "الأمان",
-            "others": "الآخرون",
-        },
+        translation: ArLang,
       },
       fr: {
-        translation: {
-            "Select Language": "Choisir la langue",
-            "infoormation": "Information",
-            "security": "Sécurité",
-            "others": "Autres",
-        },
+        translation: FrLang,
       },
       es: {
-        translation: {
-            "Select Language": "Seleccionar idioma",
-            "infoormation": "Información",
-            "security": "Seguridad",
-            "others": "Otros",
-        },
+        translation: EsLang,
       },
     },
     lng: 'en', // default language

@@ -1,6 +1,6 @@
+'use client';
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { UserContext } from "../components/context/usercontext";
 
 export const enableTwoFactorAuth = async (fetchAuthUser) => {
   try {

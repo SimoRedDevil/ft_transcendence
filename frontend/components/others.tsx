@@ -1,5 +1,6 @@
 `use client';`
 import React from "react";
+import { useTranslation } from 'react-i18next';
 
 import { IoMdCheckmark } from "react-icons/io";
 import { useState } from "react";
@@ -7,6 +8,7 @@ import { useState } from "react";
 export default function Others() {
     const [activeBoard, setActiveBoard] = useState('default');
     const [isOnline, setIsOnline] = useState('online');
+    const { t } = useTranslation();
   return (
     <div className="text-white w-full h-full flex items-center laptop:justify-center flex-col
             overflow-y-auto no-scrollbar laptop:flex-row
@@ -19,13 +21,13 @@ export default function Others() {
                 tablet:text-[25px] tablet:h-[20%] flex justify-center items-center text-white opacity-50
                 less-than-tablet:text-[20px] less-than-tablet:h-[10%]
                 ">
-                    Game Appearance
+                    {t("Game Appearance")}
                 </h1>
                 <h1 className="tablet:text-[20px] ml-5 h-[10%]
                     less-than-tablet:text-[18px] less-than-tablet:mt-2
                         less-than-mobile:text-[16px] less-than-mobile:mt-2
                     ">
-                    Default board skin
+                    {t("Default board skin")}
                 </h1>
                 <div className="flex justify-center  w-full less-than-tablet:my-4
                 ">
@@ -55,7 +57,7 @@ export default function Others() {
                           less-than-mobile:text-[16px] less-than-mobile:mt-12
                           text-start w-full my-5 
                           ">
-                      Default game mode
+                      {t("Default game mode")}
                   </h1>
                       <div className=" w-[90%] border border-white border-opacity-40 flex items-center
                        justify-between rounded-[50px] ml-5 less-than-tablet:ml-4
@@ -68,7 +70,7 @@ export default function Others() {
                                         less-than-tablet:text-[16px]
 
                                ${isOnline === 'online' ? 'underline bg-black rounded-l-[50px]' : ''}`}>
-                                Online
+                                {t("Online")}
                                </button>
                            </div>
                            <div className=" w-1/2 h-full  bg-opacity-50
@@ -78,7 +80,7 @@ export default function Others() {
                                             less-than-tablet:text-[16px]
                                ${isOnline === 'offline' ? 'underline bg-black  rounded-r-[50px]' : ''}
                                `}>
-                                   Offline
+                                   {t("Offline")}
                                </button>
                            </div>
                 </div>
@@ -90,24 +92,24 @@ export default function Others() {
                      <h1 className=" tablet:text-[25px] my-5 h-[20%] flex justify-center items-center text-[#FF0000] opacity-70
                         less-than-tablet:text-[20px] less-than-tablet:h-[10%]
                      ">
-                         Don't mess here
+                         {t("Don't mess here")}
                      </h1>
                      <h1 className="
                          tablet:text-[20px] ml-5 pb-4 text-[#FF0000] border-b-[0.5px] border-white border-opacity-40 w-[90%]
                             less-than-tablet:text-[18px] less-than-tablet:h-[10%] 
                          ">
-                         Delete account
+                         {t("Delete account")}
                      </h1>
                      <p className=" tablet:text-sm ml-5 mt-6 w-[65%] -tracking-tight
                                 less-than-tablet:text-xs 
                      ">
-                         NB. Once you delete your account, there is no going back. Please be certain!
+                         {t("NB. Once you delete your account, there is no going back. Please be certain!")}
                      </p>
                      <div className=" flex w-full items-center justify-center rounded-[50px] mt-2">
                      <button className="rounded-[50px] mt-5 border-[0.5px] border-white border-opacity-40 
                             less-than-tablet:h-[50px] tablet:h-[80px] w-[90%] bg-gradient-to-r from-[#1A1F26]/90 to-[#000]/70">
                          <h1 className="text-[22px] text-center text-[#FF0000] 
-                         ">Delete your account</h1>
+                         ">{t("Delete your account")}</h1>
                      </button>
                      </div>
                      <div className=" flex items-center w-full justify-center rounded-[50px] mt-5">
@@ -115,7 +117,7 @@ export default function Others() {
                         less-than-tablet:h-[50px] tablet:h-[80px] bg-gradient-to-r from-[#1A1F26]/90 to-[#000]/70">
                          <h1 className="tablet:text-[22px] text-center 
                          less-than-tablet:text-[18px] less-than-mobile:text-[15px] 
-                         ">Anonymize account information</h1>
+                         ">{t("Anonymize account information")}</h1>
                      </button>
                      </div>
                 </div>

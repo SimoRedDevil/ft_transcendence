@@ -7,16 +7,19 @@
     "i18next": "^23.16.4",
     "js-cookie": "^3.0.5",
     "json-server": "^1.0.0-beta.2",
-    "next": "^14.2.15",
+    "next": "^15.0.2",
     "next-i18next": "^15.3.1",
     "nodemon": "^3.1.7",
     "p5": "^1.10.0",
+    "pnpm": "^9.12.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-hot-toast": "^2.4.1",
     "react-i18next": "^15.1.0",
     "react-icons": "^5.3.0",
     "react-router-dom": "^6.27.0",
     "react-spinners": "^0.14.1",
+    "react-toastify": "^10.0.6",
     "tailwind-scrollbar": "^3.1.0"
   },
   "scripts": {
@@ -26,12 +29,12 @@
     "lint": "next lint"
   },
   "devDependencies": {
-    "@types/node": "22.1.0",
+    "@types/node": "22.8.7",
     "@types/prop-types": "^15.7.13",
-    "@types/react": "18.3.3",
+    "@types/react": "18.3.12",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.45",
     "tailwindcss": "^3.4.13",
-    "typescript": "5.6.2"
+    "typescript": "5.6.3"
   }
 }

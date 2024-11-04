@@ -6,6 +6,23 @@ module.exports = {
   ],
   theme: {
     extend: {
+      colors: {
+        'deepSeaBlue': '#0B4464',
+      },
+      keyframes: {
+        slideInLeft: {
+          '0%': { transform: 'translateX(-100%)', opacity: '0' }, 
+          '100%': { transform: 'translateX(0)', opacity: '1' },   
+        },
+        slideInRight: {
+          '0%': { transform: 'translateX(100%)', opacity: '0' }, 
+          '100%': { transform: 'translateX(0)', opacity: '1' },   
+        },
+      },
+      animation: {
+        'slide-in-left': 'slideInLeft 1s ease forwards',
+        'slide-in-right': 'slideInRight 1s ease forwards',
+      },
       screens: {
         'mobile': '360px',
         'less-than-tablet': { 'max': '640px' },
@@ -31,4 +48,5 @@ module.exports = {
     require('tailwind-scrollbar'),
   ],
 }
+
 

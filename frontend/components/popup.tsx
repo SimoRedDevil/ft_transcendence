@@ -84,10 +84,26 @@ const Popup = ({
   
   useEffect(() => {
     users && fetchAuthUser();
-    if (users && users.username) {
+    if (users?.username) {
       setUsername(users.username);
     }
-  }, [users && users.enabeld_2fa, enable2FA, code, username]);
+  }, [users?.enabeld_2fa, enable2FA, code, username]);
+
+
+  const handleEnterPress = (event) => {
+    if (event.key === 'Enter') {
+      handelVerify();
+    }
+  };
+
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleEnterPress);
+    return () => {
+      window.removeEventListener('keydown', handleEnterPress);
+  };
+}
+, [handleEnterPress]);
 
   return (
     <div>
@@ -144,6 +160,7 @@ const Popup = ({
             flex items-center justify-center mr-2
             "
             >
+              {qrcode && (
               <img
                 className={`h-full bg-white text-white desktop:w-[250px]
               laptop:w-[170px] laptop:h-[170px] tablet:w-[250px] tablet:h-[250px] 
@@ -153,6 +170,7 @@ const Popup = ({
                 src={`${qrcode}`}
                 alt="2fa QR Code"
               />
+              )}
             </div>
           </div>
         </div>

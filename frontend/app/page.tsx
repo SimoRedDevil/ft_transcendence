@@ -1,18 +1,14 @@
 'use client';
-import React from 'react'
-import Login from './login/page'
+import React from 'react';
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
 import axios from 'axios'
-import { redirect } from 'next/dist/server/api-utils';
 import { useRouter } from 'next/navigation';
 import {UserContext} from "../components/context/usercontext";
 import { useContext } from "react";
-import Tournament from '../components/tournoment';
 
 export default function Home() {
     const router = useRouter();
-    const {setIsAuthenticated} = useContext(UserContext);
+    const {setIsAuthenticated, fetchAuthUser} = useContext(UserContext);
 
     const getCookies = async () => {
         try {
@@ -36,11 +32,10 @@ export default function Home() {
                 xsrfCookieName: 'csrftoken',  // This is the default name for the CSRF cookie in Django
                 xsrfHeaderName: 'X-CSRFToken',  // This is the header Django looks for
             });
+            await fetchAuthUser();
             setIsAuthenticated(false);
-            return response.data;
         } catch (error) {
             setIsAuthenticated(false);
-            return null;
         }
     };
     
@@ -48,7 +43,7 @@ export default function Home() {
         const csrfToken = await getCookies(); // Fetch CSRF token
         if (csrfToken) {
             await logout(csrfToken); // Use CSRF token to logout
-            router.push('/login');
+            // router.push('/login');
 
         }
     };

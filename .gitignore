@@ -1,12 +1,9 @@
 frontend/node_modules
 backend/.env
-backend/game/migrations
-backend/authentication/migrations
-backend/authentication/__pycache__
-backend/authentication/qrcodes/*
+backend/*/migrations
+backend/*/__pycache__
 frontend/db.json
 frontend/.next
 .env
 database/*
 virtualenv
-node_modules/

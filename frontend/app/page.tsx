@@ -1,17 +1,14 @@
 'use client';
-import React from 'react'
-import Login from './login/page'
+import React from 'react';
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
 import axios from 'axios'
-import { redirect } from 'next/dist/server/api-utils';
 import { useRouter } from 'next/navigation';
 import {UserContext} from "../components/context/usercontext";
 import { useContext } from "react";
 
 export default function Home() {
     const router = useRouter();
-    const {setIsAuthenticated} = useContext(UserContext);
+    const {setIsAuthenticated, fetchAuthUser} = useContext(UserContext);
 
     const getCookies = async () => {
         try {
@@ -21,8 +18,7 @@ export default function Home() {
             const csrfToken = response.data.cookies.csrftoken;
             return csrfToken;
         } catch (error) {
-            console.error('Error trying to get cookies:', error);
-            return null;
+            router.push('/login');
         }
     };
     
@@ -36,12 +32,10 @@ export default function Home() {
                 xsrfCookieName: 'csrftoken',  // This is the default name for the CSRF cookie in Django
                 xsrfHeaderName: 'X-CSRFToken',  // This is the header Django looks for
             });
+            await fetchAuthUser();
             setIsAuthenticated(false);
-            return response.data;
         } catch (error) {
-            console.error('Error trying to logout:', error);
             setIsAuthenticated(false);
-            return null;
         }
     };
     
@@ -54,28 +48,40 @@ export default function Home() {
         }
     };
     
-    // useEffect(() => {
-    // }, [users.username]);
-
     return (
         <div className='
             flex
+            w-full
+            justify-center
             items-center
-            w-[20%]
-            justify-around
             h-screen
-            ml-[1000px]
             text-white
         '>
-            <Link href="/login">
+            <Link className='
+            bg-gradient-to-r from-[#00A88C] to-[#004237]
+            text-white
+            rounded-md
+            p-2
+            m-2
+            
+            ' href="/login">
                 Login
             </Link>
-            <button onClick={
+            <button className="
+            bg-gradient-to-r from-[#00A88C] to-[#004237]
+            text-white
+            rounded-md
+            p-2
+            m-2
+
+            "
+            onClick={
                 handleLogout
 
             }>
                 log out
             </button>
+            {/* <Tournament /> */}
         </div>
     )
 }

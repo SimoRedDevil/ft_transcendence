@@ -4,6 +4,7 @@ import PasswordHelper from "./passwordHelper";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
+import {toast} from 'react-hot-toast';
 interface SignupPageProps {
   onNavigate?: () => void;
 }
@@ -37,15 +38,14 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
       const data = await response.json();
   
       if (response.ok) {
-        alert("Signup successful");
+        toast.success("Account created successfully.");
         onNavigate();
-        // router.push("/login");
       } else {
-        alert(data.message || "Signup failed, please try again.");
+        toast.error("Something went wrong.");
       }
     } catch (error) {
       //console.error("Error during signup:", error);
-      alert("An error occurred. Please try again later.");
+      toast.error("Error during signup");
     }
   };
 
@@ -118,7 +118,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
               </label>
               <div className="relative flex">
                 <input value={full_name} onChange={(e) => setFullName(e.target.value)}
-                  type="text"
+                  type="text" autoFocus
                   className="border-b-[1px] border-[#949DA2] mb-7 h-[34px] w-full focus:outline-none bg-[#131E24] pr-6"
                 />
                 <FaUserAlt className="absolute right-0.5 text-[#949DA2] top-1" />

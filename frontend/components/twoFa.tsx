@@ -1,22 +1,22 @@
+'use client';
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-
-export const enableTwoFactorAuth = async () => {
-    try {
-      const response = await axios.get(
-        "http://localhost:8000/api/auth/enable-2fa/",
-        {
-          withCredentials: true, // Ensure cookies are included in the request
-        }
-      );
-      return response.data; // Return response data if needed
-    } catch (error) {
-      // Handle error
-      console.error("Error enabling 2FA:", error);
-      return null;
+export const enableTwoFactorAuth = async (fetchAuthUser) => {
+  try {
+    const response = await axios.get(
+      "http://localhost:8000/api/auth/enable-2fa/",
+      {
+        withCredentials: true, // Ensure cookies are included in the request
+      }
+    );
+    if (response.status === 200) {
+      fetchAuthUser();
     }
-  };
+  } catch (error) {
+    return null;
+  }
+};
 
 export  const disableTwoFactorAuth = async () => {
     try {
@@ -28,10 +28,19 @@ export  const disableTwoFactorAuth = async () => {
       );
       return response.data; // Return response data if needed
     } catch (error) {
-      // Handle error
-      console.error("Error disabling 2FA:", error);
       return null;
     }
   };
 
-  
+  export const verify2FA = async (code) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/api/auth/verify-2fa/?code=${code}`,
+        {
+          withCredentials: true, // Ensure cookies are included in the request
+        }
+      );
+      return response.status;
+    } catch (error){
+    }
+  };

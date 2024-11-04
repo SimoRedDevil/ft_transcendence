@@ -25,3 +25,16 @@
         scrollbar-width: none;  /* Firefox */
   }
 }
+
+/* globals.css or a custom CSS file */
+input:-webkit-autofill,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:hover {
+  -webkit-box-shadow: 0 0 0px 1000px #e0f7fa inset; /* background color */
+  color: #004d40; /* text color */
+  border: 1px solid #004d40; /* border color */
+}
+
+input:-webkit-autofill {
+  transition: background-color 5000s ease-in-out 0s; /* Prevent flashing */
+}

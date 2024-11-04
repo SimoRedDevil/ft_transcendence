@@ -1,26 +1,34 @@
 import axios from 'axios';
-
+import { useRouter } from 'next/router';
+import { useContext } from 'react';
+import { UserContext } from './context/usercontext';
 const API_URL = 'http://localhost:8000/api/auth/42'; // Adjust to your backend URL
 
-// Function to handle the callback after login
-export const handle42Callback = async (code) => {
-  try {
-    const response = await axios.get(`${API_URL}/callback/`, {
-      params: { code }, // Query parameter handled by Axios
-    });
 
-    // Access the response data
-    const data = response.data;
-    return data; // This should include the tokens and user info
-  } catch (error) {
-    // Enhanced error logging
-    if (error.response) {
-      //console.error('Server responded with an error:', error.response.data);
-    } else if (error.request) {
-      //console.error('No response received from server:', error.request);
-    } else {
-      //console.error('Error during request setup:', error.message);
-    }
-    throw error;
+const caallBack42 = async (callbackCode) => {
+  const router = useRouter();
+  const { setIsAuthenticated, setUsers } = useContext(UserContext);
+  try {
+      if (callbackCode) 
+      {
+          const response = await axios.get(`http://localhost:8000/api/auth/42/callback/?code=${callbackCode}`,
+          {
+              withCredentials: true
+          });
+          if (response.status === 200) {
+              const user = response.data;
+              setUsers(user);
+              if (user) {
+                  setIsAuthenticated(true);
+                  router.push('/');
+              }
+          }
+          return response;
+      }
+      } catch (error) {
+          setIsAuthenticated(false);
+          router.push('/login');
+      }
   }
-};
+
+export default caallBack42;

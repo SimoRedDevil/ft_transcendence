@@ -6,26 +6,29 @@ import { RiUserForbidFill } from "react-icons/ri";
 import { BsFillSendFill } from "react-icons/bs";
 import { MdEmojiEmotions } from "react-icons/md";
 import EmojiPicker from 'emoji-picker-react';
+import { IoIosArrowRoundBack } from "react-icons/io";
 import { useState } from 'react';
 import { useEffect } from 'react';
 import axios from 'axios';
+import {checkStringEmpty} from '../../utils/tools';
 import { useUserContext } from '../../components/context/usercontext';
+import { useChatContext } from '../../components/context/ChatContext';
+// import { get_human_readable_time } from '../../utils/tools';
 
-type ChatProps = {
-  conversationID: any,
-  socket: any,
-  otherUser: any,
-  lastMessageRef: any,
-  data: any
-}
-
-function Chat({conversationID, socket, otherUser, lastMessageRef, data}: ChatProps) {
+function Chat() {
   const [showEmoji, setShowEmoji] = useState(false)
   const [input, setInput] = useState('')
-  const [messages, setMessages] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const user = useUserContext()
-  const refScroll = useRef(null)
+  const {users, loading} = useUserContext()
+  const
+  {
+    selectedConversation,
+    otherUser,
+    ws,
+    messages,
+    messagesLoading,
+    isMobile,
+    lastMessageRef
+  } = useChatContext()
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
@@ -41,65 +44,37 @@ function Chat({conversationID, socket, otherUser, lastMessageRef, data}: ChatPro
     setInput((prevInput) => prevInput + emojiObject.emoji)
   }
 
-  const fetchMessages = async (conversationID) => {
-    try {
-      const response = await axios.get('http://localhost:8000/api/chat/messages/', {
-          withCredentials: true,
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          params: {
-            conversation_id: conversationID
-          }
-      });
-      setMessages(response.data)
-      setIsLoading(false)
-    } catch (error) {
-      setIsLoading(false)
-      console.log(error)
-    }
-  }
-
-  const scrollToLastMessage = () => {
-    if (refScroll.current) {
-      refScroll.current.scrollIntoView({ behavior: 'smooth' })
-    }
-  };
-
-  useEffect(() => {
-    fetchMessages(conversationID)
-  }, [conversationID])
-
-  useEffect(() => {
-    scrollToLastMessage()
-  }, [data, conversationID])
-
   const handleSendMessage = () => {
-    console.log(otherUser.username)
-    socket.current.send(JSON.stringify({
-      'conversation_id': conversationID,
-      'message': input,
-      'sent_by_user': user.users.username,
-      'sent_to_user': otherUser.username
+    if (checkStringEmpty(input)) return;
+    ws.current.send(JSON.stringify({
+      'conversation_id': selectedConversation.id,
+      'sent_by_user': users.username,
+      'sent_to_user': otherUser.username,
+      'content': input
     }))
     setInput('')
   }
 
-  if (isLoading || user === null || user.users === null) return <div>Loading...</div> ;
+  if (selectedConversation === null) return;
 
+  if (loading === true || lastMessageRef === null || messages === null) return <div>Loading...</div> ;
 
   return (
-    <div className='lg:w-[calc(100%_-_400px)] 2xl:w-[calc(100%_-_550px)] hidden lg:flex'>
-      <div className='flex items-center'>
-        <hr className='border border-white h-[90%] border-opacity-30'></hr>
-      </div>
+    <div className={`h-full lg:w-[calc(100%_-_400px)] 2xl:w-[calc(100%_-_550px)] lg:flex ${(isMobile && selectedConversation) ? 'flex' : 'hidden'}`}>
+      {
+        (!isMobile) &&
+        <div className='flex items-center'>
+          <hr className='border border-white h-[90%] border-opacity-30'></hr>
+        </div>
+      }
+
       <div className='w-full flex flex-col'>
         <div className='flex p-[20px] justify-between'>
-          <div className='flex flex-row gap-3'>
+          <div className='flex flex-row gap-4'>
             <div className='rounded-full h-[80px] w-[80px] bg-red-700'>
               {/* <Image className='rounded-full' src={data[0].image} width={60} height={60} alt='avatar'/> */}
             </div>
-            <div className='flex flex-col justify-center gap-3'>
+            <div className='flex flex-col justify-center gap-4'>
               <span className='text-[20px]'>{otherUser.full_name}</span>
               <span className='text-[18px] text-white text-opacity-65'>{otherUser.online === true ? 'Active Now' : 'Offline'}</span>
             </div>
@@ -117,74 +92,29 @@ function Chat({conversationID, socket, otherUser, lastMessageRef, data}: ChatPro
           <div className='w-full h-[89%] relative'>
             <div className='h-full no-scrollbar overflow-y-auto scroll-smooth'>
               {
-                messages.map((message) => (
-                    <div ref={message.id === messages.length - 1 ? refScroll : null} key={message.id} className='flex flex-col gap-20 mb-5'>
-                        {
-                          message.sender_info.username === user.users.username ?
-                          <div className='flex flex-col gap-2'>
-                            <div className='w-[100%] flex justify-end'>
-                              <div className='border border-white border-opacity-20 rounded-[30px] p-[20px] bg-black max-w-[75%]'>
-                                <span className='text-white text-[20px]'>{message.content}</span>
-                              </div>
-                            </div>
-                            <div className='w-[100%] flex justify-end'>
-                              <div className='flex flex-col justify-center'>
-                                <span className='text-white text-opacity-60 text-[16px]'>{message.get_human_readable_time}</span>
-                              </div>
-                            </div>
-                          </div> :
-                          <div className='flex flex-col gap-2'>
-                            <div className='w-[100%] flex justify-start'>
-                              <div className='border border-white border-opacity-20 rounded-[30px] p-[20px] bg-[#0D161A] max-w-[75%]'>
-                                <span className='text-white text-[20px]'>{message.content}</span>
-                              </div>
-                            </div>
-                            <div className='max-w-[75%] flex justify-start'>
-                              <div className='flex flex-col justify-center'>
-                                <span className='text-white text-opacity-60 text-[16px]'>{message.get_human_readable_time}</span>
-                              </div>
-                            </div>
-                        </div>
-                        }
-                    </div>
-                ))
-              }
-              {
-                data.map((message, index) => (
-                  <div ref={index === data.length - 1 ? refScroll : null} key={index} className='flex flex-col gap-20 mb-5'>
-                    {
-                      message.sent_by_user === user.users.username ?
-                      <div className='flex flex-col gap-3'>
-                        <div className='w-[100%] flex justify-end'>
-                          <div className='border border-white border-opacity-20 rounded-[30px] p-[20px] bg-black max-w-[75%]'>
-                            <span className='text-white text-[20px]'>{message.message}</span>
-                          </div>
-                        </div>
-                        <div className='max-w-[100%] flex justify-end'>
-                            <div className='flex flex-col justify-center'>
-                              <span className='text-white text-opacity-60 text-[16px]'>{message.timestamp}</span>
-                            </div>
-                        </div>
-                      </div> :
-                      <div className='flex flex-col gap-3'>
-                        <div className='w-[100%] flex justify-start'>
-                          <div className='border border-white border-opacity-20 rounded-[30px] p-[20px] bg-[#0D161A] max-w-[75%]'>
-                            <span className='text-white text-[20px]'>{message.message}</span>
-                          </div>
-                        </div>
-                        <div className='max-w-[100%] flex justify-start'>
-                            <div className='flex flex-col justify-center'>
-                              <span className='text-white text-opacity-60 text-[16px]'>{message.timestamp}</span>
-                            </div>
-                          </div>
-                    </div>
-                    }
-                  </div>
-                ))    
+                messages.map((message, index) => {
+                  // console.log(message.conversation_id, message.content)
+                  return (
+                    message.conversation_id === selectedConversation.id ?
+                    <div ref={index === messages.length - 1 ? lastMessageRef : null} key={message.id} className={`flex flex-col mb-4 ${(message.sent_by_user === users.username || (message.sender !== undefined && message.sender.username === users.username)) ? 'items-end' : 'items-start'}`}>
+                      <div className={`flex items-center border border-white border-opacity-20 rounded-[30px] min-h-[50px] max-w-[75%] ${(message.sent_by_user === users.username || (message.sender !== undefined && message.sender.username === users.username)) ? 'bg-[#0D161A]' : 'bg-black'}`}>
+                        <span className='text-white text-opacity-90 p-[20px]'>{message.content}</span>
+                      </div>
+                      <div className=''>
+                        <span className='text-white text-opacity-50 text-[0.8rem]'>{message.get_human_readable_time}</span>
+                      </div>
+                    </div> : null
+                    // <div key={message.id} className={(message.sent_by_user === users.username || (message.sender !== undefined && message.sender.username === users.username)) ? 'flex flex-row-reverse' : 'flex flex-row'}>
+                    //   <div className={(message.sent_by_user === users.username || (message.sender !== undefined && message.sender.username === users.username)) ? 'bg-[#0D161A]' : 'bg-black'}>
+                    //     <span className='text-white text-opacity-90 p-[20px]'>{message.content}</span>
+                    //   </div>
+                    // </div>
+                  )
+                })
               }
             </div>
             <div className={(showEmoji) ? 'flex absolute top-[calc(100%_-_430px)] left-[calc(100%_-_400px)] overflow-hidden' : 'hidden'}>
-              <EmojiPicker onEmojiClick={handleEmojiClick} width={400} theme='dark' emojiStyle='google' searchDisabled={false} lazyLoadEmojis={true}/>
+              {/* <EmojiPicker onEmojiClick={handleEmojiClick} width={400} theme='dark' emojiStyle='google' searchDisabled={false} lazyLoadEmojis={true}/> */}
             </div>
           </div>
           <div className='w-full h-[100px] bg-transparent flex items-center justify-center'>

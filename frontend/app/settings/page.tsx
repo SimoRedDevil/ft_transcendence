@@ -9,10 +9,11 @@ import Security from "../../components/security";
 import Others from "../../components/others";
 import { TfiLayoutGrid3Alt } from "react-icons/tfi";
 import { useState } from "react";
-import {UserProvider, useUserContext} from "../../components/context/usercontext";
+import { useTranslation } from 'react-i18next';
 
 export default function Home() {
     const [activeComponent, setActiveComponent] = useState('information');
+    const { t } = useTranslation();
 
   const renderComponent = () => {
     switch (activeComponent) {
@@ -54,7 +55,7 @@ export default function Home() {
                     `}>
                     <IoIosInformationCircle className="desktop:w-[45px] desktop:h-[45px] text-white tablet:mr-1 laptop:mr-2 less-than-tablet:hidden
                       mobile:w-[30px] mobile:h-[30px] less-than-tablet:h-[20px] less-than-tablet:w-[20px]" />
-                    <h1 className="laptop:text-[22px] text-center tablet:text-[16px] mobile:text-[16px] flex justify-center">Information</h1>
+                    <h1 className="laptop:text-[22px] text-center tablet:text-[16px] mobile:text-[16px] flex justify-center">{t("Information")}</h1>
                 </button>
                 <button onClick={() => setActiveComponent('language')}
                 className={`
@@ -68,7 +69,7 @@ export default function Home() {
                 `}>
                     <FaFlag className="desktop:w-[45px] desktop:h-[45px] text-white tablet:mr-1 laptop:mr-2 less-than-tablet:hidden
                       mobile:w-[30px] mobile:h-[30px] less-than-tablet:h-[20px] less-than-tablet:w-[20px]" />
-                    <h1 className="laptop:text-[22px] text-center tablet:text-[16px] mobile:text-[16px] ">Language</h1>
+                    <h1 className="laptop:text-[22px] text-center tablet:text-[16px] mobile:text-[16px] ">{t("Language")}</h1>
                 </button>
                 <button onClick={() => setActiveComponent('security')}
                 className={`
@@ -81,7 +82,7 @@ export default function Home() {
                 `}>
                     <PiLockKeyFill className="desktop:w-[45px] desktop:h-[45px] text-white tablet:mr-1 laptop:mr-2 less-than-tablet:hidden
                       mobile:w-[30px] mobile:h-[30px] less-than-tablet:h-[20px] less-than-tablet:w-[20px]" />
-                    <h1 className="laptop:text-[22px] text-center tablet:text-[16px] mobile:text-[16px] flex justify-center">Security</h1>
+                    <h1 className="laptop:text-[22px] text-center tablet:text-[16px] mobile:text-[16px] flex justify-center">{t("Security")}</h1>
                 </button>
                 <button onClick={() => setActiveComponent('others')}
                 className={`
@@ -96,7 +97,7 @@ export default function Home() {
             `}>
                     <TfiLayoutGrid3Alt className="desktop:w-[30px] desktop:h-[30px] text-white tablet:mr-1 laptop:mr-2 less-than-tablet:hidden
                       mobile:w-[25px] mobile:h-[25px] less-than-tablet:h-[20px] less-than-tablet:w-[20px]" />
-                    <h1 className="laptop:text-[22px] text-center tablet:text-[16px] mobile:text-[16px] flex justify-center">Others</h1>
+                    <h1 className="laptop:text-[22px] text-center tablet:text-[16px] mobile:text-[16px] flex justify-center">{t("Others")}</h1>
                 </button>
             </div>
             {renderComponent()}

@@ -1,30 +1,31 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import SigninPage from "../../components/signinPage";
 import SignupPage from "../../components/signupPage";
+import { UserContext } from "../../components/context/usercontext";
+import { useContext } from "react";
+import TwofaVerify from "../../components/twofaVerify";
 
 const Login: React.FC = () => {
-  // Boolean state to track whether the user is on the Signin or Signup page
   const [isLogin, setIsLogin] = useState(true);
+  const { users, isAuthenticated } = useContext(UserContext);
 
-  // Function to navigate to the Signup page
   const handleNavigateToSignup = () => {
     if (isLogin) {
-      setIsLogin(false); // Navigate to SignupPage only if currently on SigninPage
+      setIsLogin(false);
     }
   };
 
-  // Function to navigate to the Signin page
   const handleNavigateToSignin = () => {
     if (!isLogin) {
-      setIsLogin(true); // Navigate to SigninPage only if currently on SignupPage
+      setIsLogin(true);
     }
   };
 
   return (
     <div className="relative w-full h-screen overflow-hidden">
       {isLogin ? (
-        <SigninPage onNavigate={handleNavigateToSignup} />
+        <SigninPage onNavigate={handleNavigateToSignup} /> // Pass the success handler
       ) : (
         <SignupPage onNavigate={handleNavigateToSignin} />
       )}

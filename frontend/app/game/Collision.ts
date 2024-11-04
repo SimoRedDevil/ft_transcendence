@@ -20,7 +20,7 @@ export function Collision(Ball: ball, p: player): boolean{
 
 export function handleCollision(Ball: ball, Player: player, Walls: walls) {
     let colPoint = Ball.ballPosX - (Player.x + Player.paddleWidth / 2);
-    colPoint /= (Player.paddleWidth / 2);
+    colPoint /= (Player.paddleWidth / 2); // normalizing
     let Angle = colPoint * Math.PI / 4;
     let dir = (Ball.ballPosY < Walls.wallsHeight / 2) ? 1 : -1;
     

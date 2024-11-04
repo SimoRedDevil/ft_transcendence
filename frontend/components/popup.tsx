@@ -1,11 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import axios from "axios";
-import {
-  UserProvider,
-  useUserContext,
-} from "../components/context/usercontext";
-import { enableTwoFactorAuth, disableTwoFactorAuth } from "./twoFa";
-import { headers } from "next/headers";
+import { useContext } from "react";
+import {disableTwoFactorAuth, verify2FA } from "./twoFa";
+import { UserContext } from '../components/context/usercontext';
+
 
 const Popup = ({
   isOpen,
@@ -14,10 +12,11 @@ const Popup = ({
   setEnable2FA,
   code,
   setCode,
+  qrcode,
 }) => {
   const [values, setValues] = useState(["", "", "", "", "", ""]);
   const [username, setUsername] = useState("");
-  const { users, fetchUsers } = useUserContext();
+  var { users, setTry2fa, fetchAuthUser} = useContext(UserContext);
 
   const handleChange = (e, index) => {
     const { value } = e.target;
@@ -52,51 +51,59 @@ const Popup = ({
     setValues(["", "", "", "", "", ""]);
     setCode("");
     setIsOpen(false);
+    setEnable2FA(enable2FA);
+    setTry2fa(false);
   };
 
-  const enabel2fabutton = async () => {
-    if (users) {
-      setUsername(users.username);
-      await enableTwoFactorAuth();
-      setEnable2FA(users.enabeld_2fa);
-      // await fetchUsers();
-    }
-  };
   const desable2fabutton = async () => {
     if (users) {
-      setUsername(users.username);
-      await disableTwoFactorAuth();
-      setEnable2FA(users.enabeld_2fa);
-      // await fetchUsers();
+      disableTwoFactorAuth();
+      setEnable2FA(false);
+      await fetchAuthUser();
     }
   };
 
-  const verify2FA = async () => {
-    try {
-      const csrftoken = document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1];
-      const response = await axios.post(
-        `http://localhost:8000/api/auth/verify-2fa/`,
-        { code: code },  // Keep the code in the body
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken,  // CSRF token in headers
-          },
-          withCredentials: true,
+  const handelVerify = async () => {
+    const status = await verify2FA(code)
+    if (status == 200) {
+      if (users.enabeld_2fa) {
+        desable2fabutton()
+        setTry2fa(false)
+      } else {
+        if (status == 200) {
+          setTry2fa(true);
         }
-      );
-    } catch (error) {
-      console.error("Error verifying 2FA:", error);
-    }
-  };
+      }
+    clearValues();
+    setIsOpen(false);
+    setEnable2FA(users.enabeld_2fa);
+  }
+    fetchAuthUser();
+    
+  }
   
   useEffect(() => {
-    // fetchUsers();
-    if (users && users.username) {
+    users && fetchAuthUser();
+    if (users?.username) {
       setUsername(users.username);
-      setEnable2FA(users.enabeld_2fa);
     }
-  }, [users && enable2FA]);
+  }, [users?.enabeld_2fa, enable2FA, code, username]);
+
+
+  const handleEnterPress = (event) => {
+    if (event.key === 'Enter') {
+      handelVerify();
+    }
+  };
+
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleEnterPress);
+    return () => {
+      window.removeEventListener('keydown', handleEnterPress);
+  };
+}
+, [handleEnterPress]);
 
   return (
     <div>
@@ -135,20 +142,14 @@ const Popup = ({
                 <button
                   type="submit"
                   className="bg-gradient-to-r from-[#1A1F26]/90 to-[#000]/70 text-white p-2 px-4 rounded-lg border-[0.5px] border-white border-opacity-40 "
-                  onClick={() => {
-                    !enable2FA
-                      ? verify2FA() : verify2FA() && desable2fabutton();
-                    isOpen
-                      ? setIsOpen(false) && setEnable2FA(false)
-                      : setIsOpen(true) && setEnable2FA(true);
-                  }}
+                  onClick={handelVerify}
                   disabled={values.some((val) => val === "")} // Disable until all fields are filled
                 >
                   Verify
                 </button>
                 <button
                   className="bg-gradient-to-r from-[#1A1F26]/90 to-[#000]/70 text-white p-2 px-4 rounded-lg border-[0.5px] border-white border-opacity-40 "
-                  onClick={() => clearValues()}
+                  onClick={clearValues}
                 >
                   Close
                 </button>
@@ -159,15 +160,17 @@ const Popup = ({
             flex items-center justify-center mr-2
             "
             >
+              {qrcode && (
               <img
                 className={`h-full bg-white text-white desktop:w-[250px]
               laptop:w-[170px] laptop:h-[170px] tablet:w-[250px] tablet:h-[250px] 
               less-than-tablet:w-[200px] less-than-tablet:h-[200px]
               desktop:h-[250px] rounded-[30px] 
               `}
-                src={`http://localhost:8000/qrcodes/${username}.png`}
+                src={`${qrcode}`}
                 alt="2fa QR Code"
               />
+              )}
             </div>
           </div>
         </div>

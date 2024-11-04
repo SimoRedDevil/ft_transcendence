@@ -1,5 +1,6 @@
 from django.shortcuts import redirect
 from django.utils.deprecation import MiddlewareMixin
+from django.http import HttpResponsePermanentRedirect
 
 class AuthRequiredMiddleware(MiddlewareMixin):
     """
@@ -26,3 +27,15 @@ class AuthRequiredMiddleware(MiddlewareMixin):
             # Check if the user is authenticated
             if not request.user.is_authenticated:
                 return redirect(login_path)  # Redirect to the login page
+
+
+
+class TrailingSlashMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if not request.path.endswith('/') and not request.path.startswith('/admin'):
+            return HttpResponsePermanentRedirect(request.path + '/')
+        response = self.get_response(request)
+        return response

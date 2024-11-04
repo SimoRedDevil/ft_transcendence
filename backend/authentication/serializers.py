@@ -6,7 +6,19 @@ class SignUpSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['full_name', 'username', 'email', 'password']
-        extra_kwargs = {'password': {'write_only': True},
+        extra_kwargs = {'password': {'write_only': True, 'required': True,
+            'min_length': 8,
+            'max_length': 20,
+            },
+            'full_name': {'required': True, 'max_length': 20,
+                'min_length': 9,
+            },
+            'username': {'required': True, 'max_length': 20,
+                'min_length': 9,
+            },
+            'email': {'required': True, 'max_length': 50,
+                'min_length': 9,
+            },
         }
 
     def create(self, validated_data):
@@ -37,9 +49,8 @@ class LoginSerializer(serializers.Serializer):
             return data
         raise serializers.ValidationError("Invalid credentials")
 
-class UserSerializer(serializers.ModelSerializer):
-    avatar_url = serializers.SerializerMethodField()
 
+class Intra42UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = '__all__'
@@ -47,7 +58,14 @@ class UserSerializer(serializers.ModelSerializer):
             'password': {'write_only': True},
         }
 
-    def get_avatar_url(self, obj):
-        if obj.avatar_url:
-            return f"http://localhost:8000/api/auth/{obj.avatar_url.url}"
-        return None  # or return a default URL if no avatar exists
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'full_name', 'username', 'email', 'avatar_url', 'tournament_name', 
+            'tournament_score', 'enabeld_2fa', 'twofa_verified', 'qrcode_dir', 'qrcode_path',
+            'level', 'matches', 'wins', 'losses', 'draws', 'profile_visited',
+            'friends_count', 'top_score', 'tournaments', 'online_matches',
+            'offline_matches', 'current_xp', 'target_xp', 'online']
+        extra_kwargs = {
+            'password': {'write_only': True},
+        }

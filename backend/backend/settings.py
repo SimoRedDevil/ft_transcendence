@@ -13,11 +13,10 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-STATIC_URL = "avatars/"
+STATIC_URL = "/avatars/"
 
 STATICFILES_DIRS = [
     BASE_DIR / "./avatars",
@@ -35,9 +34,8 @@ SECRET_KEY = 'django-insecure-^3knd(m=5&aq8zx$uw@qfy8^h5dnx75bkd)^k)b!nyv#$tu443
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    'localhost',
-]
+ALLOWED_HOSTS = ['*']
+
 
 
 # Application definition
@@ -51,16 +49,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'tournament',
     'game',
     'chat',
     'rest_framework',
-    'rest_framework.authtoken',
     'corsheaders',
     'authentication',
     'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.oauth2',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
 ]
@@ -75,31 +70,23 @@ CHANNEL_LAYERS = {
     }
 }
 
-SITE_ID = 1
 
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
-
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
-
-SOCIALACCOUNT_PROVIDERS = {
-    'oauth2': {
-        'APP': {
-            'client_id': 'u-s4t2ud-92bd4e0625503a1a3d309256cffd60297d8692b8710fce9d6d657fe60899bfd4',
-            'secret': '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',
-            'key': '',
-        },
-        'SCOPE': ['public'],
-        'AUTH_PARAMS': {'access_type': 'offline'},
-        'METHOD': 'oauth2',
-        'AUTHORIZE_URL': 'https://api.intra.42.fr/oauth/authorize',
-        'ACCESS_TOKEN_URL': 'https://api.intra.42.fr/oauth/token',
-        'PROFILE_URL': 'https://api.intra.42.fr/v2/me',  # For getting user data
-        'REDIRECT_URI': 'http://localhost:8000/accounts/42/callback/',
-    },
-}
+# SOCIALACCOUNT_PROVIDERS = {
+#     'oauth2': {
+#         'APP': {
+#             'client_id': 'u-s4t2ud-92bd4e0625503a1a3d309256cffd60297d8692b8710fce9d6d657fe60899bfd4',
+#             'secret': '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',
+#             'key': '',
+#         },
+#         'SCOPE': ['public'],
+#         'AUTH_PARAMS': {'access_type': 'offline'},
+#         'METHOD': 'oauth2',
+#         'AUTHORIZE_URL': 'https://api.intra.42.fr/oauth/authorize',
+#         'ACCESS_TOKEN_URL': 'https://api.intra.42.fr/oauth/token',
+#         'PROFILE_URL': 'https://api.intra.42.fr/v2/me',  # For getting user data
+#         'REDIRECT_URI': 'http://localhost:8000/accounts/42/callback/',
+#     },
+# }
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
@@ -116,8 +103,12 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    # 'PAGE_SIZE': 1,
 }
 AUTH_USER_MODEL = 'authentication.CustomUser'
+
+
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Short lifetime for access token
@@ -145,6 +136,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'allauth.account.middleware.AccountMiddleware', 
     'authentication.middleware.AuthRequiredMiddleware', 
+    'authentication.middleware.TrailingSlashMiddleware', 
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -172,14 +164,12 @@ ASGI_APPLICATION = 'backend.asgi.application'
 
 # 42 API OAuth settings
 INTRA_42_CLIENT_ID = 'u-s4t2ud-92bd4e0625503a1a3d309256cffd60297d8692b8710fce9d6d657fe60899bfd4'
-INTRA_42_CLIENT_SECRET = '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'
+INTRA_42_CLIENT_SECRET = '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'
 INTRA_42_REDIRECT_URI = 'http://localhost:3000'
 INTRA_42_TOKEN_URL = 'https://api.intra.42.fr/oauth/token'
 INTRA_42_AUTH_URL = 'https://api.intra.42.fr/oauth/authorize'
 
 
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
@@ -202,6 +192,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+            'OPTIONS': {
+                'min_length': 8,
+            }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -224,12 +217,24 @@ USE_I18N = True
 USE_TZ = True
 
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
+    },
+}
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000", 
+]

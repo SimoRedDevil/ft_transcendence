@@ -4,7 +4,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from django.contrib.auth import login, authenticate, logout
-from .serializers import SignUpSerializer, LoginSerializer, UserSerializer
+from .serializers import SignUpSerializer, LoginSerializer, UserSerializer, Intra42UserSerializer
 from .models import CustomUser
 from django.http import JsonResponse
 import requests
@@ -24,76 +24,83 @@ import pyotp
 from django.http import HttpResponse
 from urllib.parse import urljoin
 from rest_framework_simplejwt.exceptions import TokenError
+import shutil
+import os
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
 
 
+
 INTRA_42_AUTH_URL = settings.INTRA_42_AUTH_URL
-
-def intra_42_login(request):
-    """
-    Redirects user to 42 Intra login page to authenticate.
-    """
-    return redirect(
-        f'{INTRA_42_AUTH_URL}?client_id={settings.INTRA_42_CLIENT_ID}&redirect_uri={settings.INTRA_42_REDIRECT_URI}&response_type=code'
-    )
-
-def intra_42_callback(request):
-    code = request.GET.get('code')
-    # Exchange the authorization code for an access token
-    token_url = settings.INTRA_42_TOKEN_URL
-    data = {
-        'grant_type': 'authorization_code',
-        'client_id': settings.INTRA_42_CLIENT_ID,
-        'client_secret': settings.INTRA_42_CLIENT_SECRET,
-        'code': code,
-        'redirect_uri': settings.INTRA_42_REDIRECT_URI
-    }
-
-    response = requests.post(token_url, data=data) # Send a POST request to the token URL
-    if response.status_code == 200:
-        # Successful token exchange
-        tokens = response.json()
-        access_token = tokens['access_token']
-        refresh_token = tokens.get('refresh_token', None)
-        # Use the access token to fetch user data from 42 API
-        user_info = fetch_42_user_data(access_token)
-        # Create the response
-        response = JsonResponse({})
-        response.set_cookie(
-            key='access_token', 
-            value=access_token, 
-            httponly=True, 
-            secure=True,  # Use secure=True in production to ensure cookies are sent over HTTPS
-        )
-        return response
-
-    else:
-        # Error in token exchange
-        return JsonResponse({
-            "error": "Failed to exchange authorization code for access token."
-        }, status=400)
-
-def fetch_42_user_data(access_token):
-    """
-    Fetches user data from the 42 API using the access token.
-    """
-    user_info_url = 'https://api.intra.42.fr/v2/me'
-    headers = {
-        'Authorization': f'Bearer {access_token}'
-    }
-
-    response = requests.get(user_info_url, headers=headers)
-
-    if response.status_code == 200:
-        return response.json()
-    return None
-
 
 # Sign Up View
 class SignUpView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = SignUpSerializer
 
+class GenerateAuthUrl(APIView):
+    def get(self, request):
+        auth_url = (
+            f"https://api.intra.42.fr/oauth/authorize?"
+            f"client_id={settings.INTRA_42_CLIENT_ID}&redirect_uri={settings.INTRA_42_REDIRECT_URI}"
+            "&response_type=code"
+        )
+        return redirect(auth_url)
+
+
+def fillUser(user, user_info):
+    user.full_name = user_info['displayname']
+    user.email = user_info['email']
+    user.online = True
+    user.avatar_url = user_info['image']['link']
+    user.intra_islogged = True
+    user.save()
+    return user
+
+# Callback Intra View
+class Intra42Callback(APIView):
+    def get(self, request):
+        code = request.GET.get('code')
+        data = {
+            'grant_type': 'authorization_code',
+            'client_id': settings.INTRA_42_CLIENT_ID,
+            'client_secret': settings.INTRA_42_CLIENT_SECRET,
+            'code': code,
+            'redirect_uri': settings.INTRA_42_REDIRECT_URI
+        }
+        response = requests.post('https://api.intra.42.fr/oauth/token', data=data)
+        if response.status_code != 200:
+            return Response({'error': 'Invalid code'}, status=status.HTTP_400_BAD_REQUEST)
+        response_data = response.json()
+        access_token = response_data['access_token']
+        if not access_token:
+            return Response({'error': 'Invalid access token'}, status=status.HTTP_400_BAD_REQUEST)
+        user_info = requests.get('https://api.intra.42.fr/v2/me', headers={'Authorization': f'Bearer {access_token}'}).json()
+
+        user, created = CustomUser.objects.get_or_create(username=user_info['login'])
+        user_data = Intra42UserSerializer(user).data
+        authenticate(request, username=user_data['username'])
+        login(request, user)
+        user = fillUser(user, user_info)
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+        response = Response(status=status.HTTP_200_OK)
+        response.set_cookie(
+            key='access',
+            value=str(refresh.access_token),
+            httponly=True,
+            secure=False, 
+            samesite='Lax',  # Optional, but recommended
+        )
+        response.set_cookie(
+            key='refresh',
+            value=str(refresh),
+            httponly=True,
+            secure=False, 
+            samesite='Lax',  # Optional, but recommended
+        )
+        user_data = Intra42UserSerializer(user).data
+        response.data = user_data
+        return response
 # Login View
 class LoginView(APIView):
     serializer_class = LoginSerializer
@@ -112,25 +119,28 @@ class LoginView(APIView):
             if user is not None:
                 login(request, user)
                 user.online = True
-                user.save()
                 refresh = RefreshToken.for_user(user)
+                acess_token = str(refresh.access_token)
+                user.oldToken = acess_token
+                user.save()
                 response = Response(status=status.HTTP_200_OK)
 
                 # Set the access and refresh tokens in cookies
                 response.set_cookie(
                     key='access',
-                    value=str(refresh.access_token),
+                    value=acess_token,
                     httponly=True,
-                    secure=False,  # Set to True in production
+                    secure=False, 
                     samesite='Lax',  # Optional, but recommended
                 )
                 response.set_cookie(
                     key='refresh',
                     value=str(refresh),
                     httponly=True,
-                    secure=False,  # Set to True in production
+                    secure=False, 
                     samesite='Lax',  # Optional, but recommended
                 )
+
                 return response
             else:
                 return Response("Invalid credentials", status=status.HTTP_401_UNAUTHORIZED)
@@ -144,7 +154,6 @@ class ValidateTokenView(APIView):
 
         if not access_token:
             return Response({'error': 'Access token not found in cookies'}, status=status.HTTP_401_UNAUTHORIZED)
-
         try:
             # Validate the access token
             decoded_token = AccessToken(access_token)
@@ -156,60 +165,6 @@ class ValidateTokenView(APIView):
         except Exception:
             return Response({'valid': False, 'error': 'Invalid or expired access token'}, status=status.HTTP_401_UNAUTHORIZED)
 
-class GenerateAccessToken(APIView):
-    permission_classes = (AllowAny,)
-
-    def post(self, request, *args, **kwargs):
-        refresh_token = request.data.get("refresh")
-
-        if not refresh_token:
-            return Response({"error": "Refresh token is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            # Decode the refresh token
-            refresh = RefreshToken(refresh_token)
-
-            # Check if the refresh token has already been blacklisted
-            jti = refresh['jti']  # Extract the JWT ID from the refresh token
-            if BlacklistedToken.objects.filter(token__jti=jti).exists():
-                return Response({"error": "Refresh token is blacklisted"}, status=status.HTTP_401_UNAUTHORIZED)
-
-            # Blacklist the old refresh token explicitly
-            try:
-                refresh.blacklist()  # Blacklist the current refresh token
-            except BlacklistError:
-                return Response({"error": "Could not blacklist the token"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-            # Generate new access token and refresh token (because of ROTATE_REFRESH_TOKENS=True)
-            access_token = str(refresh.access_token)
-            new_refresh_token = str(RefreshToken())  # Explicitly generate a new refresh token
-            response = Response(status=status.HTTP_200_OK)
-            response.set_cookie(
-                key='access',
-                value=access_token,
-                httponly=True,
-                secure=False,  # Set to True in production
-                samesite='Lax',  # Optional, but recommended
-            )
-            response.set_cookie(
-                key='refresh',
-                value=new_refresh_token,
-                httponly=True,
-                secure=False,  # Set to True in production
-                samesite='Lax',  # Optional, but recommended
-            )
-            response.data = {
-                'access': access_token,
-                'refresh': new_refresh_token
-            }
-            return response
-        except TokenError as e:
-            return Response({"error": "Invalid or expired refresh token"}, status=status.HTTP_401_UNAUTHORIZED)
-
-    def get(self, request):
-        cookies = request.COOKIES
-        cookie_data = {key: value for key, value in cookies.items()}
-        return Response({'cookies': cookie_data}, status=status.HTTP_200_OK)
 
 class UserViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication]
@@ -217,53 +172,88 @@ class UserViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return CustomUser.objects.all()
 
+def generate_tokens(request):
+    res = requests.post('http://localhost:8000/api/auth/refresh/', data={'refresh': request.COOKIES.get('refresh'),
+    'X-CSRFToken': request.COOKIES.get('csrftoken')})
+    if res.status_code != 200:
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+    tokens = res.json()
+    access_token = tokens.get('access')
+    refresh_token = tokens.get('refresh')
+    response = Response(status=res.status_code)
+    response.set_cookie(
+        key='access',
+        value=access_token,
+        httponly=True,
+        secure=False, 
+        samesite='Lax',  # Optional, but recommended
+    )
+    response.set_cookie(
+        key='refresh',
+        value=refresh_token,
+        httponly=True,
+        secure=False, 
+        samesite='Lax',  # Optional, but recommended
+    )
+    user = request.user
+    user_data = UserSerializer(user).data
+    response.data = user_data
+    return response
+
 class AuthenticatedUserView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
-
+    res = None
     def get(self, request):
         user = request.user
+        acces = request.COOKIES.get('access')
+        if not acces:
+            return generate_tokens(request)
+        else:
+            try:
+                valid = AccessToken(acces)
+            except Exception:
+                return generate_tokens(request)
         user_data = UserSerializer(user).data
         return Response(user_data, status=status.HTTP_200_OK)
+
 
 # Logout View
 class Logout(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
+
     def post(self, request):
         user = request.user
         if user.is_authenticated:
+            # Log the user out
             logout(request)
             user.online = False
+            user.twofa_verified = False
             user.save()
+
+            # Prepare the response and delete cookies
             response = Response(status=status.HTTP_200_OK)
             response.delete_cookie('access')
             response.delete_cookie('refresh')
+            response.delete_cookie('csrftoken')
             return response
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
-
-
 
 class EnableTwoFactorView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
-    # def post(self, request):
-    #     user = request.user
-
-    #     key, otp, qrcode_path = twofactorAuth(user.username)
-    #     user.twofa_secret = key
-    #     user.save()
-    #     user.qrcode_path = urljoin(settings.MEDIA_URL, qrcode_path)
-    #     return Response({'qrcode_url': user.qrcode_path}, status=status.HTTP_200_OK)
     def get(self, request):
         user = request.user
 
-        key, otp, qrcode_path = twofactorAuth(user.username)
+        key, otp, qrcode_path, qrcode_dir = twofactorAuth(user.username)
         user.twofa_secret = key
+        user.qrcode_dir = qrcode_dir
+        user.qrcode_path = qrcode_path
         user.save()
-        user.qrcode_path = urljoin(settings.MEDIA_URL, qrcode_path)
+        user.qrcode_path = qrcode_path
         return Response({'qrcode_url': user.qrcode_path}, status=status.HTTP_200_OK)
 
 class DisableTwoFactorView(APIView):
@@ -274,6 +264,11 @@ class DisableTwoFactorView(APIView):
         user = request.user
         user.enabeld_2fa = False
         user.twofa_secret = None
+        user.qrcode_dir = None
+        user.twofa_verified = False
+        if os.path.exists(str(user.qrcode_path)):
+            os.remove(str(user.qrcode_path))
+        user.qrcode_path = None
         user.save()
         return Response(status=status.HTTP_200_OK)
 
@@ -309,7 +304,8 @@ class VerifyTwoFactorView(APIView):
         totp = pyotp.TOTP(user.twofa_secret)
 
         if totp.verify(user_code):
-            user.enabeld_2fa = not user.enabeld_2fa
+            user.enabeld_2fa = True
+            user.twofa_verified = True
             user.save()
             return Response({
                 'message': 'Two-factor authentication has been enabled successfully'
@@ -339,5 +335,8 @@ class GetQRCodeView(APIView):
 
     def get(self, request):
         user = request.user
-        # EnableTwoFactorView().post(request)
-        return Response({'qrcode_url': user.qrcode_path}, status=status.HTTP_200_OK)
+        if not user.twofa_secret:
+            return Response({'error': '2FA is not enabled'}, status=status.HTTP_400_BAD_REQUEST)
+        qr_user = user.qrcode_path.split('/')[-1]
+        qrcode_path = "http://localhost:8000/qrcodes/" + qr_user
+        return Response({'qrcode_url': qrcode_path}, status=status.HTTP_200_OK)

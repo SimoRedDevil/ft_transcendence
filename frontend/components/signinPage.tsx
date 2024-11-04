@@ -6,24 +6,22 @@ import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import { handle42Callback } from './auth'
 import { useContext } from "react";
 import { UserContext } from "./context/usercontext";
+import { toast } from 'react-hot-toast';
 
 interface SigninPageProps {
   onNavigate?: () => void;
 }
 
-const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
+const SigninPage: React.FC<SigninPageProps> = ({ onNavigate}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
-  const hasHandledCallback = useRef(false);
-  const { setIsAuthenticated } = useContext(UserContext);
+  const { setIsAuthenticated, users, fetchAuthUser} = useContext(UserContext);
 
   const handleSignin = async (e) => {
     e.preventDefault();
-    // Create the body object to send in the request
     const body = {
       email,
       password,
@@ -38,32 +36,25 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
       const data = response.data;
   
       if (response.status === 200) {
-        alert("Signin successful");
-        router.push("/");
+        await fetchAuthUser();
+        if (users && users.enabeld_2fa) {
+          router.push("/twofa");
+        }
+        else {
+          setIsAuthenticated(true);
+          toast.success("login success");
+          router.push("/");
+        }
       } else {
-        alert(data.message || "Signin failed, please try again.");
+        toast.error("Something went wrong");
+        setIsAuthenticated(false);
       }
     } catch (error) {
-      alert("An error occurred. Please try again later.");
+      toast.error("Something went wrong");
+      setIsAuthenticated(false);
     }
   };  
 
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-
-    if (code && !hasHandledCallback.current) {
-      hasHandledCallback.current = true;
-      handle42Callback(code)
-        .then((data) => {
-          alert('Successfully authenticated with 42!');
-          router.push('/');
-        })
-        .catch((error) => {
-          alert('Failed to authenticate with 42, please try again.');
-        });
-    }
-  }, []);
 
   const handleEnterPress = (event) => {
     if (event.key === 'Enter') {
@@ -71,7 +62,7 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
     }
   };
 
-  
+
   useEffect(() => {
     window.addEventListener('keydown', handleEnterPress);
     return () => {
@@ -80,13 +71,13 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
 }
 , [email, password]);
 
-  return (
+return (
     <motion.form onSubmit={(e) => e.preventDefault()} 
     className=" flex flex-col items-center justify-center h-screen w-screen overflow-auto fixed">
       <div
         className="flex items-center justify-center h-full w-full laptop:w-[850px]
-      tablet:w-[620px] tablet:h-[770px] desktop:h-[760px] desktop:w-[950px] mobile:w-[500px]
-      mobile:h-[700px] laptop:h-[770px]  less-than-mobile:h-[720px] less-than-mobile:w-[500px] fixed overflow-auto">
+        tablet:w-[620px] tablet:h-[770px] desktop:h-[760px] desktop:w-[950px] mobile:w-[500px]
+        mobile:h-[700px] laptop:h-[770px]  less-than-mobile:h-[720px] less-than-mobile:w-[500px] fixed overflow-auto">
         <motion.div
           initial={{ opacity: 1, x: "50%" }}
           animate={{ opacity: 1, x: "0" }}
@@ -118,13 +109,11 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
                 Sign up
               </button>
             </div>
-            <Link href="http://localhost:8000/api/auth/42/login/" passHref
+            <Link href="http://localhost:8000/api/auth/42/login/"
               className="
-                w-full flex justify-center items-center
-              "
+                w-full flex justify-center items-center"
             >
               <button
-               
                 className="flex items-center bg-[#131E24] text-white w-[75%] mobile:w-[90%] less-than-mobile:w-[90%] justify-center py-2 rounded mt-7 
                   hover:bg-[#1E2E36] rounded-tl-[13px] rounded-bl-[22px] rounded-tr-[22px] rounded-br-[10px] border border-gray-500"
               >
@@ -165,7 +154,7 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate }) => {
               </label>
               <div className="relative flex">
                 <input value={email} onChange={(e) => setEmail(e.target.value)}
-                  type="email"
+                  type="email" autoFocus
                   className="border-b-[1px] border-[#949DA2] mb-7 h-[34px] w-full focus:outline-none bg-[#131E24] pr-6"
                 />
                 <FaEnvelope className="absolute right-0.5 text-[#949DA2] top-1" />

@@ -59,10 +59,6 @@ export const Player2: player = {
 
 export interface ball {
     radius: number;
-    minWidth: number;
-    maxWidth: number;
-    minHeight: number;
-    maxHeight: number;
     ballPosX: number;
     ballPosY: number;
     velocityX: number;
@@ -73,10 +69,6 @@ export interface ball {
 
 export const Ball: ball = {
     radius: 0,
-    minWidth: 0,
-    maxWidth: 0,
-    minHeight: 0,
-    maxHeight: 0,
     ballPosX: 0,
     ballPosY: 0,
     velocityX: 0,
@@ -85,8 +77,6 @@ export const Ball: ball = {
 
     initialize(canvas: HTMLCanvasElement): void{
         this.radius = (canvas.clientHeight / 25) / 2;
-        this.maxWidth = canvas.clientWidth;
-        this.maxHeight = canvas.clientHeight;
         this.ballPosY = canvas.clientHeight / 2;
         this.ballPosX = canvas.clientWidth / 2;
         this.velocityX = 0;

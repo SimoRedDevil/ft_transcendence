@@ -30,22 +30,18 @@ services:
   backend:
     container_name: backend
     build: ./backend
+    networks:
+      - alienspong
     ports:
       - "8000:8000"
     volumes:
       - ./backend:/app
     restart: always
-    networks:
-      - alienspong
     depends_on:
       db:
         condition: service_healthy
       logstash:
         condition: service_healthy
-    logging:
-      driver: gelf
-      options:
-        gelf-address: "udp://logstash:5044"
     healthcheck:
       test: ["CMD", "python", "manage.py", "check"]
       interval: 10s
@@ -227,6 +223,7 @@ services:
         condition: service_healthy
     ports:
       - "5044:5044"
+      - "9600:9600"
     image: docker.elastic.co/logstash/logstash:${STACK_VERSION}
     labels:
       co.elastic.logs/module: logstash
@@ -244,8 +241,8 @@ services:
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - ELASTIC_HOSTS=https://elasticsearch:9200
     healthcheck:
-      test: ["CMD-SHELL", "curl -s --fail http://localhost:5044 || exit 1"]
-      interval: 1m30s
+      test: ["CMD", "curl", "-f", "http://localhost:9600/_node/stats/pipelines?pretty"]
+      interval: 30s
       timeout: 10s
       retries: 3
 

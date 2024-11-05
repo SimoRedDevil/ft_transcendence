@@ -5,6 +5,6 @@ backend/*/__pycache__
 frontend/db.json
 frontend/.next
 .env
-database/*
+# database/*
 virtualenv
 node_modules/

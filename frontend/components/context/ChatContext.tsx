@@ -88,9 +88,6 @@ export const ChatProvider = ({ children }) => {
                 else {
                     setMessages(response.data.results);
                 }
-                // setMessages((prevMessages) => [...response.data.results, ...prevMessages]);
-                // setMessages(response.data.results)
-                // console.log(response.data)
             })
         } catch (error) {
             console.error('Error fetching messages:', error);
@@ -137,7 +134,7 @@ export const ChatProvider = ({ children }) => {
             scrollToLastMessage();
         }
         else {
-            if (chatWindowRef.current) {
+            if (chatWindowRef.current && messagesLoading === false) {
                 chatWindowRef.current.scrollTo(0, 100);
             }
         }

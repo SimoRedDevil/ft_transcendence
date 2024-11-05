@@ -7,6 +7,7 @@ const ChatContext = createContext(null);
 
 export const ChatProvider = ({ children }) => {
     const ws = useRef(null);
+    const chatWindowRef = useRef(null);
 
     const [messages, setMessages] = useState([]);
     const [Conversations, setConversations] = useState(null);
@@ -81,7 +82,12 @@ export const ChatProvider = ({ children }) => {
             ).then((response) => {
                 setPageCount(Math.ceil(response.data.count / 10));
                 response.data.results.reverse();
-                setMessages([...response.data.results, ...messages]);
+                if (page > 1) {
+                    setMessages([...response.data.results, ...messages]);
+                }
+                else {
+                    setMessages(response.data.results);
+                }
                 // setMessages((prevMessages) => [...response.data.results, ...prevMessages]);
                 // setMessages(response.data.results)
                 // console.log(response.data)
@@ -127,14 +133,20 @@ export const ChatProvider = ({ children }) => {
     }, [selectedConversation, page]);
 
     useEffect(() => {
-        if (messages.length > 0) {
+        if (messages.length > 0 && page === 1) {
             scrollToLastMessage();
+        }
+        else {
+            if (chatWindowRef.current) {
+                chatWindowRef.current.scrollTo(0, 100);
+            }
         }
     }, [messages]);
 
     return (
         <ChatContext.Provider value={{ messages, Conversations, conversationsLoading, messagesLoading,
-            error, selectedConversation, otherUser, ws, isMobile, lastMessageRef, otherUserTyping, page, pageCount, setConversations, fetchMessages, fetchConversations, setSelectedConversation, setOtherUser, setPage }}>
+            error, selectedConversation, otherUser, ws, isMobile, lastMessageRef, otherUserTyping, page, pageCount,
+            chatWindowRef, setConversations, fetchMessages, fetchConversations, setSelectedConversation, setOtherUser, setPage }}>
             {children}
         </ChatContext.Provider>
     );

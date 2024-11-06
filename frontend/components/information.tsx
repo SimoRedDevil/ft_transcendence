@@ -5,10 +5,10 @@ import { useContext } from "react";
 import { useTranslation } from 'react-i18next';
 
 export default function Information() {
-  const {users, loading} = useContext(UserContext);
+  const {authUser, loading} = useContext(UserContext);
   const { t } = useTranslation();
 
-  if (loading || !users) {
+  if (loading || !authUser) {
     return <div>Loading...</div>;
   }
   return (
@@ -23,8 +23,8 @@ export default function Information() {
             label2={t("Username")}
             label3={t("City")}
             type="text"
-            defaultValue1={users.full_name}
-            defaultValue2={users.username}
+            defaultValue1={authUser?.full_name}
+            defaultValue2={authUser?.username}
             defaultValue3="Khouribga"
         />
         <TextFieledTmp
@@ -33,7 +33,7 @@ export default function Information() {
             label2={t("Phone")}
             label3={t("Address")}
             type="text"
-            defaultValue1={users.email}
+            defaultValue1={authUser?.email}
             defaultValue2="620-583-4205"
             defaultValue3="1337 School"
         />

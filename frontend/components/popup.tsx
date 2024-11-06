@@ -12,11 +12,12 @@ const Popup = ({
   setEnable2FA,
   code,
   setCode,
+  setQrcode,
   qrcode,
 }) => {
   const [values, setValues] = useState(["", "", "", "", "", ""]);
   const [username, setUsername] = useState("");
-  var { users, setTry2fa, fetchAuthUser} = useContext(UserContext);
+  var { authUser, setTry2fa, fetchAuthUser} = useContext(UserContext);
 
   const handleChange = (e, index) => {
     const { value } = e.target;
@@ -56,7 +57,7 @@ const Popup = ({
   };
 
   const desable2fabutton = async () => {
-    if (users) {
+    if (authUser) {
       disableTwoFactorAuth();
       setEnable2FA(false);
       await fetchAuthUser();
@@ -66,7 +67,7 @@ const Popup = ({
   const handelVerify = async () => {
     const status = await verify2FA(code)
     if (status == 200) {
-      if (users.enabeld_2fa) {
+      if (authUser?.enabeld_2fa) {
         desable2fabutton()
         setTry2fa(false)
       } else {
@@ -76,18 +77,18 @@ const Popup = ({
       }
     clearValues();
     setIsOpen(false);
-    setEnable2FA(users.enabeld_2fa);
+    setEnable2FA(authUser?.enabeld_2fa);
   }
     fetchAuthUser();
     
   }
   
   useEffect(() => {
-    users && fetchAuthUser();
-    if (users?.username) {
-      setUsername(users.username);
+    authUser && fetchAuthUser();
+    if (authUser?.username) {
+      setUsername(authUser?.username);
     }
-  }, [users?.enabeld_2fa, enable2FA, code, username]);
+  }, [authUser?.enabeld_2fa, enable2FA, code, username]);
 
 
   const handleEnterPress = (event) => {
@@ -149,7 +150,15 @@ const Popup = ({
                 </button>
                 <button
                   className="bg-gradient-to-r from-[#1A1F26]/90 to-[#000]/70 text-white p-2 px-4 rounded-lg border-[0.5px] border-white border-opacity-40 "
-                  onClick={clearValues}
+                  onClick={() => {
+                    clearValues();
+                    if (!authUser.enabeld_2fa)
+                    {
+                        disableTwoFactorAuth();
+                        setQrcode('');
+                    }
+                  }
+                  }
                 >
                   Close
                 </button>

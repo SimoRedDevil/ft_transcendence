@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { useUserContext } from "../components/context/usercontext";
 
 export default function Security() {
-  const { users, loading, setTry2fa, try2fa, fetchAuthUser } = useUserContext();
+  const { authUser, loading, setTry2fa, try2fa, fetchAuthUser } = useUserContext();
   const [enable2FA, setEnable2FA] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [code, setCode] = useState("");
@@ -17,7 +17,7 @@ export default function Security() {
   const [isloading, setIsLoading] = useState(true);
   const { t } = useTranslation();
 
-  if (loading || !users) {
+  if (loading || !authUser) {
     return <div>Loading...</div>;
   }
 
@@ -45,8 +45,8 @@ export default function Security() {
   };
 
   useEffect(() => {
-    users && fetchAuthUser();
-    if (users?.qrcode_dir) {
+    authUser && fetchAuthUser();
+    if (authUser?.qrcode_dir) {
       getqrcode();
       setEnable2FA(true);
     }
@@ -54,15 +54,15 @@ export default function Security() {
     {
       setQrcode("");
     }
-  }, [users?.qrcode_dir, enable2FA]);
+  }, [authUser?.qrcode_dir, enable2FA]);
 
   useEffect(() => {
-    users && fetchAuthUser();
-  }, [users?.qrcode_dir, enable2FA]);
+    authUser && fetchAuthUser();
+  }, [authUser?.qrcode_dir, enable2FA]);
   const handelChange = async () => {
     {
       setIsPopupOpen(true);
-      if (!users.enabeld_2fa && !try2fa) {
+      if (!authUser.enabeld_2fa && !try2fa) {
         enableTwoFactorAuth(fetchAuthUser);
         fetchAuthUser();
         setEnable2FA(true);
@@ -200,7 +200,7 @@ export default function Security() {
               <input
                 type="checkbox"
                 className="sr-only peer"
-                checked={users?.enabeld_2fa}
+                checked={authUser?.enabeld_2fa}
                 onChange={handelChange}
               />
               <div
@@ -211,7 +211,7 @@ export default function Security() {
               ></div>
             </label>
             <span className="text-lg font-medium">
-              {users?.enabeld_2fa ? "On" : "Off"}
+              {authUser?.enabeld_2fa ? "On" : "Off"}
             </span>
           </div>
           <div className="flex justify-center">
@@ -222,6 +222,7 @@ export default function Security() {
                 {...{ enable2FA, setEnable2FA }}
                 {...{ code, setCode }}
                 qrcode={qrcode}
+                setQrcode={setQrcode}
               />
             )}
           </div>

@@ -52,7 +52,7 @@ def fillUser(user, user_info):
     user.email = user_info['email']
     user.online = True
     user.avatar_url = user_info['image']['link']
-    user.intra_islogged = True
+    user.islogged = True
     user.save()
     return user
 
@@ -87,14 +87,14 @@ class Intra42Callback(APIView):
         response.set_cookie(
             key='access',
             value=str(refresh.access_token),
-            httponly=True,
+            httponly=False,
             secure=False, 
             samesite='Lax',  # Optional, but recommended
         )
         response.set_cookie(
             key='refresh',
             value=str(refresh),
-            httponly=True,
+            httponly=False,
             secure=False, 
             samesite='Lax',  # Optional, but recommended
         )
@@ -119,24 +119,24 @@ class LoginView(APIView):
             if user is not None:
                 login(request, user)
                 user.online = True
+                user.islogged = True
+                user.save()
                 refresh = RefreshToken.for_user(user)
                 acess_token = str(refresh.access_token)
-                user.oldToken = acess_token
-                user.save()
                 response = Response(status=status.HTTP_200_OK)
 
                 # Set the access and refresh tokens in cookies
                 response.set_cookie(
                     key='access',
                     value=acess_token,
-                    httponly=True,
+                    httponly=False,
                     secure=False, 
                     samesite='Lax',  # Optional, but recommended
                 )
                 response.set_cookie(
                     key='refresh',
                     value=str(refresh),
-                    httponly=True,
+                    httponly=False,
                     secure=False, 
                     samesite='Lax',  # Optional, but recommended
                 )
@@ -165,6 +165,41 @@ class ValidateTokenView(APIView):
         except Exception:
             return Response({'valid': False, 'error': 'Invalid or expired access token'}, status=status.HTTP_401_UNAUTHORIZED)
 
+class GenerateAccessToken(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        code = request.COOKIES.get('refresh')
+        data = {
+            'refresh': code,
+            'X-CSRFToken': request.COOKIES.get('csrftoken')
+        }
+        respo = requests.post('http://0.0.0.0:8000/api/auth/refresh/', data=data)
+        tokens = respo.json()
+        access_token = tokens.get('access')
+        refresh_token = tokens.get('refresh')
+        response = Response(status=respo.status_code)
+        response.set_cookie(    
+            key='access',
+            value=access_token,
+            httponly=False,
+            secure=False, 
+            samesite='Lax',  # Optional, but recommended
+        )
+        response.set_cookie(
+            key='refresh',
+            value=refresh_token,
+            httponly=False,
+            secure=False, 
+            samesite='Lax',  # Optional, but recommended
+        )
+        return response
+
+    def get(self, request):
+        cookies = request.COOKIES
+        cookie_data = {key: value for key, value in cookies.items()}
+        return Response({'cookies': cookie_data}, status=status.HTTP_200_OK)
 
 class UserViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication]
@@ -178,20 +213,21 @@ def generate_tokens(request):
     if res.status_code != 200:
         return Response(status=status.HTTP_401_UNAUTHORIZED)
     tokens = res.json()
+    print("tokens")
     access_token = tokens.get('access')
     refresh_token = tokens.get('refresh')
     response = Response(status=res.status_code)
     response.set_cookie(
         key='access',
         value=access_token,
-        httponly=True,
+        httponly=False,
         secure=False, 
         samesite='Lax',  # Optional, but recommended
     )
     response.set_cookie(
         key='refresh',
         value=refresh_token,
-        httponly=True,
+        httponly=False,
         secure=False, 
         samesite='Lax',  # Optional, but recommended
     )
@@ -210,12 +246,10 @@ class AuthenticatedUserView(APIView):
         if not acces:
             return generate_tokens(request)
         else:
-            try:
-                valid = AccessToken(acces)
-            except Exception:
+            valid = requests.post('http://localhost:8000/api/auth/verify/', data={'token': acces})
+            if valid.status_code != 200:
                 return generate_tokens(request)
-        user_data = UserSerializer(user).data
-        return Response(user_data, status=status.HTTP_200_OK)
+        return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
 
 
 # Logout View
@@ -229,7 +263,7 @@ class Logout(APIView):
             # Log the user out
             logout(request)
             user.online = False
-            user.twofa_verified = False
+            user.islogged = False
             user.save()
 
             # Prepare the response and delete cookies
@@ -265,7 +299,6 @@ class DisableTwoFactorView(APIView):
         user.enabeld_2fa = False
         user.twofa_secret = None
         user.qrcode_dir = None
-        user.twofa_verified = False
         if os.path.exists(str(user.qrcode_path)):
             os.remove(str(user.qrcode_path))
         user.qrcode_path = None
@@ -276,46 +309,21 @@ class VerifyTwoFactorView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
-    # def get(self, request):
-    #     user = request.user
-    #     user_code = request.GET.get('code')
-
-    #     if not user.twofa_secret:
-    #         return Response(status=status.HTTP_400_BAD_REQUEST)
-
-    #     totp = pyotp.TOTP(user.twofa_secret)
-
-    #     if totp.verify(user_code):
-    #         user.enabeld_2fa = not user.enabeld_2fa
-    #         user.save()
-    #         return Response(status=status.HTTP_200_OK)
-    #     else:
-    #         return Response(status=status.HTTP_400_BAD_REQUEST)
-    def post(self, request):
+    def get(self, request):
         user = request.user
-        user_code = request.data.get('code')
+        user_code = request.GET.get('code')
 
         if not user.twofa_secret:
-            return Response({
-                'error': 'Two-factor authentication is not enabled for this user'
-            },
-            status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
         totp = pyotp.TOTP(user.twofa_secret)
 
         if totp.verify(user_code):
             user.enabeld_2fa = True
-            user.twofa_verified = True
             user.save()
-            return Response({
-                'message': 'Two-factor authentication has been enabled successfully'
-            },status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_200_OK)
         else:
-            return Response({
-                'error': 'Invalid two-factor authentication code',
-                "totp.verify": totp.verify(user_code),
-                "user_code": user_code,
-            },status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class GetCookies(APIView):
     authentication_classes = [SessionAuthentication]

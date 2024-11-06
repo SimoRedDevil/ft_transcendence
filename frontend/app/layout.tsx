@@ -1,16 +1,15 @@
 'use client';
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect, useContext, useState} from 'react';
 import ScaleLoader from "react-spinners/ScaleLoader";
 import "./styles/global.css";
 import { usePathname, useRouter } from 'next/navigation';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import { UserProvider, UserContext } from '../components/context/usercontext';
-import { appWithTranslation } from 'next-i18next';
 import '../i18n';
 import { Toaster } from 'react-hot-toast';
-
-
+import Cookies from 'js-cookie';
+import axios from 'axios';
 function RootLayout({ children }: any) {
     const pathname = usePathname();
     const exclude = ['/login', '/twofa'];
@@ -35,35 +34,32 @@ function RootLayout({ children }: any) {
 }
 
 function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
-    const { users, loading, isAuthenticated, fetchAuthUser } = useContext(UserContext);
-    
-    useEffect(() => {
-        // Wait for loading to complete
-        if (loading) return;
-    
-        // Fetch user data if user is not authenticated
-        if (!isAuthenticated && !users) {
-            fetchAuthUser();
-            if (users && pathname === '/login') {
-                router.push('/login');
-            }
-        }
-        
-        // Redirect to login if not authenticated
-        if (!isAuthenticated && !users) {
+    const {loading, isAuthenticated, fetchAuthUser, authUser} = useContext(UserContext);
+    const [token, setToken] = useState(null);
+
+    const getCookies = async () => {
+        try {
+            const response = await axios.get('http://localhost:8000/api/auth/cookies/', {
+                withCredentials: true,
+            });
+            const access = response.data.cookies.access;
+            return access;
+        } catch (error) {
             router.push('/login');
         }
-        // Redirect to the correct route if user is authenticated
-        else if (isAuthenticated && users) {
-            if (pathname === '/login') {
+    };
+    
+    useEffect(() => {
+        // const tokens = Cookies.get('access');
+        // setToken(tokens);
+        // console.log(tokens);
+        !isAuthenticated && fetchAuthUser();
+        if (authUser)
+        {
+            if (pathname === '/login')
                 router.push('/');
-            } else {
-                router.push(pathname);
-            }
         }
-    }, [users, isAuthenticated, pathname, router, loading]);
-    
-    
+    }, [isAuthenticated, pathname, router, authUser]);
     if (loading) {
         return (
             <div className="flex justify-center items-center h-screen w-screen bg-main-bg border
@@ -98,4 +94,4 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
     );
 }
 
-export default appWithTranslation(RootLayout);
+export default RootLayout;

@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import BounceLoader from "react-spinners/ClipLoader";
 
 function Header() {
-  const { users} = useContext(UserContext);
+  const { authUser} = useContext(UserContext);
   const { t } = useTranslation();
 
   return (
@@ -22,10 +22,10 @@ function Header() {
       </div>
 
       <div className='w-[60px] h-[60px] rounded-full border border-white border-opacity-60'>
-  {users?.avatar_url?(
+  {authUser?.avatar_url?(
     
       <Image 
-        src={users.avatar_url}
+        src={authUser?.avatar_url}
         height={60} 
         width={60} 
         alt='avatar' 

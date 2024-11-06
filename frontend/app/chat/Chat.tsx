@@ -18,7 +18,7 @@ import { useChatContext } from '../../components/context/ChatContext';
 function Chat() {
   const [showEmoji, setShowEmoji] = useState(false)
   const [input, setInput] = useState('')
-  const {users, loading} = useUserContext()
+  const {authUser, loading} = useUserContext()
   const
   {
     selectedConversation,
@@ -48,7 +48,7 @@ function Chat() {
     if (checkStringEmpty(input)) return;
     ws.current.send(JSON.stringify({
       'conversation_id': selectedConversation.id,
-      'sent_by_user': users.username,
+      'sent_by_user': authUser.username,
       'sent_to_user': otherUser.username,
       'content': input
     }))
@@ -96,16 +96,16 @@ function Chat() {
                   // console.log(message.conversation_id, message.content)
                   return (
                     message.conversation_id === selectedConversation.id ?
-                    <div ref={index === messages.length - 1 ? lastMessageRef : null} key={message.id} className={`flex flex-col mb-4 ${(message.sent_by_user === users.username || (message.sender !== undefined && message.sender.username === users.username)) ? 'items-end' : 'items-start'}`}>
-                      <div className={`flex items-center border border-white border-opacity-20 rounded-[30px] min-h-[50px] max-w-[75%] ${(message.sent_by_user === users.username || (message.sender !== undefined && message.sender.username === users.username)) ? 'bg-[#0D161A]' : 'bg-black'}`}>
+                    <div ref={index === messages.length - 1 ? lastMessageRef : null} key={message.id} className={`flex flex-col mb-4 ${(message.sent_by_user === authUser.username || (message.sender !== undefined && message.sender.username === authUser.username)) ? 'items-end' : 'items-start'}`}>
+                      <div className={`flex items-center border border-white border-opacity-20 rounded-[30px] min-h-[50px] max-w-[75%] ${(message.sent_by_user === authUser.username || (message.sender !== undefined && message.sender.username === authUser.username)) ? 'bg-[#0D161A]' : 'bg-black'}`}>
                         <span className='text-white text-opacity-90 p-[20px]'>{message.content}</span>
                       </div>
                       <div className=''>
                         <span className='text-white text-opacity-50 text-[0.8rem]'>{message.get_human_readable_time}</span>
                       </div>
                     </div> : null
-                    // <div key={message.id} className={(message.sent_by_user === users.username || (message.sender !== undefined && message.sender.username === users.username)) ? 'flex flex-row-reverse' : 'flex flex-row'}>
-                    //   <div className={(message.sent_by_user === users.username || (message.sender !== undefined && message.sender.username === users.username)) ? 'bg-[#0D161A]' : 'bg-black'}>
+                    // <div key={message.id} className={(message.sent_by_user === authUser.username || (message.sender !== undefined && message.sender.username === authUser.username)) ? 'flex flex-row-reverse' : 'flex flex-row'}>
+                    //   <div className={(message.sent_by_user === authUser.username || (message.sender !== undefined && message.sender.username === authUser.username)) ? 'bg-[#0D161A]' : 'bg-black'}>
                     //     <span className='text-white text-opacity-90 p-[20px]'>{message.content}</span>
                     //   </div>
                     // </div>

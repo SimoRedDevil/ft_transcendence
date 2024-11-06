@@ -8,7 +8,7 @@ import { useContext } from "react";
 
 export default function Home() {
     const router = useRouter();
-    const {setIsAuthenticated, fetchAuthUser} = useContext(UserContext);
+    const {setIsAuthenticated, fetchAuthUser, setauthUser} = useContext(UserContext);
 
     const getCookies = async () => {
         try {
@@ -43,6 +43,7 @@ export default function Home() {
         const csrfToken = await getCookies(); // Fetch CSRF token
         if (csrfToken) {
             await logout(csrfToken); // Use CSRF token to logout
+            setauthUser(null);
             router.push('/login');
 
         }

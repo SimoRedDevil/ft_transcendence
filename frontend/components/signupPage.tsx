@@ -76,7 +76,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
         >
           <img
             className="w-full h-full less-than-tablet:hidden rounded-l-[20px]"
-            src="/images/login_icon.png"
+            src="/images/login_icon.webp"
             alt="signupPageImage"
           />
         </motion.div>

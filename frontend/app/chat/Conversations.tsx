@@ -10,7 +10,7 @@ import { useChatContext } from '../../components/context/ChatContext';
 import axios from 'axios'
 
 function Conversations() {
-  const {users, loading} = useUserContext()
+  const {authUser, loading} = useUserContext()
   const [input, setInput] = useState('')
   const
   {
@@ -35,7 +35,7 @@ function Conversations() {
 
   const handleConversationClick = (conversation) => {
     setSelectedConversation(conversation)
-    users.username === conversation.user1_info.username ? setOtherUser(conversation.user2_info) : setOtherUser(conversation.user1_info)
+    authUser.username === conversation.user1_info.username ? setOtherUser(conversation.user2_info) : setOtherUser(conversation.user1_info)
   }
 
   const handleConversationSearch = (e) => {
@@ -63,7 +63,7 @@ function Conversations() {
                   {/* <Image className='rounded-full' src='' width={60} height={60} alt='avatar'/> */}
                 </div>
                 <div className='flex flex-col justify-center gap-4'>
-                  <span className='text-[1rem]'>{users.full_name}</span>
+                  <span className='text-[1rem]'>{authUser.full_name}</span>
                   <span className='text-[0.9rem] text-white text-opacity-65'>Active Now</span>
                 </div>
               </div>
@@ -80,7 +80,7 @@ function Conversations() {
                 </div>
                 <div className='flex flex-col gap-4'>
                   {
-                    users.username === conversation.user1_info.username ?
+                    authUser.username === conversation.user1_info.username ?
                     <span className='text-[1rem]'>{conversation.user2_info.full_name}</span> :
                     <span className='text-[1rem]'>{conversation.user1_info.full_name}</span>
                   }

@@ -2,12 +2,13 @@ import React, { createContext, useContext, useState, useEffect, use } from 'reac
 import axios from 'axios';
 import { usePathname, useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
+import path from 'path';
 
 
 const UserContext = createContext(null);
 
 export const UserProvider = ({ children }) => {
-    const [users, setUsers] = useState(null);
+    const [authUser, setauthUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -15,35 +16,29 @@ export const UserProvider = ({ children }) => {
     const pathname = usePathname();
     const router = useRouter();
 
+
     const fetchAuthUser = async () => {
         try {
-            const response = await axios('http://localhost:8000/api/auth/user/', {
+            const response = await axios.get('http://localhost:8000/api/auth/user/', {
                 withCredentials: true,
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
-                const user = response.data;
-                setUsers(user);
-                if (user) {
-                    if (users.enabeld_2fa && !users.twofa_verified)
+            const user = response.data;
+            setauthUser(user);
+            if (user) {
+                    if (authUser.enabeld_2fa && !authUser.twofa_verified && authUser.islogged)
                         router.push("/twofa");
-                    if (pathname === '/login') 
-                        router.push('/');
                     setIsAuthenticated(true);
                 }
-                // else {
-                //     setIsAuthenticated(false);
-                //     router.push('/login');
-                // }
             } catch (error) {
             setError(error);
-            // router.push('/login');
             setIsAuthenticated(false);
         } finally {
             setTimeout(() => {
                 setLoading(false);
-            }, 3000);
+            }, 2500);
         }
     };
 
@@ -61,28 +56,26 @@ export const UserProvider = ({ children }) => {
                 });
                 if (response.status === 200) {
                     const user = response.data;
-                    setUsers(user);
+                    setauthUser(user);
                     if (user) {
                         if (user.enabeld_2fa && !user.twofa_verified) {
                             router.push("/twofa");
                         }
                         else {
                           setIsAuthenticated(true);
-                          setTimeout(() => {
-                              toast.success("login success");
-                          }, 1000);
+                        setTimeout(() => {
+                            toast.success("login success");
+                        }, 2000);
                           router.push("/");
                         }
                     }
                     else {
                         setIsAuthenticated(false);
-                        router.push('/login');
                     }
                 }
             }
             } catch (error) {
                 setIsAuthenticated(false);
-                router.push('/login');
             }
         }
 
@@ -138,7 +131,7 @@ export const UserProvider = ({ children }) => {
     , [pathname, router] );
     
     useEffect(() => {
-        !users && fetchAuthUser()
+        fetchAuthUser();
         // useUserActivityTracker((event) => {
         //     if (event === 'user is inactive') {
         //       console.log("User has been inactive for 10 seconds.");
@@ -150,7 +143,7 @@ export const UserProvider = ({ children }) => {
     }
     , [pathname, router, isAuthenticated, loading] );
     return (
-        <UserContext.Provider value={{ users, loading, error, isAuthenticated, fetchAuthUser, setIsAuthenticated, setTry2fa, try2fa}}>
+        <UserContext.Provider value={{ authUser, setauthUser, loading, error, isAuthenticated, fetchAuthUser, setIsAuthenticated, setTry2fa, try2fa}}>
             {children}
         </UserContext.Provider>
     );

@@ -18,7 +18,7 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
-  const { setIsAuthenticated, users, fetchAuthUser} = useContext(UserContext);
+  const { setIsAuthenticated, authUser, fetchAuthUser} = useContext(UserContext);
 
   const handleSignin = async (e) => {
     e.preventDefault();
@@ -37,7 +37,7 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate}) => {
   
       if (response.status === 200) {
         await fetchAuthUser();
-        if (users && users.enabeld_2fa) {
+        if (authUser && authUser?.enabeld_2fa) {
           router.push("/twofa");
         }
         else {
@@ -177,7 +177,7 @@ return (
         >
           <img
             className="w-full h-full less-than-tablet:hidden rounded-r-[20px]"
-            src="/images/login_icon.png"
+            src="/images/login_icon.webp"
             alt="loginPageImage"
           />
         </motion.div>

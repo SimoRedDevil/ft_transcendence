@@ -20,7 +20,7 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate}) => {
   const router = useRouter();
   const { setIsAuthenticated, authUser, fetchAuthUser} = useContext(UserContext);
 
-  const URL = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+  const URL = 'https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=http://localhost:8000/api/auth/google/callback/&prompt=consent&response_type=code&client_id=1044566227728-u6kf090diec8d8osln6c66cfb24jskip.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline';
 
   const handleSignin = async (e) => {
     e.preventDefault();

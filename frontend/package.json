@@ -20,13 +20,15 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "jest"
   },
   "devDependencies": {
-    "@types/node": "22.8.6",
+    "@types/node": "22.9.0",
     "@types/prop-types": "^15.7.13",
     "@types/react": "18.3.12",
     "autoprefixer": "^10.4.20",
+    "jest": "^29.7.0",
     "postcss": "^8.4.45",
     "tailwindcss": "^3.4.13",
     "typescript": "5.6.3"

@@ -30,7 +30,7 @@ export default function Home() {
     }
   };
   return (
-    <div className="text-white flex laptop:justify-center tablet:justify-start less-than-tablet:justify-center w-screen h-screen ">
+    <div className="text-white flex laptop:justify-center min-h-[1000px] tablet:justify-start less-than-tablet:justify-center w-screen h-screen ">
         <div className="border-[0.5px] border-white flex h-[85%] laptop:w-[75%] rounded-[50px] border-opacity-40
              bg-black bg-opacity-70 flex-col items-center mobile:w-full tablet:w-[80%] less-than-tablet:w-[90%]
              less-than-tablet:h-[75%] less-than-tablet:pb-5 tablet:pt-[57px] less-than-mobile:w-[200px] less-than-mobile:h-[80vh]

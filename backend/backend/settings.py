@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os
+from dotenv import load_dotenv
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -21,6 +23,7 @@ STATIC_URL = "/avatars/"
 STATICFILES_DIRS = [
     BASE_DIR / "./avatars",
 ]
+load_dotenv(".env")
 
 # Add a MEDIA_ROOT for qrcodes
 QRCODE_URL = '/qrcodes/'
@@ -49,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'tournament',
     'game',
     'chat',
@@ -56,9 +60,18 @@ INSTALLED_APPS = [
     'corsheaders',
     'authentication',
     'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'dj_rest_auth',
+    'rest_framework.authtoken',
+    'allauth.socialaccount.providers.google',
+    'dj_rest_auth.registration',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
 ]
+
+# django.contrib.sites
+SITE_ID = 1
 
 AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
@@ -70,23 +83,6 @@ CHANNEL_LAYERS = {
     }
 }
 
-
-# SOCIALACCOUNT_PROVIDERS = {
-#     'oauth2': {
-#         'APP': {
-#             'client_id': 'u-s4t2ud-92bd4e0625503a1a3d309256cffd60297d8692b8710fce9d6d657fe60899bfd4',
-#             'secret': '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',
-#             'key': '',
-#         },
-#         'SCOPE': ['public'],
-#         'AUTH_PARAMS': {'access_type': 'offline'},
-#         'METHOD': 'oauth2',
-#         'AUTHORIZE_URL': 'https://api.intra.42.fr/oauth/authorize',
-#         'ACCESS_TOKEN_URL': 'https://api.intra.42.fr/oauth/token',
-#         'PROFILE_URL': 'https://api.intra.42.fr/v2/me',  # For getting user data
-#         'REDIRECT_URI': 'http://localhost:8000/accounts/42/callback/',
-#     },
-# }
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
@@ -135,8 +131,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'allauth.account.middleware.AccountMiddleware', 
-    'authentication.middleware.AuthRequiredMiddleware', 
-    'authentication.middleware.TrailingSlashMiddleware', 
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -146,7 +140,9 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates')
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -163,13 +159,44 @@ ASGI_APPLICATION = 'backend.asgi.application'
 
 
 # 42 API OAuth settings
+
+############################################################################################################
+
 INTRA_42_CLIENT_ID = 'u-s4t2ud-92bd4e0625503a1a3d309256cffd60297d8692b8710fce9d6d657fe60899bfd4'
 INTRA_42_CLIENT_SECRET = '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'
 INTRA_42_REDIRECT_URI = 'http://localhost:3000'
 INTRA_42_TOKEN_URL = 'https://api.intra.42.fr/oauth/token'
 INTRA_42_AUTH_URL = 'https://api.intra.42.fr/oauth/authorize'
 
+############################################################################################################
 
+#google oauth settings
+############################################################################################################
+
+GOOGLE_OAUTH_CLIENT_ID = '1044566227728-u6kf090diec8d8osln6c66cfb24jskip.apps.googleusercontent.com'
+GOOGLE_OAUTH_CLIENT_SECRET = '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'
+GOOGLE_OAUTH_CALLBACK_URL = 'http://localhost:8000/api/auth/google/callback/'
+
+# Configure django-allauth to connect social accounts to existing accounts with the same email
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_EMAIL_VERIFICATION = "none"  # Set to "mandatory" if you want email verification
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APP": {
+            "client_id": GOOGLE_OAUTH_CLIENT_ID,
+            "secret": GOOGLE_OAUTH_CLIENT_SECRET,
+            "key": "",
+        },
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+    }
+}
+
+############################################################################################################
 
 DATABASES = {
     'default': {
@@ -192,9 +219,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-            'OPTIONS': {
-                'min_length': 8,
-            }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',

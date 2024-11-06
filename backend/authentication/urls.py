@@ -20,6 +20,7 @@ urlpatterns = [
     path('logout/', Logout.as_view(), name='logout'),
     path('verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('refresh/', TokenRefreshView.as_view(), name='refresh-access'),
-    # path('refresh-access/', RefreshAccessToken.as_view(), name='refresh-access'),
+    path('google/login/', GoogleLogin.as_view(), name='google_login'),
+    path('google/callback/', GoogleLoginCallback.as_view(), name='google_callback'),
 
 ]

@@ -20,6 +20,8 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate}) => {
   const router = useRouter();
   const { setIsAuthenticated, authUser, fetchAuthUser} = useContext(UserContext);
 
+  const URL = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+
   const handleSignin = async (e) => {
     e.preventDefault();
     const body = {
@@ -125,6 +127,9 @@ return (
                 Sign in with Intra
               </button>
             </Link>
+            <Link href={URL} className="
+              w-full flex items-center justify-center
+            ">
             <button className="flex items-center bg-[#131E24] text-white w-[75%] mobile:w-[90%]
             less-than-mobile:w-[90%] py-2 rounded mt-4  hover:bg-[#1E2E36] rounded-tl-[9px]
             rounded-bl-[18px] rounded-tr-[22px] rounded-br-[10px] border border-gray-500  justify-center">
@@ -132,9 +137,10 @@ return (
                 className="w-6 h-6 mr-2 fill-white"
                 src="/images/logo_google.png"
                 alt="Google Icon"
-              />
+                />
                 Sign in with Google
             </button>
+            </Link>
             <div className="flex items-center justify-center w-10/12 mt-2 text-[#949DA2]">
               <img
                 className="w-full less-than-tablet:w-[40%] mobile:h-[50px]"

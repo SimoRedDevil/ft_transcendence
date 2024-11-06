@@ -34,8 +34,10 @@ export default function Home() {
             });
             await fetchAuthUser();
             setIsAuthenticated(false);
+            setauthUser(null);
         } catch (error) {
             setIsAuthenticated(false);
+            setauthUser(null);
         }
     };
     
@@ -43,7 +45,6 @@ export default function Home() {
         const csrfToken = await getCookies(); // Fetch CSRF token
         if (csrfToken) {
             await logout(csrfToken); // Use CSRF token to logout
-            setauthUser(null);
             router.push('/login');
 
         }

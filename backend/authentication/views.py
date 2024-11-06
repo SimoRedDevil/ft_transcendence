@@ -28,6 +28,10 @@ import shutil
 import os
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
 
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from dj_rest_auth.registration.views import SocialLoginView
+from django.http import HttpResponseRedirect
 
 
 INTRA_42_AUTH_URL = settings.INTRA_42_AUTH_URL
@@ -101,6 +105,99 @@ class Intra42Callback(APIView):
         user_data = Intra42UserSerializer(user).data
         response.data = user_data
         return response
+
+
+class GoogleLogin(SocialLoginView):
+    adapter_class = GoogleOAuth2Adapter
+    callback_url = settings.GOOGLE_OAUTH_CALLBACK_URL
+    client_class = OAuth2Client
+
+from django.urls import reverse
+
+class GoogleLoginCallback(APIView):
+    def get(self, request, *args, **kwargs):
+        """
+        Handle Google OAuth2 callback and exchange the authorization code for tokens.
+        """
+
+        code = request.GET.get("code")
+        if not code:
+            return Response({"error": "Authorization code not provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Google OAuth token endpoint
+        token_endpoint_url = urljoin("https://oauth2.googleapis.com", "/token")
+        data = {
+            "code": code,
+            "client_id": settings.GOOGLE_OAUTH_CLIENT_ID,
+            "client_secret": settings.GOOGLE_OAUTH_CLIENT_SECRET,
+            "redirect_uri": settings.GOOGLE_OAUTH_CALLBACK_URL,
+            "grant_type": "authorization_code",
+        }
+
+        # Send the POST request to get the tokens
+        response = requests.post(token_endpoint_url, data=data)
+
+        if response.status_code != 200:
+            return Response({"error": "Failed to get token from Google"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # Parse the response as JSON
+        try:
+            response_data = response.json()
+            access_token = response_data.get("access_token")
+        except ValueError:
+            return Response({"error": "Invalid response from Google server"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        if not access_token:
+            return Response({"error": "Invalid access token"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        # Get user info from Google
+        user_info_url = "https://www.googleapis.com/oauth2/v3/userinfo"
+        headers = {"Authorization": f"Bearer {access_token}"}
+        user_info_response = requests.get(user_info_url, headers=headers)
+        if user_info_response.status_code != 200:
+            return Response({"error": "Failed to get user info from Google"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            user_info = user_info_response.json()
+            user, created = CustomUser.objects.get_or_create(username=user_info['sub'])
+            user_data = Intra42UserSerializer(user).data
+            authenticate(request, username=user_data['username'])
+            login(request, user)
+            user = request.user
+            user.full_name = user_info['name']
+            user.email = user_info['email']
+            user.username = user_info['given_name']
+            user.online = True
+            user.avatar_url = user_info['picture']
+            user.islogged = True
+            user.save()
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+            
+            # Create response and set cookies
+            response = HttpResponseRedirect('http://localhost:3000')
+            response.set_cookie(
+                key='access',
+                value=str(refresh.access_token),
+                httponly=False,
+                secure=False, 
+                samesite='Lax',  # Optional, but recommended
+            )
+            response.set_cookie(
+                key='refresh',
+                value=str(refresh),
+                httponly=False,
+                secure=False, 
+                samesite='Lax',  # Optional, but recommended
+            )
+            
+            # Optionally, add user data to the response if needed
+            user_data = Intra42UserSerializer(user).data
+            response['X-User-Data'] = user_data
+            
+            return response
+        except ValueError:
+            return Response({"error": "Invalid response from Google server"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 # Login View
 class LoginView(APIView):
     serializer_class = LoginSerializer

@@ -19,8 +19,15 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate}) => {
   const [password, setPassword] = useState("");
   const router = useRouter();
   const { setIsAuthenticated, authUser, fetchAuthUser} = useContext(UserContext);
+//42/callback/
 
-  const URL = 'https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=http://localhost:8000/api/auth/google/callback/&prompt=consent&response_type=code&client_id=1044566227728-u6kf090diec8d8osln6c66cfb24jskip.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline';
+  const GG_REDIRECT_URL='http://localhost:8000/api/auth/google/callback/'
+  const INTRA_REDIRECT_URL='http://localhost:8000/api/auth/42/callback/'
+  const GG_CLIENT_ID='1044566227728-u6kf090diec8d8osln6c66cfb24jskip.apps.googleusercontent.com'
+  const INTRA_CLIENT_ID='u-s4t2ud-92bd4e0625503a1a3d309256cffd60297d8692b8710fce9d6d657fe60899bfd4'
+
+  const URL = `https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=${GG_REDIRECT_URL}&prompt=consent&response_type=code&client_id=${GG_CLIENT_ID}&scope=openid%20email%20profile&access_type=offline`;
+  const URL42 = `https://api.intra.42.fr/oauth/authorize?client_id=${INTRA_CLIENT_ID}&redirect_uri=${INTRA_REDIRECT_URL}&response_type=code`;
 
   const handleSignin = async (e) => {
     e.preventDefault();
@@ -111,7 +118,7 @@ return (
                 Sign up
               </button>
             </div>
-            <Link href="http://localhost:8000/api/auth/42/login/"
+            <Link href={URL42}
               className="
                 w-full flex justify-center items-center"
             >

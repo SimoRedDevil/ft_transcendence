@@ -47,94 +47,40 @@ export const UserProvider = ({ children }) => {
         }
     };
 
-    const caallBack42 = async () => {
-        try {
-            const urls = new URLSearchParams(window.location.search);
-            const error = urls.get('error');
-            error && router.push('/login')
-            const code = urls.get('code');
-            if (code) 
-            {
-                const response = await axios.get(`http://localhost:8000/api/auth/42/callback/?code=${code}`,
-                {
-                    withCredentials: true
-                });
-                if (response.status === 200) {
-                    const user = response.data;
-                    setauthUser(user);
-                    if (user) {
-                        if (user.enabeld_2fa && !user.twofa_verified) {
-                            router.push("/twofa");
-                        }
-                        else {
-                          setIsAuthenticated(true);
-                        setTimeout(() => {
-                            toast.success("login success");
-                        }, 2000);
-                          router.push("/");
-                        }
-                    }
-                    else {
-                        setIsAuthenticated(false);
-                    }
-                }
-            }
-            } catch (error) {
-                setIsAuthenticated(false);
-            }
-        }
+   function useUserActivityTracker(callback, inactivityTimeout = 10000) {
+       if (typeof window === 'undefined') return; // Ensure this runs only in the browser
+     
+       let inactivityTimer;
+     
+       // Reset the timer function, called on each user activity
+       const resetTimer = () => {
+         clearTimeout(inactivityTimer); 
+         inactivityTimer = setTimeout(() => {
+           callback('user is inactive');
+         }, inactivityTimeout);
+       };
 
-        function useUserActivityTracker(callback, inactivityTimeout = 10000) {
-            if (typeof window === 'undefined') return; // Ensure this runs only in the browser
-          
-            let inactivityTimer;
-          
-            // Reset the timer function, called on each user activity
-            const resetTimer = () => {
-              clearTimeout(inactivityTimer); 
-              inactivityTimer = setTimeout(() => {
-                callback('user is inactive');
-              }, inactivityTimeout);
-            };
-
-            const activityHandler = (event) => {
-              callback(event); // Trigger the callback with the event
-              resetTimer();    // Reset the inactivity timer
-            };
-          
-            // Set up the event listeners to track user activity
-            window.addEventListener('keydown', activityHandler);
-            window.addEventListener('mousemove', activityHandler);
-            window.addEventListener('mousedown', activityHandler);
-            window.addEventListener('click', activityHandler);
-          
-            resetTimer();
-          
-            return () => {
-              clearTimeout(inactivityTimer); // Clear the inactivity timer on cleanup
-              window.removeEventListener('keydown', activityHandler);
-              window.removeEventListener('mousemove', activityHandler);
-              window.removeEventListener('mousedown', activityHandler);
-              window.removeEventListener('click', activityHandler);
-            };
-          }
-          
-          // Example usage
-        //   const stopTracking = useUserActivityTracker((event) => {
-        //     if (event === 'user is inactive') {
-        //       console.log("User has been inactive for 10 seconds.");
-        //     } else {
-        //       console.log("User activity detected:", event.type);
-        //     }
-        //   }, 10000);
-          
-          // Call stopTracking() to remove the event listeners and stop the tracking if needed
-          
-    useEffect(() => {
-        caallBack42();
-    }
-    , [pathname, router] );
-    
+       const activityHandler = (event) => {
+         callback(event); // Trigger the callback with the event
+         resetTimer();    // Reset the inactivity timer
+       };
+     
+       // Set up the event listeners to track user activity
+       window.addEventListener('keydown', activityHandler);
+       window.addEventListener('mousemove', activityHandler);
+       window.addEventListener('mousedown', activityHandler);
+       window.addEventListener('click', activityHandler);
+     
+       resetTimer();
+     
+       return () => {
+         clearTimeout(inactivityTimer); // Clear the inactivity timer on cleanup
+         window.removeEventListener('keydown', activityHandler);
+         window.removeEventListener('mousemove', activityHandler);
+         window.removeEventListener('mousedown', activityHandler);
+         window.removeEventListener('click', activityHandler);
+       };
+     }
     useEffect(() => {
         fetchAuthUser();
         // useUserActivityTracker((event) => {

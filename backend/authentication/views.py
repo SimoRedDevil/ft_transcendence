@@ -4,7 +4,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from django.contrib.auth import login, authenticate, logout
-from .serializers import SignUpSerializer, LoginSerializer, UserSerializer, Intra42UserSerializer
+from .serializers import *
 from .models import CustomUser
 from django.http import JsonResponse
 import requests
@@ -41,16 +41,6 @@ class SignUpView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = SignUpSerializer
 
-class GenerateAuthUrl(APIView):
-    def get(self, request):
-        auth_url = (
-            f"https://api.intra.42.fr/oauth/authorize?"
-            f"client_id={settings.INTRA_42_CLIENT_ID}&redirect_uri={settings.INTRA_42_REDIRECT_URI}"
-            "&response_type=code"
-        )
-        return redirect(auth_url)
-
-
 def fillUser(user, user_info):
     user.full_name = user_info['displayname']
     user.email = user_info['email']
@@ -85,15 +75,15 @@ class Intra42Callback(APIView):
         }
         response = requests.post('https://api.intra.42.fr/oauth/token', data=data)
         if response.status_code != 200:
-            return Response({'error': 'Invalid code'}, status=status.HTTP_400_BAD_REQUEST)
+            return HttpResponseRedirect("http://localhost:3000/login")
         response_data = response.json()
         access_token = response_data['access_token']
         if not access_token:
-            return Response({'error': 'Invalid access token'}, status=status.HTTP_400_BAD_REQUEST)
+            return HttpResponseRedirect("http://localhost:3000/login")
         user_info = requests.get('https://api.intra.42.fr/v2/me', headers={'Authorization': f'Bearer {access_token}'}).json()
 
         if 'login' not in user_info or 'email' not in user_info:
-            return Response({'error': 'Required user information missing'}, status=status.HTTP_400_BAD_REQUEST)
+            return HttpResponseRedirect("http://localhost:3000/login")
 
         user, created = CustomUser.objects.get_or_create(
             username=user_info['login'],
@@ -105,9 +95,9 @@ class Intra42Callback(APIView):
             user = fillUser(user, user_info)
         authenticate(request, username=user.username)
         if not user.is_authenticated:
-            return Response({'error': 'Failed to authenticate user'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return HttpResponseRedirect("http://localhost:3000/login")
         login(request, user)
-        response = Response(status=status.HTTP_200_OK)
+        response = HttpResponseRedirect('http://localhost:3000')
         response = setTokens(response, user)
         user_data = Intra42UserSerializer(user).data
         response.data = user_data
@@ -119,13 +109,11 @@ class GoogleLogin(SocialLoginView):
     callback_url = settings.GOOGLE_OAUTH_CALLBACK_URL
     client_class = OAuth2Client
 
-from django.urls import reverse
-
 class GoogleLoginCallback(APIView):
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         code = request.GET.get("code")
         if not code:
-            return Response({"error": "Authorization code not provided"}, status=status.HTTP_400_BAD_REQUEST)
+            return HttpResponseRedirect("http://localhost:3000/login")
 
         # Google OAuth token endpoint
         token_endpoint_url = urljoin("https://oauth2.googleapis.com", "/token")
@@ -140,30 +128,30 @@ class GoogleLoginCallback(APIView):
         # Send the POST request to get the tokens
         response = requests.post(token_endpoint_url, data=data)
         if response.status_code != 200:
-            return Response({"error": "Failed to get token from Google"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return HttpResponseRedirect("http://localhost:3000/login")
 
         # Parse the response as JSON
         try:
             response_data = response.json()
             access_token = response_data.get("access_token")
         except ValueError:
-            return Response({"error": "Invalid response from Google server"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return HttpResponseRedirect("http://localhost:3000/login")
 
         if not access_token:
-            return Response({"error": "Invalid access token"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return HttpResponseRedirect("http://localhost:3000/login")
         
         # Get user info from Google
         user_info_url = "https://www.googleapis.com/oauth2/v3/userinfo"
         headers = {"Authorization": f"Bearer {access_token}"}
         user_info_response = requests.get(user_info_url, headers=headers)
         if user_info_response.status_code != 200:
-            return Response({"error": "Failed to get user info from Google"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return HttpResponseRedirect("http://localhost:3000/login")
         
         try:
             user_info = user_info_response.json()
 
             if 'sub' not in user_info or 'email' not in user_info:
-                return Response({"error": "Required user information missing from Google response"}, status=status.HTTP_400_BAD_REQUEST)
+                return HttpResponseRedirect("http://localhost:3000/login")
 
             user, created = CustomUser.objects.get_or_create(email=user_info['email'], defaults={
                 'username': user_info['given_name'],
@@ -177,16 +165,16 @@ class GoogleLoginCallback(APIView):
                 user.save()
             authenticate(request, username=user.username)
             if not user.is_authenticated:
-                return Response({"error": "Failed to authenticate user"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return HttpResponseRedirect("http://localhost:3000/login")
             login(request, user)
 
             response = HttpResponseRedirect('http://localhost:3000')
             response = setTokens(response, user)
-            user_data = UserSerializer(user).data
+            user_data = GoogleUserSerializer(user).data
             response['X-User-Data'] = user_data
             return response
         except ValueError:
-            return Response({"error": "Invalid response from Google server"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return HttpResponseRedirect("http://localhost:3000/login")
 
 # Login View
 class LoginView(APIView):

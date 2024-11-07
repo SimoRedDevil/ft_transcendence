@@ -58,6 +58,14 @@ class Intra42UserSerializer(serializers.ModelSerializer):
             'password': {'write_only': True},
         }
 
+class GoogleUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = '__all__'
+        extra_kwargs = {
+            'password': {'write_only': True},
+        }
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser

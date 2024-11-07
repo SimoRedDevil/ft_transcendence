@@ -8,7 +8,6 @@ urlpatterns = [
     path('signup/', SignUpView.as_view(), name='signup'),
     path('login/', LoginView.as_view(), name='login'),
     path('users/', UserViewSet.as_view({'get': 'list'}), name='users'),
-    path('42/login/', GenerateAuthUrl.as_view(), name='intra_42_login'),
     path('42/callback/', Intra42Callback.as_view(), name='42_callback'),
     path('user/', AuthenticatedUserView.as_view(), name='AuthenticatedUser'),
     path('enable-2fa/', EnableTwoFactorView.as_view(), name='enable_2fa'),

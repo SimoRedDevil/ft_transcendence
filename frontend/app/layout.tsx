@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import { UserProvider, UserContext } from '../components/context/usercontext';
+import NotificationMenu from '../components/NotificationMenu';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -76,6 +77,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
                 )}
 
                 <div className="h-[calc(100%_-_100px)] w-full">
+                    <NotificationMenu />
                     {children}
                 </div>
             </div>

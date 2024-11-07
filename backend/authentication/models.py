@@ -4,6 +4,9 @@ from django.db import models
 class CustomUser(BaseUser):
     full_name = models.CharField(max_length=50)
     email = models.EmailField(unique=True)
+    phone_number = models.CharField(max_length=15, blank=True, default='06-00-00-00-00')
+    city = models.CharField(max_length=50, blank=True, default='Khouribga')
+    address = models.CharField(max_length=50, blank=True, default='1337 school')
     tournament_name = models.CharField(max_length=50, blank=True, null=True)
     tournament_score = models.IntegerField(default=0)
     enabeld_2fa = models.BooleanField(default=False)
@@ -11,7 +14,7 @@ class CustomUser(BaseUser):
     twofa_verified = models.BooleanField(default=False)
     qrcode_dir = models.CharField(max_length=100, blank=True, null=True)
     qrcode_path = models.CharField(max_length=100, blank=True, null=True)
-    avatar_url = models.URLField(max_length=200, blank=True, default='http://localhost:8000/avatars/default.png')
+    avatar_url = models.URLField(max_length=200, blank=True, null=True)
     islogged = models.BooleanField(default=False)
     level = models.IntegerField(default=0)
     matches = models.IntegerField(default=0)

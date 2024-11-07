@@ -66,10 +66,19 @@ class GoogleUserSerializer(serializers.ModelSerializer):
             'password': {'write_only': True},
         }
 
+class UpdateUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['full_name', 'avatar_url', 'phone_number', 'city', 'address']
+        read_only_fields = ['username', 'email']
+        extra_kwargs = {
+            'password': {'write_only': True},
+        }
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'full_name', 'username', 'email', 'avatar_url', 'tournament_name', 
+        fields = ['id', 'full_name', 'username', 'email', 'phone_number', 'city', 'address', 'avatar_url', 'tournament_name', 
             'tournament_score', 'enabeld_2fa', 'twofa_verified', 'qrcode_dir', 'qrcode_path',
             'level', 'matches', 'wins', 'losses', 'draws', 'profile_visited',
             'friends_count', 'top_score', 'tournaments', 'online_matches',

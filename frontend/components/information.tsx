@@ -1,42 +1,65 @@
-import React, { use } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import TextFieledTmp from "./TextFieledTmp";
-import {UserContext} from "./context/usercontext";
-import { useContext } from "react";
+import { UserContext } from "./context/usercontext";
 import { useTranslation } from 'react-i18next';
 
 export default function Information() {
-  const {authUser, loading} = useContext(UserContext);
+  const { authUser, loading } = useContext(UserContext);
   const { t } = useTranslation();
+
+  const [personalInfo, setPersonalInfo] = useState({
+    full_name: authUser?.full_name || "",
+    username: authUser?.username || "",
+    city: authUser?.city || "",
+  });
+
+  const [contactInfo, setContactInfo] = useState({
+    email: authUser?.email || "",
+    phone_number: authUser?.phone_number || "",
+    address: authUser?.address || "",
+  });
+
+  useEffect(() => {
+    if (authUser) {
+      setPersonalInfo({
+        full_name: authUser.full_name,
+        username: authUser.username,
+        city: authUser.city,
+      });
+      setContactInfo({
+        email: authUser.email,
+        phone_number: authUser.phone_number,
+        address: authUser.address,
+      });
+    }
+  }, [authUser]);
 
   if (loading || !authUser) {
     return <div>Loading...</div>;
   }
+
   return (
-    <div
-      className=" text-white w-full h-full flex items-center laptop:justify-evenly less-than-tablet:flex-col
-      laptop:flex-row tablet:flex-col
-       less-than-tablet:pt-10 overflow-y-auto no-scrollbar
-      ">
-        <TextFieledTmp
-            title={t("Personal Information")}
-            label1={t("Full Name")}
-            label2={t("Username")}
-            label3={t("City")}
-            type="text"
-            defaultValue1={authUser?.full_name}
-            defaultValue2={authUser?.username}
-            defaultValue3="Khouribga"
-        />
-        <TextFieledTmp
-            title={t("Contact")}
-            label1={t("Email")}
-            label2={t("Phone")}
-            label3={t("Address")}
-            type="text"
-            defaultValue1={authUser?.email}
-            defaultValue2="620-583-4205"
-            defaultValue3="1337 School"
-        />
+    <div className="text-white w-full h-full flex items-center laptop:justify-evenly less-than-tablet:flex-col laptop:flex-row tablet:flex-col less-than-tablet:pt-10 overflow-y-auto no-scrollbar">
+
+      <TextFieledTmp
+        title={t("Personal Information")}
+        label1={t("Full Name")}
+        label2={t("Username")}
+        label3={t("City")}
+        type="text"
+        values={personalInfo}
+        setValues={setPersonalInfo}
+      />
+
+      <TextFieledTmp
+        title={t("Contact")}
+        label1={t("Email")}
+        label2={t("Phone")}
+        label3={t("Address")}
+        type="text"
+        values={contactInfo}
+        setValues={setContactInfo}
+      />
     </div>
   );
 }

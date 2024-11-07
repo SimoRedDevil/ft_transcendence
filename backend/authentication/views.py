@@ -42,10 +42,15 @@ class SignUpView(generics.CreateAPIView):
     serializer_class = SignUpSerializer
 
 def fillUser(user, user_info):
-    user.full_name = user_info['displayname']
-    user.email = user_info['email']
+    if not user.full_name:
+        user.full_name = user_info['displayname']
+    if not user.username:
+        user.username = user_info['login']
+    if not user.email:
+        user.email = user_info['email']
     user.online = True
-    user.avatar_url = user_info['image']['link']
+    if not user.avatar_url:
+        user.avatar_url = user_info['image']['link']
     user.islogged = True
     user.save()
     return user
@@ -87,9 +92,6 @@ class Intra42Callback(APIView):
 
         user, created = CustomUser.objects.get_or_create(
             username=user_info['login'],
-            defaults={
-                'email': user_info.get('email', ''),
-            }
         )
         if created:
             user = fillUser(user, user_info)
@@ -195,6 +197,8 @@ class LoginView(APIView):
                 login(request, user)
                 user.online = True
                 user.islogged = True
+                if not user.avatar_url:
+                    user.avatar_url = 'http://localhost:8000/avatars/default.png'
                 user.save()
                 response = Response(status=status.HTTP_200_OK)
                 response = setTokens(response, user)
@@ -344,3 +348,39 @@ class GetQRCodeView(APIView):
         qr_user = user.qrcode_path.split('/')[-1]
         qrcode_path = "http://localhost:8000/qrcodes/" + qr_user
         return Response({'qrcode_url': qrcode_path}, status=status.HTTP_200_OK)
+
+
+#update user Information
+class UpdateUserView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+    def put(self, request):
+        user = request.user
+        data = request.data
+        print(data)
+
+        updated = False
+        full_name = data.get('full_name')
+        if full_name and full_name != user.full_name:
+            user.full_name = full_name
+            updated = True
+        avatar_url = data.get('avatar_url')
+        if avatar_url and avatar_url != user.avatar_url:
+            user.avatar_url = avatar_url
+            updated = True
+        phone_number = data.get('phone_number')
+        if phone_number and phone_number != user.phone_number:
+            user.phone_number = phone_number
+            updated = True
+        city = data.get('city')
+        if city and city != user.city:
+            user.city = city
+            updated = True
+        address = data.get('address')
+        if address and address != user.address:
+            user.address = address
+            updated = True
+        if updated:
+            user.save()
+        user_data = UpdateUserSerializer(user).data
+        return Response(user_data, status=status.HTTP_200_OK)

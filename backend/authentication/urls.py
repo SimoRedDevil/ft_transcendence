@@ -16,6 +16,7 @@ urlpatterns = [
     path('cookies/', GetCookies.as_view(), name='get_cookies'),
     path('get-qrcode/', GetQRCodeView.as_view(), name='get-qrcode'),
     path('logout/', Logout.as_view(), name='logout'),
+    path('update/', UpdateUserView.as_view(), name='update'),
     path('verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('refresh/', TokenRefreshView.as_view(), name='refresh-access'),
     path('google/login/', GoogleLogin.as_view(), name='google_login'),

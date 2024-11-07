@@ -31,4 +31,16 @@ const caallBack42 = async (callbackCode) => {
       }
   }
 
+export const getCookies = async () => {
+    try {
+        const response = await axios.get('http://localhost:8000/api/auth/cookies/', {
+            withCredentials: true,
+        });
+        const csrfToken = response.data.cookies.csrftoken;
+        return csrfToken;
+    } catch (error) {
+    }
+};
+
+
 export default caallBack42;

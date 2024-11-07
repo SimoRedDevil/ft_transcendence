@@ -29,11 +29,6 @@ services:
     depends_on:
       backend:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "npm", "run", "test"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
       
   backend:
     container_name: backend
@@ -81,7 +76,7 @@ services:
     ports:
       - "80:80"
     depends_on:
-      frontend:
+      backend:
         condition: service_healthy
     networks:
       - alienspong

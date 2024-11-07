@@ -37,29 +37,16 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
     const {loading, isAuthenticated, fetchAuthUser, authUser} = useContext(UserContext);
     const [token, setToken] = useState(null);
 
-    const getCookies = async () => {
-        try {
-            const response = await axios.get('http://localhost:8000/api/auth/cookies/', {
-                withCredentials: true,
-            });
-            const access = response.data.cookies.access;
-            return access;
-        } catch (error) {
-            router.push('/login');
-        }
-    };
-    
+
     useEffect(() => {
-        // const tokens = Cookies.get('access');
-        // setToken(tokens);
-        // console.log(tokens);
-        !isAuthenticated && fetchAuthUser();
-        if (authUser)
-        {
-            if (pathname === '/login')
+        if (isAuthenticated) {
+            fetchAuthUser();
+            if (pathname === '/login') {
                 router.push('/');
+            }
         }
-    }, [isAuthenticated, pathname, router, authUser]);
+    }, [isAuthenticated, pathname, router]);
+
     if (loading) {
         return (
             <div className="flex justify-center items-center h-screen w-screen bg-main-bg border

@@ -19,7 +19,7 @@ export const UserProvider = ({ children }) => {
 
     const fetchAuthUser = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/auth/user/', {
+            const response = await axios('http://localhost:8000/api/auth/user/', {
                 withCredentials: true,
                 headers: {
                     'Content-Type': 'application/json',
@@ -28,13 +28,18 @@ export const UserProvider = ({ children }) => {
             const user = response.data;
             setauthUser(user);
             if (user) {
-                    if (authUser.enabeld_2fa && !authUser.twofa_verified && authUser.islogged)
+                    if (user.enabeld_2fa && !user.twofa_verified && user.islogged)
                         router.push("/twofa");
                     setIsAuthenticated(true);
                 }
+            else {
+                setIsAuthenticated(false);
+                router.push('/login');
+            }
             } catch (error) {
             setError(error);
             setIsAuthenticated(false);
+            router.push('/login');
         } finally {
             setTimeout(() => {
                 setLoading(false);

@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 export default function Language() {
     const { i18n, t } = useTranslation();
     const languages = [
-        { code: 'ar', name: 'Arabic', flag: 'images/morocco.png' },
         { code: 'en', name: 'English', flag: 'images/uk.png' },
         { code: 'fr', name: 'French', flag: 'images/france.png' },
         { code: 'es', name: 'Spanish', flag: 'images/spain.png' },

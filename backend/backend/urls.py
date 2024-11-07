@@ -24,5 +24,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('authentication.urls')),
     path('api/chat/', include('chat.urls')),
-    
+    path('api/friends/', include('friends.urls')),
 ]+ static(settings.QRCODE_URL, document_root=settings.QRCODE_ROOT)

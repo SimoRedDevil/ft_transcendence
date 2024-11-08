@@ -71,9 +71,7 @@ const Popup = ({
         desable2fabutton()
         setTry2fa(false)
       } else {
-        if (status == 200) {
           setTry2fa(true);
-        }
       }
     clearValues();
     setIsOpen(false);

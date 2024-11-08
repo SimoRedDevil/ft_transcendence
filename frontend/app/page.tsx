@@ -5,23 +5,12 @@ import axios from 'axios'
 import { useRouter } from 'next/navigation';
 import {UserContext} from "../components/context/usercontext";
 import { useContext } from "react";
+import { getCookies } from '../components/auth';
 
 export default function Home() {
     const router = useRouter();
     const {setIsAuthenticated, fetchAuthUser, setauthUser} = useContext(UserContext);
 
-    const getCookies = async () => {
-        try {
-            const response = await axios.get('http://localhost:8000/api/auth/cookies/', {
-                withCredentials: true,
-            });
-            const csrfToken = response.data.cookies.csrftoken;
-            return csrfToken;
-        } catch (error) {
-            router.push('/login');
-        }
-    };
-    
     const logout = async (csrfToken) => {
         try {
             const response = await axios.post('http://localhost:8000/api/auth/logout/', {}, {
@@ -42,11 +31,11 @@ export default function Home() {
     };
     
     const handleLogout = async () => {
-        const csrfToken = await getCookies(); // Fetch CSRF token
+        const cookies = await getCookies();
+        const csrfToken = cookies.cookies.csrftoken
         if (csrfToken) {
-            await logout(csrfToken); // Use CSRF token to logout
+            await logout(csrfToken);
             router.push('/login');
-
         }
     };
     

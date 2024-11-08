@@ -108,7 +108,7 @@ AUTH_USER_MODEL = 'authentication.CustomUser'
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),    # Short lifetime for access token
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=14),    # Longer lifetime for refresh token
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=90),    # Longer lifetime for refresh token
     'ROTATE_REFRESH_TOKENS': True,                 # Rotate refresh tokens on refresh
     'BLACKLIST_AFTER_ROTATION': True,              # Blacklist old tokens
     'UPDATE_LAST_LOGIN': True,                   # Update last login on token refresh

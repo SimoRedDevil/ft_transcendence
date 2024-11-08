@@ -73,13 +73,14 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         read_only_fields = ['username', 'email']
         extra_kwargs = {
             'password': {'write_only': True},
-            'full_name': {'required': False, 'max_length': 20,
+            'full_name': {'required': False, 'max_length': 40,
             },
             'phone_number': {'required': False, 'max_length': 15,
+                'min_length': 6,
             },
-            'city': {'required': False, 'max_length': 20,
+            'city': {'required': False, 'max_length': 40,
             },
-            'address': {'required': False, 'max_length': 20,
+            'address': {'required': False, 'max_length': 40,
             },
         }
 

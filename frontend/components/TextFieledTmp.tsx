@@ -23,7 +23,8 @@ function TextFieledTmp({
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const csrfToken = await getCookies();
+      const cookies = await getCookies();
+      const csrfToken = cookies.cookies.csrftoken;
       const response = await axios.put("http://localhost:8000/api/auth/update/", values, {
         headers: {
           "Content-Type": "application/json",
@@ -32,7 +33,7 @@ function TextFieledTmp({
         withCredentials: true,
       });
       if (response.status === 200) {
-        console.log("Update successful:");
+        console.log("Update successful:", response.data);
       } else {
         console.log("Update failed");
       }

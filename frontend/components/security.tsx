@@ -5,7 +5,7 @@ import axios from "axios";
 import Popup from "../components/popup";
 import { enableTwoFactorAuth } from "./twoFa";
 import { useTranslation } from 'react-i18next';
-
+import {getCookies} from './auth';
 import { useUserContext } from "../components/context/usercontext";
 
 export default function Security() {
@@ -21,21 +21,27 @@ export default function Security() {
 
 
 
-  const hundelSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
     const body = {
       current_password: current_password,
       new_password: new_password,
       confirm_password: confirm_password,
     };
+    
     console.log(body);
     try {
-      const response = await axios.post(
-        "http://localhost:8000/api/auth/update/",body,
+      const cookies = await getCookies();
+      const csrftoken = cookies.cookies.csrftoken;
+      const response = await axios.put(
+        "http://localhost:8000/api/auth/update/",
+        body,
         {
           withCredentials: true,
           headers: {
             "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken,
           },
         }
       );
@@ -43,9 +49,10 @@ export default function Security() {
         console.log("Password Changed");
       }
     } catch (error) {
-      console.log("Error in changing password");
+      console.log("Error in changing password:");
     }
-  }
+  };
+  
 
   if (loading || !authUser) {
     return <div>Loading...</div>;
@@ -168,7 +175,7 @@ export default function Security() {
                     flex  w-full justify-center 
           "
           >
-            <button onClick={hundelSubmit}
+            <button onClick={handleSubmit}
               className="rounded-[50px] border-[0.5px] border-white border-opacity-40 desktop:h-[80px] w-[556px] bg-gradient-to-r from-[#1A1F26]/90 to-[#000]/70
                 laptop:w-[80%] less-than-tablet:w-[85%] less-than-tablet:mb-3 laptop:h-[60px] laptop:my-7 tablet:h-[50px] 
                 less-than-tablet:h-[50px] tablet:w-[75%]

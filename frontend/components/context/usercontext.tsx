@@ -28,8 +28,8 @@ export const UserProvider = ({ children }) => {
             const user = response.data;
             setauthUser(user);
             if (user) {
-                    if (user.enabeld_2fa && !user.twofa_verified && user.islogged)
-                        router.push("/twofa");
+                    // if (user.enabeld_2fa && !user.twofa_verified && !user.islogged)
+                    //     router.push("/twofa");
                     setIsAuthenticated(true);
                 }
             else {
@@ -47,54 +47,24 @@ export const UserProvider = ({ children }) => {
         }
     };
 
-   function useUserActivityTracker(callback, inactivityTimeout = 10000) {
-       if (typeof window === 'undefined') return; // Ensure this runs only in the browser
-     
-       let inactivityTimer;
-     
-       // Reset the timer function, called on each user activity
-       const resetTimer = () => {
-         clearTimeout(inactivityTimer); 
-         inactivityTimer = setTimeout(() => {
-           callback('user is inactive');
-         }, inactivityTimeout);
-       };
-
-       const activityHandler = (event) => {
-         callback(event); // Trigger the callback with the event
-         resetTimer();    // Reset the inactivity timer
-       };
-     
-       // Set up the event listeners to track user activity
-       window.addEventListener('keydown', activityHandler);
-       window.addEventListener('mousemove', activityHandler);
-       window.addEventListener('mousedown', activityHandler);
-       window.addEventListener('click', activityHandler);
-     
-       resetTimer();
-     
-       return () => {
-         clearTimeout(inactivityTimer); // Clear the inactivity timer on cleanup
-         window.removeEventListener('keydown', activityHandler);
-         window.removeEventListener('mousemove', activityHandler);
-         window.removeEventListener('mousedown', activityHandler);
-         window.removeEventListener('click', activityHandler);
-       };
-     }
     useEffect(() => {
         fetchAuthUser();
-        // useUserActivityTracker((event) => {
-        //     if (event === 'user is inactive') {
-        //       console.log("User has been inactive for 10 seconds.");
-        //     } else {
-        //       console.log("User activity detected:", event.type);
-        //     }
-        //   }
-        // );
     }
     , [pathname, router, isAuthenticated, loading] );
     return (
-        <UserContext.Provider value={{ authUser, setauthUser, setLoading, loading, error, isAuthenticated, fetchAuthUser, setIsAuthenticated, setTry2fa, try2fa}}>
+        <UserContext.Provider value={{
+                                        authUser,
+                                        setauthUser,
+                                        setLoading,
+                                        loading,
+                                        error,
+                                        isAuthenticated,
+                                        fetchAuthUser,
+                                        setIsAuthenticated,
+                                        setTry2fa,
+                                        try2fa,
+
+                                    }}>
             {children}
         </UserContext.Provider>
     );

@@ -27,11 +27,14 @@ from rest_framework_simplejwt.exceptions import TokenError
 import shutil
 import os
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
-
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from dj_rest_auth.registration.views import SocialLoginView
 from django.http import HttpResponseRedirect
+from rest_framework_simplejwt.authentication import JWTAuthentication
+import jwt
+from django.utils.timezone import now
+
 
 
 INTRA_42_AUTH_URL = settings.INTRA_42_AUTH_URL
@@ -40,21 +43,6 @@ INTRA_42_AUTH_URL = settings.INTRA_42_AUTH_URL
 class SignUpView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = SignUpSerializer
-
-def fillUser(user, user_info):
-    if not user.full_name:
-        user.full_name = user_info['displayname']
-    if not user.username:
-        user.username = user_info['login']
-    if not user.email:
-        user.email = user_info['email']
-    user.online = True
-    if not user.avatar_url:
-        user.avatar_url = user_info['image']['link']
-    user.islogged = True
-    user.social_logged = True
-    user.save()
-    return user
 
 def setTokens(response, user):
     refresh = RefreshToken.for_user(user)
@@ -66,6 +54,13 @@ def setTokens(response, user):
         secure=False, 
         samesite='Lax',
     )
+    return response
+
+def delete_tokens(request, status):
+    response = Response(status=status)
+    response.delete_cookie('access')
+    response.delete_cookie('sessionid')
+    response.delete_cookie('csrftoken')
     return response
 
 # Callback Intra View
@@ -91,11 +86,24 @@ class Intra42Callback(APIView):
         if 'login' not in user_info or 'email' not in user_info:
             return HttpResponseRedirect("http://localhost:3000/login")
 
-        user, created = CustomUser.objects.get_or_create(
-            username=user_info['login'],
-        )
-        if created:
-            user = fillUser(user, user_info)
+        try:
+            user = CustomUser.objects.get(username=user_info['login'])
+            user.social_logged = True
+            user.islogged = True
+            user.online = True
+            user.save()
+        except CustomUser.DoesNotExist:
+            user = CustomUser.objects.create(
+                username=user_info['login'],
+                email=user_info['email'],
+                full_name=user_info['displayname'],
+                avatar_url=user_info['image']['link'],
+                social_logged=True,
+                islogged=True,
+                online=True,
+                password_is_set=True
+            )
+
         authenticate(request, username=user.username)
         if not user.is_authenticated:
             return HttpResponseRedirect("http://localhost:3000/login")
@@ -112,6 +120,7 @@ class GoogleLogin(SocialLoginView):
     callback_url = settings.GOOGLE_OAUTH_CALLBACK_URL
     client_class = OAuth2Client
 
+# Callback Google View
 class GoogleLoginCallback(APIView):
     def get(self, request):
         code = request.GET.get("code")
@@ -155,18 +164,22 @@ class GoogleLoginCallback(APIView):
 
             if 'sub' not in user_info or 'email' not in user_info:
                 return HttpResponseRedirect("http://localhost:3000/login")
-
-            user, created = CustomUser.objects.get_or_create(email=user_info['email'], defaults={
-                'username': user_info['given_name'],
-                'full_name': user_info['name'],
-                'avatar_url': user_info.get('picture', ''),
-            })
-            if created:
-                user.username = user_info['given_name']
+            try:
+                user = CustomUser.objects.get(email=user_info['email'])
+                user.social_logged = True
                 user.islogged = True
                 user.online = True
-                user.social_logged = True
                 user.save()
+            except CustomUser.DoesNotExist:
+                user = CustomUser.objects.create(
+                    username=user_info['given_name'],
+                    email=user_info['email'],
+                    full_name=user_info['name'],
+                    avatar_url=user_info['picture'],
+                    social_logged=True,
+                    islogged=True,
+                    online=True
+                )
             authenticate(request, username=user.username)
             if not user.is_authenticated:
                 return HttpResponseRedirect("http://localhost:3000/login")
@@ -209,7 +222,7 @@ class LoginView(APIView):
                 return Response("Invalid credentials", status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+# get all users
 class UserViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication]
     serializer_class = UserSerializer
@@ -238,21 +251,27 @@ def generate_tokens(request):
     response.data = user_data
     return response
 
+# get authenticated user
 class AuthenticatedUserView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
-    res = None
+
     def get(self, request):
         user = request.user
-        acces = request.COOKIES.get('access')
-        if not acces:
+        try:
+            acces_token = request.COOKIES.get('access')
+            decoded_access_token = jwt.decode(
+                acces_token,
+                key=settings.SECRET_KEY,
+                algorithms=["HS256"]
+            )
+        except jwt.ExpiredSignatureError:
             return generate_tokens(request)
-        else:
-            valid = requests.post('http://localhost:8000/api/auth/verify/', data={'token': acces})
-            if valid.status_code != 200:
-                return generate_tokens(request)
-        return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
 
+        except (jwt.InvalidTokenError, jwt.DecodeError):
+            return delete_tokens(request, status=status.HTTP_401_UNAUTHORIZED)
+
+        return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
 
 # Logout View
 class Logout(APIView):
@@ -262,21 +281,15 @@ class Logout(APIView):
     def post(self, request):
         user = request.user
         if user.is_authenticated:
-            # Log the user out
             logout(request)
             user.online = False
-            user.islogged = False
+            user.twofa_verified = False
             user.save()
-
-            # Prepare the response and delete cookies
-            response = Response(status=status.HTTP_200_OK)
-            response.delete_cookie('access')
-            response.delete_cookie('refresh')
-            response.delete_cookie('csrftoken')
-            return response
+            return delete_tokens(request, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
+#enable 2fa
 class EnableTwoFactorView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
@@ -292,6 +305,7 @@ class EnableTwoFactorView(APIView):
         user.qrcode_path = qrcode_path
         return Response({'qrcode_url': user.qrcode_path}, status=status.HTTP_200_OK)
 
+#disable 2fa
 class DisableTwoFactorView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
@@ -307,6 +321,7 @@ class DisableTwoFactorView(APIView):
         user.save()
         return Response(status=status.HTTP_200_OK)
 
+#verify 2fa
 class VerifyTwoFactorView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
@@ -322,11 +337,13 @@ class VerifyTwoFactorView(APIView):
 
         if totp.verify(user_code):
             user.enabeld_2fa = True
+            user.twofa_verified = not user.twofa_verified
             user.save()
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
+#get cookies
 class GetCookies(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
@@ -339,6 +356,7 @@ class GetCookies(APIView):
         cookie_data = {key: value for key, value in cookies.items()}
         return Response({'cookies': cookie_data}, status=200)
 
+#get qrcode for 2fa
 class GetQRCodeView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
@@ -351,27 +369,14 @@ class GetQRCodeView(APIView):
         qrcode_path = "http://localhost:8000/qrcodes/" + qr_user
         return Response({'qrcode_url': qrcode_path}, status=status.HTTP_200_OK)
 
-
-def update_password(request):
-    user = request.user
-    data = request.data
-    current_password = data.get('current_password')
-    if not user.check_password(current_password) or not data.get('new_password') or not data.get('confirm_password'):
-        return Response({'error': 'something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
-    if data.get('new_password') != data.get('confirm_password'):
-        return Response({'error': 'passwords do not match'}, status=status.HTTP_400_BAD_REQUEST)
-    new_password = data.get('new_password')
-    user.set_password(new_password)
-
 #update user Information
 class UpdateUserView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
-
     def put(self, request):
+        print("UpdateUserView")
         user = request.user
         data = request.data
-        print(request)
         serializer = UpdateUserSerializer(data=data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -390,6 +395,7 @@ class UpdateUserView(APIView):
             updated = True
         address = data.get('address')
         if address and address != user.address:
+            user.address = address
             updated = True
 
         if 'new_password' in data:
@@ -402,18 +408,25 @@ class UpdateUserView(APIView):
         user_data = UpdateUserSerializer(user).data
         return Response(user_data, status=status.HTTP_200_OK)
 
+#change password
     def change_password(self, user, data):
         current_password = data.get('current_password')
         new_password = data.get('new_password')
         confirm_password = data.get('confirm_password')
-        if not user.check_password(current_password) and not user.social_logged:
-            return Response({'error': 'Current password is incorrect'}, status=status.HTTP_400_BAD_REQUEST)
-        
+        if not user.social_logged:
+            if not user.check_password(current_password):
+                return Response({'error': 'Current password is incorrect'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            if user.password_is_set:
+                if not user.check_password(current_password):
+                    return Response({'error': 'Current password is incorrect'}, status=status.HTTP_400_BAD_REQUEST)
         if not new_password or not confirm_password:
             return Response({'error': 'New password and confirmation are required'}, status=status.HTTP_400_BAD_REQUEST)
-        
+        if new_password == current_password:
+            return Response({'error': 'New password must be different from the current password'}, status=status.HTTP_400_BAD_REQUEST)
         if new_password != confirm_password:
             return Response({'error': 'Passwords do not match'}, status=status.HTTP_400_BAD_REQUEST)
-        
         user.set_password(new_password)
+        if user.social_logged:
+            user.password_is_set = True
         return None

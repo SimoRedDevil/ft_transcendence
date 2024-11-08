@@ -12,7 +12,7 @@ import { UserContext } from "../../components/context/usercontext";
 const TwofaVerify = () => {
   const [code, setCode] = useState<string>("");
   const router = useRouter();
-  const {users, fetchAuthUser} = useContext(UserContext);
+  const {authUser, fetchAuthUser} = useContext(UserContext);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -72,7 +72,7 @@ const TwofaVerify = () => {
               <div
                 className="text-white rounded-tl-[10px] w-[50%] border-gray-500
                 rounded-custom-Radius flex items-center justify-center text-sm less-than-mobile:text-xs">
-                {users?.username}
+                {authUser?.username}
               </div>
             </div>
             <div className="flex flex-col w-10/12 mt-3">

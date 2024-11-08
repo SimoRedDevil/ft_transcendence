@@ -10,8 +10,8 @@ export const getCookies = async () => {
         const response = await axios.get('http://localhost:8000/api/auth/cookies/', {
             withCredentials: true,
         });
-        const csrfToken = response.data.cookies.csrftoken;
-        return csrfToken;
+        const cookies = response.data;
+        return cookies;
     } catch (error) {
     }
 };

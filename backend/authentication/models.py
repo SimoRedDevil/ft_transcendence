@@ -22,6 +22,7 @@ class CustomUser(BaseUser):
     avatar_url = models.URLField(max_length=200, blank=True, null=True)
     islogged = models.BooleanField(default=False)
     social_logged = models.BooleanField(default=False)
+    password_is_set = models.BooleanField(default=False)
     level = models.IntegerField(default=0)
     matches = models.IntegerField(default=0)
     wins = models.IntegerField(default=0)

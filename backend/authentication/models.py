@@ -26,6 +26,7 @@ class CustomUser(BaseUser):
     current_xp = models.IntegerField(default=0)
     target_xp = models.IntegerField(default=0)
     online = models.BooleanField(default=False)
+    friends = models.ManyToManyField('self', blank=True, symmetrical=True)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'full_name']  # Specify any additional required fields

@@ -11,9 +11,8 @@ import { useState, useEffect } from 'react';
 import BounceLoader from "react-spinners/ClipLoader";
 import {usePathname} from 'next/navigation';
 
-function Header() {
+function Header({setNotificationClicked, notificationClicked}) {
   const { users } = useContext(UserContext);
-  const [notificationClicked, setNotificationClicked] = useState(false);
 
   const handleNotificationClick = () => {
     setNotificationClicked(!notificationClicked);
@@ -36,7 +35,9 @@ function Header() {
             <IoIosNotificationsOutline className='text-white h-[50px] w-[50px]'/>
           }
         </div>
-          {users && users.avatar_url ? ( <Image src={users.intra_avatar_url ? users.intra_avatar_url : users.avatar_url} height={70} width={70} alt='avatar' className='rounded-full'/> ) : (
+          {users && users.avatar_url ? 
+          ( <Image src={users.intra_avatar_url ? users.intra_avatar_url : users.avatar_url} 
+            height={70} width={70} alt='avatar' className='rounded-full cursor-pointer'/> ) : (
         <div className='w-full flex justify-center items-center h-full text-white text-opacity-50 text-xs'>
           <BounceLoader color={'#949DA2'} loading={true} size={50} />
         </div>)}

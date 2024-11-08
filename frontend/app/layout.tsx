@@ -7,6 +7,8 @@ import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import { UserProvider, UserContext } from '../components/context/usercontext';
 import NotificationMenu from '../components/NotificationMenu';
+import DropDown from '../components/DropDown';
+import { useState } from 'react';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -33,6 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
     const {users, loading, isAuthenticated, fetchAuthUser } = useContext(UserContext);
+    const [notificationClicked, setNotificationClicked] = useState(false);
 
     // Handle redirection based on authentication
     useEffect(() => {
@@ -64,7 +67,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
             {/* Render Header if pathname is not in exclude list */}
             {!exclude.includes(pathname) && (
                 <div className="h-[100px]">
-                    <Header />
+                    <Header setNotificationClicked={setNotificationClicked} notificationClicked={notificationClicked} />
                 </div>
             )}
 
@@ -77,7 +80,13 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
                 )}
 
                 <div className="h-[calc(100%_-_100px)] w-full">
-                    <NotificationMenu />
+                    {(isAuthenticated && notificationClicked) && <NotificationMenu />}
+                    {
+                        isAuthenticated &&
+                        <div className='border w-[calc(100%_-_100px)] fixed h-[200px] flex flex-row-reverse'>
+                            <DropDown className='' items={['Profile', 'Settings', 'Logout']} />
+                        </div>
+                    }
                     {children}
                 </div>
             </div>

@@ -7,11 +7,17 @@ phone_regex = RegexValidator(
 )
 
 class CustomUser(BaseUser):
+    LANGUAGE_CHOICES = (
+        ('en', 'English'),
+        ('fr', 'French'),
+        ('es', 'Spanish'),
+    )
     full_name = models.CharField(max_length=50)
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=15, blank=True, default='06-00-00-00-00', validators=[phone_regex])
     city = models.CharField(max_length=50, blank=True, default='Khouribga')
     address = models.CharField(max_length=50, blank=True, default='1337 school')
+    language = models.CharField(max_length=2, choices=LANGUAGE_CHOICES, default='fr')
     tournament_name = models.CharField(max_length=50, blank=True, null=True)
     tournament_score = models.IntegerField(default=0)
     enabeld_2fa = models.BooleanField(default=False)

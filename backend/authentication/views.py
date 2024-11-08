@@ -52,6 +52,7 @@ def fillUser(user, user_info):
     if not user.avatar_url:
         user.avatar_url = user_info['image']['link']
     user.islogged = True
+    user.social_logged = True
     user.save()
     return user
 
@@ -164,6 +165,7 @@ class GoogleLoginCallback(APIView):
                 user.username = user_info['given_name']
                 user.islogged = True
                 user.online = True
+                user.social_logged = True
                 user.save()
             authenticate(request, username=user.username)
             if not user.is_authenticated:
@@ -350,23 +352,33 @@ class GetQRCodeView(APIView):
         return Response({'qrcode_url': qrcode_path}, status=status.HTTP_200_OK)
 
 
+def update_password(request):
+    user = request.user
+    data = request.data
+    current_password = data.get('current_password')
+    if not user.check_password(current_password) or not data.get('new_password') or not data.get('confirm_password'):
+        return Response({'error': 'something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
+    if data.get('new_password') != data.get('confirm_password'):
+        return Response({'error': 'passwords do not match'}, status=status.HTTP_400_BAD_REQUEST)
+    new_password = data.get('new_password')
+    user.set_password(new_password)
+
 #update user Information
 class UpdateUserView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
+
     def put(self, request):
         user = request.user
         data = request.data
-        print(data)
-
+        print(request)
+        serializer = UpdateUserSerializer(data=data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         updated = False
         full_name = data.get('full_name')
         if full_name and full_name != user.full_name:
             user.full_name = full_name
-            updated = True
-        avatar_url = data.get('avatar_url')
-        if avatar_url and avatar_url != user.avatar_url:
-            user.avatar_url = avatar_url
             updated = True
         phone_number = data.get('phone_number')
         if phone_number and phone_number != user.phone_number:
@@ -378,9 +390,30 @@ class UpdateUserView(APIView):
             updated = True
         address = data.get('address')
         if address and address != user.address:
-            user.address = address
+            updated = True
+
+        if 'new_password' in data:
+            password_change_response = self.change_password(user, data)
+            if password_change_response is not None:
+                return password_change_response
             updated = True
         if updated:
             user.save()
         user_data = UpdateUserSerializer(user).data
         return Response(user_data, status=status.HTTP_200_OK)
+
+    def change_password(self, user, data):
+        current_password = data.get('current_password')
+        new_password = data.get('new_password')
+        confirm_password = data.get('confirm_password')
+        if not user.check_password(current_password) and not user.social_logged:
+            return Response({'error': 'Current password is incorrect'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not new_password or not confirm_password:
+            return Response({'error': 'New password and confirmation are required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if new_password != confirm_password:
+            return Response({'error': 'Passwords do not match'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user.set_password(new_password)
+        return None

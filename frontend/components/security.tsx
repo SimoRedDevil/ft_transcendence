@@ -9,20 +9,49 @@ import { useTranslation } from 'react-i18next';
 import { useUserContext } from "../components/context/usercontext";
 
 export default function Security() {
-  const { authUser, loading, setTry2fa, try2fa, fetchAuthUser } = useUserContext();
+  const { authUser, setLoading, loading, setTry2fa, try2fa, fetchAuthUser } = useUserContext();
   const [enable2FA, setEnable2FA] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [code, setCode] = useState("");
   const [qrcode, setQrcode] = useState("");
-  const [isloading, setIsLoading] = useState(true);
   const { t } = useTranslation();
+  const [current_password, setCurrentPassword] = useState("");
+  const [new_password, setNewPassword] = useState("");
+  const [confirm_password, setConfirmPassword] = useState("");
+
+
+
+  const hundelSubmit = async (e) => {
+    e.preventDefault();
+    const body = {
+      current_password: current_password,
+      new_password: new_password,
+      confirm_password: confirm_password,
+    };
+    console.log(body);
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/auth/update/",body,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.status === 200) {
+        console.log("Password Changed");
+      }
+    } catch (error) {
+      console.log("Error in changing password");
+    }
+  }
 
   if (loading || !authUser) {
     return <div>Loading...</div>;
   }
 
   const getqrcode = async () => {
-    setIsLoading(true); // Set loading to true before fetching
     try {
       const response = await axios(
         "http://localhost:8000/api/auth/get-qrcode/",
@@ -39,8 +68,7 @@ export default function Security() {
       }
     } catch (error) {
     } finally {
-      setIsLoading(false); // Set loading to false after fetching
-      // setQrcode("");
+      setLoading(false);
     }
   };
 
@@ -74,22 +102,18 @@ export default function Security() {
   return (
     <div
       className="text-white w-full h-full flex items-center laptop:justify-center flex-col
-        overflow-y-auto no-scrollbar overflow-x-hidden tablet:mb-3 laptop:flex-row
+        overflow-y-auto no-scrollbar overflow-x-hidden  laptop:flex-row
         "
     >
-      <div
-        className=" bg-[#1A1F26] bg-opacity-50 border-[0.5px] border-white border-opacity-40 
+      <div className=" bg-[#1A1F26] bg-opacity-50 border-[0.5px] border-white border-opacity-40 
                 rounded-[50px] less-than-tablet:w-[90%] tablet:w-[90%] flex desktop:h-[620px] desktop:w-[1400px]
                 less-than-tablet:flex-col tablet:flex-col laptop:flex-row tablet:mt-12 items-center justify-center
                 less-than-tablet:mt-5 laptop:h-[700px] laptop:ml-10 mx-2 tablet:pt-5 desktop:mx-5
-                "
-      >
-        <div
-          className="flex flex-col w-[90%] laptop:w-1/2 items-center justify-center pr-5 laptop:h-[75%]
+                ">
+        <div className="flex flex-col w-[90%] laptop:w-1/2 items-center justify-center pr-5 laptop:h-[75%]
           laptop:border-r-[0.5px] border-white border-opacity-40
             less-than-tablet:border-0 less-than-tablet:w-full less-than-tablet:pr-0 
-            "
-        >
+            ">
           <div className="flex flex-col items-start w-full pl-5">
             <h1
               className="laptop:text-[22px] w-full text-white opacity-70 
@@ -99,7 +123,7 @@ export default function Security() {
             >
               {t("Current Password")}
             </h1>
-            <input
+            <input value={current_password} onChange={(e) => setCurrentPassword(e.target.value)}
               type="password"
               className="less-than-tablet:w-[85%] less-than-tablet:ml-4 laptop:h-[70px] tablet:h-[50px] rounded-[50px] mt-2 
                     bg-white bg-opacity-10 text-white p-4 border-[0.5px] border-gray-500 focus:outline-none mb-7
@@ -114,7 +138,7 @@ export default function Security() {
             >
               {t("New Password")}
             </h1>
-            <input
+            <input value={new_password} onChange={(e) => setNewPassword(e.target.value)}
               type="password"
               className="less-than-tablet:w-[85%] less-than-tablet:ml-4 tablet:h-[50px] laptop:h-[70px] rounded-[50px] mt-2 
                     bg-white bg-opacity-10 text-white p-4 border-[0.5px] border-gray-500 focus:outline-none mb-7
@@ -132,7 +156,7 @@ export default function Security() {
               {t("Confirm Password")}
             </h1>
             <input
-              type="password"
+              type="password" value={confirm_password} onChange={(e) => setConfirmPassword(e.target.value)}
               className="less-than-tablet:w-[85%] less-than-tablet:ml-4 tablet:h-[50px] laptop:h-[70px] rounded-[50px] mt-2 
                     bg-white bg-opacity-10 text-white p-4 border-[0.5px] border-gray-500 focus:outline-none mb-7
                     less-than-tablet:h-[50px] less-than-tablet:mb-3 tablet:w-[90%] password-circles 
@@ -144,7 +168,7 @@ export default function Security() {
                     flex  w-full justify-center 
           "
           >
-            <button
+            <button onClick={hundelSubmit}
               className="rounded-[50px] border-[0.5px] border-white border-opacity-40 desktop:h-[80px] w-[556px] bg-gradient-to-r from-[#1A1F26]/90 to-[#000]/70
                 laptop:w-[80%] less-than-tablet:w-[85%] less-than-tablet:mb-3 laptop:h-[60px] laptop:my-7 tablet:h-[50px] 
                 less-than-tablet:h-[50px] tablet:w-[75%]

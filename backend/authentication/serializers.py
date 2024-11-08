@@ -73,12 +73,20 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         read_only_fields = ['username', 'email']
         extra_kwargs = {
             'password': {'write_only': True},
+            'full_name': {'required': False, 'max_length': 20,
+            },
+            'phone_number': {'required': False, 'max_length': 15,
+            },
+            'city': {'required': False, 'max_length': 20,
+            },
+            'address': {'required': False, 'max_length': 20,
+            },
         }
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'full_name', 'username', 'email', 'phone_number', 'city', 'address', 'avatar_url', 'tournament_name', 
+        fields = ['id', 'full_name', 'username', 'email', 'phone_number', 'city', 'address', 'avatar_url', 'social_logged', 'tournament_name', 
             'tournament_score', 'enabeld_2fa', 'twofa_verified', 'qrcode_dir', 'qrcode_path',
             'level', 'matches', 'wins', 'losses', 'draws', 'profile_visited',
             'friends_count', 'top_score', 'tournaments', 'online_matches',

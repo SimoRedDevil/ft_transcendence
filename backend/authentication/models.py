@@ -1,10 +1,15 @@
 from django.contrib.auth.models import AbstractUser as BaseUser
 from django.db import models
+from django.core.validators import RegexValidator
+
+phone_regex = RegexValidator(
+    regex=r'^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s./0-9]*$'
+)
 
 class CustomUser(BaseUser):
     full_name = models.CharField(max_length=50)
     email = models.EmailField(unique=True)
-    phone_number = models.CharField(max_length=15, blank=True, default='06-00-00-00-00')
+    phone_number = models.CharField(max_length=15, blank=True, default='06-00-00-00-00', validators=[phone_regex])
     city = models.CharField(max_length=50, blank=True, default='Khouribga')
     address = models.CharField(max_length=50, blank=True, default='1337 school')
     tournament_name = models.CharField(max_length=50, blank=True, null=True)
@@ -16,6 +21,7 @@ class CustomUser(BaseUser):
     qrcode_path = models.CharField(max_length=100, blank=True, null=True)
     avatar_url = models.URLField(max_length=200, blank=True, null=True)
     islogged = models.BooleanField(default=False)
+    social_logged = models.BooleanField(default=False)
     level = models.IntegerField(default=0)
     matches = models.IntegerField(default=0)
     wins = models.IntegerField(default=0)

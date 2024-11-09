@@ -11,9 +11,10 @@ export default function Home() {
     const router = useRouter();
     const {setIsAuthenticated, fetchAuthUser, setauthUser} = useContext(UserContext);
 
+    const API = process.env.NEXT_PUBLIC_API_URL;
     const logout = async (csrfToken) => {
         try {
-            const response = await axios.post('http://localhost:8000/api/auth/logout/', {}, {
+            const response = await axios.post(`${API}/logout/`, {}, {
                 headers: {
                     'X-CSRFToken': csrfToken,
                 },

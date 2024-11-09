@@ -37,8 +37,6 @@ from django.utils.timezone import now
 
 
 
-INTRA_42_AUTH_URL = settings.INTRA_42_AUTH_URL
-
 # Sign Up View
 class SignUpView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
@@ -88,10 +86,6 @@ class Intra42Callback(APIView):
 
         try:
             user = CustomUser.objects.get(username=user_info['login'])
-            user.social_logged = True
-            user.islogged = True
-            user.online = True
-            user.save()
         except CustomUser.DoesNotExist:
             user = CustomUser.objects.create(
                 username=user_info['login'],
@@ -101,7 +95,7 @@ class Intra42Callback(APIView):
                 social_logged=True,
                 islogged=True,
                 online=True,
-                password_is_set=True
+                password_is_set=False
             )
 
         authenticate(request, username=user.username)
@@ -113,12 +107,6 @@ class Intra42Callback(APIView):
         user_data = Intra42UserSerializer(user).data
         response.data = user_data
         return response
-
-
-class GoogleLogin(SocialLoginView):
-    adapter_class = GoogleOAuth2Adapter
-    callback_url = settings.GOOGLE_OAUTH_CALLBACK_URL
-    client_class = OAuth2Client
 
 # Callback Google View
 class GoogleLoginCallback(APIView):
@@ -137,12 +125,10 @@ class GoogleLoginCallback(APIView):
             "grant_type": "authorization_code",
         }
 
-        # Send the POST request to get the tokens
         response = requests.post(token_endpoint_url, data=data)
         if response.status_code != 200:
             return HttpResponseRedirect("http://localhost:3000/login")
 
-        # Parse the response as JSON
         try:
             response_data = response.json()
             access_token = response_data.get("access_token")
@@ -158,7 +144,6 @@ class GoogleLoginCallback(APIView):
         user_info_response = requests.get(user_info_url, headers=headers)
         if user_info_response.status_code != 200:
             return HttpResponseRedirect("http://localhost:3000/login")
-        
         try:
             user_info = user_info_response.json()
 
@@ -166,19 +151,16 @@ class GoogleLoginCallback(APIView):
                 return HttpResponseRedirect("http://localhost:3000/login")
             try:
                 user = CustomUser.objects.get(email=user_info['email'])
-                user.social_logged = True
-                user.islogged = True
-                user.online = True
-                user.save()
             except CustomUser.DoesNotExist:
                 user = CustomUser.objects.create(
                     username=user_info['given_name'],
                     email=user_info['email'],
                     full_name=user_info['name'],
                     avatar_url=user_info['picture'],
-                    social_logged=True,
+                    ocial_logged=True,
                     islogged=True,
-                    online=True
+                    online=True,
+                    password_is_set=False
                 )
             authenticate(request, username=user.username)
             if not user.is_authenticated:
@@ -374,7 +356,6 @@ class UpdateUserView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
     def put(self, request):
-        print("UpdateUserView")
         user = request.user
         data = request.data
         serializer = UpdateUserSerializer(data=data)
@@ -397,12 +378,15 @@ class UpdateUserView(APIView):
         if address and address != user.address:
             user.address = address
             updated = True
-
         if 'new_password' in data:
             password_change_response = self.change_password(user, data)
             if password_change_response is not None:
                 return password_change_response
             updated = True
+        if 'language' in data:
+            language_change_response = self.change_language(user, data)
+            if language_change_response:
+                updated = True
         if updated:
             user.save()
         user_data = UpdateUserSerializer(user).data
@@ -430,3 +414,10 @@ class UpdateUserView(APIView):
         if user.social_logged:
             user.password_is_set = True
         return None
+    
+    def change_language(self, user, data):
+        language = data.get('language')
+        if language:
+            user.language = language
+            return True
+        return False

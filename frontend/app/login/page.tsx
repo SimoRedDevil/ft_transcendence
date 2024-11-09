@@ -4,7 +4,6 @@ import SigninPage from "../../components/signinPage";
 import SignupPage from "../../components/signupPage";
 import { UserContext } from "../../components/context/usercontext";
 import { useContext } from "react";
-import TwofaVerify from "../../components/twofaVerify";
 
 const Login: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);

@@ -16,10 +16,10 @@ export const UserProvider = ({ children }) => {
     const pathname = usePathname();
     const router = useRouter();
 
-
+    const API = process.env.NEXT_PUBLIC_API_URL;
     const fetchAuthUser = async () => {
         try {
-            const response = await axios('http://localhost:8000/api/auth/user/', {
+            const response = await axios(`${API}/user/`, {
                 withCredentials: true,
                 headers: {
                     'Content-Type': 'application/json',
@@ -43,7 +43,7 @@ export const UserProvider = ({ children }) => {
         } finally {
             setTimeout(() => {
                 setLoading(false);
-            }, 2500);
+            }, 1000);
         }
     };
 

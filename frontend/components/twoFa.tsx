@@ -2,10 +2,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
+const API = process.env.NEXT_PUBLIC_API_URL;
 export const enableTwoFactorAuth = async (fetchAuthUser) => {
   try {
     const response = await axios.get(
-      "http://localhost:8000/api/auth/enable-2fa/",
+      `${API}/enable-2fa/`,
       {
         withCredentials: true, // Ensure cookies are included in the request
       }
@@ -21,7 +22,7 @@ export const enableTwoFactorAuth = async (fetchAuthUser) => {
 export  const disableTwoFactorAuth = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8000/api/auth/disable-2fa/",
+        `${API}/disable-2fa/`,
         {
           withCredentials: true, // Ensure cookies are included in the request
         }
@@ -35,7 +36,7 @@ export  const disableTwoFactorAuth = async () => {
   export const verify2FA = async (code) => {
     try {
       const response = await axios.get(
-        `http://localhost:8000/api/auth/verify-2fa/?code=${code}`,
+        `${API}/verify-2fa/?code=${code}`,
         {
           withCredentials: true, // Ensure cookies are included in the request
         }

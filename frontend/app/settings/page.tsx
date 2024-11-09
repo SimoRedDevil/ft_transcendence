@@ -1,5 +1,5 @@
 'use client';
-import React from "react";
+import React, { useEffect } from "react";
 import { IoIosInformationCircle } from "react-icons/io";
 import { FaFlag } from "react-icons/fa6";
 import { PiLockKeyFill } from "react-icons/pi";
@@ -10,10 +10,15 @@ import Others from "../../components/others";
 import { TfiLayoutGrid3Alt } from "react-icons/tfi";
 import { useState } from "react";
 import { useTranslation } from 'react-i18next';
+import { UserContext } from "../../components/context/usercontext";
+import { useContext } from "react";
+import { usePathname } from "next/navigation";
 
 export default function Home() {
     const [activeComponent, setActiveComponent] = useState('information');
     const { t } = useTranslation();
+    const { authUser, loading, fetchAuthUser } = useContext(UserContext);
+    const pathname = usePathname();
 
   const renderComponent = () => {
     switch (activeComponent) {
@@ -29,6 +34,10 @@ export default function Home() {
         return <Information />;
     }
   };
+  useEffect(() => {
+    authUser && fetchAuthUser();
+  }
+  , [ pathname ]);
   return (
     <div className="text-white flex laptop:justify-center min-h-[1000px] tablet:justify-start less-than-tablet:justify-center w-screen h-screen ">
         <div className="border-[0.5px] border-white flex h-[85%] laptop:w-[75%] rounded-[50px] border-opacity-40

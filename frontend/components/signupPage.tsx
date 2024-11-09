@@ -16,6 +16,8 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
   const [password, setPassword] = useState("");
   const router = useRouter();
 
+  const API = process.env.NEXT_PUBLIC_API_URL;
+
   const handleSignup = async (e) => {
     e.preventDefault();
   
@@ -27,7 +29,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
     };
   
     try {
-      const response = await fetch("http://localhost:8000/api/auth/signup/", {
+      const response = await fetch(`${API}/signup/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

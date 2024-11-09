@@ -116,9 +116,9 @@ SIMPLE_JWT = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',  # Your Next.js frontend
+    'http://localhost:3000',
     'http://127.0.0.1:3000',
-    'https://*',
+    'http://*',
 ]
 
 MIDDLEWARE = [
@@ -165,10 +165,9 @@ ASGI_APPLICATION = 'backend.asgi.application'
 INTRA_42_CLIENT_ID = 'u-s4t2ud-92bd4e0625503a1a3d309256cffd60297d8692b8710fce9d6d657fe60899bfd4'
 INTRA_42_CLIENT_SECRET = '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'
 INTRA_42_REDIRECT_URI = 'http://localhost:8000/api/auth/42/callback/'
-INTRA_42_TOKEN_URL = 'https://api.intra.42.fr/oauth/token'
-INTRA_42_AUTH_URL = 'https://api.intra.42.fr/oauth/authorize'
 
 ############################################################################################################
+
 
 #google oauth settings
 ############################################################################################################
@@ -181,20 +180,6 @@ GOOGLE_OAUTH_CALLBACK_URL = 'http://localhost:8000/api/auth/google/callback/'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_EMAIL_VERIFICATION = "none"  # Set to "mandatory" if you want email verification
-
-SOCIALACCOUNT_PROVIDERS = {
-    "google": {
-        "APP": {
-            "client_id": GOOGLE_OAUTH_CLIENT_ID,
-            "secret": GOOGLE_OAUTH_CLIENT_SECRET,
-            "key": "",
-        },
-        "SCOPE": ["profile", "email"],
-        "AUTH_PARAMS": {
-            "access_type": "online",
-        },
-    }
-}
 
 ############################################################################################################
 

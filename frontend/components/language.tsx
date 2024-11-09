@@ -1,7 +1,11 @@
 'use client';
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IoIosCheckmarkCircle } from "react-icons/io";
 import { useTranslation } from 'react-i18next';
+import { useContext } from "react";
+import { UserContext } from "./context/usercontext";
+import axios from "axios";
+import { getCookies } from "./auth";
 
 export default function Language() {
     const { i18n, t } = useTranslation();
@@ -11,9 +15,40 @@ export default function Language() {
         { code: 'es', name: 'Spanish', flag: 'images/spain.png' },
     ];
 
-    const [activeLanguage, setActiveLanguage] = useState(i18n.language);
-
-    const handleLanguageChange = (languageCode) => {
+    const{authUser} = useContext(UserContext);
+    const [activeLanguage, setActiveLanguage] = useState(authUser?.language || i18n.language);
+    const API = process.env.NEXT_PUBLIC_API_URL;
+    useEffect(() => {
+        if (authUser) {
+            setActiveLanguage(authUser?.language);
+            i18n.changeLanguage(authUser?.language);
+        }
+    }
+    , [authUser, i18n]);
+    const handleLanguageChange = async(languageCode) => {
+        const body = {
+            language: languageCode,
+        }
+        try {
+            const cookies = await getCookies();
+            const csrftoken = cookies.cookies.csrftoken;
+            const response = await axios.put(
+              `${API}/update/`,
+              body,
+              {
+                withCredentials: true,
+                headers: {
+                  "Content-Type": "application/json",
+                  "X-CSRFToken": csrftoken,
+                },
+              }
+            );
+            if (response.status === 200) {
+              console.log("Language changed to:", languages.find((lang) => lang.code === languageCode).name, "successfully");
+            }
+          } catch (error) {
+            console.log("Error changing language");
+          }
         setActiveLanguage(languageCode);
         i18n.changeLanguage(languageCode);
     };
@@ -34,16 +69,19 @@ export default function Language() {
                     className={`flex items-center w-[596px] h-[100px] border-[0.5px]
                          border-white rounded-full mt-6 border-opacity-40 less-than-tablet:w-[90%]
                          less-than-tablet:h-[100px] less-than-tablet:mt-4
-                         laptop:w-[596px] justify-between tablet:w-[450px] ${activeLanguage === code ? 'bg-gradient-to-r from-[#D90026]/30 to-[#6DA443]/30' : ''}`}>
+                         laptop:w-[596px] justify-between tablet:w-[450px] ${activeLanguage === code ?
+                            code == 'en' && 'bg-gradient-to-r from-[#D90026]/30 to-[#6DA443]/30'
+                            || code == 'fr' && 'bg-gradient-to-r from-[#0052B4]/30 to-[#D70027]/30'
+                            || code == 'es' && 'bg-gradient-to-r from-[#FCC305]/30 to-[#D2011D]/30': ''}`}>
                     
                     <div className="flex items-center justify-center">
                         <img
                             className="w-[70px] h-[64px] mx-6 less-than-tablet:w-[50px] less-than-tablet:h-[50px]"
                             src={flag}
-                            alt={name} 
+                            alt={name}
                         />
                         <h1 className="laptop:text-[28px] flex items-start text-white opacity-70 less-than-tablet:text-[22px] tablet:text-[25px] less-than-mobile:text-[20px]">
-                            {t(name)} {/* Translate the name directly */}
+                            {t(name)}
                         </h1>
                     </div>
                     

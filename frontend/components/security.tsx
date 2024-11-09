@@ -19,7 +19,7 @@ export default function Security() {
   const [new_password, setNewPassword] = useState("");
   const [confirm_password, setConfirmPassword] = useState("");
 
-
+  const API = process.env.NEXT_PUBLIC_API_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,7 +35,7 @@ export default function Security() {
       const cookies = await getCookies();
       const csrftoken = cookies.cookies.csrftoken;
       const response = await axios.put(
-        "http://localhost:8000/api/auth/update/",
+        `${API}/update/`,
         body,
         {
           withCredentials: true,
@@ -61,7 +61,7 @@ export default function Security() {
   const getqrcode = async () => {
     try {
       const response = await axios(
-        "http://localhost:8000/api/auth/get-qrcode/",
+        `${API}/get-qrcode/`,
         {
           withCredentials: true,
           headers: {

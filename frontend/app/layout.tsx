@@ -36,6 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
     const {users, loading, isAuthenticated, fetchAuthUser } = useContext(UserContext);
     const [notificationClicked, setNotificationClicked] = useState(false);
+    const [profileDropDownClicked, setProfileDropDownClicked] = useState(false);
 
     // Handle redirection based on authentication
     useEffect(() => {
@@ -53,6 +54,22 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
     }
     , [pathname, router]);
 
+    const handleDocumentClick = (e: any) => {
+        if (e.target.id !== 'notification-id') {
+            setNotificationClicked(false);
+        }
+        if (e.target.id !== 'profile-id') {
+            setProfileDropDownClicked(false);
+        }
+    }
+
+    useEffect(() => {
+        document.addEventListener('click', handleDocumentClick);
+        return () => {
+            document.removeEventListener('click', handleDocumentClick);
+        }
+    }, []);
+
     if (loading) {
         return (
             <div className="flex justify-center items-center h-screen w-screen bg-main-bg border
@@ -67,7 +84,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
             {/* Render Header if pathname is not in exclude list */}
             {!exclude.includes(pathname) && (
                 <div className="h-[100px]">
-                    <Header setNotificationClicked={setNotificationClicked} notificationClicked={notificationClicked} />
+                    <Header setNotificationClicked={setNotificationClicked} notificationClicked={notificationClicked} setProfileDropDownClicked={setProfileDropDownClicked} profileDropDownClicked={profileDropDownClicked} />
                 </div>
             )}
 
@@ -82,9 +99,9 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
                 <div className="h-[calc(100%_-_100px)] w-full">
                     {(isAuthenticated && notificationClicked) && <NotificationMenu />}
                     {
-                        isAuthenticated &&
-                        <div className='border w-[calc(100%_-_100px)] fixed h-[200px] flex flex-row-reverse'>
-                            <DropDown className='' items={['Profile', 'Settings', 'Logout']} />
+                        (isAuthenticated && profileDropDownClicked) &&
+                        <div className='w-[calc(100%_-_100px)] fixed h-[170px] flex flex-row-reverse'>
+                            <DropDown className='w-[250px] h-[50px] flex items-center border border-white border-opacity-20 cursor-pointer hover:bg-white hover:bg-opacity-10' items={['View Profile', 'Friend Requests', 'Logout']} />
                         </div>
                     }
                     {children}

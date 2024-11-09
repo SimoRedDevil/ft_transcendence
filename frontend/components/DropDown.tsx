@@ -1,18 +1,20 @@
 import React from 'react'
+import Link from 'next/link'
 
 type Props = {
     className?: string,
-    items: string[]
+    items: string[],
+    url?: string
 }
 
 function DropDown({className, items}: Props) {
   return (
-    <div className={className}>
+    <div className=''>
         {
             items.map((item, index) => {
                 return (
-                    <div key={index} className='w-[250px] h-[50px] flex items-center border border-white border-opacity-20'>
-                        <h1 className='text-white text-opacity-50 ml-4'>{item}</h1>
+                    <div key={index} className={className}>
+                        <Link href='' className='text-white ml-4'>{item}</Link>
                     </div>
                 )
             })

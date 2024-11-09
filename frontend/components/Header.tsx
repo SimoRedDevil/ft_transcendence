@@ -11,11 +11,17 @@ import { useState, useEffect } from 'react';
 import BounceLoader from "react-spinners/ClipLoader";
 import {usePathname} from 'next/navigation';
 
-function Header({setNotificationClicked, notificationClicked}) {
+function Header({setNotificationClicked, notificationClicked, setProfileDropDownClicked, profileDropDownClicked}) {
   const { users } = useContext(UserContext);
 
   const handleNotificationClick = () => {
+    setProfileDropDownClicked(false);
     setNotificationClicked(!notificationClicked);
+  }
+
+  const handleProfileClick = () => {
+    setNotificationClicked(false);
+    setProfileDropDownClicked(!profileDropDownClicked);
   }
 
   return (
@@ -28,15 +34,15 @@ function Header({setNotificationClicked, notificationClicked}) {
       </div>
 
       <div className='w-[170px] flex justify-between'>
-        <div onClick={handleNotificationClick} className={`h-[70px] w-[70px] bg-white bg-opacity-0 rounded-full flex items-center justify-center hover:bg-opacity-15 hover:cursor-pointer`}>
+        <div id='notification-id' onClick={handleNotificationClick} className={`h-[70px] w-[70px] bg-white bg-opacity-0 rounded-full flex items-center justify-center hover:bg-opacity-15 hover:cursor-pointer`}>
           {
             notificationClicked === true ? 
-            <IoIosNotifications className='text-white h-[50px] w-[50px]'/> : 
-            <IoIosNotificationsOutline className='text-white h-[50px] w-[50px]'/>
+            <IoIosNotifications id='notification-id' className='text-white h-[50px] w-[50px]'/> : 
+            <IoIosNotificationsOutline id='notification-id' className='text-white h-[50px] w-[50px]'/>
           }
         </div>
           {users && users.avatar_url ? 
-          ( <Image src={users.intra_avatar_url ? users.intra_avatar_url : users.avatar_url} 
+          ( <Image id='profile-id' onClick={handleProfileClick} src={users.intra_avatar_url ? users.intra_avatar_url : users.avatar_url} 
             height={70} width={70} alt='avatar' className='rounded-full cursor-pointer'/> ) : (
         <div className='w-full flex justify-center items-center h-full text-white text-opacity-50 text-xs'>
           <BounceLoader color={'#949DA2'} loading={true} size={50} />

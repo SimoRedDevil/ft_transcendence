@@ -25,6 +25,8 @@ from django.http import HttpResponse
 from urllib.parse import urljoin
 from rest_framework_simplejwt.exceptions import TokenError
 import shutil
+from rest_framework.decorators import action
+from django.db.models import Q
 
 
 INTRA_42_AUTH_URL = settings.INTRA_42_AUTH_URL
@@ -214,9 +216,13 @@ class GenerateAccessToken(APIView):
         return Response({'cookies': cookie_data}, status=status.HTTP_200_OK)
 
 class UserViewSet(viewsets.ModelViewSet):
-    authentication_classes = [SessionAuthentication]
+    # authentication_classes = [SessionAuthentication]
+    # permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
     def get_queryset(self):
+        search = self.request.GET.get('search')
+        if search:
+            return CustomUser.objects.filter(Q(username__icontains=search) | Q(full_name__icontains=search))
         return CustomUser.objects.all()
 
 class AuthenticatedUserView(APIView):

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { use } from 'react'
 import Image from 'next/image'
 import { FaSearch } from "react-icons/fa";
 import { IoIosNotificationsOutline } from "react-icons/io";
@@ -13,6 +13,7 @@ import {usePathname} from 'next/navigation';
 
 function Header({setNotificationClicked, notificationClicked, setProfileDropDownClicked, profileDropDownClicked}) {
   const { users } = useContext(UserContext);
+  const [input, setInput] = useState('');
 
   const handleNotificationClick = () => {
     setProfileDropDownClicked(false);
@@ -24,13 +25,27 @@ function Header({setNotificationClicked, notificationClicked, setProfileDropDown
     setProfileDropDownClicked(!profileDropDownClicked);
   }
 
+  const handleInputChange = (e) => {
+    setInput(e.target.value);
+  }
+
+  const fetchSearchResults = async () => {
+    const res = await fetch(`http://localhost:3000/api/search?search=${input}`)
+    const data = await res.json()
+    console.log(data)
+  }
+
+  useEffect(() => {
+    
+  }, [input])
+
   return (
     <header className='text-white flex justify-between items-center p-[10px]'>
       <div>
         <Link href='/'><Image src='/icons/logo.png' height={60} width={60} alt='logo'/></Link>
       </div>
       <div className='sm:w-[400px] md:w-[500px] lg:w-[600px] 2xl:w-[700px] w-[50%] h-[60px]'>
-        <TextBox placeholder='Search' icon='/icons/search.png' className='border border-white border-opacity-30 w-full h-full bg-black bg-opacity-50 rounded-[30px] flex items-center'/>
+        <TextBox onChange={(e) => handleInputChange(e)} placeholder='Search' icon='/icons/search.png' className='border border-white border-opacity-30 w-full h-full bg-black bg-opacity-50 rounded-[30px] flex items-center'/>
       </div>
 
       <div className='w-[170px] flex justify-between'>

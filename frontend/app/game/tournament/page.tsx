@@ -1,68 +1,53 @@
-'use client'
+"use client";
 
-import React from 'react'
-import { useState } from 'react'
+import React, { useState } from 'react';
+import TournamentForm from '../../../components/TournamentForm';
+import LocalGame from '../../../components/LocalGame';
 
-export default function CreateTournament() {
-    const [player1, setPlayer1] = useState('')
-    const [player2, setPlayer2] = useState('')
-    const [player3, setPlayer3] = useState('')
-    const [player4, setPlayer4] = useState('')
+export default function Tournament() {
+    const [isFormSubmitted, setIsFormSubmitted] = useState(false);
+    const [showLocalGame, setShowLocalGame] = useState(false);
+    const [players, setPlayers] = useState({ player1: '', player2: '', player3: '', player4: '' });
+    const [currentPlayers, setCurrentPlayers] = useState({ player1: '', player2: '' });
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        console.log(player1, player2, player3, player4)
-        setPlayer1('')
-        setPlayer2('')
-        setPlayer3('')
-        setPlayer4('')
-    }
+    const handleFormSubmit = (playerData) => {
+        setPlayers(playerData);
+        setIsFormSubmitted(true);
+    };
+
+    const handleButtonClick = (player1, player2) => {
+        setCurrentPlayers({ player1, player2 });
+        setShowLocalGame(true);
+    };
 
     return (
-      <div className='flex justify-center items-center mt-[200px]'>
-        <div className='w-[420px] h-[540px] mt-[60px] bg-deepSeaBlue rounded-lg
-                        border border-white border-opacity-30'>
-            <div className='text-white text-center text-2xl mt-5'>Create Tournament</div>
-            <form className='flex flex-col' onSubmit={handleSubmit}>
-                <div className='flex justify-between w-full'>
-                    <div className='flex flex-col w-[50%] space-y-2'>
-                        <label htmlFor="player1" className='text-sky-400 mt-3 ml-2'>player1</label>
-                        <input type="text" id="player1" name="player1" placeholder="Player 1" required
-                        value={player1}
-                        onChange={(e) => setPlayer1(e.target.value)}
-                        className='w-[70%] h-10 bg-transparent border-b ml-5
-                        border-white border-opacity-30 text-white text-center'/>
+        <div className="flex justify-center items-center">
+            {showLocalGame ? (
+                <LocalGame player1={currentPlayers.player1} player2={currentPlayers.player2} />
+            ) : (
+                !isFormSubmitted ? (
+                    <TournamentForm onSubmit={handleFormSubmit} />
+                ) : (
+                    <div className="w-[85%] h-[80vh] flex justify-start items-center flex-col mt-[5vh] space-y-[20px]
+                                md:border md:border-white md:border-opacity-30
+                                md:bg-black md:bg-opacity-20
+                                md:rounded-[50px]">
+                        <div className='w[100px] h-[60px] text-yellow-100 mt-[150px] '>Demi Final</div>
+                        <div className='w-[350px] h-[100px] bg-sky-400 mt-[200px] rounded-lg flex justify-center items-center space-x-[30px]'>
+                            <div className='w-[120px] h-[70px] text-white flex justify-center items-center'>{players.player1}</div>
+                            <p>VS</p>
+                            <div className='w-[120px] h-[70px] text-white flex justify-center items-center'>{players.player2}</div>
+                            <button className='h-[100%] w-[60px] bg-yellow-300 rounded-lg rounded-l-[45px]' onClick={() => handleButtonClick(players.player1, players.player2)}>Go</button>
+                        </div>
+                        <div className='w-[350px] h-[100px] bg-sky-400 rounded-lg flex justify-center items-center space-x-[30px]'>
+                            <div className='w-[120px] h-[70px] text-white flex justify-center items-center'>{players.player3}</div>
+                            <p>VS</p>
+                            <div className='w-[120px] h-[70px] text-white flex justify-center items-center'>{players.player4}</div>
+                            <button className='h-[100%] w-[60px] bg-yellow-300 rounded-lg rounded-l-[45px]' onClick={() => handleButtonClick(players.player3, players.player4)}>Go</button>
+                        </div>
                     </div>
-                    <div className='flex flex-col w-[50%] mt-[40px] space-y-2'>
-                        <label htmlFor="player2" className='text-sky-400 mt-3 mr-2 flex justify-end '>player2</label>
-                        <input type="text" id="player2" name="player2" placeholder="Player 2" required
-                        value={player2}
-                        onChange={(e) => setPlayer2(e.target.value)}
-                        className='w-[70%] h-10 bg-transparent border-b ml-[30px]
-                        border-white border-opacity-30 text-white text-center'/>
-                    </div>
-                </div>
-                <div className='flex justify-between w-full'>
-                    <div className='flex flex-col w-[50%] space-y-2'>
-                        <label htmlFor="player3" className='text-sky-400 mt-10 ml-2'>player3</label>
-                        <input type="text" id="player3" name="player3" placeholder="Player 3" required
-                        value={player3}
-                        onChange={(e) => setPlayer3(e.target.value)}
-                        className='w-[70%] h-10 bg-transparent border-b ml-5
-                        border-white border-opacity-30 text-white text-center'/>
-                    </div>
-                    <div className='flex flex-col w-[50%] mt-[30px] space-y-2'>
-                        <label htmlFor="player4" className='text-sky-400 mt-20 mr-2 flex justify-end '>player4</label>
-                        <input type="text" id="player4" name="player4" placeholder="Player 4" required
-                        value={player4}
-                        onChange={(e) => setPlayer4(e.target.value)}
-                        className='w-[70%] h-10 bg-transparent border-b ml-[30px]
-                        border-white border-opacity-30 text-white text-center'/>
-                    </div>
-                </div>
-                <button type="submit" className='w-[30%] h-10 bg-sky-400 text-white mt-5 ml-[35%] rounded-[30px]'>Go</button>
-            </form>
-          </div>
+                )
+            )}
         </div>
-    )
-  }
+    );
+}

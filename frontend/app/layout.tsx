@@ -9,6 +9,7 @@ import { UserProvider, UserContext } from '../components/context/usercontext';
 import NotificationMenu from '../components/NotificationMenu';
 import DropDown from '../components/DropDown';
 import { useState } from 'react';
+import Image from 'next/image';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -34,7 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }
 
 function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
-    const {users, loading, isAuthenticated, fetchAuthUser } = useContext(UserContext);
+    const {users, loading, isAuthenticated, fetchAuthUser, searchResults, searchLoading } = useContext(UserContext);
     const [notificationClicked, setNotificationClicked] = useState(false);
     const [profileDropDownClicked, setProfileDropDownClicked] = useState(false);
 
@@ -95,8 +96,29 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
                         <Sidebar />
                     </div>
                 )}
-
+                
                 <div className="h-[calc(100%_-_100px)] w-full">
+                    {
+                        (isAuthenticated) && (
+                            <div className='fixed left-0 flex items-center justify-center w-full h-[600px] text-white'>
+                                <div className='border border-white/40 ml-[-100px] w-[50%] sm:w-[400px] md:w-[500px] lg:w-[600px] 2xl:w-[700px] h-full bg-black bg-opacity-80 rounded-[30px]'>
+                                    <div className='border-b border-white/40 p-4'>
+                                        <span className='text-white text-[20px]'>Search Results</span>
+                                    </div>
+                                    {searchLoading && <div/>}
+                                    {searchResults.map((user: any) => (
+                                        <div key={user.id} className='w-full p-4 flex gap-3 items-center hover:bg-white hover:bg-opacity-10 hover:cursor-pointer'>
+                                            <div className='w-[50px] h-[50px] rounded-full bg-green-800'>
+                                                <Image src={user.avatar_url} height={50} width={50} alt='avatar' className='rounded-full' />
+                                            </div>
+                                            {/* <Image src={user.avatar_url} height={50} width={50} alt='avatar' className='rounded-full'/> */}
+                                            <span>{user.full_name}</span>
+                                        </div>
+                                    ))} 
+                                </div>
+                            </div>
+                        )
+                    }
                     {(isAuthenticated && notificationClicked) && <NotificationMenu />}
                     {
                         (isAuthenticated && profileDropDownClicked) &&

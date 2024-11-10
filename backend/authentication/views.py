@@ -216,8 +216,8 @@ class GenerateAccessToken(APIView):
         return Response({'cookies': cookie_data}, status=status.HTTP_200_OK)
 
 class UserViewSet(viewsets.ModelViewSet):
-    # authentication_classes = [SessionAuthentication]
-    # permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
     def get_queryset(self):
         search = self.request.GET.get('search')

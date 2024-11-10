@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, use } from 'reac
 import axios from 'axios';
 import { usePathname, useRouter } from 'next/navigation';
 import { useParams } from 'react-router-dom';
+import { axiosInstance } from '../../utils/axiosInstance';
 
 
 const UserContext = createContext(null);
@@ -14,6 +15,9 @@ export const UserProvider = ({ children }) => {
     const [try2fa, setTry2fa] = useState(false);
     const pathname = usePathname();
     const router = useRouter();
+    const [searchInput, setSearchInput] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [searchLoading, setSearchLoading] = useState(false);
 
     const fetchAuthUser = async () => {
         try {
@@ -73,6 +77,30 @@ export const UserProvider = ({ children }) => {
         }
 
 
+        const fetchSearchResults = async () => {
+            try {
+              setSearchLoading(true);
+              const res = await axiosInstance.get(`auth/users/`, {
+                params: {
+                  search: searchInput
+                }
+              });
+              console.log(res.data);
+              setSearchResults(res.data);
+            } catch (error) {
+              console.log(error);
+            } finally {
+              setSearchLoading(false);
+            }
+          }
+        
+          useEffect(() => {
+            setSearchResults([]);
+            if(searchInput.length > 0) {
+              fetchSearchResults()
+            }
+          }, [searchInput])
+    
     // const  verifyToken = async () => {
     //     try {
     //         const response = await axios('http://localhost:8000/api/auth/verify/', {
@@ -96,7 +124,7 @@ export const UserProvider = ({ children }) => {
     , [pathname] );
 
     return (
-        <UserContext.Provider value={{ users, loading, error, isAuthenticated, fetchAuthUser, setIsAuthenticated, setTry2fa, try2fa}}>
+        <UserContext.Provider value={{ users, loading, error, isAuthenticated, searchInput, fetchAuthUser, setIsAuthenticated, setTry2fa, try2fa, setSearchInput, searchResults, searchLoading}}>
             {children}
         </UserContext.Provider>
     );

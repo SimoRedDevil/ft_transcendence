@@ -1,14 +1,33 @@
 `use client';`
 import React from "react";
 import { useTranslation } from 'react-i18next';
-
+import axios from "axios";
 import { IoMdCheckmark } from "react-icons/io";
 import { useState } from "react";
+import { getCookies } from "./auth";
 
 export default function Others() {
     const [activeBoard, setActiveBoard] = useState('default');
     const [isOnline, setIsOnline] = useState('online');
     const { t } = useTranslation();
+
+    const API = process.env.NEXT_PUBLIC_API_URL;
+
+    const deleteAccount = async () => {
+        try {
+            const cookies = await getCookies();
+            const csrftoken = cookies.cookies.csrftoken;
+            const res = await axios.delete(`${API}/delete/`, {
+                withCredentials: true,
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                },
+            });
+            console.log("Account deleted successfully", res);
+        } catch (err) {
+            console.log('Error deleting account');
+        }
+    };
   return (
     <div className="text-white w-full h-full flex items-center laptop:justify-center flex-col
             overflow-y-auto no-scrollbar laptop:flex-row
@@ -106,7 +125,8 @@ export default function Others() {
                          {t("NB. Once you delete your account, there is no going back. Please be certain!")}
                      </p>
                      <div className=" flex w-full items-center justify-center rounded-[50px] mt-2">
-                     <button className="rounded-[50px] mt-5 border-[0.5px] border-white border-opacity-40 
+                     <button onClick={deleteAccount}
+                        className="rounded-[50px] mt-5 border-[0.5px] border-white border-opacity-40 
                             less-than-tablet:h-[50px] tablet:h-[80px] w-[90%] bg-gradient-to-r from-[#1A1F26]/90 to-[#000]/70">
                          <h1 className="text-[22px] text-center text-[#FF0000] 
                          ">{t("Delete your account")}</h1>

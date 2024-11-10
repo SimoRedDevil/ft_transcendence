@@ -12,6 +12,7 @@ class CustomUser(BaseUser):
         ('fr', 'French'),
         ('es', 'Spanish'),
     )
+    # is_active = models.BooleanField(default=True)
     full_name = models.CharField(max_length=50)
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=15, blank=True, default='06-00-00-00-00', validators=[phone_regex])

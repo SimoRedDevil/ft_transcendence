@@ -20,10 +20,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 STATIC_URL = "/avatars/"
 
+load_dotenv()
+
 STATICFILES_DIRS = [
     BASE_DIR / "./avatars",
 ]
-load_dotenv(".env")
 
 # Add a MEDIA_ROOT for qrcodes
 QRCODE_URL = '/qrcodes/'
@@ -119,6 +120,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
     'http://*',
+    'https://*',
 ]
 
 MIDDLEWARE = [
@@ -162,9 +164,9 @@ ASGI_APPLICATION = 'backend.asgi.application'
 
 ############################################################################################################
 
-INTRA_42_CLIENT_ID = 'u-s4t2ud-92bd4e0625503a1a3d309256cffd60297d8692b8710fce9d6d657fe60899bfd4'
-INTRA_42_CLIENT_SECRET = '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'
-INTRA_42_REDIRECT_URI = 'http://localhost:8000/api/auth/42/callback/'
+INTRA_42_CLIENT_ID = os.getenv('INTRA_42_CLIENT_ID')
+INTRA_42_CLIENT_SECRET = os.getenv('INTRA_42_CLIENT_SECRET')
+INTRA_42_REDIRECT_URI = os.getenv('INTRA_42_REDIRECT_URI')
 
 ############################################################################################################
 
@@ -172,9 +174,9 @@ INTRA_42_REDIRECT_URI = 'http://localhost:8000/api/auth/42/callback/'
 #google oauth settings
 ############################################################################################################
 
-GOOGLE_OAUTH_CLIENT_ID = '1044566227728-u6kf090diec8d8osln6c66cfb24jskip.apps.googleusercontent.com'
-GOOGLE_OAUTH_CLIENT_SECRET = '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'
-GOOGLE_OAUTH_CALLBACK_URL = 'http://localhost:8000/api/auth/google/callback/'
+GOOGLE_OAUTH_CLIENT_ID = os.getenv('GOOGLE_OAUTH_CLIENT_ID')
+GOOGLE_OAUTH_CLIENT_SECRET = os.getenv('GOOGLE_OAUTH_CLIENT_SECRET')
+GOOGLE_OAUTH_CALLBACK_URL = os.getenv('URL_FRONT')
 
 # Configure django-allauth to connect social accounts to existing accounts with the same email
 ACCOUNT_EMAIL_REQUIRED = True
@@ -186,9 +188,9 @@ ACCOUNT_EMAIL_VERIFICATION = "none"  # Set to "mandatory" if you want email veri
 DATABASES = {
     'default': {
         "ENGINE": "django.db.backends.postgresql",
-        'NAME': 'alienpong',
-        'USER': 'aben-nei',
-        'PASSWORD': 'aben-nei123',
+        'NAME': os.getenv('POSTGRES_DB'),
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
         'HOST': 'db',
         'PORT': '5432',
     }
@@ -243,7 +245,3 @@ CHANNEL_LAYERS = {
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000", 
-]

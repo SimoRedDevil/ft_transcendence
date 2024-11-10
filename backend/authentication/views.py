@@ -36,6 +36,8 @@ import jwt
 from django.utils.timezone import now
 
 
+URL_FRONT = os.getenv('URL_FRONT')
+
 
 # Sign Up View
 class SignUpView(generics.CreateAPIView):
@@ -157,7 +159,7 @@ class GoogleLoginCallback(APIView):
                     email=user_info['email'],
                     full_name=user_info['name'],
                     avatar_url=user_info['picture'],
-                    ocial_logged=True,
+                    social_logged=True,
                     islogged=True,
                     online=True,
                     password_is_set=False
@@ -209,7 +211,7 @@ class UserViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication]
     serializer_class = UserSerializer
     def get_queryset(self):
-        return CustomUser.objects.all()
+        return CustomUser.objects.filter(is_active=True)
 
 def generate_tokens(request):
     user = request.user
@@ -421,3 +423,13 @@ class UpdateUserView(APIView):
             user.language = language
             return True
         return False
+
+class Delete_account(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user
+        user.is_active = False
+        user.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)

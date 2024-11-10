@@ -34,20 +34,20 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
     const {users, loading, isAuthenticated, fetchAuthUser } = useContext(UserContext);
 
     // Handle redirection based on authentication
-    useEffect(() => {
-        isAuthenticated && fetchAuthUser()
-        if (isAuthenticated && exclude.includes(pathname)) {
-            router.push('/');
-        }
-        if (!isAuthenticated && exclude.includes(pathname)) {
-            router.push('/login');
-        }
-    }, [isAuthenticated, pathname, router]);
+    // useEffect(() => {
+    //     // isAuthenticated && fetchAuthUser()
+    //     // if (isAuthenticated && exclude.includes(pathname)) {
+    //     //     router.push('/');
+    //     // }
+    //     // if (!isAuthenticated && exclude.includes(pathname)) {
+    //     //     router.push('/login');
+    //     // }
+    // }, [isAuthenticated, pathname, router]);
 
-    useEffect(() => {
-        !isAuthenticated && fetchAuthUser();
-    }
-    , [pathname, router]);
+    // useEffect(() => {
+    //     !isAuthenticated && fetchAuthUser();
+    // }
+    // , [pathname, router]);
 
     if (loading) {
         return (

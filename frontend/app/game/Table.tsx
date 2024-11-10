@@ -14,7 +14,11 @@ import p5 from 'p5';
 import { redirect } from 'next/navigation';
 
 
-export default function Table() {
+interface TableProps {
+    onGameEnd: (winner: string) => void;
+}
+
+export default function Table({onGameEnd}: TableProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     let count = 3; 
     let startTime = 0;
@@ -75,7 +79,10 @@ export default function Table() {
                     Player2.score += 1;
                     if (Player2.score == 6) {
                         sketch.noLoop();
-                        redirect('/');
+                        onGameEnd('player 2');
+                        Player2.score = 0;
+                        Player1.score = 0;
+                        redirect('/game/tournament');
                     }
                 } else if (Ball.ballPosY >= Walls.wallsHeight) {
                     Ball.initialize(canvasRef.current);
@@ -83,7 +90,10 @@ export default function Table() {
                     Player1.score += 1;
                     if (Player1.score == 6) {
                         sketch.noLoop();
-                        redirect('/');
+                        onGameEnd('player 2');
+                        Player1.score = 0;
+                        Player2.score = 0;
+                        redirect('/game/tournament');
                     }
                 }
                 DownPaddle(sketch, Walls);

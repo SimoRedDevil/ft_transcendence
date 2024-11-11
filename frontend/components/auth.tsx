@@ -1,7 +1,4 @@
 import axios from 'axios';
-import { useRouter } from 'next/router';
-import { useContext } from 'react';
-import { UserContext } from './context/usercontext';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 export const getCookies = async () => {
@@ -15,4 +12,22 @@ export const getCookies = async () => {
     }
 };
 
+export const logout = async (
+    csrfToken, setIsAuthenticated, setauthUser, router
+) => {
+    try {
+        const response = await axios.post(`${API}/logout/`, {}, {
+            headers: {
+                'X-CSRFToken': csrfToken,
+            },
+            withCredentials: true,  // Ensures cookies are sent
+        });
+        setIsAuthenticated(false);
+        setauthUser(null);
+        router.push('/login');
+    } catch (error) {
+        setIsAuthenticated(false);
+        setauthUser(null);
+    }
+};
 

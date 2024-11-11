@@ -4,7 +4,12 @@ import PasswordHelper from "./passwordHelper";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
-import {toast} from 'react-hot-toast';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useContext } from "react";
+import { UserContext } from "./context/usercontext";
+import axios from 'axios';
+
 interface SignupPageProps {
   onNavigate?: () => void;
 }
@@ -15,6 +20,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+  const { setSignupData } = useContext(UserContext);
 
   const API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -29,25 +35,19 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
     };
   
     try {
-      const response = await fetch(`${API}/signup/`, {
-        method: "POST",
+      const response = await axios.post(`${API}/signup/`, body, {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(body),
-      }
-    );
-      const data = await response.json();
+      });
   
-      if (response.ok) {
+      if (response.status === 201) {
         toast.success("Account created successfully.");
+        setSignupData({ email, password });
         onNavigate();
-      } else {
-        toast.error("Something went wrong.");
       }
     } catch (error) {
-      //console.error("Error during signup:", error);
-      toast.error("Error during signup");
+      toast.error("Something went wrong.");
     }
   };
 

@@ -14,18 +14,20 @@ services:
       backend:
         condition: service_healthy
   
-  # frontend:
-  #   container_name: frontend
-  #   build: ./frontend
-  #   ports:
-  #     - "3000:3000"
-  #   volumes:
-  #     - ./frontend:/app
-  #   networks:
-  #     - mynetwork
-  #   depends_on:
-  #     backend:
-  #       condition: service_healthy
+  frontend:
+    container_name: frontend
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+    env_file:
+      - ./frontend/.env
+    networks:
+      - mynetwork
+    depends_on:
+      backend:
+        condition: service_healthy
       
   backend:
     container_name: backend

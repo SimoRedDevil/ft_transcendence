@@ -14,7 +14,7 @@ class SignUpSerializer(serializers.ModelSerializer):
                 'min_length': 9,
             },
             'username': {'required': True, 'max_length': 20,
-                'min_length': 9,
+                'min_length': 6,
             },
             'email': {'required': True, 'max_length': 50,
                 'min_length': 9,
@@ -69,7 +69,7 @@ class GoogleUserSerializer(serializers.ModelSerializer):
 class UpdateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['full_name', 'avatar_url', 'phone_number', 'city', 'address', 'language']
+        fields = ['full_name', 'avatar_url', 'phone_number', 'city', 'address', 'language', 'color']
         read_only_fields = ['username', 'email']
         extra_kwargs = {
             'password': {'write_only': True},
@@ -84,12 +84,15 @@ class UpdateUserSerializer(serializers.ModelSerializer):
             },
             'language': {'required': False,
             },
+            'color': {'required': False,
+            'max_length': 7,
+            },
         }
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'full_name', 'username', 'email', 'phone_number', 'city', 'address', 'language', 'avatar_url', 'social_logged', 'tournament_name', 
+        fields = ['id', 'full_name', 'username', 'email', 'phone_number', 'city', 'address', 'language', 'color', 'avatar_url', 'social_logged', 'tournament_name', 
             'tournament_score', 'enabeld_2fa', 'twofa_verified', 'qrcode_dir', 'qrcode_path',
             'level', 'matches', 'wins', 'losses', 'draws', 'profile_visited','is_active',
             'friends_count', 'top_score', 'tournaments', 'online_matches',

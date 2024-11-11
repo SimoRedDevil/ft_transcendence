@@ -3,22 +3,28 @@ import { FaEnvelope } from "react-icons/fa";
 import PasswordHelper from "./passwordHelper";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams} from 'next/navigation';
 import axios from 'axios';
 import { useContext } from "react";
 import { UserContext } from "./context/usercontext";
-import { toast } from 'react-hot-toast';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface SigninPageProps {
   onNavigate?: () => void;
 }
 
 const SigninPage: React.FC<SigninPageProps> = ({ onNavigate}) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const router = useRouter();
-  const { setIsAuthenticated, authUser, fetchAuthUser} = useContext(UserContext);
+  const { setIsAuthenticated, signupData} = useContext(UserContext);
+  const [password, setPassword] = useState(
+    signupData?.password || ""
+  );
+  const [email, setEmail] = useState(
+    signupData?.email || ""
+  );
+  const searchParams = useSearchParams();
 
   const GG_REDIRECT_URL=process.env.NEXT_PUBLIC_GG_REDIRECT_URL
   const INTRA_REDIRECT_URL=process.env.NEXT_PUBLIC_INTRA_REDIRECT_URL
@@ -29,8 +35,8 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate}) => {
 
   const URL = `${GG_AUTH_URL}?redirect_uri=${GG_REDIRECT_URL}&prompt=consent&response_type=code&client_id=${GG_CLIENT_ID}&scope=openid%20email%20profile&access_type=offline`;
   const URL42 = `${INTRA_AUTH_URL}?client_id=${INTRA_CLIENT_ID}&redirect_uri=${INTRA_REDIRECT_URL}&response_type=code`;
-
   const API = process.env.NEXT_PUBLIC_API_URL;
+
   const handleSignin = async (e) => {
     e.preventDefault();
     const body = {
@@ -45,24 +51,15 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate}) => {
         withCredentials: true,
       });
       if (response.status === 200) {
-        await fetchAuthUser();
-        if (authUser && authUser?.enabeld_2fa) {
-          router.push("/twofa");
-        }
-        else {
-          setIsAuthenticated(true);
-          toast.success("login success");
-          router.push("/");
-        }
-      } else {
-        toast.error("Something went wrong");
-        setIsAuthenticated(false);
+        setIsAuthenticated(true);
+        toast.success("Logged in successfully");
+        router.push("/");
       }
     } catch (error) {
       toast.error("Something went wrong");
       setIsAuthenticated(false);
     }
-  };  
+  };
 
   const handleEnterPress = (event) => {
     if (event.key === 'Enter') {

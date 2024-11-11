@@ -55,12 +55,17 @@ function Conversations() {
     }
   }
 
+  const returnConversationImage = (conversation) => {
+    let otherUser = authUser.username === conversation.user1_info.username ? conversation.user2_info : conversation.user1_info
+    return otherUser.intra_avatar_url === null ? otherUser.avatar_url : otherUser.intra_avatar_url
+  }
+
   return (
-    <div className={`w-full h-full lg:w-[400px] 2xl:w-[550px] ${isMobile && selectedConversation ? 'hidden' : 'flex flex-col'}`}>
+    <div className={`whitespace-pre-wrap w-full h-full lg:w-[400px] 2xl:w-[550px] ${isMobile && selectedConversation ? 'hidden' : 'flex flex-col'}`}>
             <div className='h-[200px]'>
               <div className='h-[120px] flex gap-4 p-[20px]'>
-                <div className='h-[80px] w-[80px] rounded-full bg-blue-800'>
-                  {/* <Image className='rounded-full' src='' width={60} height={60} alt='avatar'/> */}
+                <div className='h-[80px] w-[80px] rounded-full'>
+                  <Image className='rounded-full' src={authUser.intra_avatar_url === null ? authUser.avatar_url : authUser.intra_avatar_url} width={80} height={80} alt='avatar'/>
                 </div>
                 <div className='flex flex-col justify-center gap-4'>
                   <span className='text-[1rem]'>{authUser.full_name}</span>
@@ -74,9 +79,9 @@ function Conversations() {
         <div className='mt-[20px] h-[calc(100%_-_270px)] no-scrollbar overflow-y-auto scroll-smooth'>
           {Conversations !== null && Conversations.map((conversation) => {
             return (
-              <div onClick={() => handleConversationClick(conversation)} key={conversation.id} className='flex items-center gap-4 p-[20px] hover:bg-white hover:bg-opacity-10 cursor-pointer'>
+              <div onClick={() => handleConversationClick(conversation)} key={conversation.id} className={`${(selectedConversation && selectedConversation.id === conversation.id) && 'bg-white bg-opacity-10'} flex items-center gap-4 p-[20px]`}>
                 <div className='h-[80px] w-[80px] rounded-full bg-blue-800'>
-                  {/* <Image className='rounded-full' src={conversation.image} width={60} height={60} alt='avatar'/> */}
+                  <Image className='rounded-full' src={returnConversationImage(conversation)} width={80} height={80} alt='avatar'/>
                 </div>
                 <div className='flex flex-col gap-4'>
                   {

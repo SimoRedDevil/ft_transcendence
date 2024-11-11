@@ -12,14 +12,16 @@ class CustomUser(BaseUser):
         ('fr', 'French'),
         ('es', 'Spanish'),
     )
-    # is_active = models.BooleanField(default=True)
+
     full_name = models.CharField(max_length=50)
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=15, blank=True, default='06-00-00-00-00', validators=[phone_regex])
     city = models.CharField(max_length=50, blank=True, default='Khouribga')
     address = models.CharField(max_length=50, blank=True, default='1337 school')
     language = models.CharField(max_length=2, choices=LANGUAGE_CHOICES, default='en', error_messages={'invalid': 'Please select a valid language'})
+    color = models.CharField(max_length=7, blank=True, null=True, default='#0B4464')
     tournament_name = models.CharField(max_length=50, blank=True, null=True)
+    try_to_login = models.BooleanField(default=False)
     tournament_score = models.IntegerField(default=0)
     enabeld_2fa = models.BooleanField(default=False)
     twofa_secret = models.CharField(max_length=32, blank=True, null=True)
@@ -44,6 +46,7 @@ class CustomUser(BaseUser):
     current_xp = models.IntegerField(default=0)
     target_xp = models.IntegerField(default=0)
     online = models.BooleanField(default=False)
+    friends = models.ManyToManyField('self', blank=True, symmetrical=True)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'full_name']  # Specify any additional required fields

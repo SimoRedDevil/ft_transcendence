@@ -1,7 +1,9 @@
 'use client';
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import {getCookies} from "./auth";
 
+// const {fetchAuthUser} = useContext(UserContext);
 const API = process.env.NEXT_PUBLIC_API_URL;
 export const enableTwoFactorAuth = async (fetchAuthUser) => {
   try {
@@ -35,10 +37,15 @@ export  const disableTwoFactorAuth = async () => {
 
   export const verify2FA = async (code) => {
     try {
+      const cookies = await getCookies();
+      const scrfToken = cookies.cookies.csrftoken;
       const response = await axios.get(
         `${API}/verify-2fa/?code=${code}`,
         {
           withCredentials: true, // Ensure cookies are included in the request
+          headers: {
+            "X-CSRFToken": scrfToken, // Ensure CSRF token is included in the request
+          },
         }
       );
       return response.status;

@@ -50,8 +50,8 @@ const TwofaVerify = () => {
 
   return (
     <form onSubmit={handleSubmit}
-    className=" flex flex-col items-center justify-center h-screen w-screen overflow-auto fixed z-[100]
-    ">
+    className="flex flex-col items-center justify-center h-screen w-screen z-[100]"
+    >
       <div
         className="flex items-center justify-center h-full w-full laptop:w-[850px]
       tablet:w-[620px] tablet:h-[770px] desktop:h-[760px] desktop:w-[950px] mobile:w-[500px]

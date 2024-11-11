@@ -27,6 +27,7 @@ urlpatterns = [
     path('api/chat/', include('chat.urls')),
     path('players/', get_all_players),
     path('matches/', get_all_matches),
+    path('api/friends/', include('friends.urls')),
     
 ]+ static(settings.QRCODE_URL, document_root=settings.QRCODE_ROOT)
 

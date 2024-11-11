@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'tournament',
     'game',
+    'friends',
     'chat',
     'rest_framework',
     'corsheaders',

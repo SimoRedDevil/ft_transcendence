@@ -1,8 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, use } from 'react';
+import React, { createContext, useContext, useState, useEffect} from 'react';
 import axios from 'axios';
 import { usePathname, useRouter } from 'next/navigation';
-import { toast } from 'react-hot-toast';
-import path from 'path';
 
 
 const UserContext = createContext(null);
@@ -15,8 +13,13 @@ export const UserProvider = ({ children }) => {
     const [try2fa, setTry2fa] = useState(false);
     const pathname = usePathname();
     const router = useRouter();
+    const [signupData, setSignupData] = useState(null);
+    const [searchInput, setSearchInput] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [searchLoading, setSearchLoading] = useState(false);
 
     const API = process.env.NEXT_PUBLIC_API_URL;
+
     const fetchAuthUser = async () => {
         try {
             const response = await axios(`${API}/user/`, {
@@ -28,8 +31,8 @@ export const UserProvider = ({ children }) => {
             const user = response.data;
             setauthUser(user);
             if (user) {
-                    // if (user.enabeld_2fa && !user.twofa_verified && !user.islogged)
-                    //     router.push("/twofa");
+                    if (user.enabeld_2fa && !user.twofa_verified)
+                        router.push("/twofa");
                     setIsAuthenticated(true);
                 }
             else {
@@ -63,7 +66,11 @@ export const UserProvider = ({ children }) => {
                                         setIsAuthenticated,
                                         setTry2fa,
                                         try2fa,
-
+                                        setSearchInput,
+                                        searchResults,
+                                        searchLoading,
+                                        setSignupData,
+                                        signupData,
                                     }}>
             {children}
         </UserContext.Provider>

@@ -5,11 +5,15 @@ import axios from "axios";
 import { IoMdCheckmark } from "react-icons/io";
 import { useState } from "react";
 import { getCookies } from "./auth";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useRouter } from "next/navigation";
 
 export default function Others() {
-    const [activeBoard, setActiveBoard] = useState('default');
+    const [activeBoard, setActiveBoard] = useState('defaultBoard');
     const [isOnline, setIsOnline] = useState('online');
     const { t } = useTranslation();
+    const router = useRouter();
 
     const API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -23,12 +27,34 @@ export default function Others() {
                     'X-CSRFToken': csrftoken,
                 },
             });
-            console.log("Account deleted successfully", res);
+            toast.success('Account deleted successfully');
+            router.push('/login');
         } catch (err) {
-            console.log('Error deleting account');
+            toast.error('Error deleting account');
         }
     };
+
+    const handelColorChange = async (boardName, color) => {
+        try {
+            const cookies = await getCookies();
+            const csrftoken = cookies.cookies.csrftoken;
+            const res = await axios.put(`${API}/update/`, {
+                color: color,
+            }, {
+                withCredentials: true,
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                },
+            });
+            setActiveBoard(boardName);
+            toast.success('Color changed successfully');
+            console.log("Color changed successfully");
+        } catch (err) {
+            toast.error('Error changing color');
+        }
+    }
   return (
+    <>
     <div className="text-white w-full h-full flex items-center laptop:justify-center flex-col
             overflow-y-auto no-scrollbar laptop:flex-row
              ">
@@ -50,22 +76,23 @@ export default function Others() {
                 </h1>
                 <div className="flex justify-center  w-full less-than-tablet:my-4
                 ">
-                    <button onClick={() => setActiveBoard('default')}
+                    <button onClick={() => handelColorChange('defaultBoard', '#0B4464')}
                     className="flex justify-center items-center border desktop:w-32 desktop:h-32
                                 laptop:w-20 laptop:h-20 rounded-full bg-[#0B4464]
                                 w-16 h-16 less-than-mobile:w-14 less-than-mobile:h-14 tablet:w-24 tablet:h-24
                                 ml-2
                             ">
-                        {activeBoard === 'default' && <IoMdCheckmark className="w-[48px] h-[48px] text-white"/>}
+                        {activeBoard === 'defaultBoard' && <IoMdCheckmark className="w-[48px] h-[48px] text-white"/>}
                     </button>
-                    <button onClick={() => setActiveBoard('board2')}
+                    <button onClick={() => handelColorChange('board2', '#001F54')}
                         className="flex justify-center items-center border desktop:w-32 desktop:h-32 laptop:w-20 laptop:h-20 
                             w-16 h-16 less-than-mobile:w-14 less-than-mobile:h-14 mx-6 tablet:w-24 tablet:h-24
                             rounded-full  bg-[#001F54]">
                             {activeBoard === 'board2' && <IoMdCheckmark className="w-[48px] h-[48px] text-white"/>}
                     </button>
-                    <button onClick={() => setActiveBoard('board3')}
-                    className="flex justify-center items-center border desktop:w-32 desktop:h-32 laptop:w-20 laptop:h-20 rounded-full  bg-[#872341]
+                    <button onClick={() => handelColorChange('board3', '#872341')}
+                    className="flex justify-center items-center border desktop:w-32 desktop:h-32 laptop:w-20
+                        laptop:h-20 rounded-full  bg-[#872341]
                         w-16 h-16 less-than-mobile:w-14 less-than-mobile:h-14 tablet:w-24 tablet:h-24 mr-2
                     ">
                         {activeBoard === 'board3' && <IoMdCheckmark className="w-[48px] h-[48px] text-white"/>}
@@ -104,8 +131,7 @@ export default function Others() {
                            </div>
                 </div>
             </div>
-            <div
-                 className=" bg-[#1A1F26] bg-opacity-80 h-[550px] laptop:w-[400px] border-[0.5px] border-white border-opacity-20
+            <div className=" bg-[#1A1F26] bg-opacity-80 h-[550px] laptop:w-[400px] border-[0.5px] border-white border-opacity-20
                  rounded-[50px] flex flex-col less-than-tablet:w-[90%] tablet:w-[90%] desktop:w-[663px] mt-5 laptop:mt-0
                  less-than-tablet:pt-5 laptop:mr-2 ">
                      <h1 className=" tablet:text-[25px] my-5 h-[20%] flex justify-center items-center text-[#FF0000] opacity-70
@@ -142,5 +168,7 @@ export default function Others() {
                      </div>
                 </div>
         </div>
+
+    </>
   );
 }

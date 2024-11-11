@@ -34,6 +34,8 @@ from django.http import HttpResponseRedirect
 from rest_framework_simplejwt.authentication import JWTAuthentication
 import jwt
 from django.utils.timezone import now
+from rest_framework.decorators import action
+from django.db.models import Q
 
 
 URL_FRONT = os.getenv('URL_FRONT')
@@ -104,7 +106,12 @@ class Intra42Callback(APIView):
         if not user.is_authenticated:
             return HttpResponseRedirect("http://localhost:3000/login")
         login(request, user)
-        response = HttpResponseRedirect('http://localhost:3000')
+        if user.enabeld_2fa:
+            response = HttpResponseRedirect('http://localhost:3000/twofa')
+        else:
+            user.try_to_login = True
+            user.save()
+            response = HttpResponseRedirect('http://localhost:3000')
         response = setTokens(response, user)
         user_data = Intra42UserSerializer(user).data
         response.data = user_data
@@ -168,8 +175,12 @@ class GoogleLoginCallback(APIView):
             if not user.is_authenticated:
                 return HttpResponseRedirect("http://localhost:3000/login")
             login(request, user)
-
-            response = HttpResponseRedirect('http://localhost:3000')
+            if user.enabeld_2fa:
+                response = HttpResponseRedirect('http://localhost:3000/twofa')
+            else:
+                user.try_to_login = True
+                user.save()
+                response = HttpResponseRedirect('http://localhost:3000')
             response = setTokens(response, user)
             user_data = GoogleUserSerializer(user).data
             response['X-User-Data'] = user_data
@@ -198,8 +209,12 @@ class LoginView(APIView):
                 user.islogged = True
                 if not user.avatar_url:
                     user.avatar_url = 'http://localhost:8000/avatars/default.png'
+                if user.enabeld_2fa:
+                    response = HttpResponseRedirect('http://localhost:3000/twofa')
+                else:
+                    user.try_to_login = True
+                    response = Response(status=status.HTTP_200_OK)
                 user.save()
-                response = Response(status=status.HTTP_200_OK)
                 response = setTokens(response, user)
                 return response
             else:
@@ -209,8 +224,12 @@ class LoginView(APIView):
 # get all users
 class UserViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
     def get_queryset(self):
+        search = self.request.GET.get('search')
+        if search:
+            return CustomUser.objects.filter(Q(username__icontains=search) | Q(full_name__icontains=search))
         return CustomUser.objects.filter(is_active=True)
 
 def generate_tokens(request):
@@ -228,14 +247,15 @@ def generate_tokens(request):
         value=access_token,
         httponly=False,
         secure=False, 
-        samesite='Lax',  # Optional, but recommended
+        samesite='Lax',
     )
     user = request.user
     user_data = UserSerializer(user).data
     response.data = user_data
     return response
 
-# get authenticated user
+
+
 class AuthenticatedUserView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
@@ -268,6 +288,7 @@ class Logout(APIView):
             logout(request)
             user.online = False
             user.twofa_verified = False
+            user.try_to_login = False
             user.save()
             return delete_tokens(request, status=status.HTTP_200_OK)
         else:
@@ -322,8 +343,14 @@ class VerifyTwoFactorView(APIView):
         if totp.verify(user_code):
             user.enabeld_2fa = True
             user.twofa_verified = not user.twofa_verified
+            print(user.twofa_verified)
             user.save()
-            return Response(status=status.HTTP_200_OK)
+            if not user.try_to_login:
+                user.try_to_login = True
+                user.save()
+                return HttpResponseRedirect('http://localhost:3000')
+            else:
+                return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -389,6 +416,10 @@ class UpdateUserView(APIView):
             language_change_response = self.change_language(user, data)
             if language_change_response:
                 updated = True
+        if 'color' in data:
+            color = data.get('color')
+            user.color = color
+            updated = True
         if updated:
             user.save()
         user_data = UpdateUserSerializer(user).data

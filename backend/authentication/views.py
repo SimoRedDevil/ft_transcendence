@@ -78,15 +78,21 @@ class Intra42Callback(APIView):
         }
         response = requests.post('https://api.intra.42.fr/oauth/token', data=data)
         if response.status_code != 200:
-            return HttpResponseRedirect("http://localhost:3000/login")
+                response = HttpResponseRedirect("http://localhost:3000/login")
+                response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
+                return response
         response_data = response.json()
         access_token = response_data['access_token']
         if not access_token:
-            return HttpResponseRedirect("http://localhost:3000/login")
+                response = HttpResponseRedirect("http://localhost:3000/login")
+                response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
+                return response
         user_info = requests.get('https://api.intra.42.fr/v2/me', headers={'Authorization': f'Bearer {access_token}'}).json()
 
         if 'login' not in user_info or 'email' not in user_info:
-            return HttpResponseRedirect("http://localhost:3000/login")
+            response = HttpResponseRedirect("http://localhost:3000/login")
+            response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
+            return response
 
         try:
             user = CustomUser.objects.get(username=user_info['login'])
@@ -104,7 +110,9 @@ class Intra42Callback(APIView):
 
         authenticate(request, username=user.username)
         if not user.is_authenticated:
-            return HttpResponseRedirect("http://localhost:3000/login")
+            response = HttpResponseRedirect("http://localhost:3000/login")
+            response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
+            return response
         login(request, user)
         if user.enabeld_2fa:
             response = HttpResponseRedirect('http://localhost:3000/twofa')
@@ -113,6 +121,7 @@ class Intra42Callback(APIView):
             user.save()
             response = HttpResponseRedirect('http://localhost:3000')
         response = setTokens(response, user)
+        response.set_cookie('loginSuccess', 'true', max_age=30, samesite='Lax')
         user_data = Intra42UserSerializer(user).data
         response.data = user_data
         return response
@@ -122,7 +131,9 @@ class GoogleLoginCallback(APIView):
     def get(self, request):
         code = request.GET.get("code")
         if not code:
-            return HttpResponseRedirect("http://localhost:3000/login")
+            response = HttpResponseRedirect("http://localhost:3000/login")
+            response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
+            return response
 
         # Google OAuth token endpoint
         token_endpoint_url = urljoin("https://oauth2.googleapis.com", "/token")
@@ -136,28 +147,38 @@ class GoogleLoginCallback(APIView):
 
         response = requests.post(token_endpoint_url, data=data)
         if response.status_code != 200:
-            return HttpResponseRedirect("http://localhost:3000/login")
+            response = HttpResponseRedirect("http://localhost:3000/login")
+            response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
+            return response
 
         try:
             response_data = response.json()
             access_token = response_data.get("access_token")
         except ValueError:
-            return HttpResponseRedirect("http://localhost:3000/login")
+            response = HttpResponseRedirect("http://localhost:3000/login")
+            response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
+            return response
 
         if not access_token:
-            return HttpResponseRedirect("http://localhost:3000/login")
+            response = HttpResponseRedirect("http://localhost:3000/login")
+            response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
+            return response
         
         # Get user info from Google
         user_info_url = "https://www.googleapis.com/oauth2/v3/userinfo"
         headers = {"Authorization": f"Bearer {access_token}"}
         user_info_response = requests.get(user_info_url, headers=headers)
         if user_info_response.status_code != 200:
-            return HttpResponseRedirect("http://localhost:3000/login")
+            response = HttpResponseRedirect("http://localhost:3000/login")
+            response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
+            return response
         try:
             user_info = user_info_response.json()
 
             if 'sub' not in user_info or 'email' not in user_info:
-                return HttpResponseRedirect("http://localhost:3000/login")
+                response = HttpResponseRedirect("http://localhost:3000/login")
+                response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
+                return response
             try:
                 user = CustomUser.objects.get(email=user_info['email'])
             except CustomUser.DoesNotExist:
@@ -173,7 +194,9 @@ class GoogleLoginCallback(APIView):
                 )
             authenticate(request, username=user.username)
             if not user.is_authenticated:
-                return HttpResponseRedirect("http://localhost:3000/login")
+                response = HttpResponseRedirect("http://localhost:3000/login")
+                response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
+                return response
             login(request, user)
             if user.enabeld_2fa:
                 response = HttpResponseRedirect('http://localhost:3000/twofa')
@@ -182,8 +205,9 @@ class GoogleLoginCallback(APIView):
                 user.save()
                 response = HttpResponseRedirect('http://localhost:3000')
             response = setTokens(response, user)
+            response.set_cookie('loginSuccess', 'true', max_age=30, samesite='Lax')
             user_data = GoogleUserSerializer(user).data
-            response['X-User-Data'] = user_data
+            response.data = user_data
             return response
         except ValueError:
             return HttpResponseRedirect("http://localhost:3000/login")
@@ -416,9 +440,11 @@ class UpdateUserView(APIView):
             language_change_response = self.change_language(user, data)
             if language_change_response:
                 updated = True
-        if 'color' in data:
+        if 'color' in data and 'board_name' in data:
             color = data.get('color')
+            board_name = data.get('board_name')
             user.color = color
+            user.board_name = board_name
             updated = True
         if updated:
             user.save()

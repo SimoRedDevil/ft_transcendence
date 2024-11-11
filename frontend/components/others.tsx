@@ -1,5 +1,5 @@
 `use client';`
-import React from "react";
+import React, { useEffect } from "react";
 import { useTranslation } from 'react-i18next';
 import axios from "axios";
 import { IoMdCheckmark } from "react-icons/io";
@@ -7,13 +7,17 @@ import { useState } from "react";
 import { getCookies } from "./auth";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname} from "next/navigation";
+import { useContext } from "react";
+import { UserContext } from "./context/usercontext";
 
 export default function Others() {
-    const [activeBoard, setActiveBoard] = useState('defaultBoard');
     const [isOnline, setIsOnline] = useState('online');
     const { t } = useTranslation();
     const router = useRouter();
+    const pathname = usePathname();
+    const {fetchAuthUser, authUser} = useContext(UserContext);
+    const [activeBoard, setActiveBoard] = useState(authUser?.board_name);
 
     const API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -34,25 +38,28 @@ export default function Others() {
         }
     };
 
-    const handelColorChange = async (boardName, color) => {
+    const handelColorChange = async (color, board_name) => {
         try {
             const cookies = await getCookies();
             const csrftoken = cookies.cookies.csrftoken;
             const res = await axios.put(`${API}/update/`, {
                 color: color,
+                board_name: board_name,
             }, {
                 withCredentials: true,
                 headers: {
                     'X-CSRFToken': csrftoken,
                 },
             });
-            setActiveBoard(boardName);
+            setActiveBoard(res.data?.board_name);
             toast.success('Color changed successfully');
-            console.log("Color changed successfully");
         } catch (err) {
             toast.error('Error changing color');
         }
     }
+useEffect(() => {
+    fetchAuthUser();
+}, [pathname]);
   return (
     <>
     <div className="text-white w-full h-full flex items-center laptop:justify-center flex-col
@@ -74,28 +81,27 @@ export default function Others() {
                     ">
                     {t("Default board skin")}
                 </h1>
-                <div className="flex justify-center  w-full less-than-tablet:my-4
-                ">
-                    <button onClick={() => handelColorChange('defaultBoard', '#0B4464')}
+                <div className="flex justify-center  w-full less-than-tablet:my-4">
+                    <button onClick={() => handelColorChange('#0B4464', 'df')}
                     className="flex justify-center items-center border desktop:w-32 desktop:h-32
                                 laptop:w-20 laptop:h-20 rounded-full bg-[#0B4464]
                                 w-16 h-16 less-than-mobile:w-14 less-than-mobile:h-14 tablet:w-24 tablet:h-24
                                 ml-2
                             ">
-                        {activeBoard === 'defaultBoard' && <IoMdCheckmark className="w-[48px] h-[48px] text-white"/>}
+                        {activeBoard === 'df' && <IoMdCheckmark className="w-[48px] h-[48px] text-white"/>}
                     </button>
-                    <button onClick={() => handelColorChange('board2', '#001F54')}
+                    <button onClick={() => handelColorChange('#001F54', 'bd1')}
                         className="flex justify-center items-center border desktop:w-32 desktop:h-32 laptop:w-20 laptop:h-20 
                             w-16 h-16 less-than-mobile:w-14 less-than-mobile:h-14 mx-6 tablet:w-24 tablet:h-24
                             rounded-full  bg-[#001F54]">
-                            {activeBoard === 'board2' && <IoMdCheckmark className="w-[48px] h-[48px] text-white"/>}
+                            {activeBoard === 'bd1' && <IoMdCheckmark className="w-[48px] h-[48px] text-white"/>}
                     </button>
-                    <button onClick={() => handelColorChange('board3', '#872341')}
+                    <button onClick={() => handelColorChange('#872341', 'bd2')}
                     className="flex justify-center items-center border desktop:w-32 desktop:h-32 laptop:w-20
                         laptop:h-20 rounded-full  bg-[#872341]
                         w-16 h-16 less-than-mobile:w-14 less-than-mobile:h-14 tablet:w-24 tablet:h-24 mr-2
                     ">
-                        {activeBoard === 'board3' && <IoMdCheckmark className="w-[48px] h-[48px] text-white"/>}
+                        {activeBoard === 'bd2' && <IoMdCheckmark className="w-[48px] h-[48px] text-white"/>}
                     </button>
                 </div>
                    <h1 className="text-[20px] ml-5 

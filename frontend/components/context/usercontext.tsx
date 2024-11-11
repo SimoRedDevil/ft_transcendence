@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect} from 'react';
 import axios from 'axios';
 import { usePathname, useRouter } from 'next/navigation';
-
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const UserContext = createContext(null);
 
@@ -53,7 +54,7 @@ export const UserProvider = ({ children }) => {
     useEffect(() => {
         fetchAuthUser();
     }
-    , [pathname, router, isAuthenticated, loading] );
+    , [pathname] );
     return (
         <UserContext.Provider value={{
                                         authUser,

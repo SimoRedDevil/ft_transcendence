@@ -13,6 +13,12 @@ class CustomUser(BaseUser):
         ('es', 'Spanish'),
     )
 
+    BOARD_CHOICES = (
+        ('df', 'Default'),
+        ('bd1', 'board1'),
+        ('bd2', 'board2'),
+    )
+
     full_name = models.CharField(max_length=50)
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=15, blank=True, default='06-00-00-00-00', validators=[phone_regex])
@@ -20,6 +26,7 @@ class CustomUser(BaseUser):
     address = models.CharField(max_length=50, blank=True, default='1337 school')
     language = models.CharField(max_length=2, choices=LANGUAGE_CHOICES, default='en', error_messages={'invalid': 'Please select a valid language'})
     color = models.CharField(max_length=7, blank=True, null=True, default='#0B4464')
+    board_name = models.CharField(max_length=3, choices=BOARD_CHOICES, default='df', error_messages={'invalid': 'Please select a valid board'})
     tournament_name = models.CharField(max_length=50, blank=True, null=True)
     try_to_login = models.BooleanField(default=False)
     tournament_score = models.IntegerField(default=0)

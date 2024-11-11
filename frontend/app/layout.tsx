@@ -13,7 +13,7 @@ import axios from "axios";
 import NotificationMenu from "../components/NotificationMenu";
 import DropDown from "../components/DropDown";
 import Image from "next/image";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 
@@ -61,18 +61,43 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
   const [profileDropDownClicked, setProfileDropDownClicked] = useState(false);
 
   useEffect(() => {
+    // const cookies = document.cookie.split('; ');
+    // const loginSuccessCookie = cookies.find(cookie => cookie.startsWith('loginSuccess='));
+
+    // if (loginSuccessCookie) {
+    //   const cookieValue = loginSuccessCookie.split('=')[1];
+    //   if (cookieValue === 'true') {
+    //     toast.success('Logged in successfully!');
+    //   } else {
+    //     toast.error('Something went wrong');
+    //   }
+    //   document.cookie = 'loginSuccess=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;';
+    // }
     if (isAuthenticated) {
       fetchAuthUser();
       if (pathname === "/login") {
         router.push("/");
       }
     }
-  }, [isAuthenticated, pathname, router]);
+  }, [pathname]);
+
 
   useEffect(() => {
-    !isAuthenticated && fetchAuthUser();
-  }, [pathname, router]);
-
+    const cookies = document.cookie.split('; ');
+    const loginSuccessCookie = cookies.find(cookie => cookie.startsWith('loginSuccess='));
+    if (loginSuccessCookie) {
+      const cookieValue = loginSuccessCookie.split('=')[1];
+      if (cookieValue === 'true') {
+        setTimeout(() => {
+          toast.success('Logged in successfully!');
+        }, 1400);
+      } else {
+        toast.error('Something went wrong');
+      }
+      document.cookie = 'loginSuccess=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;';
+    }
+  }
+  , []);
   const handleDocumentClick = (e: any) => {
     if (e.target.id !== "notification-id") {
       setNotificationClicked(false);
@@ -168,7 +193,6 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
             pauseOnFocusLoss
             pauseOnHover
             draggable
-            theme="dark"
             stacked
             style={{
               fontSize: "10px",

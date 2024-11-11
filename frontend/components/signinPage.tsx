@@ -17,7 +17,7 @@ interface SigninPageProps {
 
 const SigninPage: React.FC<SigninPageProps> = ({ onNavigate}) => {
   const router = useRouter();
-  const { setIsAuthenticated, signupData} = useContext(UserContext);
+  const { setIsAuthenticated, signupData, fetchAuthUser, authUser} = useContext(UserContext);
   const [password, setPassword] = useState(
     signupData?.password || ""
   );

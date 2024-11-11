@@ -7,6 +7,8 @@ import { enableTwoFactorAuth } from "./twoFa";
 import { useTranslation } from 'react-i18next';
 import {getCookies} from './auth';
 import { useUserContext } from "../components/context/usercontext";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Security() {
   const { authUser, setLoading, loading, setTry2fa, try2fa, fetchAuthUser } = useUserContext();
@@ -29,8 +31,7 @@ export default function Security() {
       new_password: new_password,
       confirm_password: confirm_password,
     };
-    
-    console.log(body);
+  
     try {
       const cookies = await getCookies();
       const csrftoken = cookies.cookies.csrftoken;
@@ -46,10 +47,10 @@ export default function Security() {
         }
       );
       if (response.status === 200) {
-        console.log("Password Changed");
+        toast.success(t('Information updated successfully'));
       }
     } catch (error) {
-      console.log("Error in changing password:");
+      toast.error(t("Password change failed please try again"));
     }
   };
   

@@ -10,6 +10,7 @@ import { useContext } from "react";
 import { UserContext } from "./context/usercontext";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useTranslation } from "react-i18next";
 
 interface SigninPageProps {
   onNavigate?: () => void;
@@ -25,6 +26,7 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate}) => {
     signupData?.email || ""
   );
   const searchParams = useSearchParams();
+  const { t } = useTranslation();
 
   const GG_REDIRECT_URL=process.env.NEXT_PUBLIC_GG_REDIRECT_URL
   const INTRA_REDIRECT_URL=process.env.NEXT_PUBLIC_INTRA_REDIRECT_URL
@@ -52,11 +54,11 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate}) => {
       });
       if (response.status === 200) {
         setIsAuthenticated(true);
-        toast.success("Logged in successfully");
+        toast.success(t("Logged in successfully"));
         router.push("/");
       }
     } catch (error) {
-      toast.error("Something went wrong");
+      toast.error(t("Something went wrong"));
       setIsAuthenticated(false);
     }
   };

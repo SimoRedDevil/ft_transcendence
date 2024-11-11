@@ -6,6 +6,8 @@ import { useContext } from "react";
 import { UserContext } from "./context/usercontext";
 import axios from "axios";
 import { getCookies } from "./auth";
+import { toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Language() {
     const { i18n, t } = useTranslation();
@@ -44,10 +46,10 @@ export default function Language() {
               }
             );
             if (response.status === 200) {
-              console.log("Language changed to:", languages.find((lang) => lang.code === languageCode).name, "successfully");
+                toast.success(t('Language changed successfully'));
             }
           } catch (error) {
-            console.log("Error changing language");
+            toast.error(t('An error occurred'));
           }
         setActiveLanguage(languageCode);
         i18n.changeLanguage(languageCode);

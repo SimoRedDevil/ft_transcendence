@@ -8,11 +8,13 @@ import { useEffect } from "react";
 import { toast } from 'react-hot-toast';
 import { useContext } from "react";
 import { UserContext } from "../../components/context/usercontext";
+import { useTranslation } from "react-i18next";
 
 const TwofaVerify = () => {
   const [code, setCode] = useState<string>("");
   const router = useRouter();
   const {authUser, fetchAuthUser} = useContext(UserContext);
+  const { t } = useTranslation();
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -25,11 +27,11 @@ const TwofaVerify = () => {
     e.preventDefault();
     const status = await verify2FA(code);
     if (status === 200) {
-      toast.success("login success");
+      toast.success(t("login success"));
       await fetchAuthUser();
       router.push("/");
     } else {
-      toast.error("Verification failed");
+      toast.error(t("Verification failed"));
     }
   };
 

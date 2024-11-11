@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { getCookies } from "../components/auth";
 import { useTranslation } from 'react-i18next';
+import { toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const labelMappings = {
   "nom_complet": "full_name",
@@ -49,9 +51,9 @@ function TextFieldTmp({ title, label1, label2, label3, type, values, setValues }
       });
 
       if (response.status === 200) {
-        console.log("Update successful");
+        toast.success(t('Information updated successfully'));
       } else {
-        console.log("Update failed");
+        toast.error(t('An error occurred'));
       }
     } catch (error) {
       console.error("Error updating information:", error);

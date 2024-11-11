@@ -15,6 +15,7 @@ import DropDown from "../components/DropDown";
 import Image from "next/image";
 import { ToastContainer, toast} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useTranslation } from "react-i18next";
 
 
 function RootLayout({ children }: any) {
@@ -59,20 +60,9 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
   const [token, setToken] = useState(null);
   const [notificationClicked, setNotificationClicked] = useState(false);
   const [profileDropDownClicked, setProfileDropDownClicked] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
-    // const cookies = document.cookie.split('; ');
-    // const loginSuccessCookie = cookies.find(cookie => cookie.startsWith('loginSuccess='));
-
-    // if (loginSuccessCookie) {
-    //   const cookieValue = loginSuccessCookie.split('=')[1];
-    //   if (cookieValue === 'true') {
-    //     toast.success('Logged in successfully!');
-    //   } else {
-    //     toast.error('Something went wrong');
-    //   }
-    //   document.cookie = 'loginSuccess=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;';
-    // }
     if (isAuthenticated) {
       fetchAuthUser();
       if (pathname === "/login") {
@@ -89,10 +79,10 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
       const cookieValue = loginSuccessCookie.split('=')[1];
       if (cookieValue === 'true') {
         setTimeout(() => {
-          toast.success('Logged in successfully!');
+          toast.success(t('Logged in successfully!'));
         }, 1400);
       } else {
-        toast.error('Something went wrong');
+        toast.error(t('Something went wrong'));
       }
       document.cookie = 'loginSuccess=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;';
     }

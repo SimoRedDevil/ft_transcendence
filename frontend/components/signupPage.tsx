@@ -9,6 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useContext } from "react";
 import { UserContext } from "./context/usercontext";
 import axios from 'axios';
+import { useTranslation } from "react-i18next";
 
 interface SignupPageProps {
   onNavigate?: () => void;
@@ -21,6 +22,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
   const [password, setPassword] = useState("");
   const router = useRouter();
   const { setSignupData } = useContext(UserContext);
+  const { t } = useTranslation();
 
   const API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -42,12 +44,12 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
       });
   
       if (response.status === 201) {
-        toast.success("Account created successfully.");
+        toast.success(t("Account created successfully."));
         setSignupData({ email, password });
         onNavigate();
       }
     } catch (error) {
-      toast.error("Something went wrong.");
+      toast.error(t("Something went wrong."));
     }
   };
 

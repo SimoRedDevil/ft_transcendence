@@ -31,10 +31,10 @@ export default function Others() {
                     'X-CSRFToken': csrftoken,
                 },
             });
-            toast.success('Account deleted successfully');
+            toast.success(t('Account deleted successfully'));
             router.push('/login');
         } catch (err) {
-            toast.error('Error deleting account');
+            toast.error(t('Error deleting account'));
         }
     };
 
@@ -52,9 +52,9 @@ export default function Others() {
                 },
             });
             setActiveBoard(res.data?.board_name);
-            toast.success('Color changed successfully');
+            toast.success(t('Color changed successfully'));
         } catch (err) {
-            toast.error('Error changing color');
+            toast.error(t('Error changing color'));
         }
     }
 useEffect(() => {

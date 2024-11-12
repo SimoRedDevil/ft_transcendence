@@ -1,15 +1,15 @@
 "use client"
 
 import React, { useRef, useEffect } from 'react';
-import { Player1, Player2} from './Object';
-import { Walls , walls} from './Object';
-import { UpPaddle } from './Paddle';
-import { DownPaddle } from './Paddle';
-import { Ball, ball } from './Object';
-import { Score1, Score2 } from './Score';
-import { Collision } from './Collision';
-import { handleCollision } from './Collision';
-import { countdown } from './Score';
+import { Player1, Player2} from '../Object';
+import { Walls , walls} from '../Object';
+import { UpPaddle } from '../Paddle';
+import { DownPaddle } from '../Paddle';
+import { Ball, ball } from '../Object';
+import { Score1, Score2 } from '../Score';
+import { Collision } from '../Collision';
+import { handleCollision } from '../Collision';
+import { countdown } from '../Score';
 import p5 from 'p5';
 import { redirect } from 'next/navigation';
 
@@ -117,8 +117,9 @@ export default function Table({onGameEnd}: TableProps) {
       // @ts-ignore
         <div ref={canvasRef} className="aspect-[3/4] w-[250px]
                                           xs:w-[350px]
-                                          ls:w-[450px]
+                                          ls:w-[380px]
                                           sm:w-[330px]
+                                          md:w-[350px]
                                           lm:w-[400px]
                                           2xl:w-[430px]
                                           3xl:w-[530px]

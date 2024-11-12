@@ -18,15 +18,7 @@ export default function TournamentForm({ onSubmit }) {
     }
 
     return (
-        <div className='flex justify-center items-center mt-[20px]
-                        xs:mt-[30px]
-                        ls:mt-[50px]
-                        sm:mt-[70px]
-                        md:mt-[70px]
-                        lm:mt-[100px]
-                        2xl:mt-[100px]
-                        3xl:mt-[180px]
-                        4xl:mt-[180px]'>
+        <div className='flex justify-center items-center'>
             <div className='aspect-[3/4] bg-deepSeaBlue rounded-lg border border-white border-opacity-30 
                             w-[330px]
                             xs:w-[300px]

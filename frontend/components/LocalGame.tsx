@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 
-const Table = dynamic(() => import('../app/game/Table'), { ssr: false });
+const Table = dynamic(() => import('../app/game/tournament/Table'), { ssr: false });
 const Player1 = dynamic(() => import('../app/game/tournament/Player1'), { ssr: false });
 const Player2 = dynamic(() => import('../app/game/tournament/Player2'), { ssr: false });
 

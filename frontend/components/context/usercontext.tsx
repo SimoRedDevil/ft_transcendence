@@ -18,6 +18,7 @@ export const UserProvider = ({ children }) => {
     const [searchInput, setSearchInput] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [searchLoading, setSearchLoading] = useState(false);
+    const [isSearching, setIsSearching] = useState(false);
 
     const fetchAuthUser = async () => {
         try {
@@ -124,7 +125,8 @@ export const UserProvider = ({ children }) => {
     , [pathname] );
 
     return (
-        <UserContext.Provider value={{ users, loading, error, isAuthenticated, searchInput, fetchAuthUser, setIsAuthenticated, setTry2fa, try2fa, setSearchInput, searchResults, searchLoading}}>
+        <UserContext.Provider value={{ users, loading, error, isAuthenticated, searchInput, fetchAuthUser, setIsAuthenticated, setTry2fa,
+            try2fa, setSearchInput, searchResults, searchLoading, isSearching, setIsSearching}}>
             {children}
         </UserContext.Provider>
     );

@@ -13,7 +13,7 @@ import {usePathname} from 'next/navigation';
 import { axiosInstance } from '../utils/axiosInstance';
 
 function Header({setNotificationClicked, notificationClicked, setProfileDropDownClicked, profileDropDownClicked}) {
-  const { users, setSearchInput, searchInput } = useContext(UserContext);
+  const { users, setSearchInput, setIsSearching } = useContext(UserContext);
 
   const handleNotificationClick = () => {
     setProfileDropDownClicked(false);
@@ -27,6 +27,7 @@ function Header({setNotificationClicked, notificationClicked, setProfileDropDown
 
   const handleInputChange = (e) => {
     setSearchInput(e.target.value);
+    setIsSearching(true);
   }
 
   return (
@@ -35,7 +36,7 @@ function Header({setNotificationClicked, notificationClicked, setProfileDropDown
         <Link href='/'><Image src='/icons/logo.png' height={60} width={60} alt='logo'/></Link>
       </div>
       <div className='sm:w-[400px] md:w-[500px] lg:w-[600px] 2xl:w-[700px] w-[50%] h-[60px]'>
-        <TextBox onChange={(e) => handleInputChange(e)} placeholder='Search' icon='/icons/search.png' className='border border-white border-opacity-30 w-full h-full bg-black bg-opacity-50 rounded-[30px] flex items-center'/>
+        <TextBox id='textsearch-id' onChange={(e) => handleInputChange(e)} placeholder='Search' icon='/icons/search.png' className='border border-white border-opacity-30 w-full h-full bg-black bg-opacity-50 rounded-[30px] flex items-center'/>
       </div>
       <div className='w-[170px] flex justify-between'>
         <div id='notification-id' onClick={handleNotificationClick} className={`h-[70px] w-[70px] bg-white bg-opacity-0 rounded-full flex items-center justify-center hover:bg-opacity-15 hover:cursor-pointer`}>

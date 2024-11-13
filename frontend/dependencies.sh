@@ -17,3 +17,4 @@ npm install @mui/styled-engine-sc styled-components
 npm install chart.js react-chartjs-2
 npm install axios
 npm install recharts
+npm i rc-progress

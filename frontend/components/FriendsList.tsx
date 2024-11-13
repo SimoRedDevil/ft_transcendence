@@ -3,7 +3,7 @@ const FriendsList = ({ friends }) => {
 
     return (
         <>
-        <div className='relative top-4 h-[90%] w-full overflow-auto hide-scrollbar'>
+        <div className='relative top-4 lg:h-[90%] xs:h-[95%]  w-full overflow-auto hide-scrollbar'>
 
         <div className=' w-full h-auto   flex flex-col items-center gap-5 '>
             {friends.map((friend, index) => (

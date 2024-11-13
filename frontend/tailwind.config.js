@@ -6,6 +6,19 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        'Bebas': ['Nabla', 'system-ui'], // Custom font family
+        'loby': ['Faculty Glyphic', 'sans-serif'], // Custom font family
+      },
+      animation: {
+        'scale-down': 'scaleDown 0.5s ease-in-out forwards',
+      },
+      keyframes: {
+        scaleDown: {
+          '0%': { transform: 'scale(2)' },
+          '100%': { transform: 'scale(1)' },
+        },
+      },
       colors: {
         'deepSeaBlue': '#0B4464',
         'paddlefill': '#00A88C',
@@ -26,12 +39,20 @@ module.exports = {
         'slide-in-right': 'slideInRight 1s ease forwards',
       },
       screens: {
+        // 'mobile': '360px',
+        // 'less-than-tablet': { 'max': '640px' },
+        // 'less-than-mobile': { 'max': '360px' },
+        // 'tablet': '640px',
+        // 'laptop': '1025px',
+        // 'desktop': '1280px',
         'xs': '320px',
-        'sm': '640px',
-        'md': '768px',
+        'ls': '500px',
+        'lm': '900px',
         'lg': '1024px',
         'xl': '1280px',
-        '2xl': '1536px'
+        '2xl': '1536px',
+        '3xl': '1800px',
+        '4xl': '2000px',
       },
       backgroundImage: {
         'main-bg': "url('/images/Main-Background.png')",
@@ -40,6 +61,7 @@ module.exports = {
       },
       borderRadius: {
         'custom-Radius': '10px 20px 10px 20px',
+        'sidebar_lg':'0px 30px 30px 00px;'
       },
     },
   },

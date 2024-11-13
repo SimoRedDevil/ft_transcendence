@@ -23,13 +23,13 @@ function Sidebar() {
     const tournament = pathname.startsWith('/tournament');
     const home = pathname === '/dashboard';
     return (
-        <nav className='w-full sm:w-[100px] sm:h-full h-16 flex sm:flex-col items-center justify-around sm:justify-center sm:gap-[5%]'>
-            <NavLink href='/' isActive={home}><TbLayoutDashboardFilled className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] hover:text-opacity-100 transition'/></NavLink>
-            <NavLink href='/game' isActive={game}><IoLogoGameControllerB className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink>
-            <NavLink href='/game/tournament' isActive={tournament}><GiLaurelsTrophy className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink>
-            <NavLink href='/profile' isActive={profile}><FaUser className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink>
-            <NavLink href='/chat' isActive={chat}><IoChatbubblesSharp className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink>
-            <NavLink href='/settings' isActive={settings}><IoSettings className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink>
+        <nav className='bg-black/50 w-full xs:h-[100%] lg:h-[60%] flex xs:justify-around xs:items-center   lg:flex-col lg:justify-around lg:items-center lg:border-2 border-white/45  lg:rounded-sidebar_lg'>
+            <NavLink href='/' isActive={home}><TbLayoutDashboardFilled className='text-white w-[30px] h-[30px] xs:w-[30px] xs:h-[30px] hover:text-opacity-100 transition'/></NavLink>
+            <NavLink href='/game' isActive={game}><IoLogoGameControllerB className='text-white w-[30px] h-[30px] xs:w-[30px] xs:h-[30px] lg:w-[40px]  lg:h-[40px]'/></NavLink>
+            <NavLink href='/game/tournament' isActive={tournament}><GiLaurelsTrophy className='text-white w-[30px] h-[30px] xs:w-[30px] xs:h-[30px] lg:w-[40px]  lg:h-[40px]' /></NavLink>
+            <NavLink href='/profile' isActive={profile}><FaUser className='text-white w-[30px] h-[30px] xs:w-[30px] xs:h-[30px] lg:w-[40px]  lg:h-[40px]'/></NavLink>
+            <NavLink href='/chat' isActive={chat}><IoChatbubblesSharp className='text-white w-[30px] h-[30px] xs:w-[30px] xs:h-[30px] lg:w-[40px]  lg:h-[40px]'/></NavLink>
+            <NavLink href='/settings' isActive={settings}><IoSettings className='text-white w-[30px] h-[30px] xs:w-[30px] xs:h-[30px] lg:w-[40px]  lg:h-[40px]'/></NavLink>
         </nav>
   )
 }

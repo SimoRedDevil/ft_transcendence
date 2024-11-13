@@ -16,9 +16,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <UserProvider>
             <html lang="en">
                 <head>
+
                     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                     <link rel="preconnect" href="https://fonts.googleapis.com" />
+                    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+                    <link href="https://fonts.googleapis.com/css2?family=Chelsea+Market&family=Faculty+Glyphic&family=Nabla&display=swap" rel="stylesheet" />
+                    <link rel="preconnect" href="https://fonts.googleapis.com" />
                     <link rel="preconnect" href="https://fonts.gstatic.com" />
+                    <link href="https://fonts.googleapis.com/css2?family=Bona+Nova+SC:ital,wght@0,400;0,700;1,400&family=Doto:wght@100..900&display=swap" rel="stylesheet" />
+                    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lilita+One&display=swap" rel="stylesheet" />
+                    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Bowlby+One&family=Itim&family=Lilita+One&display=swap" rel="stylesheet" />
+                    <link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic&display=swap" rel="stylesheet"></link>
+                    <link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic&display=swap" rel="stylesheet"></link>
+
+                    <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        />
                 </head>
                 <body className="h-screen">
                     <AuthProtectedLayout pathname={pathname} exclude={exclude} router={router}>
@@ -67,18 +81,15 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
                 </div>
             )}
 
-            <div className="h-[calc(100%_-_100px)] flex flex-col-reverse sm:flex-row">
-                {/* Render Sidebar if pathname is not in exclude list */}
-                {!exclude.includes(pathname) && (
-                    <div className="flex sm:flex-col w-full sm:w-[100px]">
-                        <Sidebar />
+                <div className='h-[calc(100%_-_100px)] flex flex-col-reverse lg:flex-row'>
+                    <div className='  xs:h-[70px] flex lg:flex-col w-full lg:w-[100px] lg:h-full lg:relative lg:right-1 xl:right-0 xl:w-[100px] rounded-md justify-center '>
+                        <Sidebar/>
                     </div>
-                )}
-
-                <div className="h-[calc(100%_-_100px)] w-full">
+                <div className='h-auto w-full xs:h-full xs:overflow-auto lg:flex lg:justify-center lg:items-center'>
                     {children}
                 </div>
             </div>
+
         </div>
     );
 }

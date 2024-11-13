@@ -35,17 +35,18 @@ const get_first = async () => {
 
 async function Rank(info, player: number) {
     const table = await get_first();
+    console.log(table[0].teamname + "ijfuwenfwe");
     return (
         <div
-            className="w-[95%] h-[89%] overflow-auto border_cus rounded-xl bg-gradient-to-b from-[rgba(26,31,38,0.7)] to-[rgba(0,0,0,0.5)] flex flex-col justify-start gap-[15px] items-center hide-scrollbar"
+            className=" w-full xs:h-[89%] lg:h-full overflow-auto border_cus rounded-xl bg-gradient-to-b from-[rgba(26,31,38,0.7)] to-[rgba(0,0,0,0.5)] flex flex-col justify-start gap-[15px] items-center hide-scrollbar"
         >
             <h1 className="text-[rgb(113,113,113)] relative text-start  w-full left-7 top-2 text-[15px]">Top players</h1>
-            <Gold name={table[0].teamName} minipic="/images/minipic.jpeg" />
-            <Silver name={table[2].teamName} minipic="/images/minipic.jpeg" />
-            <Bronze name={table[1].teamName} minipic="/images/minipic.jpeg" />
+            <Gold name={table[0].teamName} lvl={table[0].points} minipic="/images/minipic.jpeg" />
+            <Silver name={table[2].teamName} lvl={table[1].points} minipic="/images/minipic.jpeg" />
+            <Bronze name={table[1].teamName}  lvl={table[2].points} minipic="/images/minipic.jpeg" />
             <h3 className="text-[rgb(113,113,113)] w-full text-start relative left-7 top-2 text-[15px]">Others</h3>
             {table.slice(3).map((team, index) => (
-                <Basic key={index + 3} name={team.teamName} minipic="/images/minipic.jpeg" />
+                <Basic key={index + 3} name={team.teamName} lvl={team.points} minipic="/images/minipic.jpeg" />
             ))}
         </div>
     );

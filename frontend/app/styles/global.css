@@ -3,11 +3,22 @@
 @tailwind utilities;
 
 * {
-    font-family: "Share Tech", sans-serif;
+    /* font-family: "Share Tech", sans-serif; */
     font-size: 20px;
     font-style: normal;
     /* border: solid red; */
 }
+
+.winner_t{
+  font-family: "Nabla", system-ui;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings:
+    "EDPT" 100,
+    "EHLT" 12;
+}
+
 
 @layer components {
     .password-circles {
@@ -35,11 +46,7 @@
     -ms-overflow-style: none;  /* Internet Explorer 10+ */
 }
 .stats_styles{
-
-
 box-sizing: border-box;
-
-
 background: linear-gradient(270deg, #1A252B 0%, rgba(0, 0, 0, 0.5) 100%);
 border: 1px solid rgba(255, 255, 255, 0.2);
 border-radius: 10px 30px;
@@ -120,4 +127,70 @@ border-radius: 20px;
   .mask_l{
     -webkit-mask-image: linear-gradient(to left, transparent, white 90% );
     mask-image: linear-gradient(to left, transparent, white 90% );
-  } 
+  }
+.sidebar_lg
+{
+border-radius: 0px 30px 30px 0px;
+}
+.sidebar_xs
+{
+border-radius: 30px 30px 30px 30px;
+}
+.winner_bg{
+  -webkit-mask-image: linear-gradient( black 50%, transparent);
+  mask-image: linear-gradient(left black 50%, transparent);
+}
+@keyframes scaleDown {
+  0% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.scale-down {
+  animation: scaleDown 2s ease-in-out forwards;
+}
+@keyframes scaleDown_page {
+  0% {
+    transform: scale(1.5);
+    rotate: 20deg;
+  }
+  100% {
+    rotate: 0deg ;
+    transform: scale(1);
+  }
+}
+
+.scaleDown_page {
+  animation: scaleDown_page 0.8s ease-in-out forwards;
+}
+@keyframes up {
+  0% {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.scale-yp {
+  animation: up 1s ease-in-out forwards;
+}
+@keyframes lobby-up {
+  0% {
+    transform: translatex(-80px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.scale-lobby {
+  animation: lobby-up  3s ease-in-out forwards;
+}

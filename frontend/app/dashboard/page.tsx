@@ -9,17 +9,22 @@ import ProgressHolder from '../../components/Pg_holder';
 const Dashboard = () => {
   const percentage = 66;
   return (
-    <div className='flex lg:flex-row lg:justify-around lg:items-center xs:border_cus  rounded-3xl lg:h-[90%] 2xl:w-[90%] lg:w-[95%] xl:w-[95%] relative 2xl:left-[6%] lg:left-8 xl:left-[2%]  lg:top-[2%] bg-black/50  xs:flex xs:flex-col xs:justify-around xs:gap-[2%] xs:items-center xs:h-auto xs:overflow-auto ' >
-        <div className='lg:w-[32%] lg:h-[100%] flex flex-col justify-center items-center gap-[5%] xs:w-[100%]  xs:h-[40vh]  '>
-            <GameMode  type="Tournemant" des="Our tournament game mode offers an exciting and competitive environment where players or teams face off in a series of matches to determine the ultimate champion." bg="/images/search.jpeg"  />
-            <GameMode  type="Normal" des="Our normal game mode provides flexible and enjoyable gameplay for all types of players. Choose between offline mode or online 1 vs 1 matches to suit your preferences." bg="/images/normal.jpeg"  />
+    <div className="relative  xs:h-[85vh] w-full xs:overflow-y-auto space-y-1  lg:flex  lg:h-full  ">
+      <div className='xs:h-[55vh] xs:w-full flex justify-center  lg:h-full'>
+        <div className="xs:flex xs:flex-col xs:h-[full] xs:w-[89%] lg:h-[90%]  xs:items-center xs:justify-between ">
+                <GameMode  type="Normal" des="Our normal game mode provides flexible and enjoyable gameplay for all types of players. Choose between offline mode or online 1 vs 1 matches to suit your preferences." bg="/images/normal.jpeg"  /> 
+                <GameMode  type="Tournemant" des="Our tournament game mode offers an exciting and competitive environment where players or teams face off in a series of matches to determine the ultimate champion." bg="/images/search.jpeg"  />
         </div>
-        <div className='lg:w-[37%] lg:h-[100%] flex justify-center items-center xs:w-full xs:h-[60vh]  '>
-            <Rank player="50" />
-        </div>
-        <div className='lg:w-[25%]  lg:h-[89%] lg:border flex flex-col justify-center  items-center lg:bg-custom-gradient lg:gap-[8%] xl:gap-[4%] stats_holder xs:h-[60vh] xs:w-[96%] p-2 gap-4'>
-            <div className='lg:w-full xs:w-[90%] sm:w-[60%]  flex justify-center '>
-              <Pie percentage={99} colour={"rgba(0, 225, 220, 0.8)"}   />
+      </div>
+      <div className='xs:w-full xs:h-[80vh] xs:flex xs:justify-center lg:h-[90%]'>
+          <div className="xs:flex xs:justify-center xs:items-center  xs:w-[89%] xs:h-full  lg:h-full">
+                <Rank player="50" />
+          </div>
+      </div>
+  <div className='xs:h-[80vh] xs:w-full flex justify-center lg:h-[90%]'>
+    <div className="relative h-full  w-[89%] xs:flex xs:flex-col xs:justify-around xs:items-center stats_holder mb-4  ">
+            <div className=' md:w-[60%] xs:w-[80%]   flex justify-center lg:w-[80%]'>
+              <Pie percentage={50} colour={"rgba(0, 225, 220, 0.8)"}   />
             </div>
             <div className=' h-[30%] w-full flex justify-center '>
               <div className=' w-[50%] flex flex-col justify-around items-center gap-2'>
@@ -31,11 +36,20 @@ const Dashboard = () => {
                 <Stats type="Top score" number="0"/>
               </div>
             </div>
-            <div className='flex  justify-center items-center w-full h-auto'>
+            <div className='flex  justify-center items-center  xl:w-full xs:w-[90%] h-auto'>
                 <ApexChart />
-            </div>
-        </div>
-    </div>
+            </div> 
+      </div>
+  </div>
+</div>
+    // <div className='flex lg:flex-row xs:h-[80vh] xs:w-full xs:overflow-y-auto lg:justify-around lg:items-center   rounded-3xl lg:h-[100%] 2xl:w-[90%] lg:w-[95%] xl:w-[95%] relative 2xl:left-[6%] lg:left-8 xl:left-[2%]  lg:top-[2%] bg-black/50 xs:flex-col '>
+    //     <div className='lg:w-[32%] xs:h-[50vh] lg:h-[89%] xs:w-full flex flex-col justify-center items-center gap-[5%]  stats_holder '>
+    //     </div>
+    //     <div className='lg:w-[37%] lg:h-[100%] xs:h-[70vh] xs:w-full flex justify-center items-center  stats_holder'>
+    //     </div>
+    //     <div className='lg:w-[25%]  lg:h-[89%] xs:h-[50vh] xs:w-full lg:border flex flex-col justify-center  items-center lg:bg-custom-gradient lg:gap-[8%] xl:gap-[4%] stats_holder  p-2 gap-4'>
+    //     </div>
+    // </div>
   );
 };
 

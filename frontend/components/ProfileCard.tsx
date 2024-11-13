@@ -3,13 +3,13 @@ import path from 'path';
 
 const ProfileCard = ({ img, F_name , user, mail , lvl }) => {
   return (
-       <div className=' h-[90%] w-[90%] flex xl:flex-row justify-around items-center gap-1 xs:flex-col  '>
+       <div className=' lg:h-[90%] lg:w-[100%] flex xl:flex-row justify-around items-center gap-1 xs:flex-col xl:justify-around '>
           <img className='md:w-40 md:h-40 rounded-full lg:w-28 lg:h-28 xl:w-36  xl:h-36 2xl:w-40 2xl:h-40  xl:p-1 border-2 border-[#00FFF0] xs:w-14 xs:h-14' src={img} alt="" />
-          <div className='flex flex-col justify-around xl:items-start  h-full xs:items-center'>
-              <p className='2xl:text-[3rem] xl:text-[1.9rem]  lg:text-[1.2rem] text-white'>{F_name}</p>
+          <div className='flex flex-col justify-around xl:items-start  h-full xs:items-center '>
+              <p className='2xl:text-[38px] xl:text-[28px]  lg:text-[1.2rem] text-white'>{F_name}</p>
               <p className='2xl:text-[0.8rem] xl:text-[0.6rem]  lg:text-[0.6rem] text-white'>username: {user}</p>
               <p className='2xl:text-[0.8rem] xl:text-[0.6rem]  lg:text-[0.6rem] text-white'>email: {mail}</p>
-              <p className='2xl:text-[2rem]  xl:text-[1.4rem] lg:text-[1rem] text-white'>Level: {lvl}</p>
+              <p className='2xl:text-[40px]  xl:text-[1.4rem] lg:text-[1rem] text-white'>Level: {lvl}</p>
           </div>
 
        </div>

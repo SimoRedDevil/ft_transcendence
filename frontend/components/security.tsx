@@ -1,5 +1,4 @@
 import React, { use } from "react";
-import { GrKey } from "react-icons/gr";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Popup from "../components/popup";
@@ -47,10 +46,10 @@ export default function Security() {
         }
       );
       if (response.status === 200) {
-        toast.success(t('Information updated successfully'));
+        toast.success(t('Password Changed Successfully'));
       }
     } catch (error) {
-      toast.error(t("Password change failed please try again"));
+      toast.error(t("Password Change Failed, Please Try Again"));
     }
   };
   
@@ -72,7 +71,7 @@ export default function Security() {
       );
       if (response.status === 200) {
         const qr = response.data.qrcode_url;
-        setQrcode(qr); // Set QR code
+        setQrcode(qr);
       }
     } catch (error) {
     } finally {
@@ -190,42 +189,24 @@ export default function Security() {
           className="flex flex-col items-center justify-center laptop:w-1/2
             less-than-tablet:border-0 less-than-tablet:w-full less-than-tablet:pr-0"
         >
-          <div
-            className="flex w-full justify-start items-center less-than-tablet:flex-col
-          mt-5"
-          >
-            <img
-              className={`h-full bg-white text-white ml-5 mb-5 desktop:w-[250px]
-                            laptop:w-[170px] laptop:h-[170px] tablet:w-[250px] tablet:h-[250px] 
-                            less-than-tablet:w-[200px] less-than-tablet:h-[200px] less-than-tablet:ml-0 
-                            desktop:h-[250px] less-than-tablet:mb-3 rounded-[30px]`}
-              src={qrcode ? qrcode : "images/qrcode.png"}
-              alt="2fa QR Code"
-            />
-            <div className="laptop:w-1/2 h-[300px] flex flex-col mx-3 justify-center ">
-              <p
-                className="desktop:text-sm desktop:mb-8 mb-3 text-white opacity-70 max-w-[10rem] text-center
-                less-than-tablet:text-xs tablet:text-xs
-                "
-              >
-                1. {t("Use an authenticator app as your Two-Factor Authentication (2FA).")}
-              </p>
-              <p
-                className="desktop:text-sm desktop:mb-8 mb-3 text-white opacity-70 max-w-[10rem] text-center
-                    less-than-tablet:text-xs tablet:text-xs
-                  "
-              >
-                2. {t("Scan the QR code using your authenticator app.")}
-              </p>
-              <p
-                className="desktop:text-sm mb-5 text-white opacity-70 max-w-[10rem] text-center
-                        less-than-tablet:text-xs tablet:text-xs
-                  "
-              >
-                3. {t("Enter the number which the app generates below.")}
-              </p>
-            </div>
+          {
+            authUser?.enabeld_2fa ?
+            <div>
+              <div className="flex flex-col items-center w-full text-lg font-thin text-center">
+                <p>
+                  {t("Two-factor authentication is enabled")}
+                </p>
+              </div>
+            </div> :
+          <div className="flex flex-col items-center w-[90%] text-lg font-thin text-center">
+            <p className="mb-5">
+              {t("Protect your account with two-factor authentication")}
+            </p>
+            <p>
+              {t("Two-factor authentication adds an extra layer of security to your account")}
+            </p>
           </div>
+          }
           <div className="flex items-center space-x-4 my-5">
             <span className="text-lg font-medium">{t("Enable 2FA")}</span>
             <label className="relative inline-flex items-center cursor-pointer">
@@ -239,8 +220,7 @@ export default function Security() {
                 className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600
                               peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] 
                               after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 
-                              after:w-5 after:transition-all"
-              ></div>
+                              after:w-5 after:transition-all"></div>
             </label>
             <span className="text-lg font-medium">
               {authUser?.enabeld_2fa ? "On" : "Off"}

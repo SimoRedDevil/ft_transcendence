@@ -44,12 +44,12 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
       });
   
       if (response.status === 201) {
-        toast.success(t("Account created successfully."));
+        toast.success(t("Account Created Successfully."));
         setSignupData({ email, password });
         onNavigate();
       }
     } catch (error) {
-      toast.error(t("Something went wrong."));
+      toast.error(t("Something Went Wrong."));
     }
   };
 

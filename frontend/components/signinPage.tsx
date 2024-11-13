@@ -54,11 +54,10 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate}) => {
       });
       if (response.status === 200) {
         setIsAuthenticated(true);
-        toast.success(t("Logged in successfully"));
         router.push("/");
       }
     } catch (error) {
-      toast.error(t("Something went wrong"));
+      toast.error(t("Something Went Wrong"));
       setIsAuthenticated(false);
     }
   };

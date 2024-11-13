@@ -23,7 +23,7 @@ export const logout = async (
             withCredentials: true,  // Ensures cookies are sent
         });
         setIsAuthenticated(false);
-        setauthUser(null);
+        // setauthUser(null);
         router.push('/login');
     } catch (error) {
         setIsAuthenticated(false);

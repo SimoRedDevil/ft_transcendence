@@ -16,6 +16,7 @@ import Image from "next/image";
 import { ToastContainer, toast} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useTranslation } from "react-i18next";
+import path from "path";
 
 
 function RootLayout({ children }: any) {
@@ -30,9 +31,13 @@ function RootLayout({ children }: any) {
           <meta
             name="viewport"
             content="width=device-width, initial-scale=1.0"
+            title="TrueTalk"
           />
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" />
+          <title>
+            {pathname.charAt(1).toUpperCase() + pathname.slice(2)}
+          </title>
         </head>
         <body className="h-screen">
           <AuthProtectedLayout
@@ -69,7 +74,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
         router.push("/");
       }
     }
-  }, [pathname]);
+  }, [pathname, isAuthenticated]);
 
 
   useEffect(() => {
@@ -79,10 +84,10 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
       const cookieValue = loginSuccessCookie.split('=')[1];
       if (cookieValue === 'true') {
         setTimeout(() => {
-          toast.success(t('Logged in successfully!'));
+          toast.success(t('Logged In Successfully'));
         }, 1400);
-      } else {
-        toast.error(t('Something went wrong'));
+      } else if(cookieValue === 'false') {
+        toast.error(t('Something Went Wrong'));
       }
       document.cookie = 'loginSuccess=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;';
     }
@@ -184,6 +189,8 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
             pauseOnHover
             draggable
             stacked
+            theme="dark"
+            progressStyle={{backgroundColor: "#4cd964"}}
             style={{
               fontSize: "10px",
               textAlign: "center",

@@ -27,11 +27,10 @@ const TwofaVerify = () => {
     e.preventDefault();
     const status = await verify2FA(code);
     if (status === 200) {
-      toast.success(t("login success"));
-      await fetchAuthUser();
+      toast.success(t("Logged In Successfully"));
       router.push("/");
     } else {
-      toast.error(t("Verification failed"));
+      toast.error(t("Verification Failed"));
     }
   };
 

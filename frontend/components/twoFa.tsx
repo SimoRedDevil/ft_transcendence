@@ -36,19 +36,28 @@ export  const disableTwoFactorAuth = async () => {
   };
 
   export const verify2FA = async (code) => {
+    const body = {
+      code: code,
+    };
     try {
       const cookies = await getCookies();
-      const scrfToken = cookies.cookies.csrftoken;
-      const response = await axios.get(
-        `${API}/verify-2fa/?code=${code}`,
+      const csrfToken = cookies.cookies.csrftoken;
+  
+      const response = await axios.post(
+        `${API}/verify-2fa/`,
+        body,
         {
-          withCredentials: true, // Ensure cookies are included in the request
           headers: {
-            "X-CSRFToken": scrfToken, // Ensure CSRF token is included in the request
+            "X-CSRFToken": csrfToken, // Include the CSRF token in the headers
+            "Content-Type": "application/json",
           },
+          withCredentials: true,
         }
       );
+  
       return response.status;
-    } catch (error){
+    } catch (error) {
+      console.error("Error verifying 2FA:", error);
     }
   };
+  

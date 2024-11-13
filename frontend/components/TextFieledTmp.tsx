@@ -51,12 +51,12 @@ function TextFieldTmp({ title, label1, label2, label3, type, values, setValues }
       });
 
       if (response.status === 200) {
-        toast.success(t('Information updated successfully'));
+        toast.success(t('Information Updated Successfully'));
       } else {
-        toast.error(t('An error occurred'));
+        toast.error(t('An Error Occurred'));
       }
     } catch (error) {
-      console.error("Error updating information:", error);
+      toast.error(t('An Error Occurred'));
     }
   };
 

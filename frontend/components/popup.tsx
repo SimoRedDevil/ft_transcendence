@@ -3,6 +3,9 @@ import axios from "axios";
 import { useContext } from "react";
 import {disableTwoFactorAuth, verify2FA } from "./twoFa";
 import { UserContext } from '../components/context/usercontext';
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import MoonLoader from "react-spinners/MoonLoader";
 
 
 const Popup = ({
@@ -70,11 +73,14 @@ const Popup = ({
       if (authUser?.enabeld_2fa) {
         desable2fabutton()
         setTry2fa(false)
+        toast.success("Two Factor Authentication Disabled");
       } else {
           setTry2fa(true);
+          toast.success("Two Factor Authentication Enabled");
       }
     clearValues();
     setIsOpen(false);
+    await fetchAuthUser();
     setEnable2FA(authUser?.enabeld_2fa);
   }
     fetchAuthUser();
@@ -94,7 +100,6 @@ const Popup = ({
       handelVerify();
     }
   };
-
 
   useEffect(() => {
     window.addEventListener('keydown', handleEnterPress);
@@ -162,11 +167,26 @@ const Popup = ({
                 </button>
               </div>
             </div>
+            {
+            !authUser?.enabeld_2fa &&
             <div
               className="
             flex items-center justify-center mr-2
             "
             >
+              {!qrcode && (
+                <div className="
+                  flex items-center justify-center w-[250px] h-[250px] rounded-[30px]">
+                  {
+                    <MoonLoader
+                    color="#fff"
+                    loading={qrcode ? false: true}
+                    size={50}
+                    />
+                  }
+                </div>
+              )
+              }
               {qrcode && (
               <img
                 className={`h-full bg-white text-white desktop:w-[250px]
@@ -179,6 +199,7 @@ const Popup = ({
               />
               )}
             </div>
+            }
           </div>
         </div>
       )}

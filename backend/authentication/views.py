@@ -39,6 +39,7 @@ from django.db.models import Q
 
 
 URL_FRONT = os.getenv('URL_FRONT')
+URL_BACK = os.getenv('URL_BACK')
 
 
 # Sign Up View
@@ -67,6 +68,7 @@ def delete_tokens(request, status):
 
 # Callback Intra View
 class Intra42Callback(APIView):
+    permission_classes = [AllowAny]
     def get(self, request):
         code = request.GET.get('code')
         data = {
@@ -78,19 +80,19 @@ class Intra42Callback(APIView):
         }
         response = requests.post('https://api.intra.42.fr/oauth/token', data=data)
         if response.status_code != 200:
-                response = HttpResponseRedirect("http://localhost:3000/login")
+                response = HttpResponseRedirect(f"{URL_FRONT}/login")
                 response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
                 return response
         response_data = response.json()
         access_token = response_data['access_token']
         if not access_token:
-                response = HttpResponseRedirect("http://localhost:3000/login")
+                response = HttpResponseRedirect(f"{URL_FRONT}/login")
                 response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
                 return response
         user_info = requests.get('https://api.intra.42.fr/v2/me', headers={'Authorization': f'Bearer {access_token}'}).json()
 
         if 'login' not in user_info or 'email' not in user_info:
-            response = HttpResponseRedirect("http://localhost:3000/login")
+            response = HttpResponseRedirect(f"{URL_FRONT}/login")
             response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
             return response
 
@@ -103,25 +105,25 @@ class Intra42Callback(APIView):
                 full_name=user_info['displayname'],
                 avatar_url=user_info['image']['link'],
                 social_logged=True,
-                islogged=True,
                 online=True,
                 password_is_set=False
             )
 
         authenticate(request, username=user.username)
         if not user.is_authenticated:
-            response = HttpResponseRedirect("http://localhost:3000/login")
+            response = HttpResponseRedirect(f"{URL_FRONT}/login")
             response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
             return response
         login(request, user)
-        if user.enabeld_2fa:
-            response = HttpResponseRedirect('http://localhost:3000/twofa')
-        else:
-            user.try_to_login = True
+        if not user.enabeld_2fa:
+            user.is_already_logged = True
             user.save()
-            response = HttpResponseRedirect('http://localhost:3000')
+        response = HttpResponseRedirect(f'{URL_FRONT}')
+        if user.enabeld_2fa:
+            response.set_cookie('loginSuccess', 'twofa', max_age=30, samesite='Lax')
+        else:
+            response.set_cookie('loginSuccess', 'true', max_age=30, samesite='Lax')
         response = setTokens(response, user)
-        response.set_cookie('loginSuccess', 'true', max_age=30, samesite='Lax')
         user_data = Intra42UserSerializer(user).data
         response.data = user_data
         return response
@@ -131,7 +133,7 @@ class GoogleLoginCallback(APIView):
     def get(self, request):
         code = request.GET.get("code")
         if not code:
-            response = HttpResponseRedirect("http://localhost:3000/login")
+            response = HttpResponseRedirect(f"{URL_FRONT}/login")
             response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
             return response
 
@@ -147,7 +149,7 @@ class GoogleLoginCallback(APIView):
 
         response = requests.post(token_endpoint_url, data=data)
         if response.status_code != 200:
-            response = HttpResponseRedirect("http://localhost:3000/login")
+            response = HttpResponseRedirect(f"{URL_FRONT}/login")
             response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
             return response
 
@@ -155,12 +157,12 @@ class GoogleLoginCallback(APIView):
             response_data = response.json()
             access_token = response_data.get("access_token")
         except ValueError:
-            response = HttpResponseRedirect("http://localhost:3000/login")
+            response = HttpResponseRedirect(f"{URL_FRONT}/login")
             response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
             return response
 
         if not access_token:
-            response = HttpResponseRedirect("http://localhost:3000/login")
+            response = HttpResponseRedirect(f"{URL_FRONT}/login")
             response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
             return response
         
@@ -169,14 +171,14 @@ class GoogleLoginCallback(APIView):
         headers = {"Authorization": f"Bearer {access_token}"}
         user_info_response = requests.get(user_info_url, headers=headers)
         if user_info_response.status_code != 200:
-            response = HttpResponseRedirect("http://localhost:3000/login")
+            response = HttpResponseRedirect(f"{URL_FRONT}/login")
             response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
             return response
         try:
             user_info = user_info_response.json()
 
             if 'sub' not in user_info or 'email' not in user_info:
-                response = HttpResponseRedirect("http://localhost:3000/login")
+                response = HttpResponseRedirect(f"{URL_FRONT}/login")
                 response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
                 return response
             try:
@@ -188,29 +190,29 @@ class GoogleLoginCallback(APIView):
                     full_name=user_info['name'],
                     avatar_url=user_info['picture'],
                     social_logged=True,
-                    islogged=True,
                     online=True,
                     password_is_set=False
                 )
             authenticate(request, username=user.username)
             if not user.is_authenticated:
-                response = HttpResponseRedirect("http://localhost:3000/login")
+                response = HttpResponseRedirect(f"{URL_FRONT}/login")
                 response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
                 return response
             login(request, user)
-            if user.enabeld_2fa:
-                response = HttpResponseRedirect('http://localhost:3000/twofa')
-            else:
-                user.try_to_login = True
+            if not user.enabeld_2fa:
+                user.is_already_logged = True
                 user.save()
-                response = HttpResponseRedirect('http://localhost:3000')
+            response = HttpResponseRedirect(f'{URL_FRONT}')
+            if user.enabeld_2fa:
+                response.set_cookie('loginSuccess', 'twofa', max_age=30, samesite='Lax')
+            else:
+                response.set_cookie('loginSuccess', 'true', max_age=30, samesite='Lax')
             response = setTokens(response, user)
-            response.set_cookie('loginSuccess', 'true', max_age=30, samesite='Lax')
             user_data = GoogleUserSerializer(user).data
             response.data = user_data
             return response
         except ValueError:
-            return HttpResponseRedirect("http://localhost:3000/login")
+            return HttpResponseRedirect(f"{URL_FRONT}/login")
 
 # Login View
 class LoginView(APIView):
@@ -230,14 +232,15 @@ class LoginView(APIView):
             if user is not None:
                 login(request, user)
                 user.online = True
-                user.islogged = True
                 if not user.avatar_url:
-                    user.avatar_url = 'http://localhost:8000/avatars/default.png'
+                    user.avatar_url = f'{URL_BACK}/avatars/default.png'
+                if not user.enabeld_2fa:
+                    user.is_already_logged = True
+                response = Response(status=status.HTTP_200_OK)
                 if user.enabeld_2fa:
-                    response = HttpResponseRedirect('http://localhost:3000/twofa')
+                    response.set_cookie('loginSuccess', 'twofa', max_age=30, samesite='Lax')
                 else:
-                    user.try_to_login = True
-                    response = Response(status=status.HTTP_200_OK)
+                    response.set_cookie('loginSuccess', 'true', max_age=30, samesite='Lax')
                 user.save()
                 response = setTokens(response, user)
                 return response
@@ -259,7 +262,7 @@ class UserViewSet(viewsets.ModelViewSet):
 def generate_tokens(request):
     user = request.user
     refresh = RefreshToken.for_user(user)
-    res = requests.post('http://localhost:8000/api/auth/refresh/', data={'refresh': str(refresh),
+    res = requests.postf('{URL_BACK}/api/auth/refresh/', data={'refresh': str(refresh),
     'X-CSRFToken': request.COOKIES.get('csrftoken')})
     if res.status_code != 200:
         return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -312,7 +315,7 @@ class Logout(APIView):
             logout(request)
             user.online = False
             user.twofa_verified = False
-            user.try_to_login = False
+            user.is_already_logged = False
             user.save()
             return delete_tokens(request, status=status.HTTP_200_OK)
         else:
@@ -355,9 +358,9 @@ class VerifyTwoFactorView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    def post(self, request):
         user = request.user
-        user_code = request.GET.get('code')
+        user_code = request.data.get('code')
 
         if not user.twofa_secret:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -367,14 +370,9 @@ class VerifyTwoFactorView(APIView):
         if totp.verify(user_code):
             user.enabeld_2fa = True
             user.twofa_verified = not user.twofa_verified
-            print(user.twofa_verified)
+            user.is_already_logged = True
             user.save()
-            if not user.try_to_login:
-                user.try_to_login = True
-                user.save()
-                return HttpResponseRedirect('http://localhost:3000')
-            else:
-                return Response(status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -401,7 +399,7 @@ class GetQRCodeView(APIView):
         if not user.twofa_secret:
             return Response({'error': '2FA is not enabled'}, status=status.HTTP_400_BAD_REQUEST)
         qr_user = user.qrcode_path.split('/')[-1]
-        qrcode_path = "http://localhost:8000/qrcodes/" + qr_user
+        qrcode_path = f"{URL_BACK}/qrcodes/" + qr_user
         return Response({'qrcode_url': qrcode_path}, status=status.HTTP_200_OK)
 
 #update user Information

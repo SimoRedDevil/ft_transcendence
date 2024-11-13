@@ -46,13 +46,13 @@ export default function Language() {
               }
             );
             if (response.status === 200) {
-                toast.success(t('Language changed successfully'));
+                setActiveLanguage(languageCode);
+                i18n.changeLanguage(languageCode);
+                toast.success(t('Language Changed Successfully'));
             }
           } catch (error) {
-            toast.error(t('An error occurred'));
+            toast.error(t('An Error Occurred'));
           }
-        setActiveLanguage(languageCode);
-        i18n.changeLanguage(languageCode);
     };
 
     return (

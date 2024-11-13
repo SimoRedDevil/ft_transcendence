@@ -95,7 +95,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['id', 'full_name', 'username', 'email', 'phone_number', 'city', 'address', 'language', 'color', 'board_name', 'avatar_url', 'social_logged', 'tournament_name', 
-            'tournament_score', 'enabeld_2fa', 'twofa_verified', 'qrcode_dir', 'qrcode_path',
+            'tournament_score', 'enabeld_2fa', 'is_already_logged', 'twofa_verified', 'qrcode_dir', 'qrcode_path',
             'level', 'matches', 'wins', 'losses', 'draws', 'profile_visited','is_active',
             'friends_count', 'top_score', 'tournaments', 'online_matches',
             'offline_matches', 'current_xp', 'target_xp', 'online']

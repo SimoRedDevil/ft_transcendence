@@ -38,7 +38,31 @@ SECRET_KEY = 'django-insecure-^3knd(m=5&aq8zx$uw@qfy8^h5dnx75bkd)^k)b!nyv#$tu443
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    'localhost',
+]
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'POST',
+    'PUT',
+]
+
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000/',
+    'http://*',
+    'https://*',
+]
+
+CSRF_COOKIE_HTTPONLY = False
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
+CSRF_USE_SESSIONS = False  # Unless explicitly using sessions for CSRF
+CSRF_COOKIE_NAME = "csrftoken"  # Ensure this matches what you're using on the client-side
 
 
 
@@ -85,18 +109,10 @@ CHANNEL_LAYERS = {
     }
 }
 
-
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
-
-
-CSRF_COOKIE_HTTPONLY = False
-CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
-CSRF_USE_SESSIONS = False  # Unless explicitly using sessions for CSRF
-CSRF_COOKIE_NAME = "csrftoken"  # Ensure this matches what you're using on the client-side
-
-
 REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -105,8 +121,6 @@ REST_FRAMEWORK = {
     # 'PAGE_SIZE': 1,
 }
 AUTH_USER_MODEL = 'authentication.CustomUser'
-
-
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),    # Short lifetime for access token
@@ -137,8 +151,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'backend.urls'
-
-
 
 TEMPLATES = [
     {

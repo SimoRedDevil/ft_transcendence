@@ -19,7 +19,7 @@ export default function TournamentForm({ onSubmit }) {
 
     return (
         <div className='flex justify-center items-center'>
-            <div className='aspect-[3/4] bg-deepSeaBlue rounded-lg border border-white border-opacity-30 
+            <div className='aspect-[3/4] bg-gradient-to-t from-paddlestroke/20 to-deepSeaBlue rounded-lg border border-white border-opacity-30 
                             w-[330px]
                             xs:w-[300px]
                             ls:w-[400px]

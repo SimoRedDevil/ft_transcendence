@@ -25,3 +25,33 @@
         scrollbar-width: none;  /* Firefox */
   }
 }
+
+@keyframes animation-rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes borderBrightness {
+  0% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(2);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
+
+.border-animated {
+  border: 1px solid var(--tw-color-strockpadlani);
+  animation: borderBrightness 2s infinite;
+}
+
+.bg-gradient-opacity {
+  background: linear-gradient(to right, rgba(11, 68, 100, 0.3), rgba(88, 255, 227, 0.2));
+}

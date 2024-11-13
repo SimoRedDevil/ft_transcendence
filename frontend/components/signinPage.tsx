@@ -54,6 +54,9 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate}) => {
       });
       if (response.status === 200) {
         setIsAuthenticated(true);
+        setTimeout(() => {
+          toast.success(t('Logged In Successfully'));
+        }, 400);
         router.push("/");
       }
     } catch (error) {
@@ -78,11 +81,11 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate}) => {
 
 return (
     <motion.form onSubmit={(e) => e.preventDefault()} 
-    className=" flex flex-col items-center justify-center h-screen w-screen overflow-auto fixed">
+    className=" flex flex-col items-center justify-center h-screen w-screen overflow-auto fixed min-h-[1000px]">
       <div
         className="flex items-center justify-center h-full w-full laptop:w-[850px]
         tablet:w-[620px] tablet:h-[770px] desktop:h-[760px] desktop:w-[950px] mobile:w-[500px]
-        mobile:h-[700px] laptop:h-[770px]  less-than-mobile:h-[720px] less-than-mobile:w-[500px] fixed overflow-auto">
+        mobile:h-[700px] laptop:h-[770px]  less-than-mobile:h-[720px] min-w-[500px] fixed overflow-auto">
         <motion.div
           initial={{ opacity: 1, x: "50%" }}
           animate={{ opacity: 1, x: "0" }}

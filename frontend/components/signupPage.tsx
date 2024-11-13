@@ -68,9 +68,9 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
 
     return (
     <motion.form onSubmit={(e) => e.preventDefault()} 
-    className="flex flex-col items-center justify-center h-screen w-screen overflow-auto fixed">
+    className="flex flex-col items-center justify-center h-screen w-screen overflow-auto fixed min-h-[1000px] min-w-[300px]">
       <div className="flex items-center justify-center h-full w-full laptop:w-[850px] tablet:w-[620px] tablet:h-[770px] desktop:h-[750px]
-       desktop:w-[950px] mobile:w-[500px] mobile:h-[680px] laptop:h-[770px] less-than-mobile:h-[680px] less-than-mobile:w-[500px]  fixed overflow-auto
+       desktop:w-[950px] mobile:w-[500px] mobile:h-[680px] laptop:h-[770px] less-than-mobile:h-[680px] min-w-[500px] fixed overflow-auto
        ">
         <motion.div
           initial={{ opacity: 1, x: "50%" }}

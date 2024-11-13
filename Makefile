@@ -21,7 +21,7 @@ ps:
 
 
 push:
-	@git add .; \
+	git add .; \
 	git commit -m "$(msg)"; \
     git push
 

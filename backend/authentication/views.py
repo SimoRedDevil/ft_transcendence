@@ -239,8 +239,8 @@ class LoginView(APIView):
                 response = Response(status=status.HTTP_200_OK)
                 if user.enabeld_2fa:
                     response.set_cookie('loginSuccess', 'twofa', max_age=30, samesite='Lax')
-                else:
-                    response.set_cookie('loginSuccess', 'true', max_age=30, samesite='Lax')
+                # else:
+                #     response.set_cookie('loginSuccess', 'true', max_age=30, samesite='Lax')
                 user.save()
                 response = setTokens(response, user)
                 return response

@@ -39,17 +39,17 @@ export default function Home() {
   }
   , [ pathname ]);
   return (
-    <div className="text-white flex laptop:justify-center min-h-[1000px] tablet:justify-start less-than-tablet:justify-center w-screen h-screen ">
+    <div className="text-white flex laptop:justify-center min-h-[1000px] min-w-[400px] tablet:justify-start less-than-tablet:justify-center w-screen h-screen ">
         <div className="border-[0.5px] border-white flex h-[85%] laptop:w-[75%] rounded-[50px] border-opacity-40
              bg-black bg-opacity-70 flex-col items-center mobile:w-full tablet:w-[80%] less-than-tablet:w-[90%]
-             less-than-tablet:h-[75%] less-than-tablet:pb-5 tablet:pt-[57px] less-than-mobile:w-[200px] less-than-mobile:h-[80vh]
-             less-than-mobile:overflow-auto
+             less-than-tablet:h-[75%] less-than-tablet:pb-5 tablet:pt-[57px] 
+             overflow-auto
              ">
             <div className=" flex items-center justify-evenly desktop:w-[73%] desktop:h-[100px]
                             border-[0.5px] border-white border-opacity-40 laptop:h-[80px]
                             rounded-full  tablet:w-[90%]  tablet:h-[60px]
                             less-than-tablet:border-0 less-than-tablet:w-[90%] less-than-tablet:rounded-none
-                            less-than-tablet:h-[50px] less-than-mobile:h-[40px] less-than-mobile:w-[90%] less-than-mobile:mt-5
+                            less-than-tablet:h-[50px]
                             less-than-tablet:mt-5
                             ">
                 <button onClick={() => setActiveComponent('information')}
@@ -57,8 +57,7 @@ export default function Home() {
                     flex items-center justify-center border-r-[0.5px] border-white border-opacity-40 h-full w-[349px]
                       mobile:w-[200px] tablet:w-full less-than-tablet:border-0 less-than-tablet:border-r-0
                       less-than-tablet:rounded-md less-than-tablet:text-sm less-than-tablet:p-2
-                      less-than-mobile:w-[100px] less-than-mobile:rounded-l-none less-than-mobile:p-1
-                      less-than-mobile:text-[11px] text-white text-opacity-50 tablet:text-opacity-100
+                       text-white text-opacity-50 tablet:text-opacity-100
                     ${
                         activeComponent === 'information' ? 'tablet:bg-[#D9D9D9] tablet:bg-opacity-10 less-than-tablet:text-white less-than-tablet:text-opacity-100 less-than-tablet:underline underline-offset-4' : 'tablet:bg-transparent'}
                     `}>
@@ -70,8 +69,8 @@ export default function Home() {
                 className={`
                     flex items-center justify-center border-r-[0.5px] border-white border-opacity-40 h-full w-[349px] mobile:w-[200px] tablet:w-full
                     less-than-tablet:border-0 less-than-tablet:border-r-0
-                      less-than-tablet:rounded-md less-than-tablet:text-sm less-than-mobile:w-[100px] 
-                      less-than-mobile:rounded-l-none less-than-mobile:p-1 less-than-mobile:text-[11px] text-white text-opacity-50 tablet:text-opacity-100
+                      less-than-tablet:rounded-md less-than-tablet:text-sm  
+                        text-white text-opacity-50 tablet:text-opacity-100
                     ${
                         activeComponent === 'language' ? 'tablet:bg-[#D9D9D9] tablet:bg-opacity-10 less-than-tablet:text-white less-than-tablet:text-opacity-100 less-than-tablet:underline underline-offset-4' 
                         : 'tablet:bg-transparent'}
@@ -84,8 +83,8 @@ export default function Home() {
                 className={`
                     flex items-center justify-center h-full w-[349px] mobile:w-[200px] tablet:w-full
                     less-than-tablet:border-0 less-than-tablet:border-r-0
-                      less-than-tablet:rounded-md less-than-tablet:text-sm  border-r-[0.5px] border-white border-opacity-40 less-than-mobile:w-[100px] 
-                      less-than-mobile:rounded-l-none less-than-mobile:p-1 less-than-mobile:text-[11px] text-white text-opacity-50 tablet:text-opacity-100
+                      less-than-tablet:rounded-md less-than-tablet:text-sm  border-r-[0.5px] border-white border-opacity-40  
+                        text-white text-opacity-50 tablet:text-opacity-100
                     ${
                         activeComponent === 'security' ? 'tablet:bg-[#D9D9D9] tablet:bg-opacity-10 less-than-tablet:text-white less-than-tablet:text-opacity-100 less-than-tablet:underline underline-offset-4' : 'tablet:bg-transparent'}
                 `}>
@@ -98,9 +97,8 @@ export default function Home() {
                 flex items-center justify-center h-full w-[349px] mobile:w-[200px] tablet:w-full
                 rounded-r-[50px]
                 less-than-tablet:border-0 less-than-tablet:border-r-0
-                      less-than-tablet:rounded-md less-than-tablet:text-sm less-than-mobile:w-[100px]
-                       less-than-mobile:rounded-l-none less-than-mobile:p-1 
-                      less-than-mobile:text-[11px] text-white text-opacity-50 tablet:text-opacity-100 less-than-tablet:mr-1 
+                      less-than-tablet:rounded-md less-than-tablet:text-sm
+                       text-white text-opacity-50 tablet:text-opacity-100 less-than-tablet:mr-1 
                 ${
                     activeComponent === 'others' ? 'tablet:bg-[#D9D9D9] tablet:bg-opacity-10 less-than-tablet:text-white less-than-tablet:text-opacity-100 less-than-tablet:underline underline-offset-4' : 'tablet:bg-transparent'}
             `}>

@@ -48,7 +48,7 @@
     "Something Went Wrong": "Algo salió mal",
     "Account Created Successfully": "Cuenta creada con éxito",
     "Protect your account with two-factor authentication": "Protege tu cuenta con autenticación de dos factores",
-    "Two-factor authentication adds an extra layer of security to your account": "La autenticación de dos factores agrega una capa adicional de seguridad a tu cuenta"
+    "Two-factor authentication is an enhanced security feature that requires a six-digit code from your authenticator app in addition to your password." : "La autenticación de dos factores es una función de seguridad mejorada que requiere un código de seis dígitos de tu aplicación de autenticación además de tu contraseña."
 
   }
   

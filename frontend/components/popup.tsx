@@ -136,9 +136,10 @@ const Popup = ({
                     type="text"
                     maxLength={1}
                     value={value}
+                    autoFocus={index === 0}
                     onChange={(e) => handleChange(e, index)}
                     onKeyDown={(e) => handleKeyDown(e, index)}
-                    className="w-12 h-12 text-center text-2xl border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    className="w-12 h-12 text-center text-2xl border border-gray-300 rounded-lg focus:outline-none"
                   />
                 ))}
               </form>

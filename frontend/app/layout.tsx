@@ -8,15 +8,12 @@ import Sidebar from "../components/Sidebar";
 import { UserProvider, UserContext } from "../components/context/usercontext";
 import "../i18n";
 import { Toaster } from "react-hot-toast";
-import Cookies from "js-cookie";
-import axios from "axios";
 import NotificationMenu from "../components/NotificationMenu";
 import DropDown from "../components/DropDown";
-import Image from "next/image";
 import { ToastContainer, toast} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useTranslation } from "react-i18next";
-import path from "path";
+import { Provider } from "@/components/ui/provider";
 
 
 function RootLayout({ children }: any) {
@@ -82,17 +79,18 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
     const loginSuccessCookie = cookies.find(cookie => cookie.startsWith('loginSuccess='));
     if (loginSuccessCookie) {
       const cookieValue = loginSuccessCookie.split('=')[1];
+      console.log(cookieValue);
       if (cookieValue === 'true') {
         setTimeout(() => {
           toast.success(t('Logged In Successfully'));
-        }, 1400);
+        }, 1200);
       } else if(cookieValue === 'false') {
         toast.error(t('Something Went Wrong'));
       }
       document.cookie = 'loginSuccess=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;';
     }
   }
-  , []);
+  , [ isAuthenticated ]);
   const handleDocumentClick = (e: any) => {
     if (e.target.id !== "notification-id") {
       setNotificationClicked(false);
@@ -177,7 +175,9 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
               />
             </div>
           )}
+          <Provider>
           {children}
+          </Provider>
           <ToastContainer
             position="top-center"
             autoClose={1000}

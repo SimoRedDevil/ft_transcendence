@@ -8,8 +8,8 @@ import { truncateMessage } from '../../utils/tools';
 import { ChatProvider } from '../../components/context/ChatContext';
 
 function ChatPage() {
-  // const socket = useRef(null)
   const [other_user, setOtherUser] = useState(null)
+  // const socket = useRef(null)
 
   // useEffect(() => {
   //   socket.current = new WebSocket('ws://localhost:8000/chat/')

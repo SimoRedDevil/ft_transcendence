@@ -4,6 +4,13 @@ import PasswordHelper from "./passwordHelper";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useContext } from "react";
+import { UserContext } from "./context/usercontext";
+import axios from 'axios';
+import { useTranslation } from "react-i18next";
+
 interface SignupPageProps {
   onNavigate?: () => void;
 }
@@ -14,6 +21,10 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+  const { setSignupData } = useContext(UserContext);
+  const { t } = useTranslation();
+
+  const API = process.env.NEXT_PUBLIC_API_URL;
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -26,26 +37,19 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
     };
   
     try {
-      const response = await fetch("http://localhost:8000/api/auth/signup/", {
-        method: "POST",
+      const response = await axios.post(`${API}/signup/`, body, {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(body),
-      }
-    );
-      const data = await response.json();
+      });
   
-      if (response.ok) {
-        alert("Signup successful");
+      if (response.status === 201) {
+        toast.success(t("Account Created Successfully."));
+        setSignupData({ email, password });
         onNavigate();
-        // router.push("/login");
-      } else {
-        alert(data.message || "Signup failed, please try again.");
       }
     } catch (error) {
-      //console.error("Error during signup:", error);
-      alert("An error occurred. Please try again later.");
+      toast.error(t("Something Went Wrong."));
     }
   };
 
@@ -76,7 +80,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
         >
           <img
             className="w-full h-full less-than-tablet:hidden rounded-l-[20px]"
-            src="/images/login_icon.png"
+            src="/images/login_icon.webp"
             alt="signupPageImage"
           />
         </motion.div>

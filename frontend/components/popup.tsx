@@ -3,6 +3,9 @@ import axios from "axios";
 import { useContext } from "react";
 import {disableTwoFactorAuth, verify2FA } from "./twoFa";
 import { UserContext } from '../components/context/usercontext';
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import MoonLoader from "react-spinners/MoonLoader";
 
 
 const Popup = ({
@@ -12,11 +15,12 @@ const Popup = ({
   setEnable2FA,
   code,
   setCode,
+  setQrcode,
   qrcode,
 }) => {
   const [values, setValues] = useState(["", "", "", "", "", ""]);
   const [username, setUsername] = useState("");
-  var { users, setTry2fa, fetchAuthUser} = useContext(UserContext);
+  var { authUser, setTry2fa, fetchAuthUser} = useContext(UserContext);
 
   const handleChange = (e, index) => {
     const { value } = e.target;
@@ -56,7 +60,7 @@ const Popup = ({
   };
 
   const desable2fabutton = async () => {
-    if (users) {
+    if (authUser) {
       disableTwoFactorAuth();
       setEnable2FA(false);
       await fetchAuthUser();
@@ -66,28 +70,44 @@ const Popup = ({
   const handelVerify = async () => {
     const status = await verify2FA(code)
     if (status == 200) {
-      if (users.enabeld_2fa) {
+      if (authUser?.enabeld_2fa) {
         desable2fabutton()
         setTry2fa(false)
+        toast.success("Two Factor Authentication Disabled");
       } else {
-        if (status == 200) {
           setTry2fa(true);
-        }
+          toast.success("Two Factor Authentication Enabled");
       }
     clearValues();
     setIsOpen(false);
-    setEnable2FA(users.enabeld_2fa);
+    await fetchAuthUser();
+    setEnable2FA(authUser?.enabeld_2fa);
   }
     fetchAuthUser();
     
   }
   
   useEffect(() => {
-    users && fetchAuthUser();
-    if (users && users.username) {
-      setUsername(users.username);
+    authUser && fetchAuthUser();
+    if (authUser?.username) {
+      setUsername(authUser?.username);
     }
-  }, [users && users.enabeld_2fa, enable2FA, code, username]);
+  }, [authUser?.enabeld_2fa, enable2FA, code, username]);
+
+
+  const handleEnterPress = (event) => {
+    if (event.key === 'Enter') {
+      handelVerify();
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleEnterPress);
+    return () => {
+      window.removeEventListener('keydown', handleEnterPress);
+  };
+}
+, [handleEnterPress]);
 
   return (
     <div>
@@ -133,17 +153,41 @@ const Popup = ({
                 </button>
                 <button
                   className="bg-gradient-to-r from-[#1A1F26]/90 to-[#000]/70 text-white p-2 px-4 rounded-lg border-[0.5px] border-white border-opacity-40 "
-                  onClick={clearValues}
+                  onClick={() => {
+                    clearValues();
+                    if (!authUser.enabeld_2fa)
+                    {
+                        disableTwoFactorAuth();
+                        setQrcode('');
+                    }
+                  }
+                  }
                 >
                   Close
                 </button>
               </div>
             </div>
+            {
+            !authUser?.enabeld_2fa &&
             <div
               className="
             flex items-center justify-center mr-2
             "
             >
+              {!qrcode && (
+                <div className="
+                  flex items-center justify-center w-[250px] h-[250px] rounded-[30px]">
+                  {
+                    <MoonLoader
+                    color="#fff"
+                    loading={qrcode ? false: true}
+                    size={50}
+                    />
+                  }
+                </div>
+              )
+              }
+              {qrcode && (
               <img
                 className={`h-full bg-white text-white desktop:w-[250px]
               laptop:w-[170px] laptop:h-[170px] tablet:w-[250px] tablet:h-[250px] 
@@ -153,7 +197,9 @@ const Popup = ({
                 src={`${qrcode}`}
                 alt="2fa QR Code"
               />
+              )}
             </div>
+            }
           </div>
         </div>
       )}

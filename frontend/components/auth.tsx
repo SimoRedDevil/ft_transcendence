@@ -1,23 +1,33 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/api/auth/42'; // Adjust to your backend URL
-
-// Function to handle the callback after login
-export const handle42Callback = async (code) => {
-  try {
-    const response = await axios.get(`${API_URL}/callback/`, {
-      params: { code }, // Query parameter handled by Axios
-    });
-
-    // Access the response data
-    const data = response.data;
-    return data; // This should include the tokens and user info
-  } catch (error) {
-    // Enhanced error logging
-    if (error.response) {
-    } else if (error.request) {
-    } else {
+const API = process.env.NEXT_PUBLIC_API_URL;
+export const getCookies = async () => {
+    try {
+        const response = await axios.get(`${API}/cookies/`, {
+            withCredentials: true,
+        });
+        const cookies = response.data;
+        return cookies;
+    } catch (error) {
     }
-    throw error;
-  }
 };
+
+export const logout = async (
+    csrfToken, setIsAuthenticated, setauthUser, router
+) => {
+    try {
+        const response = await axios.post(`${API}/logout/`, {}, {
+            headers: {
+                'X-CSRFToken': csrfToken,
+            },
+            withCredentials: true,  // Ensures cookies are sent
+        });
+        setIsAuthenticated(false);
+        // setauthUser(null);
+        router.push('/login');
+    } catch (error) {
+        setIsAuthenticated(false);
+        setauthUser(null);
+    }
+};
+

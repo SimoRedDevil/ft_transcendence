@@ -1,59 +1,82 @@
-'use client';
-import React, { useEffect, useContext } from 'react';
+"use client";
+import React, { useEffect, useContext, useState } from "react";
 import ScaleLoader from "react-spinners/ScaleLoader";
 import "./styles/global.css";
-import { usePathname, useRouter } from 'next/navigation';
-import Header from '../components/Header';
-import Sidebar from '../components/Sidebar';
-import { UserProvider, UserContext } from '../components/context/usercontext';
-import NotificationMenu from '../components/NotificationMenu';
-import DropDown from '../components/DropDown';
-import { useState } from 'react';
-import Image from 'next/image';
+import { usePathname, useRouter } from "next/navigation";
+import Header from "../components/Header";
+import Sidebar from "../components/Sidebar";
+import { UserProvider, UserContext } from "../components/context/usercontext";
+import "../i18n";
+import { Toaster } from "react-hot-toast";
+import Cookies from "js-cookie";
+import axios from "axios";
+import NotificationMenu from "../components/NotificationMenu";
+import DropDown from "../components/DropDown";
+import Image from "next/image";
+import { ToastContainer, toast} from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useTranslation } from "react-i18next";
+import path from "path";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-    const pathname = usePathname();
-    const exclude = ['/login'];
-    const router = useRouter();
 
-    return (
-        <UserProvider>
-            <html lang="en">
-                <head>
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                    <link rel="preconnect" href="https://fonts.googleapis.com" />
-                    <link rel="preconnect" href="https://fonts.gstatic.com" />
-                </head>
-                <body className="h-screen">
-                    <AuthProtectedLayout pathname={pathname} exclude={exclude} router={router}>
-                        {children}
-                    </AuthProtectedLayout>
-                </body>
-            </html>
-        </UserProvider>
-    );
+function RootLayout({ children }: any) {
+  const pathname = usePathname();
+  const exclude = ["/login", "/twofa"];
+  const router = useRouter();
+
+  return (
+    <UserProvider>
+      <html lang="en">
+        <head>
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+            title="TrueTalk"
+          />
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" />
+          <title>
+            {pathname.charAt(1).toUpperCase() + pathname.slice(2)}
+          </title>
+        </head>
+        <body className="h-screen">
+          <AuthProtectedLayout
+            pathname={pathname}
+            exclude={exclude}
+            router={router}
+          >
+            {children}
+          </AuthProtectedLayout>
+        </body>
+      </html>
+    </UserProvider>
+  );
 }
 
 function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
-    const {users, loading, isAuthenticated, fetchAuthUser, searchResults, searchLoading, setIsSearching, isSearching} = useContext(UserContext);
-    const [notificationClicked, setNotificationClicked] = useState(false);
-    const [profileDropDownClicked, setProfileDropDownClicked] = useState(false);
+  const {
+    loading,
+    isAuthenticated,
+    fetchAuthUser,
+    authUser,
+    searchResults,
+    searchLoading,
+    isSearching,
+    setIsSearching,
+  } = useContext(UserContext);
+  const [token, setToken] = useState(null);
+  const [notificationClicked, setNotificationClicked] = useState(false);
+  const [profileDropDownClicked, setProfileDropDownClicked] = useState(false);
+  const { t } = useTranslation();
 
-    // Handle redirection based on authentication
-    useEffect(() => {
-        isAuthenticated && fetchAuthUser()
-        if (isAuthenticated && exclude.includes(pathname)) {
-            router.push('/');
-        }
-        if (!isAuthenticated && exclude.includes(pathname)) {
-            router.push('/login');
-        }
-    }, [isAuthenticated, pathname, router]);
-
-    useEffect(() => {
-        !isAuthenticated && fetchAuthUser();
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchAuthUser();
+      if (pathname === "/login") {
+        router.push("/");
+      }
     }
-    , [pathname, router]);
+  }, [pathname, isAuthenticated]);
 
     const handleDocumentClick = (e: any) => {
         if (e.target.id !== 'notification-id') {
@@ -68,30 +91,53 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
         }
     }
 
-    useEffect(() => {
-        document.addEventListener('click', handleDocumentClick);
-        return () => {
-            document.removeEventListener('click', handleDocumentClick);
-        }
-    }, []);
-
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center h-screen w-screen bg-main-bg border
-                border-black bg-cover bg-no-repeat bg-center fixed min-w-[280px] min-h-[800px]">
-                <ScaleLoader color="#949DA2" loading={loading} height={40} width={6} />
-            </div>
-        );
+  useEffect(() => {
+    const cookies = document.cookie.split('; ');
+    const loginSuccessCookie = cookies.find(cookie => cookie.startsWith('loginSuccess='));
+    if (loginSuccessCookie) {
+      const cookieValue = loginSuccessCookie.split('=')[1];
+      if (cookieValue === 'true') {
+        setTimeout(() => {
+          toast.success(t('Logged In Successfully'));
+        }, 1400);
+      } else if(cookieValue === 'false') {
+        toast.error(t('Something Went Wrong'));
+      }
+      document.cookie = 'loginSuccess=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;';
     }
+  }
+  , []);
 
+  useEffect(() => {
+    document.addEventListener("click", handleDocumentClick);
+    return () => {
+      document.removeEventListener("click", handleDocumentClick);
+    };
+  }, []);
+
+  if (loading) {
     return (
-        <div className="bg-main-bg border border-black w-screen h-full bg-cover bg-no-repeat bg-center fixed min-w-[280px] min-h-[800px]">
-            {/* Render Header if pathname is not in exclude list */}
-            {!exclude.includes(pathname) && (
-                <div className="h-[100px]">
-                    <Header setNotificationClicked={setNotificationClicked} notificationClicked={notificationClicked} setProfileDropDownClicked={setProfileDropDownClicked} profileDropDownClicked={profileDropDownClicked} />
-                </div>
-            )}
+      <div
+        className="flex justify-center items-center h-screen w-screen bg-main-bg border
+                border-black bg-cover bg-no-repeat bg-center fixed min-w-[280px] min-h-[800px]"
+      >
+        <ScaleLoader color="#949DA2" loading={loading} height={40} width={6} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-main-bg border border-black w-screen h-full bg-cover bg-no-repeat bg-center fixed min-w-[280px] min-h-[800px]">
+      {!exclude.includes(pathname) && (
+        <div className="h-[100px]">
+          <Header
+            setNotificationClicked={setNotificationClicked}
+            notificationClicked={notificationClicked}
+            setProfileDropDownClicked={setProfileDropDownClicked}
+            profileDropDownClicked={profileDropDownClicked}
+          />
+        </div>
+      )}
 
             <div className="h-[calc(100%_-_100px)] flex flex-col-reverse sm:flex-row">
                 {/* Render Sidebar if pathname is not in exclude list */}
@@ -122,16 +168,40 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
                             </div>
                         )
                     }
-                    {(isAuthenticated && notificationClicked) && <NotificationMenu />}
-                    {
-                        (isAuthenticated && profileDropDownClicked) &&
-                        <div className='w-[calc(100%_-_100px)] fixed h-[170px] flex flex-row-reverse'>
-                            <DropDown className='w-[250px] h-[50px] flex items-center border border-white border-opacity-20 cursor-pointer hover:bg-white hover:bg-opacity-10' items={['View Profile', 'Friend Requests', 'Logout']} />
-                        </div>
-                    }
-                    {children}
-                </div>
+          {isAuthenticated && notificationClicked && <NotificationMenu />}
+          {isAuthenticated && profileDropDownClicked && (
+            <div className="w-[calc(100%_-_100px)] fixed h-[170px] flex flex-row-reverse">
+              <DropDown
+                className="w-[250px] h-[50px] flex items-center border border-white border-opacity-20 cursor-pointer hover:bg-white hover:bg-opacity-10"
+                items={["View Profile", "Friend Requests", "Logout"]}
+              />
             </div>
+          )}
+          {children}
+          <ToastContainer
+            position="top-center"
+            autoClose={1000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            pauseOnHover
+            draggable
+            stacked
+            theme="dark"
+            progressStyle={{backgroundColor: "#4cd964"}}
+            style={{
+              fontSize: "10px",
+              textAlign: "center",
+              color: "#fff",
+              width: "400px",
+            }}
+          />
         </div>
-    );
+      </div>
+    </div>
+  );
 }
+
+export default RootLayout;

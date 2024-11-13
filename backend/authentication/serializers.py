@@ -58,10 +58,7 @@ class Intra42UserSerializer(serializers.ModelSerializer):
             'password': {'write_only': True},
         }
 
-class UserSerializer(serializers.ModelSerializer):
-    avatar_url = serializers.SerializerMethodField()
-    intra_avatar_url = serializers.SerializerMethodField()
-
+class GoogleUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = '__all__'
@@ -69,12 +66,39 @@ class UserSerializer(serializers.ModelSerializer):
             'password': {'write_only': True},
         }
 
-    def get_avatar_url(self, obj):
-        if obj.avatar_url:
-            return f"http://localhost:8000/api/auth/{obj.avatar_url.url}"
-        return None  # or return a default URL if no avatar exists
+class UpdateUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['full_name', 'avatar_url', 'phone_number', 'city', 'address', 'language', 'color', 'board_name']
+        read_only_fields = ['username', 'email']
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'full_name': {'required': False, 'max_length': 40,
+            },
+            'phone_number': {'required': False, 'max_length': 15,
+                'min_length': 6,
+            },
+            'city': {'required': False, 'max_length': 40,
+            },
+            'address': {'required': False, 'max_length': 40,
+            },
+            'language': {'required': False,
+            },
+            'color': {'required': False,
+            'max_length': 7,
+            },
+            'board_name': {'required': False,
+            },
+        }
 
-    def get_intra_avatar_url(self, obj):
-        if obj.intra_avatar_url:
-            return obj.intra_avatar_url
-        return None
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'full_name', 'username', 'email', 'phone_number', 'city', 'address', 'language', 'color', 'board_name', 'avatar_url', 'social_logged', 'tournament_name', 
+            'tournament_score', 'enabeld_2fa', 'is_already_logged', 'twofa_verified', 'qrcode_dir', 'qrcode_path',
+            'level', 'matches', 'wins', 'losses', 'draws', 'profile_visited','is_active',
+            'friends_count', 'top_score', 'tournaments', 'online_matches',
+            'offline_matches', 'current_xp', 'target_xp', 'online']
+        extra_kwargs = {
+            'password': {'write_only': True},
+        }

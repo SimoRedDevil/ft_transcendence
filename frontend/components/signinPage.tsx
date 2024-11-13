@@ -3,24 +3,41 @@ import { FaEnvelope } from "react-icons/fa";
 import PasswordHelper from "./passwordHelper";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams} from 'next/navigation';
 import axios from 'axios';
-import { handle42Callback } from './auth'
 import { useContext } from "react";
 import { UserContext } from "./context/usercontext";
-import TwofaVerify from "./twofaVerify";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useTranslation } from "react-i18next";
 
 interface SigninPageProps {
   onNavigate?: () => void;
-  onLoginSuccess: (is2FAEnabled: boolean) => void;
 }
 
-const SigninPage: React.FC<SigninPageProps> = ({ onNavigate, onLoginSuccess}) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const SigninPage: React.FC<SigninPageProps> = ({ onNavigate}) => {
   const router = useRouter();
-  const { setIsAuthenticated, users } = useContext(UserContext);
+  const { setIsAuthenticated, signupData, fetchAuthUser, authUser} = useContext(UserContext);
+  const [password, setPassword] = useState(
+    signupData?.password || ""
+  );
+  const [email, setEmail] = useState(
+    signupData?.email || ""
+  );
+  const searchParams = useSearchParams();
+  const { t } = useTranslation();
+
+  const GG_REDIRECT_URL=process.env.NEXT_PUBLIC_GG_REDIRECT_URL
+  const INTRA_REDIRECT_URL=process.env.NEXT_PUBLIC_INTRA_REDIRECT_URL
+  const GG_CLIENT_ID=process.env.NEXT_PUBLIC_GG_CLIENT_ID
+  const INTRA_CLIENT_ID=process.env.NEXT_PUBLIC_INTRA_CLIENT_ID
+  const INTRA_AUTH_URL = process.env.NEXT_PUBLIC_INTRA_42_AUTH_URL
+  const GG_AUTH_URL = process.env.NEXT_PUBLIC_GG_AUTH_URL
+
+  const URL = `${GG_AUTH_URL}?redirect_uri=${GG_REDIRECT_URL}&prompt=consent&response_type=code&client_id=${GG_CLIENT_ID}&scope=openid%20email%20profile&access_type=offline`;
+  const URL42 = `${INTRA_AUTH_URL}?client_id=${INTRA_CLIENT_ID}&redirect_uri=${INTRA_REDIRECT_URL}&response_type=code`;
+  const API = process.env.NEXT_PUBLIC_API_URL;
 
   const handleSignin = async (e) => {
     e.preventDefault();
@@ -29,41 +46,27 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate, onLoginSuccess}) =>
       password,
     };
     try {
-      const response = await axios.post("http://localhost:8000/api/auth/login/", body, {
+      const response = await axios.post(`${API}/login/`, body, {
         headers: {
           "Content-Type": "application/json",
         },
         withCredentials: true,
       });
-      const data = response.data;
-  
       if (response.status === 200) {
-        alert("Signin successful");
-        if (users && users.enabeld_2fa) {
-          onLoginSuccess(true);
-          console.log("2FA enabled");
-        }
-        else {
-          setIsAuthenticated(true);
-          router.push("/");
-        }
-      } else {
-        alert(data.message || "Signin failed, please try again.");
-        setIsAuthenticated(false);
+        setIsAuthenticated(true);
+        router.push("/");
       }
     } catch (error) {
-      alert("An error occurred. Please try again later.");
+      toast.error(t("Something Went Wrong"));
       setIsAuthenticated(false);
     }
-  };  
-
+  };
 
   const handleEnterPress = (event) => {
     if (event.key === 'Enter') {
       handleSignin(event);
     }
   };
-
 
   useEffect(() => {
     window.addEventListener('keydown', handleEnterPress);
@@ -73,13 +76,13 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate, onLoginSuccess}) =>
 }
 , [email, password]);
 
-  return (
+return (
     <motion.form onSubmit={(e) => e.preventDefault()} 
     className=" flex flex-col items-center justify-center h-screen w-screen overflow-auto fixed">
       <div
         className="flex items-center justify-center h-full w-full laptop:w-[850px]
-      tablet:w-[620px] tablet:h-[770px] desktop:h-[760px] desktop:w-[950px] mobile:w-[500px]
-      mobile:h-[700px] laptop:h-[770px]  less-than-mobile:h-[720px] less-than-mobile:w-[500px] fixed overflow-auto">
+        tablet:w-[620px] tablet:h-[770px] desktop:h-[760px] desktop:w-[950px] mobile:w-[500px]
+        mobile:h-[700px] laptop:h-[770px]  less-than-mobile:h-[720px] less-than-mobile:w-[500px] fixed overflow-auto">
         <motion.div
           initial={{ opacity: 1, x: "50%" }}
           animate={{ opacity: 1, x: "0" }}
@@ -111,7 +114,7 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate, onLoginSuccess}) =>
                 Sign up
               </button>
             </div>
-            <Link href="http://localhost:8000/api/auth/42/login/"
+            <Link href={URL42}
               className="
                 w-full flex justify-center items-center"
             >
@@ -127,6 +130,9 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate, onLoginSuccess}) =>
                 Sign in with Intra
               </button>
             </Link>
+            <Link href={URL} className="
+              w-full flex items-center justify-center
+            ">
             <button className="flex items-center bg-[#131E24] text-white w-[75%] mobile:w-[90%]
             less-than-mobile:w-[90%] py-2 rounded mt-4  hover:bg-[#1E2E36] rounded-tl-[9px]
             rounded-bl-[18px] rounded-tr-[22px] rounded-br-[10px] border border-gray-500  justify-center">
@@ -134,9 +140,10 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate, onLoginSuccess}) =>
                 className="w-6 h-6 mr-2 fill-white"
                 src="/images/logo_google.png"
                 alt="Google Icon"
-              />
+                />
                 Sign in with Google
             </button>
+            </Link>
             <div className="flex items-center justify-center w-10/12 mt-2 text-[#949DA2]">
               <img
                 className="w-full less-than-tablet:w-[40%] mobile:h-[50px]"
@@ -179,7 +186,7 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate, onLoginSuccess}) =>
         >
           <img
             className="w-full h-full less-than-tablet:hidden rounded-r-[20px]"
-            src="/images/login_icon.png"
+            src="/images/login_icon.webp"
             alt="loginPageImage"
           />
         </motion.div>

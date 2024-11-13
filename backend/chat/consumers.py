@@ -67,6 +67,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }
         )
 
+
     async def receive(self, text_data):
         data = json.loads(text_data)
         msg_type = data['type']

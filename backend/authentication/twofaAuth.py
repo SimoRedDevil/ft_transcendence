@@ -16,7 +16,7 @@ def twofactorAuth(username):
     if not os.path.exists(qrcode_dir):
         os.makedirs(qrcode_dir)
     random_number = random.randint(0, 100000)
-    num = random_number % 1000
+    num = random_number % 100
     # qrcode_path = os.path.join(qrcode_dir, f'{username}.png')
     qrcode_path = os.path.join(qrcode_dir, f'{username}_{num}.png')
     qrcode.make(url).save(qrcode_path)

@@ -13,11 +13,14 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-STATIC_URL = "avatars/"
+STATIC_URL = "/avatars/"
+
+load_dotenv()
 
 STATICFILES_DIRS = [
     BASE_DIR / "./avatars",
@@ -39,6 +42,29 @@ ALLOWED_HOSTS = [
     'localhost',
 ]
 
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'POST',
+    'PUT',
+]
+
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000/',
+    'http://*',
+    'https://*',
+]
+
+CSRF_COOKIE_HTTPONLY = False
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
+CSRF_USE_SESSIONS = False  # Unless explicitly using sessions for CSRF
+CSRF_COOKIE_NAME = "csrftoken"  # Ensure this matches what you're using on the client-side
+
+
 
 # Application definition
 
@@ -51,6 +77,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'tournament',
     'game',
     'friends',
     'chat',
@@ -58,8 +86,18 @@ INSTALLED_APPS = [
     'corsheaders',
     'authentication',
     'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'dj_rest_auth',
+    'rest_framework.authtoken',
+    'allauth.socialaccount.providers.google',
+    'dj_rest_auth.registration',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
 ]
+
+# django.contrib.sites
+SITE_ID = 1
 
 AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
@@ -71,35 +109,10 @@ CHANNEL_LAYERS = {
     }
 }
 
-
-# SOCIALACCOUNT_PROVIDERS = {
-#     'oauth2': {
-#         'APP': {
-#             'client_id': 'u-s4t2ud-92bd4e0625503a1a3d309256cffd60297d8692b8710fce9d6d657fe60899bfd4',
-#             'secret': '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',
-#             'key': '',
-#         },
-#         'SCOPE': ['public'],
-#         'AUTH_PARAMS': {'access_type': 'offline'},
-#         'METHOD': 'oauth2',
-#         'AUTHORIZE_URL': 'https://api.intra.42.fr/oauth/authorize',
-#         'ACCESS_TOKEN_URL': 'https://api.intra.42.fr/oauth/token',
-#         'PROFILE_URL': 'https://api.intra.42.fr/v2/me',  # For getting user data
-#         'REDIRECT_URI': 'http://localhost:8000/accounts/42/callback/',
-#     },
-# }
-
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
-
-
-CSRF_COOKIE_HTTPONLY = False
-CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
-CSRF_USE_SESSIONS = False  # Unless explicitly using sessions for CSRF
-CSRF_COOKIE_NAME = "csrftoken"  # Ensure this matches what you're using on the client-side
-
-
 REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -110,8 +123,8 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'authentication.CustomUser'
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Short lifetime for access token
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),    # Longer lifetime for refresh token
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),    # Short lifetime for access token
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=90),    # Longer lifetime for refresh token
     'ROTATE_REFRESH_TOKENS': True,                 # Rotate refresh tokens on refresh
     'BLACKLIST_AFTER_ROTATION': True,              # Blacklist old tokens
     'UPDATE_LAST_LOGIN': True,                   # Update last login on token refresh
@@ -119,8 +132,9 @@ SIMPLE_JWT = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',  # Your Next.js frontend
+    'http://localhost:3000',
     'http://127.0.0.1:3000',
+    'http://*',
     'https://*',
 ]
 
@@ -133,19 +147,17 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    'allauth.account.middleware.AccountMiddleware', 
-    'authentication.middleware.AuthRequiredMiddleware', 
-    'authentication.middleware.TrailingSlashMiddleware', 
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'
 
-
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates')
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -162,22 +174,35 @@ ASGI_APPLICATION = 'backend.asgi.application'
 
 
 # 42 API OAuth settings
-INTRA_42_CLIENT_ID = 'u-s4t2ud-92bd4e0625503a1a3d309256cffd60297d8692b8710fce9d6d657fe60899bfd4'
-INTRA_42_CLIENT_SECRET = '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'
-INTRA_42_REDIRECT_URI = 'http://localhost:3000'
-INTRA_42_TOKEN_URL = 'https://api.intra.42.fr/oauth/token'
-INTRA_42_AUTH_URL = 'https://api.intra.42.fr/oauth/authorize'
+
+############################################################################################################
+
+INTRA_42_CLIENT_ID = os.getenv('INTRA_42_CLIENT_ID')
+INTRA_42_CLIENT_SECRET = os.getenv('INTRA_42_CLIENT_SECRET')
+INTRA_42_REDIRECT_URI = os.getenv('INTRA_42_REDIRECT_URI')
+
+############################################################################################################
 
 
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+#google oauth settings
+############################################################################################################
+
+GOOGLE_OAUTH_CLIENT_ID = os.getenv('GOOGLE_OAUTH_CLIENT_ID')
+GOOGLE_OAUTH_CLIENT_SECRET = os.getenv('GOOGLE_OAUTH_CLIENT_SECRET')
+GOOGLE_OAUTH_CALLBACK_URL = os.getenv('GOOGLE_OUATH_REDIRECT_URI')
+# Configure django-allauth to connect social accounts to existing accounts with the same email
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_EMAIL_VERIFICATION = "none"  # Set to "mandatory" if you want email verification
+
+############################################################################################################
 
 DATABASES = {
     'default': {
         "ENGINE": "django.db.backends.postgresql",
-        'NAME': 'alienpong',
-        'USER': 'aben-nei',
-        'PASSWORD': 'aben-nei123',
+        'NAME': os.getenv('POSTGRES_DB'),
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
         'HOST': 'db',
         'PORT': '5432',
     }
@@ -193,9 +218,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-            'OPTIONS': {
-                'min_length': 8,
-            }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -218,10 +240,18 @@ USE_I18N = True
 USE_TZ = True
 
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
+    },
+}
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

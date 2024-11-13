@@ -1,11 +1,14 @@
+'use client';
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { UserContext } from "../components/context/usercontext";
+import {getCookies} from "./auth";
 
+// const {fetchAuthUser} = useContext(UserContext);
+const API = process.env.NEXT_PUBLIC_API_URL;
 export const enableTwoFactorAuth = async (fetchAuthUser) => {
   try {
     const response = await axios.get(
-      "http://localhost:8000/api/auth/enable-2fa/",
+      `${API}/enable-2fa/`,
       {
         withCredentials: true, // Ensure cookies are included in the request
       }
@@ -21,7 +24,7 @@ export const enableTwoFactorAuth = async (fetchAuthUser) => {
 export  const disableTwoFactorAuth = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8000/api/auth/disable-2fa/",
+        `${API}/disable-2fa/`,
         {
           withCredentials: true, // Ensure cookies are included in the request
         }
@@ -33,14 +36,28 @@ export  const disableTwoFactorAuth = async () => {
   };
 
   export const verify2FA = async (code) => {
+    const body = {
+      code: code,
+    };
     try {
-      const response = await axios.get(
-        `http://localhost:8000/api/auth/verify-2fa/?code=${code}`,
+      const cookies = await getCookies();
+      const csrfToken = cookies.cookies.csrftoken;
+  
+      const response = await axios.post(
+        `${API}/verify-2fa/`,
+        body,
         {
-          withCredentials: true, // Ensure cookies are included in the request
+          headers: {
+            "X-CSRFToken": csrfToken, // Include the CSRF token in the headers
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
         }
       );
+  
       return response.status;
-    } catch (error){
+    } catch (error) {
+      console.error("Error verifying 2FA:", error);
     }
   };
+  

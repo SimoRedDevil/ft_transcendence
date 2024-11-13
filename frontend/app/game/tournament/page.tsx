@@ -79,40 +79,27 @@ export default function Tournament() {
                             </div>
                         )}
                         {currentGame === 1 && (
-                            <div className='hidden lg:block space-y-[250px] mt-[20px]'>
-                                <div className='flex justify-center items-center flex-col space-y-[120px]'>
-                                    <div className='flex justify-center items-center flex-row space-x-1'>
-                                        <div className='w-[70px] h-[70px] border border-yellow-300 rounded-[200px]'></div>
-                                        <div className='flex justify-center items-center flex-row'>
-                                            <div className='border border-yellow-300 w-[200px] h-[70px] rounded-r-[50px]'></div>
-                                            <div className='border w-[200px] border-yellow-300'></div>
-                                        </div>
+                            <div className='hidden lg:block w-full h-full'>
+                                <div className='flex items-center justify-between flex-row h-full'>
+                                    <div className='flex space-y-64 flex-col mb-12'>
+                                        <div className='border border-yellow-300 w-[200px] h-[70px] rounded-r-[50px]'></div>
+                                        <div className='border border-yellow-300 w-[200px] h-[70px] rounded-r-[50px]'></div>
                                     </div>
-                                    <div className='flex justify-center items-center flex-row space-x-1'>
-                                        <div className='w-[70px] h-[70px] border border-yellow-300 rounded-[200px]'></div>
-                                        <div className='flex justify-center items-center flex-row'>
-                                            <div className='border border-yellow-300 w-[200px] h-[70px] rounded-r-[50px]'></div>
-                                            <div className='border w-[200px] border-yellow-300'></div>
-                                        </div>
+                                    <div className='flex space-y-64 flex-col mb-12'>
+                                        <div className='border border-yellow-300 w-[200px] h-[70px] rounded-r-[50px]'></div>
                                     </div>
-                                </div>
-                                <div className='flex justify-center items-center flex-col space-y-[120px]'>
-                                    <div className='flex justify-center items-center flex-row space-x-1'>
-                                        <div className='w-[70px] h-[70px] border border-yellow-300 rounded-[200px]'></div>
-                                        <div className='flex justify-center items-center flex-row'>
-                                            <div className='border border-yellow-300 w-[200px] h-[70px] rounded-r-[50px]'></div>
-                                            <div className='border w-[200px] border-yellow-300'></div>
-                                        </div>
+                                    <div className='flex space-y-64 flex-col mb-12'>
+                                        <div className='border border-yellow-300 w-[400px] h-[140px]'></div>
                                     </div>
-                                    <div className='flex justify-center items-center flex-row space-x-1'>
-                                        <div className='w-[70px] h-[70px] border border-yellow-300 rounded-[200px]'></div>
-                                        <div className='flex justify-center items-center flex-row'>
-                                            <div className='border border-yellow-300 w-[200px] h-[70px] rounded-r-[50px]'></div>
-                                            <div className='border w-[200px] border-yellow-300'></div>
-                                        </div>
+                                    <div className='flex space-y-64 flex-col mb-12'>
+                                        <div className='border border-yellow-300 w-[200px] h-[70px] rounded-l-[50px]'></div>
+                                    </div>
+                                    <div className='flex space-y-64 flex-col mb-12'>
+                                        <div className='border border-yellow-300 w-[200px] h-[70px] rounded-l-[50px]'></div>
+                                        <div className='border border-yellow-300 w-[200px] h-[70px] rounded-l-[50px]'></div>
                                     </div>
                                 </div>
-                            </div>
+                        </div>
                         )}
                     </div>
                 )

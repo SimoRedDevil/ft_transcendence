@@ -86,7 +86,6 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
             setProfileDropDownClicked(false);
         }
         if (e.target.id !== 'textsearch-id') {
-            console.log(isSearching);
             setIsSearching(false);
         }
     }

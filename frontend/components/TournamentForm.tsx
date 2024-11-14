@@ -7,9 +7,30 @@ export default function TournamentForm({ onSubmit }) {
     const [player2, setPlayer2] = useState('')
     const [player3, setPlayer3] = useState('')
     const [player4, setPlayer4] = useState('')
+    const [error, setError] = useState('')
+
+    const validateNames = (names) => {
+        const uniqueNames = new Set(names)
+        if (uniqueNames.size !== names.length) {
+            return 'Player names must be unique'
+        }
+        for (const name of names) {
+            if (name.length > 9) {
+                return 'Player names must not exceed 9 characters'
+            }
+        }
+        return ''
+    }
 
     const handleSubmit = (e) => {
         e.preventDefault()
+        const playerNames = [player1, player2, player3, player4]
+        const validationError = validateNames(playerNames)
+        if (validationError) {
+            setError(validationError)
+            return
+        }
+        setError('')
         onSubmit({ player1, player2, player3, player4 })
         setPlayer1('')
         setPlayer2('')
@@ -36,6 +57,7 @@ export default function TournamentForm({ onSubmit }) {
                                 3xl:mt-[60px]
                                 4xl:mt-[60px]'>Create Tournament</div>
                 <form className='flex flex-col' onSubmit={handleSubmit}>
+                    {error && <div className='text-red-500 text-center text-sm'>{error}</div>}
                     <div className='flex justify-between w-full'>
                         <div className='flex flex-col w-[50%] space-y-2'>
                             <label htmlFor="player1" className='text-sky-400 mt-3 ml-2

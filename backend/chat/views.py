@@ -13,6 +13,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = ConversationSerializer
+    http_method_names = ['get', 'post', 'delete']
     def get_queryset(self):
         return conversation.objects.filter(user1_id=self.request.user.id) | conversation.objects.filter(user2_id=self.request.user.id)
 

@@ -33,15 +33,4 @@ class FriendRequest(models.Model):
         self.status = 'R'
         self.save()
         return True
-
-class Friend(models.Model):
-    id = models.AutoField(primary_key=True)
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    friends = models.ManyToManyField("self", symmetrical=True, blank=True)
-
-    STATUS_CHOICES = [
-        ('F', 'Friend'),
-        ('B', 'Blocked'),
-    ]
-
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='F')
+    

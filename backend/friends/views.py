@@ -3,8 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
-from .models import FriendRequest, Friend
-from .serializers import FriendRequestSerializer, FriendSerializer
+from .models import FriendRequest
+from .serializers import FriendRequestSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
@@ -57,6 +57,3 @@ class FriendRequestViewSet(ModelViewSet):
         if (not friendship_instance.reject_request()):
             return Response("{detail: Friend request already rejected}", status=status.HTTP_400_BAD_REQUEST)
         return Response("{detail: Friend request rejected}", status=status.HTTP_200_OK)
-
-class FriendViewSet(ModelViewSet):
-    pass

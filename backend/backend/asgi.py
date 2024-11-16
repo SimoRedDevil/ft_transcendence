@@ -15,7 +15,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 websocket_urlpatterns = [
     path('ws/game/', Game.as_asgi()),
     path('ws/tournament/', Tournament.as_asgi()),
-    path('chat/', ChatConsumer.as_asgi()),
+    path('ws/chat/', ChatConsumer.as_asgi()),
     path('ws/notification/<str:room_name>/', NotificationConsumer.as_asgi())
 ]
 

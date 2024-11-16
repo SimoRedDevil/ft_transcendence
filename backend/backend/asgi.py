@@ -16,7 +16,7 @@ websocket_urlpatterns = [
     path('ws/game/', Game.as_asgi()),
     path('ws/tournament/', Tournament.as_asgi()),
     path('chat/', ChatConsumer.as_asgi()),
-    path('ws/notification/<str:user>/', NotificationConsumer.as_asgi())
+    path('ws/notification/<str:room_name>/', NotificationConsumer.as_asgi())
 ]
 
 application = ProtocolTypeRouter({

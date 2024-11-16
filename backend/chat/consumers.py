@@ -42,7 +42,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         user = self.scope['user']
         if user.is_anonymous or not user.is_authenticated:
-            await self.close()
+            await self.close(code=1008)
         else:
             self.user = user
             self.room_group_name = f'chat_{user.username}'

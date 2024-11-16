@@ -38,7 +38,7 @@ export const ChatProvider = ({ children }) => {
     useEffect(() => {
         ws.current = new WebSocket('ws://localhost:8000/chat/');
         ws.current.onopen = () => {
-            console.log('Connected to the chat server');
+            
         };
         ws.current.onmessage = (message) => {
             const newMessage = JSON.parse(message.data);

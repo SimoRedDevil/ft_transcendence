@@ -162,8 +162,8 @@ ASGI_APPLICATION = 'backend.asgi.application'
 
 # 42 API OAuth settings
 INTRA_42_CLIENT_ID = 'u-s4t2ud-92bd4e0625503a1a3d309256cffd60297d8692b8710fce9d6d657fe60899bfd4'
-INTRA_42_CLIENT_SECRET = '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'
-INTRA_42_REDIRECT_URI = 'http://localhost:3000'
+INTRA_42_CLIENT_SECRET = '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'
+INTRA_42_REDIRECT_URI = 'http://localhost:8000/api/auth/42/callback/'
 INTRA_42_TOKEN_URL = 'https://api.intra.42.fr/oauth/token'
 INTRA_42_AUTH_URL = 'https://api.intra.42.fr/oauth/authorize'
 

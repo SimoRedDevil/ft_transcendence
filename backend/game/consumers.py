@@ -109,7 +109,7 @@ class Game(AsyncWebsocketConsumer):
                     {
                         'type': 'paddle_update',
                         'paddle': self.games[game_channel][player_id].to_dict(),
-                        'playernumber': self.games[game_channel][player_id].playerNu
+                        'playernumber': self.games[game_channel][player_id].playerNu,
                     }
                 )
     

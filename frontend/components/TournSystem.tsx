@@ -6,6 +6,7 @@ import LocalGame from './LocalGame';
 import Image from 'next/image';
 import { useEffect , useRef} from 'react';
 import { player } from '../app/game/Object';
+import Table from './TableGame';
 
 
 
@@ -28,7 +29,7 @@ export default function TournamentSyst({ PlayerName }: Props) {
     
     useEffect(() => {  
         if (typeof window !== 'undefined') {
-            socketRef.current = new WebSocket('ws://e1r1p2.1337.ma:8000/ws/tournament/');
+            socketRef.current = new WebSocket('ws://e2r2p4.1337.ma:8000/ws/tournament/');
             socketRef.current.onopen = () => {
               console.log('WebSocket connected');
               socketRef.current.send(JSON.stringify({ type: 'connection', playerName: PlayerName }));
@@ -38,7 +39,8 @@ export default function TournamentSyst({ PlayerName }: Props) {
                 const data = JSON.parse(event.data);
                 console.log(data);
                 if (data.type === 'connection') {
-                    console.log('Connected to the game');
+                    setPlayer_id(data.player.id)
+                    setAliasNam(data.player.name)
                 }
                 if (data.type === 'tournament_start') {
                     setPlayers(data.players);
@@ -74,16 +76,28 @@ export default function TournamentSyst({ PlayerName }: Props) {
     const [player2, setPlayer2] = useState('');
     const [player3, setPlayer3] = useState('');
     const [player4, setPlayer4] = useState('');
-    const [currentPlayers, setCurrentPlayers] = useState({ player1: '', player2: '' });
+    const [aliasNam, setAliasNam] = useState('');
+    const [player_id, setPlayer_id] = useState('');
+    const [currentPlayers, setCurrentPlayers] = useState('');
+    const [group_name, setGroup_name] = useState('');
     const [currentGame, setCurrentGame] = useState(1);
+    const [id, setId] = useState('');
     const [winner1, setWinner1] = useState('');
     const [winner2, setWinner2] = useState('');
     const [winner, setWinner] = useState('');
 
-    const handleButtonClick = (player1, player2) => {
-        console.log(players[0]);
-        socketRef.current.send(JSON.stringify({ type: 'game_start', player1: players[0], player2: player2 }));
-        // setShowLocalGame(true);
+    const handleButtonClick = () => {
+        for (let i = 0; i < players.length; i++) {
+            if (players[i]['name'] === PlayerName) {
+                console.log(PlayerName);
+                console.log("player Id ", players[i]['player_id']);
+                setCurrentPlayers(players[i]['player_id']);
+                setGroup_name(players[i]['group_name']);
+                setId(players[i]['id']);
+                break;
+            }
+        }
+        setShowLocalGame(true);
     };
 
     const handleGameEnd = (winner) => {
@@ -101,7 +115,7 @@ export default function TournamentSyst({ PlayerName }: Props) {
     return (
         <div className="w-[90%] h-[80vh] flex justify-center items-center flex-col  ml-[28px]">
             {showLocalGame ? (
-                <LocalGame player1={player1} player2={player2} onGameEnd={handleGameEnd} />
+                <Table playerna={PlayerName} socketRef={socketRef.current} playernambre={currentPlayers} groupname={group_name} id={id}  aliasname={aliasNam} player_id={player_id}/>
             ) : ((
                     <div className="w-[85%] h-[80vh] flex justify-center items-center lg:justify-start lg:items-start flex-col mt-[5vh]">
                         <div className='sm:hidden w[100px] h-[60px] text-white '>{currentGame === 3 ? "Final" : "Demi Final"}</div>
@@ -111,7 +125,7 @@ export default function TournamentSyst({ PlayerName }: Props) {
                                 <div className='w-[120px] h-[70px] text-white flex justify-center items-center'>{player1}</div>
                                 <div className='text-white'>VS</div>
                                 <div className='w-[120px] h-[70px] text-white flex justify-center items-center'>{player2}</div>
-                                <button className='w-[20%] h-[100%] rounded-lg rounded-l-[40px] bg-deepSeaBlue text-white' onClick={() => handleButtonClick(player1, player2)}>Play</button>
+                                <button className='w-[20%] h-[100%] rounded-lg rounded-l-[40px] bg-deepSeaBlue text-white' onClick={() => handleButtonClick()}>Play</button>
                             </div>
                         )}
                         {currentGame === 2 && (<div className='text-white sm:hidden'>Match 2</div>)}
@@ -120,7 +134,7 @@ export default function TournamentSyst({ PlayerName }: Props) {
                                 <div className='w-[120px] h-[70px] text-white flex justify-center items-center'>{player3}</div>
                                 <div className='text-white'>VS</div>
                                 <div className='w-[120px] h-[70px] text-white flex justify-center items-center'>{player4}</div>
-                                <button className='w-[20%] h-[100%] rounded-lg rounded-l-[40px] bg-deepSeaBlue text-white' onClick={() => handleButtonClick(player3, player4)}>Play</button>
+                                <button className='w-[20%] h-[100%] rounded-lg rounded-l-[40px] bg-deepSeaBlue text-white' onClick={() => handleButtonClick()}>Play</button>
                             </div>
                         )}
                         {currentGame == 3 && (
@@ -128,7 +142,7 @@ export default function TournamentSyst({ PlayerName }: Props) {
                                 <div className='w-[120px] h-[70px] text-white flex justify-center items-center'>{winner1.substring(0, 9)}</div>
                                 <div className='text-white'>VS</div>
                                 <div className='w-[120px] h-[70px] text-white flex justify-center items-center'>{winner2.substring(0, 9)}</div>
-                                <button className='w-[20%] h-[100%] rounded-lg rounded-l-[40px] bg-deepSeaBlue text-white' onClick={() => handleButtonClick(winner1, winner2)}>Play</button>
+                                <button className='w-[20%] h-[100%] rounded-lg rounded-l-[40px] bg-deepSeaBlue text-white' onClick={() => handleButtonClick()}>Play</button>
                             </div>
                         )}
                         {currentGame > 3 && (
@@ -152,7 +166,7 @@ export default function TournamentSyst({ PlayerName }: Props) {
                                             <div className="flex flex-col justify-center items-center mt-2 w-36">
                                                 <hr className="border-t border-paddlefill w-full" />
                                                 <hr className="border-l border-paddlefill h-8" />
-                                                <button className='w-[60px] h-[60px] border-animated bg-deepSeaBlue rounded-[70px] text-white' onClick={() => handleButtonClick(player1, players.player2)}>Play</button>
+                                                <button className='w-[60px] h-[60px] border-animated bg-deepSeaBlue rounded-[70px] text-white' onClick={() => handleButtonClick()}>Play</button>
                                             </div>
                                             )}
                                             <div className={`border 
@@ -175,7 +189,7 @@ export default function TournamentSyst({ PlayerName }: Props) {
                                                          bg-gradient-to-r from-deepSeaBlue to-paddlestroke/30
                                                          flex justify-center items-center text-white'>{winner.substring(0,9)}</div>
                                         {currentGame === 3 && (
-                                            <button className='w-[60px] h-[60px] border-animated bg-deepSeaBlue rounded-[70px] text-white mx-auto' onClick={() => handleButtonClick(winner1, winner2)}>Play</button>
+                                            <button className='w-[60px] h-[60px] border-animated bg-deepSeaBlue rounded-[70px] text-white mx-auto' onClick={() => handleButtonClick()}>Play</button>
                                         )}
                                     </div>
                                     <div className='flex flex-col'>
@@ -193,7 +207,7 @@ export default function TournamentSyst({ PlayerName }: Props) {
                                                     : 'bg-gradient-to-r from-deepSeaBlue to-paddlestroke/30 border-paddlefill text-white'}`}>{player3}</div>
                                             {currentGame === 2 && (
                                             <div className="flex flex-col justify-center items-center w-36">
-                                                <button className='w-[60px] h-[60px] border-animated bg-deepSeaBlue rounded-[70px] text-white' onClick={() => handleButtonClick(player3, player4)}>Play</button>
+                                                <button className='w-[60px] h-[60px] border-animated bg-deepSeaBlue rounded-[70px] text-white' onClick={() => handleButtonClick()}>Play</button>
                                                 <hr className="border-l border-paddlefill h-8" />
                                                 <hr className="border-t border-paddlefill w-full mb-2" />
                                             </div>
@@ -220,7 +234,7 @@ export default function TournamentSyst({ PlayerName }: Props) {
                                         {currentGame === 1 && (
                                         <div className=" border-l border-paddlefill h-56 ml-8 flex justify-center items-center">
                                             <hr className="border-t border-paddlefill l:w-[47px] 3xl:w-[98px]" />
-                                            <button className='w-[60px] h-[60px] border-animated bg-deepSeaBlue rounded-[70px] text-white' onClick={() => handleButtonClick(player1, player2)}>Play</button>
+                                            <button className='w-[60px] h-[60px] border-animated bg-deepSeaBlue rounded-[70px] text-white' onClick={() => handleButtonClick()}>Play</button>
                                         </div>
                                         )}
                                         <div className={`border 
@@ -243,7 +257,7 @@ export default function TournamentSyst({ PlayerName }: Props) {
                                                          bg-gradient-to-r from-deepSeaBlue to-paddlestroke/30
                                                          flex justify-center items-center text-white'>{winner.substring(0,9)}</div>
                                         {currentGame === 3 && (
-                                            <button className='w-[60px] h-[60px] border-animated bg-deepSeaBlue rounded-[70px] text-white mx-auto' onClick={() => handleButtonClick(winner1, winner2)}>Play</button>
+                                            <button className='w-[60px] h-[60px] border-animated bg-deepSeaBlue rounded-[70px] text-white mx-auto' onClick={() => handleButtonClick()}>Play</button>
                                         )}
                                     </div>
                                     <div className='flex space-y-64 flex-col mb-12 '>
@@ -261,7 +275,7 @@ export default function TournamentSyst({ PlayerName }: Props) {
                                                         : 'bg-gradient-to-r from-deepSeaBlue to-paddlestroke/30 border-paddlefill text-white'}`}>{player3}</div>
                                         {currentGame === 2 && (
                                         <div className="border-r border-paddlefill h-56 mr-8 flex justify-center items-center">
-                                            <button className='border-animated w-[60px] h-[60px]  bg-deepSeaBlue rounded-[70px] text-white' onClick={() => handleButtonClick(player3, player4)}>Play</button>
+                                            <button className='border-animated w-[60px] h-[60px]  bg-deepSeaBlue rounded-[70px] text-white' onClick={() => handleButtonClick()}>Play</button>
                                             <hr className="border-t border-paddlefill l:w-[47px] 3xl:w-[98px]" />
                                         </div>
                                         )}

@@ -71,7 +71,6 @@ class Game(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         if data['type'] == 'connection':
             username = data['data']['username']
-            print(username)
             
             existPlayer = await sync_to_async(Player.objects.filter(username=username).exists)()
             if not existPlayer:

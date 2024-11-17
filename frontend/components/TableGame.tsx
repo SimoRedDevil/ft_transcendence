@@ -1,19 +1,18 @@
 
 import React, { useRef, useEffect, useState} from 'react';
-import { tableDraw } from './TableDraw';
-import {getRandomName} from './TableDraw';
-import { movePaddle } from './PaddleRemote';
+import { tableDraw } from '../app/game/remotegame/TableDraw';
+import {getRandomName} from '../app/game/remotegame/TableDraw';
+import { movePaddle } from '../app/game/remotegame/PaddleRemote';
 import p5 from 'p5';
-import { player , ball } from './Object';
-import { walls } from './Object';
-import { countdown } from './ScoreRemote';
-import { useUserContext } from '../../../components/context/usercontext';
+import { player , ball } from '../app/game/remotegame/Object';
+import { walls } from '../app/game/remotegame/Object';
+import { countdown } from '../app/game/Score';
 import dynamic from 'next/dynamic';
 
 
 
-const Player1 = dynamic(() => import('./Player1Remote'), { ssr: false });
-const Player2 = dynamic(() => import('./Player2Remote'), { ssr: false });
+const Player1 = dynamic(() => import('../app/game/remotegame/Player1Remote'), { ssr: false });
+const Player2 = dynamic(() => import('../app/game/remotegame/Player2Remote'), { ssr: false });
 let playerInfo: player = { player_id: '', name: '' };
 let game_channel: string = '';
 let playeNum: string = '';
@@ -22,10 +21,20 @@ let Balls: ball = { x: 0, y: 0, radius: 0, color: '', directionX: 0, directionY:
 let socketIsOpen = false;
 let gameIsStarted = false;
 
-export default function Table() {
+interface GameProps {
+    playerna: string ;
+    socketRef: WebSocket;
+    playernambre: string;
+    groupname: string;
+    id : string;
+    player_id: string;
+    aliasname: string;
+}
+
+
+export default function TableGame({ playerna, socketRef, playernambre, groupname , id , player_id, aliasname}: GameProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
-  const socketRef = useRef<WebSocket | null>(null);
-  const {users, loading} = useUserContext();
+//   const {users, loading} = useUserContext();
   const [gameStarted, setGameStarted] = useState(false);
   let count = 3; 
   let startTime = 0;
@@ -33,13 +42,14 @@ export default function Table() {
 
   
   useEffect(() => {
+    playerInfo.player_id = player_id;
+    playerInfo.name = aliasname;
     if (typeof window !== 'undefined') {
-      socketRef.current = new WebSocket('ws://e2r2p4.1337.ma:8000/ws/game/');
+
       let Walls : walls = { wallsWidth: canvasRef.current.clientWidth, wallsHeight: canvasRef.current.clientHeight };
-      socketRef.current.onopen = () => {
-        console.log('WebSocket connected');
-        const firtsData = { username: getRandomName() , 
+        const firtsData = { username: playerna , 
                             x: 4/ Walls.wallsWidth,
+                            playerNumber: playernambre,
                             y1: (Walls.wallsHeight - Walls.wallsHeight / 20) / Walls.wallsHeight,
                             y2: ((Walls.wallsHeight / 20) - (Walls.wallsHeight/40)) / Walls.wallsHeight,
                             pw: (Walls.wallsWidth/4) / Walls.wallsWidth ,
@@ -47,19 +57,16 @@ export default function Table() {
                             sp: 8 / Walls.wallsWidth,
                             dirY: 5/ Walls.wallsHeight,
                             Walls: Walls,
-                            game_channel: game_channel};
-        socketRef.current.send(JSON.stringify({ type: 'connection', data: firtsData }));
-      };
-
-      socketRef.current.onmessage = (event) => {
+                            id_channel: id,
+                            groupname: groupname};
+        socketRef.send(JSON.stringify({ type: 'match_tour', data: firtsData }));
+      socketRef.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        if (data.type === 'connection') {
-          playerInfo.player_id = data.player.id;
-          playerInfo.name = data.player.name;
-        }
         if (data.type === 'start_game') {
+          console.log('Game Startedddddd');
           game_state = data.game_serialized;
-          game_channel = data.game_channel;
+          console.log(game_state);
+          game_channel = data.name_channel;
           socketIsOpen = true;
           setGameStarted(true);
 
@@ -83,12 +90,12 @@ export default function Table() {
         }
       };
 
-      socketRef.current.onclose = (event) => {
+      socketRef.onclose = (event) => {
         console.log('WebSocket closed:', event);
         socketIsOpen = false;
       };
 
-      socketRef.current.onerror = (event: Event) => {
+      socketRef.onerror = (event: Event) => {
         console.log('WebSocket error:', event);
     };
       const p = new p5((sketch) => {
@@ -122,9 +129,9 @@ export default function Table() {
                 countdown(sketch, Walls, count);
                 return;
             }
-              movePaddle(sketch, playerInfo, game_channel, socketRef.current);
-              if (game_state['player1'] && game_state['player2'])
-                tableDraw(sketch, game_state ,Walls, playerInfo);
+            movePaddle(sketch, playerInfo, game_channel, socketRef);
+            if (game_state['player1'] && game_state['player2'])
+              tableDraw(sketch, game_state ,Walls, playerInfo);
             const elapsedTime = sketch.millis() - startTime;
 
             if (elapsedTime >= Duration) {
@@ -140,7 +147,7 @@ export default function Table() {
             countdown(sketch, Walls, count);
             return;
         }
-          movePaddle(sketch, playerInfo, game_channel, socketRef.current);
+          movePaddle(sketch, playerInfo, game_channel, socketRef);
           if (game_state['player1'] && game_state['player2'])
             tableDraw(sketch, game_state ,Walls, playerInfo);
         };
@@ -158,8 +165,8 @@ export default function Table() {
       return () => {
         p.remove();
         window.removeEventListener('resize', handleResize);
-        if (socketRef.current) {
-          socketRef.current.close();
+        if (socketRef) {
+          socketRef.close();
         }
       };
     }
@@ -167,17 +174,7 @@ export default function Table() {
 
   return (
     <div className="flex justify-center items-center">
-        <div className="w-[85%] h-[80vh] flex justify-center items-center xl:flex-row  flex-col mt-[5vh]
-                          sm:space-y-[20px]
-                          lm:space-y-[40px]
-                          lg:space-y-[60px]
-                          xl:space-x-[60px]
-                          2xl:space-x-[200px]
-                          3xl:space-x-[250px]
-                          4xl:space-x-[300px]
-                        md:border md:border-white md:border-opacity-30
-                        md:bg-black md:bg-opacity-20
-                        md:rounded-[50px]">
+        <div className="w-[85%] h-[80vh] flex justify-center items-center xl:flex-row  flex-col mt-[5vh]">
                     { gameStarted && (
                       <Player1 
                           image="/images/adil.png"

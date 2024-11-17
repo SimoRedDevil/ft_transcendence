@@ -26,6 +26,7 @@ STATICFILES_DIRS = [
     BASE_DIR / "./avatars",
 ]
 
+
 # Add a MEDIA_ROOT for qrcodes
 QRCODE_URL = '/qrcodes/'
 QRCODE_ROOT = os.path.join(BASE_DIR, 'authentication/qrcodes')

@@ -32,6 +32,25 @@ function RootLayout({ children }: any) {
           />
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" />
+          <link href="https://fonts.googleapis.com/css2?family=Chelsea+Market&family=Faculty+Glyphic&family=Nabla&display=swap" rel="stylesheet" />
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" />
+          <link href="https://fonts.googleapis.com/css2?family=Bona+Nova+SC:ital,wght@0,400;0,700;1,400&family=Doto:wght@100..900&display=swap" rel="stylesheet" />
+          <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lilita+One&display=swap" rel="stylesheet" />
+          <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Bowlby+One&family=Itim&family=Lilita+One&display=swap" rel="stylesheet" />
+          <link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic&display=swap" rel="stylesheet"></link>
+          <link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic&display=swap" rel="stylesheet"></link>
+          <link href="https://fonts.cdnfonts.com/css/barcade" rel="stylesheet" />
+          <link href="https://fonts.cdnfonts.com/css/barcade" rel="stylesheet" />
+          <link href="https://fonts.cdnfonts.com/css/earth-orbiter" rel="stylesheet" />
+          <link href="https://fonts.cdnfonts.com/css/pilot-command" rel="stylesheet" />
+          <link href="https://fonts.cdnfonts.com/css/landepz-glitch" rel="stylesheet" />
+          <link href="https://fonts.cdnfonts.com/css/veritas-sans" rel="stylesheet" />
+          <link href="https://fonts.cdnfonts.com/css/informative" rel="stylesheet" />
+          <link href="https://fonts.cdnfonts.com/css/warriot-tech" rel="stylesheet" />
+          <link href="https://fonts.cdnfonts.com/css/nevermind-bauhaus" rel="stylesheet" /> 
+          <link href="https://fonts.cdnfonts.com/css/a-space-demo" rel="stylesheet" />
+          <link href="https://fonts.cdnfonts.com/css/flexsteel" rel="stylesheet" />
           <title>
             {pathname.charAt(1).toUpperCase() + pathname.slice(2)}
           </title>

@@ -14,20 +14,20 @@ services:
       backend:
         condition: service_healthy
   
-  frontend:
-    container_name: frontend
-    build: ./frontend
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./frontend:/app
-    env_file:
-      - ./frontend/.env
-    networks:
-      - mynetwork
-    depends_on:
-      backend:
-        condition: service_healthy
+  # frontend:
+  #   container_name: frontend
+  #   build: ./frontend
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - ./frontend:/app
+  #   env_file:
+  #     - ./frontend/.env
+  #   networks:
+  #     - mynetwork
+  #   depends_on:
+  #     backend:
+  #       condition: service_healthy
       
   backend:
     container_name: backend
@@ -41,9 +41,14 @@ services:
     restart: always
     networks:
       - mynetwork
+      # - elastic
     depends_on:
       db:
         condition: service_healthy
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://172.19.0.2:5044"
     healthcheck:
       test: ["CMD", "python", "manage.py", "check"]
       interval: 10s
@@ -71,6 +76,8 @@ services:
 
 
 networks:
+  # elastic:
+  #   external: true
   mynetwork:
     driver: bridge
 

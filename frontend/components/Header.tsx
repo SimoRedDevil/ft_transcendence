@@ -2,7 +2,7 @@ import React, { use } from 'react'
 import Image from 'next/image'
 import TextBox from './TextBox';
 import Link from 'next/link';
-import {UserContext} from './context/usercontext';
+import {UserContext, useUserContext} from './context/usercontext';
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import BounceLoader from "react-spinners/ClipLoader";

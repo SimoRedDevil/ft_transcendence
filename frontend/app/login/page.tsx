@@ -7,7 +7,6 @@ import { useContext } from "react";
 
 const Login: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const { users, isAuthenticated } = useContext(UserContext);
 
   const handleNavigateToSignup = () => {
     if (isLogin) {

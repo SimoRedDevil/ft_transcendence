@@ -1,13 +1,11 @@
 interface PlayerProps{
     image: string;
     name: string;
-    gameStarted: boolean;
 }
 
-export default function Player({image, name, gameStarted}: PlayerProps)
-{
+export default function Player({ image, name }: PlayerProps) {
     return (
-        <div className="lm:flex lm:flex-col lm:items-center lm:justify-start lm:w-[210px] ">
+        <div className="lm:flex lm:flex-col lm:items-center lm:justify-start lm:w-[210px]">
             <div className="bg-cover bg-center cover rounded-full
                             border-2 border-yellow-300
                             sm:w-[50px] sm:h-[50px] 
@@ -18,7 +16,7 @@ export default function Player({image, name, gameStarted}: PlayerProps)
                             3xl:w-[200px] 3xl:h-[200px]
                             animate-slide-in-right
                         "
-                    style={{ backgroundImage: `url(${image})` }}></div>
+                style={{ backgroundImage: `url(${image})` }}></div>
             <div className="text-white animate-slide-in-right">{name}</div>
         </div>
     );

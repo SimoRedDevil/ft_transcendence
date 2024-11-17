@@ -57,7 +57,7 @@ function Conversations() {
 
   const returnConversationImage = (conversation) => {
     let otherUser = authUser.username === conversation.user1_info.username ? conversation.user2_info : conversation.user1_info
-    return otherUser.intra_avatar_url === null ? otherUser.avatar_url : otherUser.intra_avatar_url
+    return otherUser?.avatar_url
   }
 
   return (
@@ -65,10 +65,10 @@ function Conversations() {
             <div className='h-[200px]'>
               <div className='h-[120px] flex gap-4 p-[20px]'>
                 <div className='h-[80px] w-[80px] rounded-full'>
-                  <Image className='rounded-full' src={authUser.intra_avatar_url === null ? authUser.avatar_url : authUser.intra_avatar_url} width={80} height={80} alt='avatar'/>
+                  <Image className='rounded-full' src={authUser.avatar_url} width={80} height={80} alt='avatar'/>
                 </div>
                 <div className='flex flex-col justify-center gap-4'>
-                  <span className='text-[1rem]'>{authUser.full_name}</span>
+                  <span className='text-[1rem]'>{authUser?.full_name}</span>
                   <span className='text-[0.9rem] text-white text-opacity-65'>Active Now</span>
                 </div>
               </div>

@@ -2,10 +2,10 @@
 interface PlayerProps{
     image: string;
     name: string;
-    gameStarted: boolean;
+
 }
 
-export default function Player({image, name, gameStarted}: PlayerProps)
+export default function Player({image, name}: PlayerProps)
 {
     return (
         <div className="lm:flex lm:flex-col lm:items-center lm:justify-start lm:w-[210px] ">

@@ -4,7 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const UserContext = createContext(null);
+export const UserContext = createContext(null);
 
 export const UserProvider = ({ children }) => {
     const [authUser, setauthUser] = useState(null);
@@ -43,7 +43,7 @@ export const UserProvider = ({ children }) => {
             } catch (error) {
             setError(error);
             setIsAuthenticated(false);
-            // router.push('/login');
+            router.push('/login');
         } finally {
             setTimeout(() => {
                 setLoading(false);
@@ -87,4 +87,4 @@ export const useUserContext = () => {
 };
 
 // Export the UserContext directly for access in components
-export { UserContext };
+// export { UserContext };

@@ -1,4 +1,4 @@
-
+"use client"
 import Link from 'next/link'
 import React, { use } from 'react'
 import { TbLayoutDashboardFilled } from "react-icons/tb";
@@ -21,7 +21,7 @@ function Sidebar() {
     const profile = pathname.startsWith('/profile');
     const settings = pathname.startsWith('/settings');
     const tournament = pathname.startsWith('/tournament');
-    const home = pathname === '/';
+    const home = pathname === '/dashboard';
     return (
         <nav className='w-full sm:w-[100px] sm:h-full h-16 flex sm:flex-col items-center justify-around sm:justify-center sm:gap-[5%]'>
             <NavLink href='/' isActive={home}><TbLayoutDashboardFilled title='Dashboard' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] hover:text-opacity-100 transition'/></NavLink>

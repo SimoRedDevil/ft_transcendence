@@ -256,7 +256,8 @@ class UserViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         search = self.request.GET.get('search')
         if search:
-            return CustomUser.objects.filter(Q(username__icontains=search) | Q(full_name__icontains=search))
+            result_users = CustomUser.objects.filter(Q(username__icontains=search) | Q(full_name__icontains=search))
+            return result_users.exclude(username__in=self.request.user.blocked_users.all().values_list('username', flat=True)).filter(is_active=True)
         return CustomUser.objects.filter(is_active=True)
 
 def generate_tokens(request):
@@ -488,3 +489,47 @@ class Delete_account(APIView):
         user.is_active = False
         user.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class block_user(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        data = request.data
+        username = data.get('username')
+        if not username:
+            return Response({'error': 'username is required'}, status=status.HTTP_400_BAD_REQUEST)
+        if username == user.username:
+            return Response({'error': 'You cannot block yourself'}, status=status.HTTP_400_BAD_REQUEST)
+        if user.blocked_users.filter(username=username).exists():
+            return Response({'error': 'User is already blocked'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            blocked_user = CustomUser.objects.get(username=username)
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        if user.friends.filter(username=username).exists():
+            user.friends.remove(blocked_user)
+        user.blocked_users.add(blocked_user)
+        user.save()
+        return Response({'info': f'{blocked_user.username} is blocked'}, status=status.HTTP_200_OK)
+
+class unblock_user(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        data = request.data
+        username = data.get('username')
+        if not username:
+            return Response({'error': 'username is required'}, status=status.HTTP_400_BAD_REQUEST)
+        if not user.blocked_users.filter(username=username).exists():
+            return Response({'error': 'User is not blocked'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            blocked_user = CustomUser.objects.get(username=username)
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        user.blocked_users.remove(blocked_user)
+        user.save()
+        return Response({'info': f'{blocked_user.username} is unblocked'}, status=status.HTTP_200_OK)

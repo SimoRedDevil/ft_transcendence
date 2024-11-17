@@ -98,7 +98,7 @@ class UserSerializer(serializers.ModelSerializer):
             'tournament_score', 'enabeld_2fa', 'is_already_logged', 'twofa_verified', 'qrcode_dir', 'qrcode_path',
             'level', 'matches', 'wins', 'losses', 'draws', 'profile_visited','is_active',
             'friends_count', 'top_score', 'tournaments', 'online_matches',
-            'offline_matches', 'current_xp', 'target_xp', 'online']
+            'offline_matches', 'current_xp', 'target_xp', 'online', 'friends', 'blocked_users']
         extra_kwargs = {
             'password': {'write_only': True},
         }

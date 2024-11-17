@@ -13,12 +13,17 @@ import axios from 'axios';
 import {checkStringEmpty} from '../../utils/tools';
 import { useUserContext } from '../../components/context/usercontext';
 import { useChatContext } from '../../components/context/ChatContext';
-
+import { axiosInstance } from '../../utils/axiosInstance';
+import { ToastContainer, toast} from "react-toastify";
+import { useTranslation } from "react-i18next";
+import { json } from 'stream/consumers';
+import {getCookies} from "../../components/auth";
 function Chat() {
   const [showEmoji, setShowEmoji] = useState(false)
   const [input, setInput] = useState('')
   const {authUser, loading} = useUserContext()
   let typingTimeout;
+  const { t } = useTranslation();
 
   const
   {
@@ -100,6 +105,28 @@ function Chat() {
     // }
   }
 
+  const handleBlockUser = async () => {
+    const body = {
+      username: otherUser?.username
+    }
+    try {
+      const cookies = await getCookies();
+      const csrfToken = cookies.cookies.csrftoken;
+      const response = await axios.post('http://localhost:8000/api/auth/block/', body, {
+        headers: {
+          "Content-Type": "application/json",
+          'X-CSRFToken': csrfToken,
+        },
+        withCredentials: true,
+      });
+      if (response.status === 200) {
+        console.log(response.data)
+      }
+    } catch (error) {
+      console.log('error')
+    }
+  }
+
   if (selectedConversation === null) return;
 
   if (loading === true || lastMessageRef === null || messages === null) return <div>Loading...</div> ;
@@ -129,7 +156,7 @@ function Chat() {
             <button className='cursor-pointer w-[60px] h-[60px] border border-white border-opacity-30 bg-white bg-opacity-15 hover:bg-opacity-20 rounded-full flex items-center justify-center'>
               <IoGameController className='text-white w-[30px] h-[30px]' />
             </button>
-            <button className='cursor-pointer w-[60px] h-[60px] border border-white border-opacity-30 bg-white bg-opacity-15 hover:bg-opacity-20 rounded-full flex items-center justify-center'>
+            <button onClick={handleBlockUser} className='cursor-pointer w-[60px] h-[60px] border border-white border-opacity-30 bg-white bg-opacity-15 hover:bg-opacity-20 rounded-full flex items-center justify-center'>
               <RiUserForbidFill className='text-white w-[30px] h-[30px]' />
             </button>
           </div>

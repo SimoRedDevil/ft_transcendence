@@ -7,14 +7,15 @@ from .models import FriendRequest
 from .serializers import FriendRequestSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from authentication.models import CustomUser
+from authentication.serializers import UserSerializer
 from django.db.models import Q
 
 # Create your views here.
 
 def check_friendship_exists(sender, receiver):
-        return FriendRequest.objects.filter(sender=sender, receiver=receiver).exists()
+    return FriendRequest.objects.filter(sender=sender, receiver=receiver).exists()
 
 class FriendRequestViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]

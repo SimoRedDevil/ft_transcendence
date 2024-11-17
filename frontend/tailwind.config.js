@@ -25,8 +25,6 @@ module.exports = {
       },
       screens: {
         'mobile': '360px',
-        'less-than-tablet': { 'max': '640px' },
-        'less-than-mobile': { 'max': '360px' },
         'tablet': '640px',
         'laptop': '1025px',
         'desktop': '1280px',

@@ -81,11 +81,11 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate}) => {
 
 return (
     <motion.form onSubmit={(e) => e.preventDefault()} 
-    className=" flex flex-col items-center justify-center h-screen w-screen overflow-auto fixed min-h-[1000px]">
+    className=" flex flex-col items-center justify-center h-screen w-screen min-h-[700px] overflow-hidden">
       <div
-        className="flex items-center justify-center h-full w-full laptop:w-[850px]
+        className="flex items-center justify-center h-[720px] w-full laptop:w-[850px]
         tablet:w-[620px] tablet:h-[770px] desktop:h-[760px] desktop:w-[950px] mobile:w-[500px]
-        mobile:h-[700px] laptop:h-[770px]  less-than-mobile:h-[720px] min-w-[500px] fixed overflow-auto">
+        laptop:h-[770px]  min-w-[500px] overflow-hidden">
         <motion.div
           initial={{ opacity: 1, x: "50%" }}
           animate={{ opacity: 1, x: "0" }}
@@ -96,16 +96,18 @@ return (
             src="/images/logop5.png"
             alt=""
           />
-          <h1 className="mobile:text-2xl font-bold text-center tablet:mt-[19px] mb-[34px] text-white less-than-tablet:text-sm less-than-tablet:mb-2 less-than-tablet:mt-2">
+          <h1 className="sm:text-2xl font-bold text-center tablet:mt-[19px] sm:mb-[34px] text-white
+            text-lg mb-2 mt-2">
             Sign In
           </h1>
           <div className="flex flex-col justify-center items-center text-white">
-            <div className="flex justify-around border-[1px] border-gray-500 hover:bg-[#1E2E36] bg-transparent h-[46px] less-than-mobile:w-[90%]  mobile:w-[90%] w-[75%] rounded-[20px] mt-4
+            <div className="flex justify-around border-[1px] border-gray-500 hover:bg-[#1E2E36] 
+            bg-transparent h-[46px] w-[90%]  mobile:w-[90%] sm:w-[75%] rounded-[20px] mt-4
              bg-[#293B45] rounded-tl-[10px] rounded-bl-[20px] rounded-tr-[20px] rounded-br-[10px] text-[19px] mobile:h-[48px]">
               <div
-                className={`flex items-center justify-around text-white w-[55%] less-than-mobile:text-xs
+                className={`flex items-center justify-around text-white w-[55%] text-xs
                  border-gray-500 rounded-tl-[10px] rounded-br-[10px] 
-                rounded-tr-[20px] text-sm border-r-2
+                rounded-tr-[20px] sm:text-sm border-r-2
                 rounded-bl-[20px]
                 ${onNavigate ? "bg-[#293B45]" : "bg-[#131E24]"}`}>
                 Login
@@ -113,7 +115,7 @@ return (
               <button
                 onClick={onNavigate}
                 className="text-white rounded-tl-[10px] w-[50%] border-gray-500
-                rounded-custom-Radius flex items-center justify-center text-sm less-than-mobile:text-xs">
+                rounded-custom-Radius flex items-center justify-center sm:text-sm text-xs">
                 Sign up
               </button>
             </div>
@@ -122,7 +124,7 @@ return (
                 w-full flex justify-center items-center"
             >
               <button
-                className="flex items-center bg-[#131E24] text-white w-[75%] mobile:w-[90%] less-than-mobile:w-[90%] justify-center py-2 rounded mt-7 
+                className="flex items-center bg-[#131E24] text-white sm:w-[75%] mobile:w-[90%] w-[90%] justify-center py-2 rounded mt-7 
                   hover:bg-[#1E2E36] rounded-tl-[13px] rounded-bl-[22px] rounded-tr-[22px] rounded-br-[10px] border border-gray-500"
               >
                 <img
@@ -136,8 +138,8 @@ return (
             <Link href={URL} className="
               w-full flex items-center justify-center
             ">
-            <button className="flex items-center bg-[#131E24] text-white w-[75%] mobile:w-[90%]
-            less-than-mobile:w-[90%] py-2 rounded mt-4  hover:bg-[#1E2E36] rounded-tl-[9px]
+            <button className="flex items-center bg-[#131E24] text-white sm:w-[75%] mobile:w-[90%]
+            w-[90%] py-2 rounded mt-4  hover:bg-[#1E2E36] rounded-tl-[9px]
             rounded-bl-[18px] rounded-tr-[22px] rounded-br-[10px] border border-gray-500  justify-center">
               <img
                 className="w-6 h-6 mr-2 fill-white"
@@ -147,15 +149,15 @@ return (
                 Sign in with Google
             </button>
             </Link>
-            <div className="flex items-center justify-center w-10/12 mt-2 text-[#949DA2]">
+            <div className="flex items-center justify-center w-10/12 text-[#949DA2]">
               <img
-                className="w-full less-than-tablet:w-[40%] mobile:h-[50px]"
+                className="sm:w-full w-[40%] h-[50px]"
                 src="/images/line2.png"
                 alt="line"
               />
               <p className="text-[#949DA2] text-center mx-1 text-sm">OR</p>
               <img
-                className=" w-full less-than-tablet:w-[40%] mobile:h-[50px]"
+                className=" sm:w-full w-[40%] h-[50px]"
                 src="/images/line2.png"
                 alt="line"
               />
@@ -174,9 +176,9 @@ return (
             </div>
             <PasswordHelper setPassword={setPassword} password={password}/>
             <button type="submit" onClick={handleSignin}
-            className="bg-[#293B45] mobile:mb-3 less-than-mobile:mb-3 w-10/12 h-[50px] mt-[20px] rounded-custom-Radius
-                    border-gray-500 border less-than-mobile:text-sm text-md less-than-mobile:h-[40px] less-than-mobile:mt-[10px]
-                    less-than-tablet:h-[40px] less-than-tablet:mt-[10px]">
+            className="bg-[#293B45] mobile:mb-3 mb-3 w-10/12 h-[50px] mt-[20px] rounded-custom-Radius
+                    border-gray-500 border text-sm text-md
+                     ">
               Sign In
             </button>
           </div>
@@ -188,7 +190,7 @@ return (
           className="h-full tablet:w-3/4"
         >
           <img
-            className="w-full h-full less-than-tablet:hidden rounded-r-[20px]"
+            className="w-full h-full hidden sm:block rounded-r-[20px]"
             src="/images/login_icon.webp"
             alt="loginPageImage"
           />

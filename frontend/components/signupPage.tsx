@@ -68,9 +68,10 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
 
     return (
     <motion.form onSubmit={(e) => e.preventDefault()} 
-    className="flex flex-col items-center justify-center h-screen w-screen overflow-auto fixed min-h-[1000px] min-w-[300px]">
-      <div className="flex items-center justify-center h-full w-full laptop:w-[850px] tablet:w-[620px] tablet:h-[770px] desktop:h-[750px]
-       desktop:w-[950px] mobile:w-[500px] mobile:h-[680px] laptop:h-[770px] less-than-mobile:h-[680px] min-w-[500px] fixed overflow-auto
+    className="flex flex-col items-center justify-center h-screen w-screen min-h-[700px] overflow-hidden">
+      <div className="flex items-center justify-center h-[720px] w-full laptop:w-[850px]
+        tablet:w-[620px] tablet:h-[770px] desktop:h-[760px] desktop:w-[950px] mobile:w-[500px]
+        laptop:h-[770px]  min-w-[500px] overflow-hidden
        ">
         <motion.div
           initial={{ opacity: 1, x: "50%" }}
@@ -79,7 +80,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
           className="h-full tablet:w-3/4 z-10"
         >
           <img
-            className="w-full h-full less-than-tablet:hidden rounded-l-[20px]"
+            className="w-full h-full hidden sm:block rounded-l-[20px]"
             src="/images/login_icon.webp"
             alt="signupPageImage"
           />
@@ -95,22 +96,25 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
             src="/images/logop5.png"
             alt=""
           />
-          <h1 className="mobile:text-2xl font-bold text-center tablet:mt-[19px] mb-[34px] text-white less-than-tablet:text-sm less-than-tablet:mb-2 less-than-tablet:mt-2">
+          <h1 className="sm:text-2xl font-bold text-center tablet:mt-[19px] sm:mb-[34px] text-white
+            text-lg mb-2 mt-2">
             Create Account
           </h1>
           <div className="flex flex-col justify-center items-center text-white">
-            <div className="flex justify-around border-[1px] border-gray-500 hover:bg-[#1E2E36] bg-transparent h-[46px] less-than-mobile:w-[90%] mobile:w-[90%] w-[75%] rounded-[20px] mt-4 bg-[#293B45] rounded-tl-[10px] rounded-bl-[20px] rounded-tr-[20px] rounded-br-[10px] text-[19px] mobile:h-[48px]">
+            <div className="flex justify-around border-[1px] border-gray-500 hover:bg-[#1E2E36] bg-transparent h-[46px] 
+              w-[90%] rounded-[20px] mt-4 bg-[#293B45] rounded-tl-[10px] rounded-bl-[20px] rounded-tr-[20px]
+              rounded-br-[10px] text-[19px] mobile:h-[48px]">
               <button
                 onClick={onNavigate}
                 className="text-white w-[50%] px-2 border-gray-500 
-                rounded-tl-[10px] rounded-br-[10px] rounded-tr-[20px] text-sm less-than-mobile:text-xs
+                rounded-tl-[10px] rounded-br-[10px] rounded-tr-[20px] sm:text-sm text-xs
                 "
               >
                 Login
               </button>
               <div
                 className={`text-white w-[50%] px-2 rounded-tl-[10px] border-l-2
-                 border-gray-500 rounded-custom-Radius flex items-center justify-center text-sm less-than-mobile:text-xs
+                 border-gray-500 rounded-custom-Radius flex items-center justify-center sm:text-sm text-xs
                  ${onNavigate ? "bg-[#293B45]" : "bg-[#131E24]"}`}
               >
                 Sign up
@@ -154,9 +158,8 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
             </div>
             <PasswordHelper setPassword={setPassword} password={password}/>
             <button type="submit" onClick={handleSignup}
-             className="text-md  bg-[#293B45] w-10/12 h-[50px] mt-[20px] rounded-custom-Radius
-             border-gray-500 border less-than-mobile:h-[40px] less-than-mobile:mt-[10px]
-             less-than-tablet:h-[40px] less-than-tablet:mt-[10px]">
+             className="bg-[#293B45] mobile:mb-3 mb-3 w-10/12 h-[50px] mt-[20px] rounded-custom-Radius
+             border-gray-500 border text-sm text-md">
               Sign Up
             </button>
           </div>

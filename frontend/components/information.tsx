@@ -42,7 +42,8 @@ export default function Information() {
   }
 
   return (
-    <div className="text-white w-full h-full flex items-center laptop:justify-evenly less-than-tablet:flex-col laptop:flex-row tablet:flex-col less-than-tablet:pt-10 overflow-y-auto no-scrollbar">
+    <div className="text-white w-full h-full flex items-center laptop:justify-evenly
+      flex-col laptop:flex-row tablet:flex-col overflow-y-auto no-scrollbar">
 
       <TextFieledTmp
         title={t("Personal Information")}

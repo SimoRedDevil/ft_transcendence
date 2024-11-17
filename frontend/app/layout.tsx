@@ -79,7 +79,6 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
     const loginSuccessCookie = cookies.find(cookie => cookie.startsWith('loginSuccess='));
     if (loginSuccessCookie) {
       const cookieValue = loginSuccessCookie.split('=')[1];
-      console.log(cookieValue);
       if (cookieValue === 'true') {
         setTimeout(() => {
           toast.success(t('Logged In Successfully'));

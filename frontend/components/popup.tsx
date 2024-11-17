@@ -190,9 +190,9 @@ const Popup = ({
               }
               {qrcode && (
               <img
-                className={`h-full bg-white text-white desktop:w-[250px]
-              laptop:w-[170px] laptop:h-[170px] tablet:w-[250px] tablet:h-[250px] 
-              less-than-tablet:w-[200px] less-than-tablet:h-[200px]
+                className={`bg-white text-white desktop:w-[250px]
+              laptop:w-[170px] laptop:h-[170px] tablet:w-[250px] sm:h-[250px] 
+              w-[200px] h-[200px]
               desktop:h-[250px] rounded-[30px] 
               `}
                 src={`${qrcode}`}

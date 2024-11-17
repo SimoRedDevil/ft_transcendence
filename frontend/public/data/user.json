@@ -80,7 +80,7 @@
     "achievements": [
       {
         "title": "First Win",
-        "description": "Won the first match.",
+        "description": "just born.",
         "date_earned": "2024-09-01",
         "icon": "images/ach1.jpeg",
         "status": true

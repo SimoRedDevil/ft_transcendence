@@ -18,10 +18,17 @@ const WeeklyStatsDashboard = () => {
   ];
   const COLORS = ['#3b82f6', '#10b981'];
   return (
-    <div className=" flex lg:flex-row xs:flex-col lg:w-full lg:h-full xs:w-full lg:p-4 rounded-lg text-white">
-      <div className="lg:w-[60%] xl:w-1/3  relative ">
+
+    <div className='lg:w-full lg:h-full flex flex-col items-center'>
+      
+    <div className='lg:h-[5%]  w-[80%] flex justify-between' >
+        <h1 className='text-center text-lg font-semibold text-gray-800'>Win Rate  </h1>
+        <h1 className='text-center text-lg font-semibold text-gray-800'>Matches Played Throughout the Week</h1>
+    </div>
+    <div className=" flex lg:flex-row xs:flex-col lg:w-full lg:h-full xs:w-full  lg:gap-4  lg:p-4  text-white  ">
+      <div className="lg:w-[60%] xl:w-1/3  relative  ">
         <ResponsiveContainer width="100%" height="100%" >
-          <PieChart>
+          <PieChart >
           <defs>
         <linearGradient id="gradient1" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#007BEC" />
@@ -33,6 +40,7 @@ const WeeklyStatsDashboard = () => {
         </linearGradient>
       </defs>
             <Pie
+              xlinkTitle="chart"
               blendStroke={true} 
               data={donutData}
               cx="50%"
@@ -67,6 +75,7 @@ const WeeklyStatsDashboard = () => {
       <ResponsiveContainer width="100%" height="100%">
         <PureComponent />
       </ResponsiveContainer>
+    </div>
     </div>
     </div>
   );

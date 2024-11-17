@@ -1,14 +1,29 @@
 /** @type {import('tailwindcss').Config} */
+const flowbite = require("flowbite-react/tailwind");
 module.exports = {
   content: [
     "./app/**/*.{ts,js,tsx,jsx}",
     "./components/**/*.{ts,js,tsx,jsx}",
+    flowbite.content(),
   ],
   theme: {
     extend: {
+      textShadow: {
+        sm: '1px 1px 2px rgba(0, 0, 0, 0.5)',
+        lg: '2px 2px 4px rgba(0, 0, 0, 0.5)',
+      },
       fontFamily: {
-        'Bebas': ['Nabla', 'system-ui'], // Custom font family
-        'loby': ['Faculty Glyphic', 'sans-serif'], // Custom font family
+        'Bebas': ['Nabla', 'system-ui'],
+        'barcade': ['Barcade', 'sans-serif'], 
+        'loby': ['Faculty Glyphic', 'sans-serif'], 
+        'Earth': ['Earth Orbiter', 'sans-serif'], 
+        'Pilot': ['Pilot Command', 'sans-serif'], 
+        'Veritas': ['Veritas Sans', 'sans-serif'], 
+        'Informative': ['Informative', 'sans-serif'], 
+        'Warriot': ['Warriot Tech', 'sans-serif'], 
+        'NeverMind': ['NeverMind Bauhaus', 'sans-serif'], 
+        'Orion': ['Flexsteel', 'sans-serif'], 
+        
       },
       animation: {
         'scale-down': 'scaleDown 0.5s ease-in-out forwards',
@@ -55,7 +70,7 @@ module.exports = {
         '4xl': '2000px',
       },
       backgroundImage: {
-        'main-bg': "url('/images/Main-Background.png')",
+        'main-bg': "url('/images/bg.jpeg')",
         'hover-bg' : "url(/images/cup.png)",
         'custom-gradient': 'linear-gradient(180deg, rgba(26, 31, 38, 0.7) 0%, rgba(0, 0, 0, 0.5) 100%)',
       },
@@ -67,6 +82,7 @@ module.exports = {
   },
   plugins: [
     require('tailwind-scrollbar'),
+    flowbite.plugin(),
   ],
 }
 

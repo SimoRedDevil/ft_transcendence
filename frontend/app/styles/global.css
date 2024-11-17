@@ -84,10 +84,29 @@ border-radius: 50px;
 }
 
 
+.profile_img{
+  
+  border-radius: 30px 0px 0px 30px;
+}
+
 .user_info{
-background: linear-gradient(360deg, rgba(0, 0, 0, 0.5) 0%, rgba(41, 59, 69, 0.7) 100%);
-border: 1px solid rgba(255, 255, 255, 0.2);
-border-radius: 30px;
+  background: linear-gradient(360deg, rgba(0, 0, 0, 0.5) 0%, rgba(41, 59, 69, 0.7) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 30px;
+  /* animation: in 2sec ease-in; */
+}
+@keyframes slideIn {
+  0% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.game_info{
+/* border-radius: 50px; */
+animation: slideIn 2s  infinite;
 }
 .container{
 
@@ -182,15 +201,195 @@ border-radius: 30px 30px 30px 30px;
 }
 @keyframes lobby-up {
   0% {
-    transform: translatex(-80px);
+    transform: translateX(-80px);
     opacity: 0;
   }
   100% {
-    transform: translateY(0);
+    transform: translateX(0);
     opacity: 1;
   }
 }
 
 .scale-lobby {
   animation: lobby-up  3s ease-in-out forwards;
+}
+
+@media (max-height: 100%) {
+  .fixed-height-container {
+        padding-top: 150px;
+  }
+}
+
+
+
+
+.mask-gradient {
+  -webkit-mask-image: linear-gradient(to right, white 30%, transparent);
+  mask-image: linear-gradient(to right, white 30%, transparent);
+}
+
+
+
+@keyframes trophy {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(5);
+    display: none;
+  }
+}
+.trophy {
+  display: inline-block;
+  animation: trophy 1.5s ease-in-out  forwards ;
+}
+::-webkit-scrollbar{
+  display: none;
+}
+@keyframes trophy-bg {
+  0% {
+  }
+  100% {
+    background-color: rgba(0, 0, 0, 0.592);
+    display: none;
+  }
+}
+.bg-t{
+  animation: trophy-bg 1.5s ease-in forwards;
+}
+
+@keyframes trophy-text {
+  0% {
+    transform: scale(0.8);
+  }
+  100% {
+      transform: scale(1.09);
+  }
+}
+.text-winner{
+  animation: trophy-text 1.5s ease-in forwards;
+}
+@keyframes trophy-card {
+  0% {
+        transform: scale(2);
+      }
+      100% {
+        transform: scale(1);
+        display: flex;
+        transform: translateY(0px);
+  }
+}
+.trophy-card{
+  animation: trophy-card 2s ease-in-out forwards;
+}
+
+@keyframes text-in{
+  0%{
+    transform: translate
+  }
+  100%{
+    transform: translateX(0px);
+    transform: translateY(0px);
+  }
+}
+
+.landin-anim {
+  animation: text-in 2s ease-in forwards;
+}
+@keyframes lights {
+  0% {
+    color: hsl(230, 40%, 80%);
+    text-shadow:
+      0 0 1em #bff1fafb,
+      0 0 0.125em #bff1fafb,
+      -1em -0.125em 0.5em hsla(40, 100%, 60%, 0),
+      1em 0.125em 0.5em hsla(200, 100%, 60%, 0);
+  }
+  
+  30% { 
+    color: hsl(230, 80%, 90%);
+    text-shadow:
+      0 0 1em #bff1fafb,
+      0 0 0.125em #bff1fafb,
+      -0.5em -0.125em 0.25em #bff1fafb,
+      0.5em 0.125em 0.25em hsla(200, 100%, 60%, 0.4);
+  }
+  
+  40% { 
+    color: hsl(230, 100%, 95%);
+    text-shadow:
+      0 0 1em #bff1fafb,
+      0 0 0.125em #bff1fafb,
+      -0.25em -0.125em 0.125em #bff1fafb,
+      0.25em 0.125em 0.125em hsla(200, 100%, 60%, 0.4);
+  }
+  
+  70% {
+    color: hsl(230, 80%, 90%);
+    text-shadow:
+      0 0 1em #bff1fafb,
+      0 0 0.125em #bff1fafb,
+      0.5em -0.125em 0.25em hsla(40, 100%, 60%, 0.2),
+      -0.5em 0.125em 0.25em hsla(200, 100%, 60%, 0.4);
+  }
+  
+  100% {
+    color: hsl(230, 40%, 80%);
+    text-shadow:
+      0 0 1em #bff1fafb,
+      0 0 0.125em #bff1fafb,
+      1em -0.125em 0.5em hsla(40, 100%, 60%, 0),
+      -1em 0.125em 0.5em hsla(200, 100%, 60%, 0);
+  }
+  
+}
+.typewriter-animation {
+      animation: lights 5s 750ms linear infinite;
+}
+.shado{
+  text-shadow: #bff1fafb 1px 0 10px;
+}
+.shado-b{
+  box-shadow: #bff1fafb 1px 0 10px;
+}
+
+
+@keyframes up_v {
+  0%{
+    transform: translateY(-200px);
+  }
+  100%{
+    transform: translateY(0px);
+  }
+}
+
+
+
+.up{
+  animation: up_v 2s  forwards;
+}
+@keyframes down_s {
+  0%{
+    transform: translateY(200px);
+  }
+  100%{
+    transform: translateY(0px);
+  }
+}
+.down{
+  animation: down_s 2s  forwards;
+  
+}
+@keyframes middle {
+  0%{
+    rotate: 12deg;
+    transform: translateX(100px);
+  }
+  100%{
+    rotate: 12deg;
+    transform: translateX(0px);
+  }
+}
+.middle{
+    animation: middle 2s forwards;
 }

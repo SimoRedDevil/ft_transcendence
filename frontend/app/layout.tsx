@@ -9,7 +9,7 @@ import { UserProvider, UserContext } from '../components/context/usercontext';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const exclude = ['/login'];
+    const exclude = ['/login', '/landing'];
     const router = useRouter();
 
     return (
@@ -28,7 +28,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Bowlby+One&family=Itim&family=Lilita+One&display=swap" rel="stylesheet" />
                     <link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic&display=swap" rel="stylesheet"></link>
                     <link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic&display=swap" rel="stylesheet"></link>
-
+                    <link href="https://fonts.cdnfonts.com/css/barcade" rel="stylesheet" />
+                    <link href="https://fonts.cdnfonts.com/css/barcade" rel="stylesheet" />
+                    <link href="https://fonts.cdnfonts.com/css/earth-orbiter" rel="stylesheet" />
+                    <link href="https://fonts.cdnfonts.com/css/pilot-command" rel="stylesheet" />
+                    <link href="https://fonts.cdnfonts.com/css/landepz-glitch" rel="stylesheet" />
+                    <link href="https://fonts.cdnfonts.com/css/veritas-sans" rel="stylesheet" />
+                    <link href="https://fonts.cdnfonts.com/css/informative" rel="stylesheet" />
+                    <link href="https://fonts.cdnfonts.com/css/warriot-tech" rel="stylesheet" />
+                    <link href="https://fonts.cdnfonts.com/css/nevermind-bauhaus" rel="stylesheet" /> 
+                    <link href="https://fonts.cdnfonts.com/css/a-space-demo" rel="stylesheet" />
+                    <link href="https://fonts.cdnfonts.com/css/flexsteel" rel="stylesheet" />
+                
+                
+                
+                
+                
+                
+                
+                
+                
                     <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
@@ -73,7 +92,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
     }
 
     return (
-        <div className="bg-main-bg border border-black w-screen h-full bg-cover bg-no-repeat bg-center fixed min-w-[280px] min-h-[800px]">
+        <div className="bg-main-bg border backdrop-blur border-black w-screen h-full bg-cover bg-no-repeat bg-center fixed min-w-[280px] min-h-[1170px]">
             {/* Render Header if pathname is not in exclude list */}
             {!exclude.includes(pathname) && (
                 <div className="h-[100px]">

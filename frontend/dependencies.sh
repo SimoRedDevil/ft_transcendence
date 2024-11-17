@@ -18,3 +18,4 @@ npm install chart.js react-chartjs-2
 npm install axios
 npm install recharts
 npm i rc-progress
+npm install tailwindcss-textshadow

@@ -51,14 +51,14 @@ const TwofaVerify = () => {
 
   return (
     <form onSubmit={handleSubmit}
-    className="flex flex-col items-center justify-center h-screen w-screen z-[100]"
+    className="flex flex-col items-center justify-center h-screen w-screen min-h-[800px] overflow-hidden"
     >
       <div
-        className="flex items-center justify-center h-[720px] w-full laptop:w-[850px]
-        tablet:w-[620px] tablet:h-[770px] desktop:h-[760px] desktop:w-[950px] mobile:w-[500px]
+        className="flex items-center justify-center h-[720px] mb-10 laptop:w-[850px]
+        tablet:w-[620px] tablet:h-[770px] desktop:h-[760px] desktop:w-[950px]
         laptop:h-[770px]  min-w-[500px] overflow-hidden">
         <div
-          className="flex justify-center flex-col h-full w-1/2 max-xl:w-[400px] bg-[#131E24] rounded-l-[20px] text-sm">
+          className="h-full w-1/2 max-sm:w-[70%] max-xl:w-[400px] bg-[#131E24] rounded-l-[20px] text-sm flex justify-center flex-col">
           <img
             className="w-13 h-16 mx-auto mt-[18px]"
             src="/images/logop5.png"

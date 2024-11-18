@@ -22,5 +22,7 @@ urlpatterns = [
     path('refresh/', TokenRefreshView.as_view(), name='refresh-access'),
     path('google/callback/', GoogleLoginCallback.as_view(), name='google_callback'),
     path('delete/', Delete_account.as_view(), name='delete_account'),
+    path('block/', block_user.as_view(), name='block_user'),
+    path('unblock/', unblock_user.as_view(), name='unblock_user')
 
 ]

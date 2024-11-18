@@ -52,7 +52,9 @@ class CustomUser(BaseUser):
     current_xp = models.IntegerField(default=0)
     target_xp = models.IntegerField(default=0)
     online = models.BooleanField(default=False)
+    connection_count = models.IntegerField(default=0)
     friends = models.ManyToManyField('self', blank=True, symmetrical=True)
+    blocked_users = models.ManyToManyField("self", symmetrical=False, blank=True)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'full_name']  # Specify any additional required fields
@@ -60,7 +62,7 @@ class CustomUser(BaseUser):
 
     def __str__(self):
         return self.username
-    
+
     class Meta:
         db_table = 'users'
         db_table = 'users'

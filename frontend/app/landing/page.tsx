@@ -1,5 +1,5 @@
 'use client'
-import { Button } from "flowbite-react";
+// import { Button } from "flowbite-react";
 export default function Home(){
     return(
         <div className="w-full h-full bg-[url('/images/landing1.png')] bg-center bg-cover flex flex-col ">

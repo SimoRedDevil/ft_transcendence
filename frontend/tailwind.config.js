@@ -68,7 +68,7 @@ module.exports = {
         '4xl': '2000px',
       },
       backgroundImage: {
-        'main-bg': "url('/images/bg.jpeg')",
+        'main-bg': "url('/images/Main-Background.png')",
         'hover-bg' : "url(/images/cup.png)",
         'custom-gradient': 'linear-gradient(180deg, rgba(26, 31, 38, 0.7) 0%, rgba(0, 0, 0, 0.5) 100%)',
       },
@@ -80,7 +80,6 @@ module.exports = {
   },
   plugins: [
     require('tailwind-scrollbar'),
-    flowbite.plugin(),
   ],
 }
 

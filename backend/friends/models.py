@@ -1,10 +1,10 @@
 from django.db import models
 from authentication.models import CustomUser
 
-
 # Create your models here.
 
 class FriendRequest(models.Model):
+    id = models.AutoField(primary_key=True)
     sender = models.ForeignKey('authentication.CustomUser', related_name='friend_requests_sent', on_delete=models.CASCADE)
     receiver = models.ForeignKey('authentication.CustomUser', related_name='friend_requests_received', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -33,15 +33,3 @@ class FriendRequest(models.Model):
         self.status = 'R'
         self.save()
         return True
-
-class Friend(models.Model):
-    id = models.AutoField(primary_key=True)
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    friends = models.ManyToManyField("self", symmetrical=True, blank=True)
-
-    STATUS_CHOICES = [
-        ('F', 'Friend'),
-        ('B', 'Blocked'),
-    ]
-
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='F')

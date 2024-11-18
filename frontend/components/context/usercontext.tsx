@@ -3,6 +3,7 @@ import axios from 'axios';
 import { usePathname, useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import {axiosInstance} from '../../utils/axiosInstance';
 
 export const UserContext = createContext(null);
 
@@ -18,6 +19,7 @@ export const UserProvider = ({ children }) => {
     const [searchInput, setSearchInput] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [searchLoading, setSearchLoading] = useState(false);
+    const [isSearching, setIsSearching] = useState(false);
 
     const API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -51,6 +53,30 @@ export const UserProvider = ({ children }) => {
         }
     };
 
+    const fetchSearchResults = async () => {
+        try {
+          setSearchLoading(true);
+          const res = await axiosInstance.get(`auth/users/`, {
+            params: {
+              search: searchInput
+            }
+          });
+          console.log(res.data);
+          setSearchResults(res.data);
+        } catch (error) {
+          console.log(error);
+        } finally {
+          setSearchLoading(false);
+        }
+      }
+    
+      useEffect(() => {
+        setSearchResults([]);
+        if(searchInput.length > 0) {
+          fetchSearchResults()
+        }
+      }, [searchInput])
+
     useEffect(() => {
         fetchAuthUser();
     }
@@ -72,6 +98,8 @@ export const UserProvider = ({ children }) => {
                                         searchLoading,
                                         setSignupData,
                                         signupData,
+                                        setIsSearching,
+                                        isSearching
                                     }}>
             {children}
         </UserContext.Provider>

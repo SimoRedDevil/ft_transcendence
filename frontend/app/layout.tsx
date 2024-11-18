@@ -14,6 +14,7 @@ import { ToastContainer, toast} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useTranslation } from "react-i18next";
 import { Provider } from "@/components/ui/provider";
+import Image from "next/image";
 
 
 function RootLayout({ children }: any) {
@@ -77,11 +78,32 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
     authUser,
     searchResults,
     searchLoading,
+    isSearching,
+    setIsSearching,
   } = useContext(UserContext);
   const [token, setToken] = useState(null);
   const [notificationClicked, setNotificationClicked] = useState(false);
   const [profileDropDownClicked, setProfileDropDownClicked] = useState(false);
   const { t } = useTranslation();
+
+  useEffect(() => {
+    const globalSocket = () => {
+    const socket = new WebSocket('ws://localhost:8000/ws/authentication/');
+    socket.onopen = () => {
+      console.log('Socket Connected');
+    }
+    socket.onmessage = (e) => {
+      console.log("msg: ", e.data);
+    }
+    socket.onclose = () => {
+      console.log('Socket Closed');
+
+    }
+  }
+  if (pathname != '/login')
+      globalSocket();
+  }
+  , []);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -92,6 +114,17 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
     }
   }, [pathname, isAuthenticated]);
 
+    const handleDocumentClick = (e: any) => {
+        if (e.target.id !== 'notification-id') {
+            setNotificationClicked(false);
+        }
+        if (e.target.id !== 'profile-id') {
+            setProfileDropDownClicked(false);
+        }
+        if (e.target.id !== 'textsearch-id') {
+            setIsSearching(false);
+        }
+    }
 
   useEffect(() => {
     const cookies = document.cookie.split('; ');
@@ -108,15 +141,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
       document.cookie = 'loginSuccess=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;';
     }
   }
-  , [ isAuthenticated ]);
-  const handleDocumentClick = (e: any) => {
-    if (e.target.id !== "notification-id") {
-      setNotificationClicked(false);
-    }
-    if (e.target.id !== "profile-id") {
-      setProfileDropDownClicked(false);
-    }
-  };
+  , []);
 
   useEffect(() => {
     document.addEventListener("click", handleDocumentClick);
@@ -149,20 +174,17 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
         </div>
       )}
 
-      <div className="h-[calc(100%_-_100px)] flex flex-col-reverse sm:flex-row">
-        {!exclude.includes(pathname) && (
-          <div className="flex sm:flex-col w-full sm:w-[100px]">
-            <Sidebar />
-          </div>
-        )}
-
-        <div className="h-[calc(100%_-_100px)] w-full">
-          <Toaster position="top-center" reverseOrder={false} />
-          {/*
-                {/*
-                {
-                    (isAuthenticated) &&
-                (
+            <div className="h-[calc(100%_-_100px)] flex flex-col-reverse sm:flex-row">
+                {/* Render Sidebar if pathname is not in exclude list */}
+                {!exclude.includes(pathname) && (
+                    <div className="flex sm:flex-col w-full sm:w-[100px]">
+                        <Sidebar />
+                    </div>
+                )}
+                
+                <div className="h-[calc(100%_-_100px)] w-full">
+                    {
+                        (isAuthenticated && isSearching) && (
                             <div className='fixed left-0 flex items-center justify-center w-full h-[600px] text-white'>
                                 <div className='border border-white/40 ml-[-100px] w-[50%] sm:w-[400px] md:w-[500px] lg:w-[600px] 2xl:w-[700px] h-full bg-black bg-opacity-80 rounded-[30px]'>
                                     <div className='border-b border-white/40 p-4'>
@@ -172,10 +194,8 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
                                     {searchResults.map((user: any) => (
                                         <div key={user.id} className='w-full p-4 flex gap-3 items-center hover:bg-white hover:bg-opacity-10 hover:cursor-pointer'>
                                             <div className='w-[50px] h-[50px] rounded-full bg-green-800'>
-                                                <Image src={user.avatar_url} height={50} width={50} alt='avatar' className='rounded-full' />
+                                                <Image src={user?.avatar_url} height={50} width={50} alt='avatar' className='rounded-full' />
                                             </div>
-                                            {/* <Image src={user.avatar_url} height={50} width={50} alt='avatar' className='rounded-full'/> */}
-          {/*
                                             <span>{user.full_name}</span>
                                         </div>
                                     ))} 
@@ -183,7 +203,6 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
                             </div>
                         )
                     }
-                */}
           {isAuthenticated && notificationClicked && <NotificationMenu />}
           {isAuthenticated && profileDropDownClicked && (
             <div className="w-[calc(100%_-_100px)] fixed h-[170px] flex flex-row-reverse">

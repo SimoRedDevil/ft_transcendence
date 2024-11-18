@@ -35,7 +35,7 @@ function Conversations() {
 
   const handleConversationClick = (conversation) => {
     setSelectedConversation(conversation)
-    authUser.username === conversation.user1_info.username ? setOtherUser(conversation.user2_info) : setOtherUser(conversation.user1_info)
+    authUser?.username === conversation.user1_info.username ? setOtherUser(conversation.user2_info) : setOtherUser(conversation.user1_info)
   }
 
   const handleConversationSearch = (e) => {
@@ -56,7 +56,7 @@ function Conversations() {
   }
 
   const returnConversationImage = (conversation) => {
-    let otherUser = authUser.username === conversation.user1_info.username ? conversation.user2_info : conversation.user1_info
+    let otherUser = authUser?.username === conversation.user1_info.username ? conversation.user2_info : conversation.user1_info
     return otherUser?.avatar_url
   }
 
@@ -65,7 +65,7 @@ function Conversations() {
             <div className='h-[200px]'>
               <div className='h-[120px] flex gap-4 p-[20px]'>
                 <div className='h-[80px] w-[80px] rounded-full'>
-                  <Image className='rounded-full' src={authUser.avatar_url} width={80} height={80} alt='avatar'/>
+                  <Image className='rounded-full' src={authUser?.avatar_url} width={80} height={80} alt='avatar'/>
                 </div>
                 <div className='flex flex-col justify-center gap-4'>
                   <span className='text-[1rem]'>{authUser?.full_name}</span>
@@ -85,7 +85,7 @@ function Conversations() {
                 </div>
                 <div className='flex flex-col gap-4'>
                   {
-                    authUser.username === conversation.user1_info.username ?
+                    authUser?.username === conversation.user1_info.username ?
                     <span className='text-[1rem]'>{conversation.user2_info.full_name}</span> :
                     <span className='text-[1rem]'>{conversation.user1_info.full_name}</span>
                   }

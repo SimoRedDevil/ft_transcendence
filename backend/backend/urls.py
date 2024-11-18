@@ -28,6 +28,7 @@ urlpatterns = [
     path('players/', get_all_players),
     path('matches/', get_all_matches),
     path('api/friends/', include('friends.urls')),
+    path('api/notifications/', include('notification.urls')),
     
 ]+ static(settings.QRCODE_URL, document_root=settings.QRCODE_ROOT)
 

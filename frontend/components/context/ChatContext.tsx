@@ -36,13 +36,14 @@ export const ChatProvider = ({ children }) => {
     }, []);
 
     useEffect(() => {
-        ws.current = new WebSocket('ws://localhost:8000/chat/');
+        ws.current = new WebSocket('ws://localhost:8000/ws/chat/');
         ws.current.onopen = () => {
-            console.log('Connected to the chat server');
+            
         };
         ws.current.onmessage = (message) => {
             const newMessage = JSON.parse(message.data);
             if (newMessage.type === 'message') {
+                console.log('New message:', newMessage);
                 setMessages((prevMessages) => [...prevMessages, newMessage]);
                 setConversations((prevConversations) => {
                     const updatedConversations = prevConversations.map((conversation) =>
@@ -67,7 +68,7 @@ export const ChatProvider = ({ children }) => {
             console.log('Disconnected from the chat server');
         };
         ws.current.onerror = (error) => {
-            // console.error('Error:', error);
+            console.error('Error:', error);
         };
         return () => {
             ws.current.readyState === WebSocket.OPEN && ws.current.close();

@@ -8,27 +8,27 @@ import { truncateMessage } from '../../utils/tools';
 import { ChatProvider } from '../../components/context/ChatContext';
 
 function ChatPage() {
-  const socket = useRef(null)
   const [other_user, setOtherUser] = useState(null)
+  // const socket = useRef(null)
 
-  useEffect(() => {
-    socket.current = new WebSocket('ws://localhost:8000/chat/')
-    socket.current.onopen = () => {
-      console.log('Connected to the chat server')
-    }
-    socket.current.onmessage = (message) => {
-      const newMessage = JSON.parse(message.data)
-    }
-    socket.current.onclose = () => {
-      console.log('Disconnected from the chat server')
-    }
-    socket.current.onerror = (error) => {
-      console.log('Error: ', error)
-    }
-    return () => {
-      socket.current.readyState === WebSocket.OPEN && socket.current.close()
-    }
-  }, [])
+  // useEffect(() => {
+  //   socket.current = new WebSocket('ws://localhost:8000/ws/chat/')
+  //   socket.current.onopen = () => {
+  //     console.log('Connected to the chat server')
+  //   }
+  //   socket.current.onmessage = (message) => {
+  //     const newMessage = JSON.parse(message.data)
+  //   }
+  //   socket.current.onclose = () => {
+  //     console.log('Disconnected from the chat server')
+  //   }
+  //   socket.current.onerror = (error) => {
+  //     console.log('Error: ', error)
+  //   }
+  //   return () => {
+  //     socket.current.readyState === WebSocket.OPEN && socket.current.close()
+  //   }
+  // }, [])
   return (
     <ChatProvider>
     <div className='w-full h-full flex items-center justify-center'>
@@ -36,18 +36,19 @@ function ChatPage() {
         <Conversations />
         <Chat />
       </div>
-      <div className='border h-[100px] w-[200px] text-white'>
+      {/* <div className='border h-[100px] w-[200px] text-white'>
         <button onClick={
           async () => {
             socket.current.send(JSON.stringify({
-              'content': 'Hello youssri, how are you?',
-              'sent_by_user': 'yoel-bas',
-              'sent_to_user': 'rel-isma',
-              'conversation_id': '-1'
+              'content': 'Faayn akhay abdellah',
+              'sent_by_user': 'ABDE',
+              'sent_to_user': 'aben-nei',
+              'conversation_id': '-1',
+              'type': 'message'
             }))
           }
         }>initial message</button>
-      </div>
+      </div> */}
     </div>
     </ChatProvider>
   )

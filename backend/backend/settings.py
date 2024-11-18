@@ -86,6 +86,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'authentication',
+    'notification',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',

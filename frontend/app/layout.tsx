@@ -149,7 +149,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
                 <div className="h-[calc(100%_-_100px)] w-full">
                     {
                         (isAuthenticated && isSearching) && (
-                            <div className='fixed left-0 flex items-center justify-center w-full h-[600px] text-white'>
+                            <div className='z-50 fixed left-0 flex items-center justify-center w-full h-[600px] text-white'>
                                 <div className='border border-white/40 ml-[-100px] w-[50%] sm:w-[400px] md:w-[500px] lg:w-[600px] 2xl:w-[700px] h-full bg-black bg-opacity-80 rounded-[30px]'>
                                     <div className='border-b border-white/40 p-4'>
                                         <span className='text-white text-[20px]'>Search Results</span>

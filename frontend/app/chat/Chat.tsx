@@ -17,8 +17,8 @@ import { axiosInstance } from '../../utils/axiosInstance';
 import { ToastContainer, toast} from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { json } from 'stream/consumers';
-import {getCookies} from "../../components/auth";
-function Chat() {
+
+function Chat({setShowBlockDialog}) {
   const [showEmoji, setShowEmoji] = useState(false)
   const [input, setInput] = useState('')
   const {authUser, loading} = useUserContext()
@@ -98,33 +98,10 @@ function Chat() {
       if (page < pageCount)
         setPage((prevPage) => prevPage + 1)
     }
-    // else if (scrollTop === scroll.scrollHeight - scroll.clientHeight) {
-    //   if (page > 1) {
-    //     setPage((prevPage) => prevPage - 1)
-    //   }
-    // }
   }
 
   const handleBlockUser = async () => {
-    const body = {
-      username: otherUser?.username
-    }
-    try {
-      const cookies = await getCookies();
-      const csrfToken = cookies.cookies.csrftoken;
-      const response = await axios.post('http://localhost:8000/api/auth/block/', body, {
-        headers: {
-          "Content-Type": "application/json",
-          'X-CSRFToken': csrfToken,
-        },
-        withCredentials: true,
-      });
-      if (response.status === 200) {
-        console.log(response.data)
-      }
-    } catch (error) {
-      console.log('error')
-    }
+    setShowBlockDialog(true)
   }
 
   if (selectedConversation === null) return;
@@ -176,11 +153,6 @@ function Chat() {
                         <span className='text-white text-opacity-50 text-[0.8rem]'>{message.get_human_readable_time}</span>
                       </div>
                     </div> : null
-                    // <div key={message.id} className={(message.sent_by_user === authUser?.username || (message.sender !== undefined && message.sender.username === authUser?.username)) ? 'flex flex-row-reverse' : 'flex flex-row'}>
-                    //   <div className={(message.sent_by_user === authUser?.username || (message.sender !== undefined && message.sender.username === authUser?.username)) ? 'bg-[#0D161A]' : 'bg-black'}>
-                    //     <span className='text-white text-opacity-90 p-[20px]'>{message.content}</span>
-                    //   </div>
-                    // </div>
                   )
                 })
               }

@@ -263,7 +263,7 @@ class UserViewSet(viewsets.ModelViewSet):
 def generate_tokens(request):
     user = request.user
     refresh = RefreshToken.for_user(user)
-    res = requests.postf('{URL_BACK}/api/auth/refresh/', data={'refresh': str(refresh),
+    res = requests.post('{URL_BACK}/api/auth/refresh/', data={'refresh': str(refresh),
     'X-CSRFToken': request.COOKIES.get('csrftoken')})
     if res.status_code != 200:
         return Response(status=status.HTTP_401_UNAUTHORIZED)

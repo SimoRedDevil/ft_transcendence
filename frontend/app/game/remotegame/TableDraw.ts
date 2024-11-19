@@ -28,22 +28,22 @@ export function getRandomName(): string {
 
 export function tableDraw(sketch: p5, game_state: {} ,Walls: walls, playerInofo: player): void {
     
-    Score1(sketch, Walls, game_state['player1'].score);
-    Score2(sketch, Walls, game_state['player2'].score);
-    let player1Y = game_state['player1'].y;
-    let player2Y = game_state['player2'].y;
-    let ballY = game_state['ball'].y;
-    let br = 0;
-    let bl = 0;
-    let detailX = 50;
-    let detailY = 50;
-    let br2 = 50;
-    let bl2 = 50;
-    let detailX2 = 0;
-    let detailY2 = 0;
-    let isplayeR2 = playerInofo.player_id === game_state['player2'].chan_name
-    if (isplayeR2) 
+  let player1Y = game_state['player1'].y;
+  let player2Y = game_state['player2'].y;
+  let ballY = game_state['ball'].y;
+  let br = 0;
+  let bl = 0;
+  let detailX = 50;
+  let detailY = 50;
+  let br2 = 50;
+  let bl2 = 50;
+  let detailX2 = 0;
+  let detailY2 = 0;
+  let isplayeR2 = playerInofo.player_id === game_state['player2'].chan_name
+  if (isplayeR2) 
     {
+      Score2(sketch, Walls, game_state['player2'].score);
+      Score1(sketch, Walls, game_state['player1'].score);
       player1Y = 1 - game_state['player1'].y - (Walls.wallsHeight/40) / Walls.wallsHeight;
       player2Y = 1 - game_state['player2'].y - (Walls.wallsHeight/40) / Walls.wallsHeight;
       ballY = 1 - game_state['ball'].y;
@@ -55,6 +55,11 @@ export function tableDraw(sketch: p5, game_state: {} ,Walls: walls, playerInofo:
       bl2 = 0;
       detailX2 = 50;
       detailY2 = 50;
+    }
+    else
+    {
+      Score2(sketch, Walls, game_state['player1'].score);
+      Score1(sketch, Walls, game_state['player2'].score);
     }
     sketch.fill("#00A88C");
     sketch.stroke("#58FFE3");

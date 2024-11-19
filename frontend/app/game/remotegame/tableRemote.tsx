@@ -34,7 +34,7 @@ export default function Table() {
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      socketRef.current = new WebSocket('ws://e2r2p4.1337.ma:8000/ws/game/');
+      socketRef.current = new WebSocket('ws://localhost:8000/ws/game/');
       let Walls : walls = { wallsWidth: canvasRef.current.clientWidth, wallsHeight: canvasRef.current.clientHeight };
       socketRef.current.onopen = () => {
         console.log('WebSocket connected');
@@ -77,7 +77,6 @@ export default function Table() {
         }
         if (data.type === 'game_over') {
           console.log('Game Over');
-          console.log('Winner:', data.winner);
           game_state = {};
           game_channel = '';
         }

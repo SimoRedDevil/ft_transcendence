@@ -90,7 +90,7 @@ export default function Table({onGameEnd}: TableProps) {
                     Player1.score += 1;
                     if (Player1.score == 6) {
                         sketch.noLoop();
-                        onGameEnd('player 2');
+                        onGameEnd('player 1');
                         Player1.score = 0;
                         Player2.score = 0;
                         redirect('/game/tournament');

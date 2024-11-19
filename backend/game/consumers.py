@@ -18,6 +18,8 @@ class paddles:
         self.username = username
         self.playerNu = playerNu
         self.score = 0
+
+        
         
     def to_dict(self):
         return {

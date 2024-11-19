@@ -8,6 +8,7 @@ import { player , ball } from '../app/game/remotegame/Object';
 import { walls } from '../app/game/remotegame/Object';
 import { countdown } from '../app/game/Score';
 import dynamic from 'next/dynamic';
+import { redirect } from 'next/navigation';
 
 
 
@@ -26,13 +27,12 @@ interface GameProps {
     socketRef: WebSocket;
     playernambre: string;
     groupname: string;
-    id : string;
     player_id: string;
-    aliasname: string;
+    onGameEnd: (winner: string, number: string) => void;
 }
 
 
-export default function TableGame({ playerna, socketRef, playernambre, groupname , id , player_id, aliasname}: GameProps) {
+export default function TableGame({ playerna, socketRef, playernambre, groupname ,  player_id, onGameEnd}: GameProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
 //   const {users, loading} = useUserContext();
   const [gameStarted, setGameStarted] = useState(false);
@@ -43,7 +43,7 @@ export default function TableGame({ playerna, socketRef, playernambre, groupname
   
   useEffect(() => {
     playerInfo.player_id = player_id;
-    playerInfo.name = aliasname;
+    playerInfo.name = playerna;
     if (typeof window !== 'undefined') {
 
       let Walls : walls = { wallsWidth: canvasRef.current.clientWidth, wallsHeight: canvasRef.current.clientHeight };
@@ -57,19 +57,17 @@ export default function TableGame({ playerna, socketRef, playernambre, groupname
                             sp: 8 / Walls.wallsWidth,
                             dirY: 5/ Walls.wallsHeight,
                             Walls: Walls,
-                            id_channel: id,
+                            id_channel: player_id,
+                            playernambre: playernambre,
                             groupname: groupname};
-        socketRef.send(JSON.stringify({ type: 'match_tour', data: firtsData }));
+      socketRef.send(JSON.stringify({ type: 'match_tour', data: firtsData }));
       socketRef.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.type === 'start_game') {
-          console.log('Game Startedddddd');
           game_state = data.game_serialized;
-          console.log(game_state);
           game_channel = data.name_channel;
           socketIsOpen = true;
           setGameStarted(true);
-
         }
         if (data.type === 'paddle_update') {
           if (data.playernumber === 1)
@@ -83,16 +81,10 @@ export default function TableGame({ playerna, socketRef, playernambre, groupname
           game_state['player2'] = data.player2;
         }
         if (data.type === 'game_over') {
-          console.log('Game Over');
-          console.log('Winner:', data.winner);
+          onGameEnd(data['winner'].username, data['winner'].playernambertour);
           game_state = {};
           game_channel = '';
         }
-      };
-
-      socketRef.onclose = (event) => {
-        console.log('WebSocket closed:', event);
-        socketIsOpen = false;
       };
 
       socketRef.onerror = (event: Event) => {

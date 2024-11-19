@@ -107,9 +107,9 @@ export default function Security() {
         overflow-y-auto no-scrollbar overflow-x-hidden laptop:flex-row">
       <div
         className=" bg-[#1A1F26] bg-opacity-50 border-[0.5px] border-white border-opacity-40 
-                rounded-[50px] w-[90%] tablet:w-[90%] flex desktop:h-[620px] desktop:w-[1400px]
+                rounded-[50px] w-[90%] tablet:w-[90%] flex desktop:h-[580px] desktop:w-[1400px]
                 flex-col tablet:flex-col laptop:flex-row tablet:mt-12 items-center justify-center
-                mt-5 laptop:h-[700px] laptop:ml-10 mx-2 tablet:pt-5 desktop:mx-5
+                mt-5 laptop:h-[700px] laptop:ml-10 mx-2 tablet:pt-5 desktop:mx-5 overflow-hidden
                 "
       >
         <div

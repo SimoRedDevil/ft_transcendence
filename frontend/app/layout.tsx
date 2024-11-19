@@ -100,10 +100,10 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
 
     }
   }
-  if (pathname != '/login')
+    if (pathname !== '/login' && pathname !== '/twofa') 
       globalSocket();
   }
-  , []);
+  , [pathname]);
 
   useEffect(() => {
     if (isAuthenticated) {

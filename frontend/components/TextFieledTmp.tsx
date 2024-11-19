@@ -65,7 +65,8 @@ function TextFieldTmp({ title, label1, label2, label3, type, values, setValues }
       const fieldKey = labelMappings[t(label.toLowerCase().replace(" ", "_"))] || label.toLowerCase().replace(" ", "_");
       return (
         <div key={label} className="flex flex-col items-start w-full pl-5">
-          <h1 className="text-white w-full opacity-70 laptop:text-[22px] tablet:text-[18px] text-[20px] text-start">
+          <h1 className="text-white w-full opacity-70 laptop:text-[22px]
+              tablet:text-[18px] text-[20px] text-start">
             {label}
           </h1>
           <input

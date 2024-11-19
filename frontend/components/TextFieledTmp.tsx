@@ -74,7 +74,8 @@ function TextFieldTmp({ title, label1, label2, label3, type, values, setValues }
             value={values[fieldKey] || ""}
             onChange={(e) => handleChange(e, fieldKey)}
             disabled={fieldKey === "email" || fieldKey === "username"}
-            className={`w-[90%] laptop:h-[70px] rounded-[50px] mt-2 bg-white bg-opacity-10 text-white p-4 border-[0.5px] border-gray-500 focus:outline-none h-[50px] mb-3 tablet:w-[90%] 
+            className={`w-[90%] laptop:h-[70px] rounded-[50px] mt-2 bg-white bg-opacity-10 text-white p-4 border-[0.5px] border-gray-500
+                focus:outline-none h-[50px] mb-3 tablet:w-[95%] 
               ${fieldKey === "email" || fieldKey === "username" ? "opacity-50" : "opacity-100"}`}
           />
         </div>
@@ -88,10 +89,10 @@ function TextFieldTmp({ title, label1, label2, label3, type, values, setValues }
 
       <div>{renderInputFields([label1, label2, label3])}</div>
 
-      <div className="flex flex-col items-center w-full mb-10">
+      <div className="flex  justify-center w-full mb-10">
         <button onClick={handleSubmit} className="rounded-[50px] border-[0.5px] border-white border-opacity-40
-          desktop:h-[80px] bg-gradient-to-r from-[#1A1F26]/90 to-[#000]/70 laptop:w-[80%] w-[85%] mb-3 laptop:h-[60px]
-          tablet:h-[50px] h-[50px] tablet:w-[75%]">
+          desktop:h-[80px] bg-gradient-to-r from-[#1A1F26]/90 to-[#000]/70  w-[85%] mb-3 laptop:h-[60px]
+          tablet:h-[50px] h-[50px] tablet:w-[90%]">
           <h1 className="text-[22px] text-center">Submit</h1>
         </button>
       </div>

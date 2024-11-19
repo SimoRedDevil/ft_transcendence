@@ -37,6 +37,8 @@ fclean:
 	@rm -rf  frontend/node_modules
 	@docker system prune -a -f
 	@docker builder prune -a -f
+	@docker volume prune -f
+	@docker network prune -f
 
 
 re: fclean all

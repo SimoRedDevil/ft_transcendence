@@ -71,7 +71,6 @@ class Game(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         if data['type'] == 'connection':
             username = data['data']['username']
-            print(username)
             
             existPlayer = await sync_to_async(Player.objects.filter(username=username).exists)()
             if not existPlayer:
@@ -109,7 +108,7 @@ class Game(AsyncWebsocketConsumer):
                     {
                         'type': 'paddle_update',
                         'paddle': self.games[game_channel][player_id].to_dict(),
-                        'playernumber': self.games[game_channel][player_id].playerNu
+                        'playernumber': self.games[game_channel][player_id].playerNu,
                     }
                 )
     

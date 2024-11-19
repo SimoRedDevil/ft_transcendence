@@ -37,6 +37,7 @@ module.exports = {
       colors: {
         'deepSeaBlue': '#0B4464',
         'paddlefill': '#00A88C',
+        'strockpadlani': '#00A88C',
         'paddlestroke': '#58FFE3',
       },
       keyframes: {

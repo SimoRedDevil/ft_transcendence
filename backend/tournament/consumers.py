@@ -18,6 +18,8 @@ class paddles:
         self.playerNu = playerNu
         self.score = 0
         
+        
+        
     def to_dict(self):
         return {
             'x': self.x,
@@ -31,6 +33,7 @@ class paddles:
             'username': self.username,
             'score': self.score
         }
+
         
 class ball:
     def __init__(self, x, y, radius, dirrectionY, speed,color):
@@ -56,9 +59,12 @@ class ball:
 class Tournament(AsyncWebsocketConsumer):
 
     players = []
+    Tournaments = {}
     tour_players = []
-    match_making = []
     players_tournament = []
+    match1 = {}
+    match2 = {}
+    final_match = {}
     paddles = {}
     games = {}
     Ball = {}
@@ -74,33 +80,38 @@ class Tournament(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         if data['type'] == 'connection':
             self.player = {
-                'name': data['data']['username'],
+                'name': data['playerName'],
                 'id': self.channel_name,
                 'player_id': '',
                 'group_name': ''
             }
-            Tournament.players.append(self.player)
-            Tournament.players_tournament.append(self.player)
-            Tournament.match_making.append(self.player)
+            self.players.append(self.player)
+            self.players_tournament.append(self.player)
             await self.send(text_data=json.dumps({
                 'type': 'connection',
                 'player': self.player
             }))
-            await self.create_tournament()
-        if data['type'] == 'matchmaking':
-            Tournament.players_tournament.append(self.player)
-            if len(Tournament.players_tournament) == 4:
-                player1 = Tournament.players_tournament.pop(0)
-                player2 = Tournament.players_tournament.pop(0)
-                
-            
-            
-            
-            
-            
-            
-            
-            
+            if len(self.players_tournament) >= 4:
+                for player in self.players_tournament:
+                    self.group_name_tournament += f'{player["name"]}'
+                for _ in range(4):
+                    player = self.players_tournament.pop(0)
+                    Tournament.tour_players.append(player)
+                    player['group_name'] = self.group_name_tournament
+                    player['player_id'] = f'player{_+1}'
+                    await self.channel_layer.group_add(
+                        self.group_name_tournament,  
+                        player['id']
+                    )
+                Tournament.Tournaments[self.group_name_tournament] = self.tour_players
+                await self.channel_layer.group_send(
+                    self.group_name_tournament,  
+                    {
+                        'type': 'tournament_start',
+                        'players': self.tour_players
+                    }
+                )
+    
         if data['type'] == 'move':
             game_channel = data.get('game_channel')
             player_id = self.player.get('player_id')
@@ -121,10 +132,90 @@ class Tournament(AsyncWebsocketConsumer):
                     {
                         'type': 'paddle_update',
                         'paddle': self.games[game_channel][player_id].to_dict(),
-                        'playernumber': self.games[game_channel][player_id].playerNu
+                        'playernumber': self.games[game_channel][player_id].playerNu,
                     }
                 )
     
+        if data['type'] == 'match_tour':
+            if data['data']['playerNumber'] == 'player1' or data['data']['playerNumber'] == 'player2':
+                if data['data']['groupname'] not in self.match1:
+                    self.match1[data['data']['groupname']] = []
+                self.match1[data['data']['groupname']].append(data['data'])
+                if len(self.match1[data['data']['groupname']]) == 2:
+                    match_name = f"{self.match1[data['data']['groupname']][0]['username']}vs{self.match1[data['data']['groupname']][1]['username']}"
+                    await self.channel_layer.group_add(
+                        match_name,
+                        self.match1[data['data']['groupname']][0]['id_channel']
+                    )
+                    await self.channel_layer.group_add(
+                        match_name,
+                        self.match1[data['data']['groupname']][1]['id_channel']
+                    )
+                    player1 = self.match1[data['data']['groupname']][0]
+                    player2 = self.match1[data['data']['groupname']][1]
+                    self.paddles['player1'] = paddles(data['data']['x'],data['data']['y1'], data['data']['pw'], data['data']['ph'] ,data['data']['sp'], 'white', player1['id_channel'], 1, player1['username'])
+                    self.paddles['player2'] = paddles(data['data']['x'],data['data']['y2'],data['data']['pw'], data['data']['ph'], data['data']['sp'], 'white', player2['id_channel'], 2, player2['username'])
+                    self.Ball = ball(0.5, 0.5, data['data']['Walls']['wallsHeight']/25/2/data['data']['Walls']['wallsHeight'], data['data']['dirY'], data['data']['sp'] ,'white')
+                    self.games[match_name] = {
+                        'player1' : self.paddles['player1'],
+                        'player2' : self.paddles['player2'],
+                        'ball' : self.Ball,
+                    }
+                    game_serialized = {
+                        'player1': self.games[match_name]['player1'].to_dict(),
+                        'player2': self.games[match_name]['player2'].to_dict(),
+                        'ball': self.games[match_name]['ball'].to_dict()
+                    }
+                    await self.channel_layer.group_send(
+                        match_name,
+                        {
+                            'type': 'start_game',
+                            'players': [player1, player2],
+                            'name_channel': match_name,
+                            'game_serialized': game_serialized, 
+                        }
+                    )
+                    asyncio.create_task(self.update_ball_loop(match_name))
+            if data['data']['playerNumber'] == 'player3' or data['data']['playerNumber'] == 'player4':
+                if data['data']['groupname'] not in self.match2:
+                    self.match2[data['data']['groupname']] = []
+                self.match2[data['data']['groupname']].append(data['data'])
+                if len(self.match2[data['data']['groupname']]) == 2:
+                    match_name = f"{self.match2[data['data']['groupname']][0]['username']}vs{self.match2[data['data']['groupname']][1]['username']}"
+                    await self.channel_layer.group_add(
+                        match_name,
+                        self.match2[data['data']['groupname']][0]['id_channel']
+                    )
+                    await self.channel_layer.group_add(
+                        match_name,
+                        self.match2[data['data']['groupname']][1]['id_channel']
+                    )
+                    player1 = self.match2[data['data']['groupname']][0]
+                    player2 = self.match2[data['data']['groupname']][1]
+                    self.paddles['player1'] = paddles(data['data']['x'],data['data']['y1'], data['data']['pw'], data['data']['ph'] ,data['data']['sp'], 'white', player1['id_channel'], 1, player1['username'])
+                    self.paddles['player2'] = paddles(data['data']['x'],data['data']['y2'],data['data']['pw'], data['data']['ph'], data['data']['sp'], 'white', player2['id_channel'], 2, player2['username'])
+                    self.Ball = ball(0.5, 0.5, data['data']['Walls']['wallsHeight']/25/2/data['data']['Walls']['wallsHeight'], data['data']['dirY'], data['data']['sp'] ,'white')
+                    self.games[match_name] = {
+                        'player1' : self.paddles['player1'],
+                        'player2' : self.paddles['player2'],
+                        'ball' : self.Ball,
+                    }
+                    game_serialized = {
+                        'player1': self.games[match_name]['player1'].to_dict(),
+                        'player2': self.games[match_name]['player2'].to_dict(),
+                        'ball': self.games[match_name]['ball'].to_dict()
+                    }
+                    await self.channel_layer.group_send(
+                        match_name,
+                        {
+                            'type': 'start_game',
+                            'players': [player1, player2],
+                            'name_channel': match_name,
+                            'game_serialized': game_serialized,
+                        }
+                    )
+                    asyncio.create_task(self.update_ball_loop(match_name))
+                    
         if data['type'] == 'update_ball':
             self.Ball.x += self.Ball.directionX
             self.Ball.y += self.Ball.directionY
@@ -134,8 +225,34 @@ class Tournament(AsyncWebsocketConsumer):
                     'type': 'update_ball',
                     'ball': self.Ball.to_dict()
                 }
-            )
-    
+            )           
+            
+    async def start_game(self, event):
+        players = event['players']
+        name_channel = event['name_channel']
+        game_serialized = event['game_serialized']
+
+        await self.send(text_data=json.dumps({
+            'type': 'start_game',
+            'players': players,
+            'name_channel': name_channel,
+            'game_serialized': game_serialized,
+        }))
+        
+        
+    async def paddle_update(self, event):
+        paddle_data = event['paddle']
+        playernumber = event['playernumber']
+        await self.send(text_data=json.dumps({
+            'type': 'paddle_update',
+            'paddle': paddle_data,
+            'playernumber': playernumber
+        }))
+        
+        
+
+
+
     async def disconnect(self, close_code):
         if self.player in Tournament.players:
             other_player_id = 'player1' if self.player['player_id'] == 'player2' else 'player2'
@@ -157,53 +274,14 @@ class Tournament(AsyncWebsocketConsumer):
                     game[other_player_id].chan_name
                 )
                 del self.games[self.player['group_name']]
-                
+    
 
-    async def matchmaking(self, data):
-        if len(Tournament.match_making) >= 2:
-            player1 = Tournament.match_making.pop(0)
-            player1['player_id'] = 'player1'
-            player2 = Tournament.match_making.pop(0)
-            player2['player_id'] = 'player2'
-            self.game_channel = f'game{player1["name"]}vs{player2["name"]}'
-            player1['group_name'] = self.game_channel
-            player2['group_name'] = self.game_channel
-            await self.channel_layer.group_add(
-                self.game_channel,
-                player1['id']
-            )
-            
-            await self.channel_layer.group_add(
-                self.game_channel,
-                player2['id']
-            )
-
-            self.paddles['player1'] = paddles(data['data']['x'],data['data']['y1'], data['data']['pw'], data['data']['ph'] ,data['data']['sp'], 'white', player1['id'], 1, player1['name'])
-            self.paddles['player2'] = paddles(data['data']['x'],data['data']['y2'],data['data']['pw'], data['data']['ph'], data['data']['sp'], 'white', player2['id'], 2, player2['name'])
-            self.Ball = ball(0.5, 0.5, data['data']['Walls']['wallsHeight']/25/2/data['data']['Walls']['wallsHeight'], data['data']['dirY'], data['data']['sp'] ,'white')
-            self.games[self.game_channel] = {
-                'player1' : self.paddles['player1'],
-                'player2' : self.paddles['player2'],
-                'ball' : self.Ball,
-            }
-            await self.update_matchCount(player1['name'])
-            await self.update_matchCount(player2['name'])
-            game_serialized = {
-                'player1': self.games[self.game_channel]['player1'].to_dict(),
-                'player2': self.games[self.game_channel]['player2'].to_dict(),
-                'ball': self.games[self.game_channel]['ball'].to_dict()
-            }
-            await self.channel_layer.group_send(
-                self.game_channel,
-                {
-                    'type': 'start_game',
-                    'players': [player1, player2],
-                    'game_channel': self.game_channel,
-                    'game_serialized': game_serialized,
-                }
-            )
-            asyncio.create_task(self.update_ball_loop(self.game_channel))
-
+    async def tournament_start(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'tournament_start',
+            'players': event['players']
+        }))
+    
     async def colletion(self, player, ball):
         topBall  = ball.y - ball.radius
         topPadd = player.y
@@ -227,7 +305,6 @@ class Tournament(AsyncWebsocketConsumer):
         ball.directionY = direc * ball.speed * math.cos(angle)
         ball.directionX = ball.speed * math.sin(angle)
         
-
     async def update_ball_loop(self, game_channel):
         await asyncio.sleep(3)
         while True:
@@ -254,7 +331,6 @@ class Tournament(AsyncWebsocketConsumer):
                         winer = self.games[game_channel]['player1']
                         loser = self.games[game_channel]['player2']
                         Tscore = winer.score - loser.score
-                        await self.gameOver(game_channel, winer.username, loser.username, winer.chan_name, loser.chan_name, Tscore)
                         break
                 if self.games[game_channel]['ball'].y >= 1:
                     self.games[game_channel]['ball'].directionX = 0
@@ -266,7 +342,6 @@ class Tournament(AsyncWebsocketConsumer):
                         winer = self.games[game_channel]['player2']
                         loser = self.games[game_channel]['player1']
                         Tscore = winer.score - loser.score
-                        await self.gameOver(game_channel, winer.username, loser.username, winer.chan_name, loser.chan_name, Tscore)
                         break
                 await self.channel_layer.group_send(
                     game_channel,
@@ -277,70 +352,9 @@ class Tournament(AsyncWebsocketConsumer):
                         'player2': self.games[game_channel]['player2'].to_dict()
                     }
                 )
-                await asyncio.sleep(1/60)
-    
-    
-    async def create_tournament(self):
-        if len(Tournament.players_tournament) >= 4:
-            for playername in Tournament.players_tournament:
-                self.group_name_tournament += playername['name']
-            for player in Tournament.players_tournament:
-                player['group_name'] = self.group_name_tournament
-            for i , player in enumerate(Tournament.players_tournament, start=1):
-                player['player_id'] = f'player{i}'
-            for player in Tournament.players_tournament:
-                await self.channel_layer.group_add(
-                    player['group_name'],
-                    player['id']
-                )
-            for _ in range(4):
-                player = Tournament.players_tournament.pop(0)
-                self.tour_players.append(player)
-            await self.channel_layer.group_send(
-                player['group_name'],
-                {
-                    'type': 'tournament_start',
-                    'player': self.tour_players
-                }
-            )
-    
-    async def gameOver(self, game_chan ,winer, loser, chan_name1, chan_name2, Tscore):
-        await self.top_score(winer, Tscore)
-        await self.update_winner(winer)
-        await self.update_loser(loser)
-        await self.channel_layer.group_send(
-            game_chan,
-            {
-                'type': 'game_over',
-                'winner': winer
-            }
-        )
-
-        await self.channel_layer.group_discard(
-            game_chan,
-            chan_name1
-        )
-        await self.channel_layer.group_discard(
-            game_chan,
-            chan_name2
-        )
-        del self.games[game_chan]
-        
-    
-    async def tournament_start(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'tournament_start',
-            'players': event['player']
-        }))
-
-    async def start_game(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'start_game',
-            'players': event['players'],
-            'game_channel': event['game_channel'],
-            'game_serialized': event['game_serialized']
-        }))
-    
+                await asyncio.sleep(1/40)
+                
+                
     async def paddle_update(self, event):
         paddle_data = event['paddle']
         playernumber = event['playernumber']
@@ -359,47 +373,4 @@ class Tournament(AsyncWebsocketConsumer):
             'player2': event['player2']
         }))
         
-
-    async def game_over(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'game_over',
-            'winner': event['winner']
-        }))
-    
-    @sync_to_async
-    def create_player(self, username):
-        Player.objects.create(
-                username=username,
-                wins=0,
-                loses=0,
-                topScore=0,
-                currentXP=0,
-                matchCount=0,
-                tournamentCount=0,
-                is_active=True
-            )
-    # @sync_to_async
-    # def update_matchCount(self, username):
-    #     player = Player.objects.get(username=username)
-    #     player.matchCount += 1
-    #     player.save()
         
-    # @sync_to_async
-    # def update_winner(self, username):
-    #     player = Player.objects.get(username=username)
-    #     player.wins += 1
-    #     player.save()
-        
-    # @sync_to_async
-    # def update_loser(self, username):
-    #     player = Player.objects.get(username=username)
-    #     player.loses += 1
-    #     player.save()
-        
-    # @sync_to_async
-    # def top_score(self, username, score):
-    #     player = Player.objects.get(username=username)
-    #     if player.topScore < score:
-    #         player.topScore = score
-    #         player.save()
-            

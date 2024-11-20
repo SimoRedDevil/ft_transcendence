@@ -162,7 +162,8 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
   }
 
   return (
-    <div className="bg-main-bg border border-black w-screen h-full bg-cover bg-no-repeat bg-center fixed min-w-[280px] min-h-[800px]">
+    <div className="bg-main-bg border border-black
+        w-screen h-full bg-cover bg-no-repeat bg-center fixed min-w-[280px] min-h-[800px]">
       {!exclude.includes(pathname) && (
         <div className="h-[100px]">
           <Header
@@ -174,7 +175,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
         </div>
       )}
 
-            <div className="h-[calc(100%_-_100px)] flex flex-col-reverse sm:flex-row">
+            <div className="h-[90%] flex flex-col-reverse sm:flex-row max-sm:justify-center max-sm:items-center">
                 {/* Render Sidebar if pathname is not in exclude list */}
                 {!exclude.includes(pathname) && (
                     <div className="flex sm:flex-col w-full sm:w-[100px]">
@@ -182,7 +183,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
                     </div>
                 )}
                 
-                <div className="h-[calc(100%_-_100px)] w-full">
+                <div className="h-[90%]  w-full flex ">
                     {
                         (isAuthenticated && isSearching) && (
                             <div className='fixed left-0 flex items-center justify-center w-full h-[600px] text-white'>
@@ -207,7 +208,9 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
           {isAuthenticated && profileDropDownClicked && (
             <div className="w-[calc(100%_-_100px)] fixed h-[170px] flex flex-row-reverse">
               <DropDown
-                className="w-[250px] h-[50px] flex items-center border border-white border-opacity-20 cursor-pointer hover:bg-white hover:bg-opacity-10"
+                className="w-[250px] h-[50px] flex items-center border 
+                border-white border-opacity-20 cursor-pointer hover:bg-white
+                hover:bg-opacity-10"
                 items={["View Profile", "Friend Requests", "Logout"]}
               />
             </div>

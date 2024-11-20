@@ -55,7 +55,9 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate}) => {
       if (response.status === 200) {
         setIsAuthenticated(true);
         setTimeout(() => {
-          toast.success(t('Logged In Successfully'));
+          toast.success(t('Logged In Successfully'),
+          
+        );
         }, 400);
         router.push("/");
       }
@@ -87,16 +89,18 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate}) => {
 
 return (
     <motion.form onSubmit={(e) => e.preventDefault()} 
-    className=" flex flex-col items-center justify-center h-screen w-screen min-h-[800px] overflow-hidden">
+    className=" flex flex-col items-center justify-center h-screen w-screen
+      min-h-[800px] overflow-hidden">
       <div
-        className="flex items-center justify-center h-[720px] mb-10 laptop:w-[850px]
+        className="flex items-center justify-center w-full h-[720px] mb-10 laptop:w-[850px]
         tablet:w-[620px] tablet:h-[770px] desktop:h-[760px] desktop:w-[950px]
         laptop:h-[770px]  min-w-[500px] overflow-hidden">
         <motion.div
           initial={{ opacity: 1, x: "50%" }}
           animate={{ opacity: 1, x: "0" }}
           transition={{ duration: 0.6 }}
-          className="h-full w-1/2 max-sm:w-[70%] max-xl:w-[400px] bg-[#131E24] rounded-l-[20px] text-sm">
+          className=" h-full w-1/2 max-sm:w-[70%] max-xl:w-[400px]
+           bg-[#131E24] rounded-l-[20px] text-sm">
           <img
             className="w-13 h-16 mx-auto mt-[18px]"
             src="/images/logop5.png"

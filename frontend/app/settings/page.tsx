@@ -45,14 +45,13 @@ export default function Home() {
                w-screen h-screen ">
         <div className="border-[0.5px] border-white flex sm:h-[85%] laptop:w-[75%] rounded-[50px] border-opacity-40
              bg-black bg-opacity-70 flex-col items-center mobile:w-full tablet:w-[80%] mx-2 w-[90%]
-              tablet:pt-[57px] h-[75%] pb-2 overflow-auto min-w-[300px] min-h-[600px]
+              h-[75%] pb-2 overflow-auto min-w-[300px] min-h-[600px] pt-4
              ">
             <div className=" flex items-center justify-around desktop:w-[73%] desktop:h-[100px]
                             sm:border-[0.5px] border-white border-opacity-40 laptop:h-[80px]
                             sm:rounded-full  tablet:w-[90%]  tablet:h-[60px]
                             w-[90%] rounded-none
                             h-[50px]
-                            mt-5 
                             ">
                 <button onClick={() => setActiveComponent('information')}
                 className={` tablet:bg-[#D9D9D9] bg-opacity-10 rounded-l-[50px]

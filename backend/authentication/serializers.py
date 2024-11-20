@@ -20,6 +20,15 @@ class SignUpSerializer(serializers.ModelSerializer):
                 'min_length': 9,
             },
         }
+    def validate(self, data):
+        username = data.get('username')
+        email = data.get('email')
+        password = data.get('password')
+
+        if username == email or password == email or password == username:
+            raise serializers.ValidationError("username, and email must be unique and not the same.")
+
+        return data
 
     def create(self, validated_data):
         user = CustomUser.objects.create_user(

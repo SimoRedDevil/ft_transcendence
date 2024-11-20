@@ -1,71 +1,178 @@
-'use client';
-import React, { useEffect, useContext } from 'react';
+"use client";
+import React, { useEffect, useContext, useState } from "react";
 import ScaleLoader from "react-spinners/ScaleLoader";
 import "./styles/global.css";
-import { usePathname, useRouter } from 'next/navigation';
-import Header from '../components/Header';
-import Sidebar from '../components/Sidebar';
-import { UserProvider, UserContext } from '../components/context/usercontext';
+import { usePathname, useRouter } from "next/navigation";
+import Header from "../components/Header";
+import Sidebar from "../components/Sidebar";
+import { UserProvider, UserContext } from "../components/context/usercontext";
+import "../i18n";
+import { Toaster } from "react-hot-toast";
+import NotificationMenu from "../components/NotificationMenu";
+import DropDown from "../components/DropDown";
+import { ToastContainer, toast} from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useTranslation } from "react-i18next";
+import { Provider } from "@/components/ui/provider";
+import Image from "next/image";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-    const pathname = usePathname();
-    const exclude = ['/login'];
-    const router = useRouter();
 
-    return (
-        <UserProvider>
-            <html lang="en">
-                <head>
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                    <link rel="preconnect" href="https://fonts.googleapis.com" />
-                    <link rel="preconnect" href="https://fonts.gstatic.com" />
-                </head>
-                <body className="h-screen">
-                    <AuthProtectedLayout pathname={pathname} exclude={exclude} router={router}>
-                        {children}
-                    </AuthProtectedLayout>
-                </body>
-            </html>
-        </UserProvider>
-    );
+function RootLayout({ children }: any) {
+  const pathname = usePathname();
+  const exclude = ["/login", "/twofa"];
+  const router = useRouter();
+
+  return (
+    <UserProvider>
+      <html lang="en">
+        <head>
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+            title="TrueTalk"
+          />
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" />
+          <link href="https://fonts.googleapis.com/css2?family=Chelsea+Market&family=Faculty+Glyphic&family=Nabla&display=swap" rel="stylesheet" />
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" />
+          <link href="https://fonts.googleapis.com/css2?family=Bona+Nova+SC:ital,wght@0,400;0,700;1,400&family=Doto:wght@100..900&display=swap" rel="stylesheet" />
+          <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lilita+One&display=swap" rel="stylesheet" />
+          <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Bowlby+One&family=Itim&family=Lilita+One&display=swap" rel="stylesheet" />
+          <link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic&display=swap" rel="stylesheet"></link>
+          <link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic&display=swap" rel="stylesheet"></link>
+          <link href="https://fonts.cdnfonts.com/css/barcade" rel="stylesheet" />
+          <link href="https://fonts.cdnfonts.com/css/barcade" rel="stylesheet" />
+          <link href="https://fonts.cdnfonts.com/css/earth-orbiter" rel="stylesheet" />
+          <link href="https://fonts.cdnfonts.com/css/pilot-command" rel="stylesheet" />
+          <link href="https://fonts.cdnfonts.com/css/landepz-glitch" rel="stylesheet" />
+          <link href="https://fonts.cdnfonts.com/css/veritas-sans" rel="stylesheet" />
+          <link href="https://fonts.cdnfonts.com/css/informative" rel="stylesheet" />
+          <link href="https://fonts.cdnfonts.com/css/warriot-tech" rel="stylesheet" />
+          <link href="https://fonts.cdnfonts.com/css/nevermind-bauhaus" rel="stylesheet" /> 
+          <link href="https://fonts.cdnfonts.com/css/a-space-demo" rel="stylesheet" />
+          <link href="https://fonts.cdnfonts.com/css/flexsteel" rel="stylesheet" />
+          <title>
+            {pathname.charAt(1).toUpperCase() + pathname.slice(2)}
+          </title>
+        </head>
+        <body className="h-screen">
+          <AuthProtectedLayout
+            pathname={pathname}
+            exclude={exclude}
+            router={router}
+          >
+            {children}
+          </AuthProtectedLayout>
+        </body>
+      </html>
+    </UserProvider>
+  );
 }
 
 function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
-    const {users, loading, isAuthenticated, fetchAuthUser } = useContext(UserContext);
+  const {
+    loading,
+    isAuthenticated,
+    fetchAuthUser,
+    authUser,
+    searchResults,
+    searchLoading,
+    isSearching,
+    setIsSearching,
+  } = useContext(UserContext);
+  const [token, setToken] = useState(null);
+  const [notificationClicked, setNotificationClicked] = useState(false);
+  const [profileDropDownClicked, setProfileDropDownClicked] = useState(false);
+  const { t } = useTranslation();
 
-   // Handle redirection based on authentication
-    useEffect(() => {
-        isAuthenticated && fetchAuthUser()
-        if (isAuthenticated && exclude.includes(pathname)) {
-            router.push('/');
-        }
-        if (!isAuthenticated && exclude.includes(pathname)) {
-            router.push('/login');
-        }
-    }, [isAuthenticated, pathname, router]);
-
-    useEffect(() => {
-        !isAuthenticated && fetchAuthUser();
+  useEffect(() => {
+    const globalSocket = () => {
+    const socket = new WebSocket('ws://localhost:8000/ws/authentication/');
+    socket.onopen = () => {
+      console.log('Socket Connected');
     }
-    , [pathname, router]);
+    socket.onmessage = (e) => {
+      console.log("msg: ", e.data);
+    }
+    socket.onclose = () => {
+      console.log('Socket Closed');
 
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center h-screen w-screen bg-main-bg border
-                border-black bg-cover bg-no-repeat bg-center fixed min-w-[280px] min-h-[800px]">
-                <ScaleLoader color="#949DA2" loading={loading} height={40} width={6} />
-            </div>
-        );
+    }
+  }
+  if (pathname != '/login')
+      globalSocket();
+  }
+  , []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchAuthUser();
+      if (pathname === "/login") {
+        router.push("/");
+      }
+    }
+  }, [pathname, isAuthenticated]);
+
+    const handleDocumentClick = (e: any) => {
+        if (e.target.id !== 'notification-id') {
+            setNotificationClicked(false);
+        }
+        if (e.target.id !== 'profile-id') {
+            setProfileDropDownClicked(false);
+        }
+        if (e.target.id !== 'textsearch-id') {
+            setIsSearching(false);
+        }
     }
 
+  useEffect(() => {
+    const cookies = document.cookie.split('; ');
+    const loginSuccessCookie = cookies.find(cookie => cookie.startsWith('loginSuccess='));
+    if (loginSuccessCookie) {
+      const cookieValue = loginSuccessCookie.split('=')[1];
+      if (cookieValue === 'true') {
+        setTimeout(() => {
+          toast.success(t('Logged In Successfully'));
+        }, 1200);
+      } else if(cookieValue === 'false') {
+        toast.error(t('Something Went Wrong'));
+      }
+      document.cookie = 'loginSuccess=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;';
+    }
+  }
+  , []);
+
+  useEffect(() => {
+    document.addEventListener("click", handleDocumentClick);
+    return () => {
+      document.removeEventListener("click", handleDocumentClick);
+    };
+  }, []);
+
+  if (loading) {
     return (
-        <div className="bg-main-bg border border-black w-screen h-full bg-cover bg-no-repeat bg-center fixed min-w-[280px] min-h-[800px]">
-            {/* Render Header if pathname is not in exclude list */}
-            {!exclude.includes(pathname) && (
-                <div className="h-[100px]">
-                    <Header />
-                </div>
-            )}
+      <div
+        className="flex justify-center items-center h-screen w-screen bg-main-bg border
+                border-black bg-cover bg-no-repeat bg-center fixed min-w-[280px] min-h-[800px]"
+      >
+        <ScaleLoader color="#949DA2" loading={loading} height={40} width={6} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-main-bg border border-black w-screen h-full bg-cover bg-no-repeat bg-center fixed min-w-[280px] min-h-[800px]">
+      {!exclude.includes(pathname) && (
+        <div className="h-[100px]">
+          <Header
+            setNotificationClicked={setNotificationClicked}
+            notificationClicked={notificationClicked}
+            setProfileDropDownClicked={setProfileDropDownClicked}
+            profileDropDownClicked={profileDropDownClicked}
+          />
+        </div>
+      )}
 
             <div className="h-[calc(100%_-_100px)] flex flex-col-reverse sm:flex-row">
                 {/* Render Sidebar if pathname is not in exclude list */}
@@ -74,11 +181,64 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
                         <Sidebar />
                     </div>
                 )}
-
+                
                 <div className="h-[calc(100%_-_100px)] w-full">
-                    {children}
-                </div>
+                    {
+                        (isAuthenticated && isSearching) && (
+                            <div className='fixed left-0 flex items-center justify-center w-full h-[600px] text-white'>
+                                <div className='border border-white/40 ml-[-100px] w-[50%] sm:w-[400px] md:w-[500px] lg:w-[600px] 2xl:w-[700px] h-full bg-black bg-opacity-80 rounded-[30px]'>
+                                    <div className='border-b border-white/40 p-4'>
+                                        <span className='text-white text-[20px]'>Search Results</span>
+                                    </div>
+                                    {searchLoading && <div/>}
+                                    {searchResults.map((user: any) => (
+                                        <div key={user.id} className='w-full p-4 flex gap-3 items-center hover:bg-white hover:bg-opacity-10 hover:cursor-pointer'>
+                                            <div className='w-[50px] h-[50px] rounded-full bg-green-800'>
+                                                <Image src={user?.avatar_url} height={50} width={50} alt='avatar' className='rounded-full' />
+                                            </div>
+                                            <span>{user.full_name}</span>
+                                        </div>
+                                    ))} 
+                                </div>
+                            </div>
+                        )
+                    }
+          {isAuthenticated && notificationClicked && <NotificationMenu />}
+          {isAuthenticated && profileDropDownClicked && (
+            <div className="w-[calc(100%_-_100px)] fixed h-[170px] flex flex-row-reverse">
+              <DropDown
+                className="w-[250px] h-[50px] flex items-center border border-white border-opacity-20 cursor-pointer hover:bg-white hover:bg-opacity-10"
+                items={["View Profile", "Friend Requests", "Logout"]}
+              />
             </div>
+          )}
+          <Provider>
+          {children}
+          </Provider>
+          <ToastContainer
+            position="top-center"
+            autoClose={1000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            pauseOnHover
+            draggable
+            stacked
+            theme="dark"
+            progressStyle={{backgroundColor: "#4cd964"}}
+            style={{
+              fontSize: "10px",
+              textAlign: "center",
+              color: "#fff",
+              width: "400px",
+            }}
+          />
         </div>
-    );
+      </div>
+    </div>
+  );
 }
+
+export default RootLayout;

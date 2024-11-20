@@ -1,40 +1,48 @@
-import React, { createContext, useContext, useState, useEffect, use } from 'react';
+import React, { createContext, useContext, useState, useEffect} from 'react';
 import axios from 'axios';
 import { usePathname, useRouter } from 'next/navigation';
-import { useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import {axiosInstance} from '../../utils/axiosInstance';
 
-
-const UserContext = createContext(null);
+export const UserContext = createContext(null);
 
 export const UserProvider = ({ children }) => {
-    const [users, setUsers] = useState(null);
+    const [authUser, setauthUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [try2fa, setTry2fa] = useState(false);
     const pathname = usePathname();
     const router = useRouter();
+    const [signupData, setSignupData] = useState(null);
+    const [searchInput, setSearchInput] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [searchLoading, setSearchLoading] = useState(false);
+    const [isSearching, setIsSearching] = useState(false);
+
+    const API = process.env.NEXT_PUBLIC_API_URL;
 
     const fetchAuthUser = async () => {
         try {
-            const response = await axios('http://localhost:8000/api/auth/user/', {
+            const response = await axios(`${API}/user/`, {
                 withCredentials: true,
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
             const user = response.data;
-            // while (user || !user) {
-            //     await new Promise((resolve) => setTimeout(resolve, 1000));
-            // }
-            setUsers(user);
+            setauthUser(user);
             if (user) {
                 setIsAuthenticated(true);
-            } else {
+                if (user.enabeld_2fa && !user.is_already_logged)
+                    router.push("/twofa");
+                }
+            else {
                 setIsAuthenticated(false);
                 router.push('/login');
             }
-        } catch (error) {
+            } catch (error) {
             setError(error);
             setIsAuthenticated(false);
             router.push('/login');
@@ -45,58 +53,54 @@ export const UserProvider = ({ children }) => {
         }
     };
 
-    const caallBack42 = async () => {
+    const fetchSearchResults = async () => {
         try {
-            const urls = new URLSearchParams(window.location.search);
-            const error = urls.get('error');
-            error && router.push('/login')
-            const code = urls.get('code');
-            if (code) 
-            {
-                const response = await axios.get(`http://localhost:8000/api/auth/42/callback/?code=${code}`,
-                {
-                    withCredentials: true
-                });
-                if (response.status === 200) {
-                    const user = response.data;
-                    setUsers(user);
-                    if (user) {
-                        setIsAuthenticated(true);
-                        router.push('/');
-                    }
-                }
+          setSearchLoading(true);
+          const res = await axiosInstance.get(`auth/users/`, {
+            params: {
+              search: searchInput
             }
-            } catch (error) {
-                setIsAuthenticated(false);
-                router.push('/login');
-            }
+          });
+          console.log(res.data);
+          setSearchResults(res.data);
+        } catch (error) {
+          console.log(error);
+        } finally {
+          setSearchLoading(false);
         }
+      }
+    
+      useEffect(() => {
+        setSearchResults([]);
+        if(searchInput.length > 0) {
+          fetchSearchResults()
+        }
+      }, [searchInput])
 
-
-    // const  verifyToken = async () => {
-    //     try {
-    //         const response = await axios('http://localhost:8000/api/auth/verify/', {
-    //             withCredentials: true,
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'Token': users.access
-    //             },
-    //         });
-    //     } 
-    //     catch (error) {
-    //         setError(error);
-    //         setIsAuthenticated(false);
-    //         router.push('/login');
-    //     }
-    // }
     useEffect(() => {
-        caallBack42();
-        (users && isAuthenticated) ? fetchAuthUser() : setTimeout(() => {setLoading(false);}, 1000);
+        fetchAuthUser();
     }
     , [pathname] );
-
     return (
-        <UserContext.Provider value={{ users, loading, error, isAuthenticated, fetchAuthUser, setIsAuthenticated, setTry2fa, try2fa}}>
+        <UserContext.Provider value={{
+                                        authUser,
+                                        setauthUser,
+                                        setLoading,
+                                        loading,
+                                        error,
+                                        isAuthenticated,
+                                        fetchAuthUser,
+                                        setIsAuthenticated,
+                                        setTry2fa,
+                                        try2fa,
+                                        setSearchInput,
+                                        searchResults,
+                                        searchLoading,
+                                        setSignupData,
+                                        signupData,
+                                        setIsSearching,
+                                        isSearching
+                                    }}>
             {children}
         </UserContext.Provider>
     );
@@ -110,7 +114,5 @@ export const useUserContext = () => {
     return context;
 };
 
-
-
 // Export the UserContext directly for access in components
-export { UserContext };
+// export { UserContext };

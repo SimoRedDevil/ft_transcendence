@@ -7,6 +7,7 @@ const ChatContext = createContext(null);
 
 export const ChatProvider = ({ children }) => {
     const ws = useRef(null);
+    const chatWindowRef = useRef(null);
 
     const [messages, setMessages] = useState([]);
     const [Conversations, setConversations] = useState(null);
@@ -17,6 +18,9 @@ export const ChatProvider = ({ children }) => {
     const [error, setError] = useState(null);
     const [isMobile, setIsMobile] = useState(false);
     const lastMessageRef = useRef(null);
+    const [otherUserTyping, setOtherUserTyping] = useState(false);
+    const [page, setPage] = useState(1);
+    const [pageCount, setPageCount] = useState(1);
     
     useEffect(() => {
         const checkMobile = () => {
@@ -32,23 +36,33 @@ export const ChatProvider = ({ children }) => {
     }, []);
 
     useEffect(() => {
-        ws.current = new WebSocket('ws://localhost:8000/chat/');
+        ws.current = new WebSocket('ws://localhost:8000/ws/chat/');
         ws.current.onopen = () => {
-            console.log('Connected to the chat server');
+            
         };
         ws.current.onmessage = (message) => {
             const newMessage = JSON.parse(message.data);
-            console.log(newMessage);
-            setMessages((prevMessages) => [...prevMessages, newMessage]);
-            setConversations((prevConversations) => {
-                const updatedConversations = prevConversations.map((conversation) =>
-                    conversation.id === newMessage.conversation_id ? { ...conversation, last_message: newMessage.content } : conversation
-                )
-                const updatedConversation = updatedConversations.find(conv => conv.id === newMessage.conversation_id);
-                const otherConversations = updatedConversations.filter(conv => conv.id !== newMessage.conversation_id);
-                setConversations([updatedConversation, ...otherConversations]);
+            if (newMessage.type === 'message') {
+                console.log('New message:', newMessage);
+                setMessages((prevMessages) => [...prevMessages, newMessage]);
+                setConversations((prevConversations) => {
+                    const updatedConversations = prevConversations.map((conversation) =>
+                        conversation.id === newMessage.conversation_id ? { ...conversation, last_message: newMessage.content } : conversation
+                    )
+                    const updatedConversation = updatedConversations.find(conv => conv.id === newMessage.conversation_id);
+                    const otherConversations = updatedConversations.filter(conv => conv.id !== newMessage.conversation_id);
+                    setConversations([updatedConversation, ...otherConversations]);
+                }
+                );
             }
-            );
+            else if (newMessage.type === 'typing') {
+                // if (newMessage.conversation_id !== selectedConversation.id) return;
+                setOtherUserTyping(true);
+            }
+            else if (newMessage.type === 'stop_typing') {
+                // if (newMessage.conversation_id !== selectedConversation.id) return;
+                setOtherUserTyping(false);
+            }
         };
         ws.current.onclose = () => {
             console.log('Disconnected from the chat server');
@@ -64,10 +78,17 @@ export const ChatProvider = ({ children }) => {
     const fetchMessages = async () => {
         try {
             setMessagesLoading(true);
-            axiosInstance.get(`/chat/messages/`, 
+            axiosInstance.get(`/chat/messages/?page=${page}`, 
                 { params: { conversation_id: selectedConversation.id } }
             ).then((response) => {
-                setMessages(response.data)
+                setPageCount(Math.ceil(response.data.count / 10));
+                response.data.results.reverse();
+                if (page > 1) {
+                    setMessages([...response.data.results, ...messages]);
+                }
+                else {
+                    setMessages(response.data.results);
+                }
             })
         } catch (error) {
             console.error('Error fetching messages:', error);
@@ -107,17 +128,23 @@ export const ChatProvider = ({ children }) => {
         if (selectedConversation) {
             fetchMessages();
         }
-    }, [selectedConversation])
+    }, [selectedConversation, page]);
 
     useEffect(() => {
-        if (messages.length > 0) {
+        if (messages.length > 0 && page === 1) {
             scrollToLastMessage();
+        }
+        else {
+            if (chatWindowRef.current && messagesLoading === false) {
+                chatWindowRef.current.scrollTo(0, 100);
+            }
         }
     }, [messages]);
 
     return (
         <ChatContext.Provider value={{ messages, Conversations, conversationsLoading, messagesLoading,
-            error, selectedConversation, otherUser, ws, isMobile, lastMessageRef, setConversations, fetchMessages, fetchConversations, setSelectedConversation, setOtherUser }}>
+            error, selectedConversation, otherUser, ws, isMobile, lastMessageRef, otherUserTyping, page, pageCount,
+            chatWindowRef, setConversations, fetchMessages, fetchConversations, setSelectedConversation, setOtherUser, setPage }}>
             {children}
         </ChatContext.Provider>
     );

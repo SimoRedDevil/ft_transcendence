@@ -8,11 +8,11 @@ import { truncateMessage } from '../../utils/tools';
 import { ChatProvider } from '../../components/context/ChatContext';
 
 function ChatPage() {
-  // const socket = useRef(null)
   const [other_user, setOtherUser] = useState(null)
+  // const socket = useRef(null)
 
   // useEffect(() => {
-  //   socket.current = new WebSocket('ws://localhost:8000/chat/')
+  //   socket.current = new WebSocket('ws://localhost:8000/ws/chat/')
   //   socket.current.onopen = () => {
   //     console.log('Connected to the chat server')
   //   }
@@ -40,10 +40,11 @@ function ChatPage() {
         <button onClick={
           async () => {
             socket.current.send(JSON.stringify({
-              'content': 'Hello youssri, how are you?',
-              'sent_by_user': 'mel-yous',
-              'sent_to_user': 'yoel-bas',
-              'conversation_id': '-1'
+              'content': 'Faayn akhay abdellah',
+              'sent_by_user': 'ABDE',
+              'sent_to_user': 'aben-nei',
+              'conversation_id': '-1',
+              'type': 'message'
             }))
           }
         }>initial message</button>

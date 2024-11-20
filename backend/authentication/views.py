@@ -4,7 +4,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from django.contrib.auth import login, authenticate, logout
-from .serializers import SignUpSerializer, LoginSerializer, UserSerializer, Intra42UserSerializer
+from .serializers import *
 from .models import CustomUser
 from django.http import JsonResponse
 import requests
@@ -25,35 +25,50 @@ from django.http import HttpResponse
 from urllib.parse import urljoin
 from rest_framework_simplejwt.exceptions import TokenError
 import shutil
+import os
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from dj_rest_auth.registration.views import SocialLoginView
+from django.http import HttpResponseRedirect
+from rest_framework_simplejwt.authentication import JWTAuthentication
+import jwt
+from django.utils.timezone import now
+from rest_framework.decorators import action
+from django.db.models import Q
 
 
-INTRA_42_AUTH_URL = settings.INTRA_42_AUTH_URL
+URL_FRONT = os.getenv('URL_FRONT')
+URL_BACK = os.getenv('URL_BACK')
+
 
 # Sign Up View
 class SignUpView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = SignUpSerializer
 
-class GenerateAuthUrl(APIView):
-    def get(self, request):
-        auth_url = (
-            f"https://api.intra.42.fr/oauth/authorize?"
-            f"client_id={settings.INTRA_42_CLIENT_ID}&redirect_uri={settings.INTRA_42_REDIRECT_URI}"
-            "&response_type=code"
-        )
-        return redirect(auth_url)
+def setTokens(response, user):
+    refresh = RefreshToken.for_user(user)
+    access_token = str(refresh.access_token)
+    response.set_cookie(
+        key='access',
+        value=access_token,
+        httponly=False,
+        secure=False, 
+        samesite='Lax',
+    )
+    return response
 
-
-def fillUser(user, user_info):
-    user.full_name = user_info['displayname']
-    user.email = user_info['email']
-    user.online = True
-    user.intra_avatar_url = user_info['image']['link']
-    user.save()
-    return user
+def delete_tokens(request, status):
+    response = Response(status=status)
+    response.delete_cookie('access')
+    response.delete_cookie('sessionid')
+    response.delete_cookie('csrftoken')
+    return response
 
 # Callback Intra View
 class Intra42Callback(APIView):
+    permission_classes = [AllowAny]
     def get(self, request):
         code = request.GET.get('code')
         data = {
@@ -65,38 +80,140 @@ class Intra42Callback(APIView):
         }
         response = requests.post('https://api.intra.42.fr/oauth/token', data=data)
         if response.status_code != 200:
-            return Response({'error': 'Invalid code'}, status=status.HTTP_400_BAD_REQUEST)
+                response = HttpResponseRedirect(f"{URL_FRONT}/login")
+                response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
+                return response
         response_data = response.json()
         access_token = response_data['access_token']
         if not access_token:
-            return Response({'error': 'Invalid access token'}, status=status.HTTP_400_BAD_REQUEST)
+                response = HttpResponseRedirect(f"{URL_FRONT}/login")
+                response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
+                return response
         user_info = requests.get('https://api.intra.42.fr/v2/me', headers={'Authorization': f'Bearer {access_token}'}).json()
 
-        user, created = CustomUser.objects.get_or_create(username=user_info['login'])
-        user_data = Intra42UserSerializer(user).data
-        authenticate(request, username=user_data['username'])
+        if 'login' not in user_info or 'email' not in user_info:
+            response = HttpResponseRedirect(f"{URL_FRONT}/login")
+            response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
+            return response
+
+        try:
+            user = CustomUser.objects.get(username=user_info['login'])
+        except CustomUser.DoesNotExist:
+            user = CustomUser.objects.create(
+                username=user_info['login'],
+                email=user_info['email'],
+                full_name=user_info['displayname'],
+                avatar_url=user_info['image']['link'],
+                social_logged=True,
+                online=True,
+                password_is_set=False
+            )
+
+        authenticate(request, username=user.username)
+        if not user.is_authenticated:
+            response = HttpResponseRedirect(f"{URL_FRONT}/login")
+            response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
+            return response
         login(request, user)
-        user = fillUser(user, user_info)
-        refresh = RefreshToken.for_user(user)
-        access_token = str(refresh.access_token)
-        response = Response(status=status.HTTP_200_OK)
-        response.set_cookie(
-            key='access',
-            value=str(refresh.access_token),
-            httponly=True,
-            secure=False,  # Set to True in production
-            samesite='Lax',  # Optional, but recommended
-        )
-        response.set_cookie(
-            key='refresh',
-            value=str(refresh),
-            httponly=True,
-            secure=False,  # Set to True in production
-            samesite='Lax',  # Optional, but recommended
-        )
+        if not user.enabeld_2fa:
+            user.is_already_logged = True
+            user.save()
+        response = HttpResponseRedirect(f'{URL_FRONT}')
+        if user.enabeld_2fa:
+            response.set_cookie('loginSuccess', 'twofa', max_age=30, samesite='Lax')
+        else:
+            response.set_cookie('loginSuccess', 'true', max_age=30, samesite='Lax')
+        response = setTokens(response, user)
         user_data = Intra42UserSerializer(user).data
         response.data = user_data
         return response
+
+# Callback Google View
+class GoogleLoginCallback(APIView):
+    def get(self, request):
+        code = request.GET.get("code")
+        if not code:
+            response = HttpResponseRedirect(f"{URL_FRONT}/login")
+            response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
+            return response
+
+        # Google OAuth token endpoint
+        token_endpoint_url = urljoin("https://oauth2.googleapis.com", "/token")
+        data = {
+            "code": code,
+            "client_id": settings.GOOGLE_OAUTH_CLIENT_ID,
+            "client_secret": settings.GOOGLE_OAUTH_CLIENT_SECRET,
+            "redirect_uri": settings.GOOGLE_OAUTH_CALLBACK_URL,
+            "grant_type": "authorization_code",
+        }
+
+        response = requests.post(token_endpoint_url, data=data)
+        if response.status_code != 200:
+            response = HttpResponseRedirect(f"{URL_FRONT}/login")
+            response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
+            return response
+
+        try:
+            response_data = response.json()
+            access_token = response_data.get("access_token")
+        except ValueError:
+            response = HttpResponseRedirect(f"{URL_FRONT}/login")
+            response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
+            return response
+
+        if not access_token:
+            response = HttpResponseRedirect(f"{URL_FRONT}/login")
+            response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
+            return response
+        
+        # Get user info from Google
+        user_info_url = "https://www.googleapis.com/oauth2/v3/userinfo"
+        headers = {"Authorization": f"Bearer {access_token}"}
+        user_info_response = requests.get(user_info_url, headers=headers)
+        if user_info_response.status_code != 200:
+            response = HttpResponseRedirect(f"{URL_FRONT}/login")
+            response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
+            return response
+        try:
+            user_info = user_info_response.json()
+
+            if 'sub' not in user_info or 'email' not in user_info:
+                response = HttpResponseRedirect(f"{URL_FRONT}/login")
+                response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
+                return response
+            try:
+                user = CustomUser.objects.get(email=user_info['email'])
+            except CustomUser.DoesNotExist:
+                user = CustomUser.objects.create(
+                    username=user_info['given_name'],
+                    email=user_info['email'],
+                    full_name=user_info['name'],
+                    avatar_url=user_info['picture'],
+                    social_logged=True,
+                    online=True,
+                    password_is_set=False
+                )
+            authenticate(request, username=user.username)
+            if not user.is_authenticated:
+                response = HttpResponseRedirect(f"{URL_FRONT}/login")
+                response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
+                return response
+            login(request, user)
+            if not user.enabeld_2fa:
+                user.is_already_logged = True
+                user.save()
+            response = HttpResponseRedirect(f'{URL_FRONT}')
+            if user.enabeld_2fa:
+                response.set_cookie('loginSuccess', 'twofa', max_age=30, samesite='Lax')
+            else:
+                response.set_cookie('loginSuccess', 'true', max_age=30, samesite='Lax')
+            response = setTokens(response, user)
+            user_data = GoogleUserSerializer(user).data
+            response.data = user_data
+            return response
+        except ValueError:
+            return HttpResponseRedirect(f"{URL_FRONT}/login")
+
 # Login View
 class LoginView(APIView):
     serializer_class = LoginSerializer
@@ -114,110 +231,58 @@ class LoginView(APIView):
             user = authenticate(username=user.username, password=password)
             if user is not None:
                 login(request, user)
-                user.online = True
-                user.save()
-                refresh = RefreshToken.for_user(user)
+                # user.online = True
+                if not user.avatar_url:
+                    user.avatar_url = f'{URL_BACK}/avatars/default.png'
+                if not user.enabeld_2fa:
+                    user.is_already_logged = True
                 response = Response(status=status.HTTP_200_OK)
-
-                # Set the access and refresh tokens in cookies
-                response.set_cookie(
-                    key='access',
-                    value=str(refresh.access_token),
-                    httponly=True,
-                    secure=False,  # Set to True in production
-                    samesite='Lax',  # Optional, but recommended
-                )
-                response.set_cookie(
-                    key='refresh',
-                    value=str(refresh),
-                    httponly=True,
-                    secure=False,  # Set to True in production
-                    samesite='Lax',  # Optional, but recommended
-                )
+                if user.enabeld_2fa:
+                    response.set_cookie('loginSuccess', 'twofa', max_age=30, samesite='Lax')
+                # else:
+                #     response.set_cookie('loginSuccess', 'true', max_age=30, samesite='Lax')
+                user.save()
+                response = setTokens(response, user)
                 return response
             else:
                 return Response("Invalid credentials", status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-class ValidateTokenView(APIView):
-    def get(self, request):
-        access_token = request.COOKIES.get('access')
-        refresh_token = request.COOKIES.get('refresh')
-
-        if not access_token:
-            return Response({'error': 'Access token not found in cookies'}, status=status.HTTP_401_UNAUTHORIZED)
-        try:
-            # Validate the access token
-            decoded_token = AccessToken(access_token)
-            user_id = decoded_token.get('user_id')
-            return Response({'valid': True, 'user_id': user_id,
-                'access': access_token,
-                'refresh': refresh_token
-                }, status=status.HTTP_200_OK)
-        except Exception:
-            return Response({'valid': False, 'error': 'Invalid or expired access token'}, status=status.HTTP_401_UNAUTHORIZED)
-
-class GenerateAccessToken(APIView):
-    permission_classes = (AllowAny)
-
-    def post(self, request, *args, **kwargs):
-        refresh_token = request.data.get("refresh")
-
-        if not refresh_token:
-            return Response({"error": "Refresh token is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            # Decode the refresh token
-            refresh = RefreshToken(refresh_token)
-
-            # Check if the refresh token has already been blacklisted
-            jti = refresh['jti']  # Extract the JWT ID from the refresh token
-            if BlacklistedToken.objects.filter(token__jti=jti).exists():
-                return Response({"error": "Refresh token is blacklisted"}, status=status.HTTP_401_UNAUTHORIZED)
-
-            # Blacklist the old refresh token explicitly
-            try:
-                refresh.blacklist()  # Blacklist the current refresh token
-            except BlacklistError:
-                return Response({"error": "Could not blacklist the token"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-            # Generate new access token and refresh token (because of ROTATE_REFRESH_TOKENS=True)
-            access_token = str(refresh.access_token)
-            new_refresh_token = str(RefreshToken())  # Explicitly generate a new refresh token
-            response = Response(status=status.HTTP_200_OK)
-            response.set_cookie(
-                key='access',
-                value=access_token,
-                httponly=True,
-                secure=False,  # Set to True in production
-                samesite='Lax',  # Optional, but recommended
-            )
-            response.set_cookie(
-                key='refresh',
-                value=new_refresh_token,
-                httponly=True,
-                secure=False,  # Set to True in production
-                samesite='Lax',  # Optional, but recommended
-            )
-            response.data = {
-                'access': access_token,
-                'refresh': new_refresh_token
-            }
-            return response
-        except TokenError as e:
-            return Response({"error": "Invalid or expired refresh token"}, status=status.HTTP_401_UNAUTHORIZED)
-
-    def get(self, request):
-        cookies = request.COOKIES
-        cookie_data = {key: value for key, value in cookies.items()}
-        return Response({'cookies': cookie_data}, status=status.HTTP_200_OK)
-
+# get all users
 class UserViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
     def get_queryset(self):
-        return CustomUser.objects.all()
+        search = self.request.GET.get('search')
+        if search:
+            result_users = CustomUser.objects.filter(Q(username__icontains=search) | Q(full_name__icontains=search))
+            return result_users.exclude(username__in=self.request.user.blocked_users.all().values_list('username', flat=True)).filter(is_active=True)
+        return CustomUser.objects.filter(is_active=True)
+
+def generate_tokens(request):
+    user = request.user
+    refresh = RefreshToken.for_user(user)
+    res = requests.postf('{URL_BACK}/api/auth/refresh/', data={'refresh': str(refresh),
+    'X-CSRFToken': request.COOKIES.get('csrftoken')})
+    if res.status_code != 200:
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+    tokens = res.json()
+    access_token = tokens.get('access')
+    response = Response(status=res.status_code)
+    response.set_cookie(
+        key='access',
+        value=access_token,
+        httponly=False,
+        secure=False, 
+        samesite='Lax',
+    )
+    user = request.user
+    user_data = UserSerializer(user).data
+    response.data = user_data
+    return response
+
+
 
 class AuthenticatedUserView(APIView):
     authentication_classes = [SessionAuthentication]
@@ -225,9 +290,20 @@ class AuthenticatedUserView(APIView):
 
     def get(self, request):
         user = request.user
-        user_data = UserSerializer(user).data
-        user_data['access'] = request.COOKIES.get('access')
-        return Response(user_data, status=status.HTTP_200_OK)
+        try:
+            acces_token = request.COOKIES.get('access')
+            decoded_access_token = jwt.decode(
+                acces_token,
+                key=settings.SECRET_KEY,
+                algorithms=["HS256"]
+            )
+        except jwt.ExpiredSignatureError:
+            return generate_tokens(request)
+
+        except (jwt.InvalidTokenError, jwt.DecodeError):
+            return delete_tokens(request, status=status.HTTP_401_UNAUTHORIZED)
+
+        return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
 
 # Logout View
 class Logout(APIView):
@@ -237,20 +313,15 @@ class Logout(APIView):
     def post(self, request):
         user = request.user
         if user.is_authenticated:
-            # Log the user out
             logout(request)
-            user.online = False
+            user.twofa_verified = False
+            user.is_already_logged = False
             user.save()
-
-            # Prepare the response and delete cookies
-            response = Response(status=status.HTTP_200_OK)
-            response.delete_cookie('access')
-            response.delete_cookie('refresh')
-            response.delete_cookie('csrftoken')
-            return response
+            return delete_tokens(request, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
+#enable 2fa
 class EnableTwoFactorView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
@@ -266,6 +337,7 @@ class EnableTwoFactorView(APIView):
         user.qrcode_path = qrcode_path
         return Response({'qrcode_url': user.qrcode_path}, status=status.HTTP_200_OK)
 
+#disable 2fa
 class DisableTwoFactorView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
@@ -274,20 +346,21 @@ class DisableTwoFactorView(APIView):
         user = request.user
         user.enabeld_2fa = False
         user.twofa_secret = None
-        user.qrcode_path = None
-        if user.qrcode_dir:
-            shutil.rmtree(str(user.qrcode_dir))
         user.qrcode_dir = None
+        if os.path.exists(str(user.qrcode_path)):
+            os.remove(str(user.qrcode_path))
+        user.qrcode_path = None
         user.save()
         return Response(status=status.HTTP_200_OK)
 
+#verify 2fa
 class VerifyTwoFactorView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    def post(self, request):
         user = request.user
-        user_code = request.GET.get('code')
+        user_code = request.data.get('code')
 
         if not user.twofa_secret:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -296,11 +369,14 @@ class VerifyTwoFactorView(APIView):
 
         if totp.verify(user_code):
             user.enabeld_2fa = True
+            user.twofa_verified = not user.twofa_verified
+            user.is_already_logged = True
             user.save()
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
+#get cookies
 class GetCookies(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
@@ -313,6 +389,7 @@ class GetCookies(APIView):
         cookie_data = {key: value for key, value in cookies.items()}
         return Response({'cookies': cookie_data}, status=200)
 
+#get qrcode for 2fa
 class GetQRCodeView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
@@ -322,5 +399,136 @@ class GetQRCodeView(APIView):
         if not user.twofa_secret:
             return Response({'error': '2FA is not enabled'}, status=status.HTTP_400_BAD_REQUEST)
         qr_user = user.qrcode_path.split('/')[-1]
-        qrcode_path = "http://localhost:8000/qrcodes/" + qr_user
+        qrcode_path = f"{URL_BACK}/qrcodes/" + qr_user
         return Response({'qrcode_url': qrcode_path}, status=status.HTTP_200_OK)
+
+#update user Information
+class UpdateUserView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+    def put(self, request):
+        user = request.user
+        data = request.data
+        serializer = UpdateUserSerializer(data=data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        updated = False
+        full_name = data.get('full_name')
+        if full_name and full_name != user.full_name:
+            user.full_name = full_name
+            updated = True
+        phone_number = data.get('phone_number')
+        if phone_number and phone_number != user.phone_number:
+            user.phone_number = phone_number
+            updated = True
+        city = data.get('city')
+        if city and city != user.city:
+            user.city = city
+            updated = True
+        address = data.get('address')
+        if address and address != user.address:
+            user.address = address
+            updated = True
+        if 'new_password' in data:
+            password_change_response = self.change_password(user, data)
+            if password_change_response is not None:
+                return password_change_response
+            updated = True
+        if 'language' in data:
+            language_change_response = self.change_language(user, data)
+            if language_change_response:
+                updated = True
+        if 'color' in data and 'board_name' in data:
+            color = data.get('color')
+            board_name = data.get('board_name')
+            user.color = color
+            user.board_name = board_name
+            updated = True
+        if updated:
+            user.save()
+        user_data = UpdateUserSerializer(user).data
+        return Response(user_data, status=status.HTTP_200_OK)
+
+#change password
+    def change_password(self, user, data):
+        current_password = data.get('current_password')
+        new_password = data.get('new_password')
+        confirm_password = data.get('confirm_password')
+        if not user.social_logged:
+            if not user.check_password(current_password):
+                return Response({'error': 'Current password is incorrect'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            if user.password_is_set:
+                if not user.check_password(current_password):
+                    return Response({'error': 'Current password is incorrect'}, status=status.HTTP_400_BAD_REQUEST)
+        if not new_password or not confirm_password:
+            return Response({'error': 'New password and confirmation are required'}, status=status.HTTP_400_BAD_REQUEST)
+        if new_password == current_password:
+            return Response({'error': 'New password must be different from the current password'}, status=status.HTTP_400_BAD_REQUEST)
+        if new_password != confirm_password:
+            return Response({'error': 'Passwords do not match'}, status=status.HTTP_400_BAD_REQUEST)
+        user.set_password(new_password)
+        if user.social_logged:
+            user.password_is_set = True
+        return None
+
+    def change_language(self, user, data):
+        language = data.get('language')
+        if language:
+            user.language = language
+            return True
+        return False
+
+class Delete_account(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user
+        user.is_active = False
+        user.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class block_user(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        data = request.data
+        username = data.get('username')
+        if not username:
+            return Response({'error': 'username is required'}, status=status.HTTP_400_BAD_REQUEST)
+        if username == user.username:
+            return Response({'error': 'You cannot block yourself'}, status=status.HTTP_400_BAD_REQUEST)
+        if user.blocked_users.filter(username=username).exists():
+            return Response({'error': 'User is already blocked'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            blocked_user = CustomUser.objects.get(username=username)
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        if user.friends.filter(username=username).exists():
+            user.friends.remove(blocked_user)
+        user.blocked_users.add(blocked_user)
+        user.save()
+        return Response({'info': f'{blocked_user.username} is blocked'}, status=status.HTTP_200_OK)
+
+class unblock_user(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        data = request.data
+        username = data.get('username')
+        if not username:
+            return Response({'error': 'username is required'}, status=status.HTTP_400_BAD_REQUEST)
+        if not user.blocked_users.filter(username=username).exists():
+            return Response({'error': 'User is not blocked'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            blocked_user = CustomUser.objects.get(username=username)
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        user.blocked_users.remove(blocked_user)
+        user.save()
+        return Response({'info': f'{blocked_user.username} is unblocked'}, status=status.HTTP_200_OK)

@@ -7,5 +7,3 @@ frontend/.next
 .env
 database/*
 virtualenv
-node_modules/
-redis/*

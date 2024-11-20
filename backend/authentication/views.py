@@ -231,7 +231,6 @@ class LoginView(APIView):
             user = authenticate(username=user.username, password=password)
             if user is not None:
                 login(request, user)
-                # user.online = True
                 if not user.avatar_url:
                     user.avatar_url = f'{URL_BACK}/avatars/default.png'
                 if not user.enabeld_2fa:
@@ -239,8 +238,6 @@ class LoginView(APIView):
                 response = Response(status=status.HTTP_200_OK)
                 if user.enabeld_2fa:
                     response.set_cookie('loginSuccess', 'twofa', max_age=30, samesite='Lax')
-                # else:
-                #     response.set_cookie('loginSuccess', 'true', max_age=30, samesite='Lax')
                 user.save()
                 response = setTokens(response, user)
                 return response

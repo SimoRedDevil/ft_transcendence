@@ -60,7 +60,13 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate}) => {
         router.push("/");
       }
     } catch (error) {
-      toast.error(t("Something Went Wrong"));
+      const errorMessages = 
+      error.response?.data?.email?.[0] ||
+        error.response?.data?.non_field_errors?.[0] ||
+        error.response?.data?.password?.[0] ||
+        t("Something went wrong");
+
+      toast.error(errorMessages);
       setIsAuthenticated(false);
     }
   };

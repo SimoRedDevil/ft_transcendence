@@ -7,26 +7,29 @@ class SignUpSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ['full_name', 'username', 'email', 'password']
         extra_kwargs = {'password': {'write_only': True, 'required': True,
-            'min_length': 8,
-            'max_length': 20,
             },
-            'full_name': {'required': True, 'max_length': 20,
-                'min_length': 9,
+            'full_name': {'required': True
             },
-            'username': {'required': True, 'max_length': 20,
-                'min_length': 6,
+            'username': {'required': True
             },
-            'email': {'required': True, 'max_length': 50,
-                'min_length': 9,
+            'email': {'required': True,
             },
         }
     def validate(self, data):
         username = data.get('username')
-        email = data.get('email')
         password = data.get('password')
+        full_name = data.get('full_name')
 
-        if username == email or password == email or password == username:
-            raise serializers.ValidationError("username, and email must be unique and not the same.")
+        if (len(username) < 9 or len(username) > 20):
+            raise serializers.ValidationError("Username should be between 9 and 20 characters")
+        elif (len(password) < 9 or len(password) > 20):
+            raise serializers.ValidationError("Password should be between 9 and 20 characters")
+        elif (len(full_name) > 20):
+            raise serializers.ValidationError("Full name should be less than 20 characters")
+        elif password.isdigit() or username.isdigit():
+            raise serializers.ValidationError("Password and username should not be only numbers")
+        elif password == username:
+            raise serializers.ValidationError("Password and username should be different")
 
         return data
 
@@ -48,11 +51,12 @@ class LoginSerializer(serializers.Serializer):
         email = data.get("email")
         password = data.get("password")
 
-        # Use CustomUser to authenticate by email
         try:
             user = CustomUser.objects.get(email=email)
         except CustomUser.DoesNotExist:
-            raise serializers.ValidationError("Invalid credentials")
+            raise serializers.ValidationError("email does not exist")
+        if not user.check_password(password):
+            raise serializers.ValidationError("password is incorrect")
         user = authenticate(username=user.username, password=password)
         if user and user.is_active:
             return data

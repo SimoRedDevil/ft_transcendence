@@ -217,7 +217,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
           </Provider>
           <ToastContainer
             position="top-center"
-            autoClose={1000}
+            autoClose={1500}
             hideProgressBar={false}
             newestOnTop={false}
             closeOnClick

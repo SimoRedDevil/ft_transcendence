@@ -29,18 +29,11 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
   const handleSignup = async (e) => {
     e.preventDefault();
   
-    const body = {
-      full_name,
-      username,
-      email,
-      password,
-    };
+    const body = { full_name, username, email, password };
   
     try {
       const response = await axios.post(`${API}/signup/`, body, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       });
   
       if (response.status === 201) {
@@ -49,9 +42,18 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
         onNavigate();
       }
     } catch (error) {
-      toast.error(t("Something Went Wrong."));
+      const errorMessage =
+      error.response?.data?.email?.[0] ||
+      error.response?.data?.non_field_errors?.[0] ||
+      error.response?.data?.username?.[0] ||
+      error.response?.data?.password?.[0] ||
+      error.response?.data?.full_name?.[0] ||
+      t("Something went wrong");
+  
+      toast.error(errorMessage);
     }
   };
+  
 
   const handleEnterPress = (event) => {
     if (event.key === 'Enter') {

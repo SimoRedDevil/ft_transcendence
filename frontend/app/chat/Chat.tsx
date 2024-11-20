@@ -22,7 +22,6 @@ function Chat({setShowBlockDialog}) {
   const [showEmoji, setShowEmoji] = useState(false)
   const [input, setInput] = useState('')
   const {authUser, loading} = useUserContext()
-  let typingTimeout;
   const { t } = useTranslation();
 
   const
@@ -34,7 +33,6 @@ function Chat({setShowBlockDialog}) {
     messagesLoading,
     isMobile,
     lastMessageRef,
-    otherUserTyping,
     page,
     setPage,
     pageCount,
@@ -69,26 +67,6 @@ function Chat({setShowBlockDialog}) {
 
   const handleInputChange = (e) => {
     setInput(e.target.value)
-    ws.current.send(JSON.stringify({
-      'type': 'typing',
-      'conversation_id': selectedConversation.id,
-      'sent_by_user': authUser?.username,
-      'sent_to_user': otherUser.username,
-      'content': 'Typing...'
-    }))
-  }
-
-  const handleKeyUp = (e) => {
-    clearTimeout(typingTimeout)
-    typingTimeout = setTimeout(() => {
-      ws.current.send(JSON.stringify({
-        'type': 'stop_typing',
-        'conversation_id': selectedConversation.id,
-        'sent_by_user': authUser?.username,
-        'sent_to_user': otherUser.username,
-        'content': 'Stop Typing...'
-      }))
-    }, 2000)
   }
 
   const handleScroll = (e) => {
@@ -102,6 +80,22 @@ function Chat({setShowBlockDialog}) {
 
   const handleBlockUser = async () => {
     setShowBlockDialog(true)
+  }
+
+  const checkUserBlocked = async () => {
+    try {
+      const response = await axiosInstance.get(`auth/check-blocked/`, {
+        params: {
+          username: otherUser?.username
+        }
+      })
+      if (response.status === 200) {
+        return response.data
+      }
+    } catch (error) {
+      toast.error("Error checking if user is blocked")
+    }
+    return false
   }
 
   if (selectedConversation === null) return;
@@ -125,8 +119,8 @@ function Chat({setShowBlockDialog}) {
             </div>
             <div className='flex flex-col justify-center gap-4'>
               <span className='text-[20px]'>{otherUser.full_name}</span>
+              <span className='text-[18px] text-white text-opacity-60'>Online</span>
               {/* otherUser.online === true ? 'Active Now' : 'Offline' */}
-              <span className='text-[18px] text-white text-opacity-65'>{otherUserTyping === true ? 'Typing...' : 'Active now'}</span>
             </div>
           </div>
           <div className='w-[140px] flex gap-2'>
@@ -163,7 +157,7 @@ function Chat({setShowBlockDialog}) {
           </div>
           <div className='w-full h-[100px] bg-transparent flex items-center justify-center'>
             <div onKeyDown={handleKeyDown} className='flex justify-between h-[80px] w-full rounded-[30px] border border-white border-opacity-30 bg-black bg-opacity-50'>
-              <TextBox input={input} onKeyUp={(e) => handleKeyUp(e)} onChange={(e) => handleInputChange(e)} placeholder='Type a message...' icon={undefined} className='w-full h-full bg-transparent rounded-[30px] p-[20px]'></TextBox>
+              <TextBox input={input} onChange={(e) => handleInputChange(e)} placeholder='Type a message...' icon={undefined} className='w-full h-full bg-transparent rounded-[30px] p-[20px]'></TextBox>
               <div className='w-[140px] flex items-center justify-center gap-3'>
                 <button onClick={handleEmoji}>
                   <MdEmojiEmotions className={!showEmoji ? 'text-white text-opacity-90 w-[40px] h-[40px] hover:text-opacity-100' : 'text-[#4682B4] text-opacity-100 w-[40px] h-[40px]'} />

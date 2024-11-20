@@ -533,3 +533,18 @@ class unblock_user(APIView):
         user.blocked_users.remove(blocked_user)
         user.save()
         return Response({'info': f'{blocked_user.username} is unblocked'}, status=status.HTTP_200_OK)
+    
+class check_blocked(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        username = request.GET.get('username')
+        if not username:
+            return Response({'error': 'username is required'}, status=status.HTTP_400_BAD_REQUEST)
+        if CustomUser.objects.filter(username=username).exists():
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        if user.blocked_users.filter(username=username).exists():
+            return Response({'blocked': True}, status=status.HTTP_200_OK)
+        return Response({'blocked': False}, status=status.HTTP_200_OK)

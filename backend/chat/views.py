@@ -8,6 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 from .paginations import ChatPagination
+from django.db.models import Q
 
 class ConversationViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication]
@@ -26,8 +27,12 @@ class SearchConversationViewSet(viewsets.ModelViewSet):
         return conversation.objects.filter(user1_id=user_id, user2_id__full_name__icontains=search) | conversation.objects.filter(user2_id=user_id, user1_id__full_name__icontains=search)
 
 class MessageViewSet(viewsets.ModelViewSet):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
     serializer_class = MessageSerializer
     pagination_class = ChatPagination
     def get_queryset(self):
         conversation_id = self.request.GET.get('conversation_id')
-        return message.objects.order_by('-timestamp').all()
+        # messages = message.objects.filter(conversation_id=conversation_id).exclude(receiver_id__in=self.request.user.blocked_users.all().values_list('id', flat=True)).order_by('-timestamp').all()
+        return message.objects.order_by('-timestamp').filter(conversation_id=conversation_id).all()

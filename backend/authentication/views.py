@@ -543,8 +543,8 @@ class check_blocked(APIView):
         username = request.GET.get('username')
         if not username:
             return Response({'error': 'username is required'}, status=status.HTTP_400_BAD_REQUEST)
-        if CustomUser.objects.filter(username=username).exists():
+        if not CustomUser.objects.filter(username=username).exists():
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-        if user.blocked_users.filter(username=username).exists():
+        if user.blocked_users.filter(username=username).exists() or CustomUser.objects.get(username=username).blocked_users.filter(username=user.username).exists():
             return Response({'blocked': True}, status=status.HTTP_200_OK)
         return Response({'blocked': False}, status=status.HTTP_200_OK)

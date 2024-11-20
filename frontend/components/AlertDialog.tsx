@@ -14,6 +14,7 @@ import { useChatContext } from '../components/context/ChatContext';
 export default function AlertDialog({showBlockDialog, setShowBlockDialog}) {
   const [open, setOpen] = React.useState(true);
   const {otherUser} = useChatContext()
+  const { t } = useTranslation();
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -42,7 +43,7 @@ export default function AlertDialog({showBlockDialog, setShowBlockDialog}) {
         toast.success("User blocked successfully")
       }
     } catch (error) {
-      toast.error("Error blocking user")
+      toast.error(t(error.response.data.error))
     }
     setOpen(false);
     setShowBlockDialog(false)

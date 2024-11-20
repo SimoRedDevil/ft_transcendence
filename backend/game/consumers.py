@@ -6,6 +6,7 @@ from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 
+
 class paddles:
     def __init__(self, x, y,width, height, speed, color, chan_name, playerNu, username):
         self.x = x
@@ -18,9 +19,7 @@ class paddles:
         self.username = username
         self.playerNu = playerNu
         self.score = 0
-
-        
-        
+         
     def to_dict(self):
         return {
             'x': self.x,
@@ -239,7 +238,7 @@ class Game(AsyncWebsocketConsumer):
                     self.games[game_channel]['ball'].directionY *= -1
                     self.games[game_channel]['player1'].score += 1
                     if self.games[game_channel]['player1'].score == 6:
-                        winer = self.games[game_channel]['player1']
+                        winer = self.games[game_channel]['player1'] 
                         loser = self.games[game_channel]['player2']
                         Tscore = winer.score - loser.score
                         await self.gameOver(game_channel, winer.username, loser.username, winer.chan_name, loser.chan_name, Tscore)
@@ -256,7 +255,7 @@ class Game(AsyncWebsocketConsumer):
                         Tscore = winer.score - loser.score
                         await self.gameOver(game_channel, winer.username, loser.username, winer.chan_name, loser.chan_name, Tscore)
                         break
-                await self.channel_layer.group_send(
+                await self.channel_layer.group_send(   
                     game_channel,
                     {
                         'type': 'update_ball',
@@ -357,7 +356,7 @@ class Game(AsyncWebsocketConsumer):
         player.loses += 1
         player.save()
 
-    @sync_to_async
+    @sync_to_async 
     def top_score(self, username, score):
         player = Player.objects.get(username=username)
         if player.topScore < score:

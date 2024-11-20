@@ -1,7 +1,14 @@
 import Badge from "./Badge"
 
 import { Line,  } from 'rc-progress';
-export default function Winner(){
+
+interface Props {
+    winer: string;
+    scoreWinner: string;
+    scoreLoser: string;
+}
+
+export default function Winner({winer, scoreWinner, scoreLoser}: Props){
     return(
         <>
         <div className="bg-[url('/images/winner_bg_black.png')] bg-cover bg-center xs:flex  xs:justify-between xs:w-[85%]  xs:items-center xs:h-[70%] md:flex-row xs:flex-col  md:w-[90%] md:h-[40%] md:justify-between  lg:w-[70%]  xl:w-[60%] 2xl:w-[60%] xl:h-[60%] lg:h-[50%]  border border-white/50 rounded-xl  lg:flex items-center scale-down  scaleDown_page">
@@ -18,9 +25,9 @@ export default function Winner(){
                 </div>
             </div>
             <div className="relative xS:h-[30%]  lg:w-[40%] md:h-[40%]  shadow-black  xs:flex-col md:flex-row  rounded-xl flex justify-around items-center">
-                <h1 className="xs:text-[2rem] md:text-[5rem] xl:text-[6rem] font-[Bona Nova SC] font-thin text-white" >7</h1>
-                <h1 className="xs:text-[2rem] md:text-[5rem] xl:text-[6rem] font-[Bona Nova SC] font-thin text-white" >-</h1>
-                <h1 className="xs:text-[2rem] md:text-[5rem] xl:text-[6rem] font-[Bona Nova SC] font-thin text-white" >8</h1>
+                <h1 className="xs:text-[2rem] md:text-[5rem] xl:text-[6rem] font-Bebas font-thin text-white" >{scoreWinner}</h1>
+                <h1 className="xs:text-[2rem] md:text-[5rem] xl:text-[6rem] font-Bebas font-thin text-white" >-</h1>
+                <h1 className="xs:text-[2rem] md:text-[5rem] xl:text-[6rem] font-Bebas font-thin text-white" >{scoreLoser}</h1>
             </div>
             <div className="xs:w-[10rem]   md:w-[40%] xs:h-full  lg:w-[40%] lg:h-[70%] xl:h-[90%] xl:w-[40%] xs:flex xs:flex-col xs:justify-center xs:items-center    xs:gap-2 opacity-85">
                 <Badge/>

@@ -32,6 +32,7 @@ function RootLayout({ children }: any) {
             title="TrueTalk"
           />
           <link rel="preconnect" href="https://fonts.googleapis.com" />
+          
           <link rel="preconnect" href="https://fonts.gstatic.com" />
           <link href="https://fonts.googleapis.com/css2?family=Chelsea+Market&family=Faculty+Glyphic&family=Nabla&display=swap" rel="stylesheet" />
           <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -52,6 +53,12 @@ function RootLayout({ children }: any) {
           <link href="https://fonts.cdnfonts.com/css/nevermind-bauhaus" rel="stylesheet" /> 
           <link href="https://fonts.cdnfonts.com/css/a-space-demo" rel="stylesheet" />
           <link href="https://fonts.cdnfonts.com/css/flexsteel" rel="stylesheet" />
+          <link href="https://fonts.cdnfonts.com/css/i-itik-kecil" rel="stylesheet"/>
+          <link href="https://fonts.cdnfonts.com/css/major-mono-display-2" rel="stylesheet"/>
+          <link href="https://fonts.cdnfonts.com/css/bruno-ace-sc-2" rel="stylesheet"/>
+                
+                
+              
           <title>
             {pathname.charAt(1).toUpperCase() + pathname.slice(2)}
           </title>

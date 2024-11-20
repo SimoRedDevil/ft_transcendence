@@ -40,13 +40,14 @@ export default function TournamentForm({ onSubmit }) {
 
     return (
         <div className='flex justify-center items-center'>
-            <div className='aspect-[3/4] bg-gradient-to-t from-paddlestroke/20 to-deepSeaBlue rounded-lg border border-white border-opacity-30 
+            <div className="aspect-[3/4] bg-[url('/images/tour7.png')] bg-cover bg-centre border-white border-opacity-30 rounded-xl
+                            border border-white/50
                             w-[330px]
                             xs:w-[300px]
                             ls:w-[400px]
                             lm:w-[500px]
                             3xl:w-[530px]
-                              4xl:w-[530px]'>
+                            4xl:w-[530px]">
                 <div className='text-white text-center text-2xl mt-5
                                 xs:mt-[30px]
                                 ls:mt-[38px]
@@ -55,12 +56,12 @@ export default function TournamentForm({ onSubmit }) {
                                 lm:mt-[50px]
                                 2xl:mt-[55px]
                                 3xl:mt-[60px]
-                                4xl:mt-[60px]'>Create Tournament</div>
+                                4xl:mt-[60px]  font-Bruno'>Create Tournament</div>
                 <form className='flex flex-col' onSubmit={handleSubmit}>
                     {error && <div className='text-red-500 text-center text-sm'>{error}</div>}
                     <div className='flex justify-between w-full'>
-                        <div className='flex flex-col w-[50%] space-y-2'>
-                            <label htmlFor="player1" className='text-sky-400 mt-3 ml-2
+                        <div className='flex flex-col w-[50%] space-y-2 relative top-4 bg-black/40'>
+                            <label htmlFor="player1" className='text-white  ml-2
                                             xs:mt-[30px]
                                             ls:mt-[38px]
                                             sm:mt-[40px]
@@ -68,14 +69,14 @@ export default function TournamentForm({ onSubmit }) {
                                             lm:mt-[50px]
                                             2xl:mt-[55px]
                                             3xl:mt-[60px]
-                                            4xl:mt-[60px]'>player1</label>
+                                            4xl:mt-[60px] font-Kecil font-bold '>player1</label>
                             <input type="text" id="player1" placeholder="Player 1" required
                                 value={player1}
                                 onChange={(e) => setPlayer1(e.target.value)}
                                 className='w-[70%] h-10 bg-transparent border-b ml-5 border-white border-opacity-30 text-white text-center'/>
                         </div>
-                        <div className='flex flex-col w-[50%] mt-[40px] space-y-2'>
-                            <label htmlFor="player2" className='text-sky-400 mt-3 mr-2 flex justify-end 
+                        <div className='flex flex-col w-[50%] mt-[40px] space-y-2 bg-black/40'>
+                            <label htmlFor="player2" className='text-white mt-3 mr-2 flex justify-end 
                                             xs:mt-[30px]
                                             ls:mt-[38px]
                                             sm:mt-[40px]
@@ -83,7 +84,7 @@ export default function TournamentForm({ onSubmit }) {
                                             lm:mt-[50px]
                                             2xl:mt-[55px]
                                             3xl:mt-[60px]
-                                            4xl:mt-[60px]'>player2</label>
+                                            4xl:mt-[60px] font-Kecil font-bold '>player2</label>
                             <input type="text" id="player2" placeholder="Player 2" required
                                 value={player2}
                                 onChange={(e) => setPlayer2(e.target.value)}
@@ -91,8 +92,8 @@ export default function TournamentForm({ onSubmit }) {
                         </div>
                     </div>
                     <div className='flex justify-between w-full'>
-                        <div className='flex flex-col w-[50%] space-y-2'>
-                            <label htmlFor="player3" className='text-sky-400 mt-10 ml-2
+                        <div className='flex flex-col w-[50%] space-y-2 bg-black/40'>
+                            <label htmlFor="player3" className='text-white mt-10 ml-2
                                             xs:mt-[30px]
                                             ls:mt-[38px]
                                             sm:mt-[40px]
@@ -100,14 +101,14 @@ export default function TournamentForm({ onSubmit }) {
                                             lm:mt-[50px]
                                             2xl:mt-[55px]
                                             3xl:mt-[60px]
-                                            4xl:mt-[60px]'>player3</label>
+                                            4xl:mt-[60px] font-Kecil font-bold'>player3</label>
                             <input type="text" id="player3" placeholder="Player 3" required
                                 value={player3}
                                 onChange={(e) => setPlayer3(e.target.value)}
                                 className='w-[70%] h-10 bg-transparent border-b ml-5 border-white border-opacity-30 text-white text-center'/>
                         </div>
-                        <div className='flex flex-col w-[50%] mt-[30px] space-y-2'>
-                            <label htmlFor="player4" className='text-sky-400 mt-20 mr-2 flex justify-end 
+                        <div className='flex flex-col w-[50%] mt-[40px] space-y-2 bg-black/40'>
+                            <label htmlFor="player4" className='text-white mt-20 mr-2 flex justify-end 
                                             xs:mt-[30px]
                                             ls:mt-[38px]
                                             sm:mt-[40px]
@@ -115,14 +116,14 @@ export default function TournamentForm({ onSubmit }) {
                                             lm:mt-[50px]
                                             2xl:mt-[55px]
                                             3xl:mt-[60px]
-                                            4xl:mt-[60px]'>player4</label>
+                                            4xl:mt-[60px] font-Kecil font-bold'>player4</label>
                             <input type="text" id="player4" placeholder="Player 4" required
                                 value={player4}
                                 onChange={(e) => setPlayer4(e.target.value)}
                                 className='w-[70%] h-10 bg-transparent border-b ml-[30px] border-white border-opacity-30 text-white text-center'/>
                         </div>
                     </div>
-                    <button type="submit" className='w-[30%] h-10 bg-sky-400 text-white mt-2 ml-[35%] rounded-[30px]
+                    <button type="submit" className='w-[30%] h-10 bg-white/80 text-black mt-2 ml-[35%] rounded-[30px]
                                                     xs:mt-[3px]
                                                     ls:mt-[3px]
                                                     sm:mt-[4px]
@@ -130,7 +131,7 @@ export default function TournamentForm({ onSubmit }) {
                                                     lm:mt-[8px]
                                                     2xl:mt-[2px]
                                                     3xl:mt-[150px]
-                                                    4xl:mt-[150px]'>Go</button>
+                                                    4xl:mt-[150px] text-[1.2rem]'>Go</button>
                 </form>
             </div>
         </div>

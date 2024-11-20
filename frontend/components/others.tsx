@@ -10,6 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useRouter, usePathname } from "next/navigation";
 import { useContext } from "react";
 import { UserContext } from "./context/usercontext";
+import DeleteConfirmation from "./DeleteConfirmation";
 
 export default function Others() {
   const [isOnline, setIsOnline] = useState("online");
@@ -21,23 +22,6 @@ export default function Others() {
   const [showDialog, setShowDialog] = useState(false);
 
   const API = process.env.NEXT_PUBLIC_API_URL;
-
-  const deleteAccount = async () => {
-    try {
-      const cookies = await getCookies();
-      const csrftoken = cookies.cookies.csrftoken;
-      const res = await axios.delete(`${API}/delete/`, {
-        withCredentials: true,
-        headers: {
-          "X-CSRFToken": csrftoken,
-        },
-      });
-      toast.success(t("Account Deleted Successfully"));
-      router.push("/login");
-    } catch (err) {
-      toast.error(t("Error Deleting Sccount"));
-    }
-  };
 
   const handelColorChange = async (color, board_name) => {
     try {
@@ -67,9 +51,6 @@ export default function Others() {
     setShowDialog(true);
   };
 
-  const cancelDelete = () => {
-    setShowDialog(false);
-  };
 
   useEffect(() => {
     fetchAuthUser();
@@ -160,7 +141,7 @@ export default function Others() {
                          {t("NB. Once you delete your account, there is no going back. Please be certain!")}
                      </p>
                      <div className=" flex w-full items-center justify-center rounded-[50px] mt-2">
-                     <button onClick={deleteAccount}
+                     <button onClick={handelClick}
                         className="rounded-[50px] mt-5 border-[0.5px] border-white border-opacity-40 
                             h-[50px] tablet:h-[80px] w-[90%] bg-gradient-to-r from-[#1A1F26]/90 to-[#000]/70">
                          <h1 className="text-[22px] text-center text-[#FF0000] 
@@ -181,6 +162,7 @@ export default function Others() {
               </h1>
             </button>
           </div>
+          {showDialog && (<DeleteConfirmation isOpen={showDialog} setIsOpen={setShowDialog} />)}
         </div>
       </div>
     </>

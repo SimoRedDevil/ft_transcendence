@@ -78,8 +78,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if not sender_obj or not receiver_obj:
             await self.close(code=1008)
         message = data['content']
-        if self.user.blocked_users.filter(username=receiver_obj.username).exists() or CustomUser.objects.filter(username=receiver_obj.username).get().blocked_users.filter(username=sender_obj.username).exists():
-            return
+
+        # if self.user.blocked_users.filter(username=receiver_obj.username).exists() or CustomUser.objects.filter(username=receiver_obj.username).get().blocked_users.filter(username=sender_obj.username).exists():
+        #     return
         if msg_type == 'message':
             conversation_id = data['conversation_id']
             conversation_exists = await check_conversation_exists(conversation_id)

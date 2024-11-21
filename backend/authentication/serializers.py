@@ -121,4 +121,4 @@ class UserSerializer(serializers.ModelSerializer):
 class SimplifiedUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'full_name', 'avatar_url']
+        fields = ['id', 'username', 'full_name', 'avatar_url', 'online']

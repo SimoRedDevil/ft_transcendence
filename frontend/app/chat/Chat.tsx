@@ -17,13 +17,16 @@ import { axiosInstance } from '../../utils/axiosInstance';
 import { ToastContainer, toast} from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { json } from 'stream/consumers';
+import Link from 'next/link'
 
 function Chat({setShowBlockDialog}) {
   const [showEmoji, setShowEmoji] = useState(false)
   const [input, setInput] = useState('')
   const {authUser, loading} = useUserContext()
   const { t } = useTranslation();
-  const [isBlocked, setIsBlocked] = useState(true)
+  const [isBlocked, setIsBlocked] = useState(false)
+  const [checkBlockLoading, setCheckBlockLoading] = useState(true)
+  const [otherUserOnline, setOtherUserOnline] = useState(false)
 
   const
   {
@@ -91,10 +94,11 @@ function Chat({setShowBlockDialog}) {
     }).then((response) => {
       if (response.status === 200) {
         setIsBlocked(response.data.blocked)
-        console.log(response.data.blocked)
       }
     }).catch((error) => {
       toast.error(t(error.response.data.error))
+    }).finally(() => {
+      setCheckBlockLoading(false)
     })
   }
 
@@ -104,9 +108,15 @@ function Chat({setShowBlockDialog}) {
     }
   }, [selectedConversation])
 
+  useEffect(() => {
+    if (otherUser !== null) {
+      setOtherUserOnline(otherUser.online)
+    }
+  }, [otherUser])
+
   if (selectedConversation === null) return;
 
-  if (loading === true || lastMessageRef === null || messages === null) return <div>Loading...</div> ;
+  if (loading === true || lastMessageRef === null || messages === null || checkBlockLoading === true) return <div>Loading...</div> ;
 
   return (
     <div className={`h-full lg:w-[calc(100%_-_400px)] 2xl:w-[calc(100%_-_550px)] lg:flex ${(isMobile && selectedConversation) ? 'flex' : 'hidden'}`}>
@@ -121,11 +131,11 @@ function Chat({setShowBlockDialog}) {
         <div className='flex p-[20px] justify-between'>
           <div className='flex flex-row gap-4'>
             <div className='rounded-full h-[80px] w-[80px]'>
-              <Image className='rounded-full' src={otherUser?.avatar_url} width={80} height={80} alt='avatar'/>
+              <Link href={`/profile/${otherUser?.username}/`}><Image className='rounded-full' src={otherUser?.avatar_url} width={80} height={80} alt='avatar'/></Link>
             </div>
             <div className='flex flex-col justify-center gap-4'>
               <span className='text-[20px]'>{otherUser.full_name}</span>
-              <span className='text-[18px] text-white text-opacity-60'>Online</span>
+              <span className='text-[18px] text-white text-opacity-60'>{otherUser?.online ? 'Online' : 'Offline'}</span>
               {/* otherUser.online === true ? 'Active Now' : 'Offline' */}
             </div>
           </div>

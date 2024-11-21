@@ -2,6 +2,21 @@ from rest_framework import serializers
 from django.contrib.auth import authenticate
 from .models import CustomUser
 
+
+def check_valid_format(data):
+    username = data.get('username')
+    password = data.get('password')
+
+    if (len(username) < 9 or len(username) > 20):
+        raise serializers.ValidationError("Username should be between 9 and 20 characters")
+    elif (len(password) < 9 or len(password) > 20):
+        raise serializers.ValidationError("Password should be between 9 and 20 characters")
+    elif password.isdigit() or username.isdigit():
+        raise serializers.ValidationError("Password and username should not be only numbers")
+    elif password == username:
+        raise serializers.ValidationError("Password and username should be different")
+
+    return data
 class SignUpSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
@@ -16,22 +31,7 @@ class SignUpSerializer(serializers.ModelSerializer):
             },
         }
     def validate(self, data):
-        username = data.get('username')
-        password = data.get('password')
-        full_name = data.get('full_name')
-
-        if (len(username) < 9 or len(username) > 20):
-            raise serializers.ValidationError("Username should be between 9 and 20 characters")
-        elif (len(password) < 9 or len(password) > 20):
-            raise serializers.ValidationError("Password should be between 9 and 20 characters")
-        elif (len(full_name) > 20):
-            raise serializers.ValidationError("Full name should be less than 20 characters")
-        elif password.isdigit() or username.isdigit():
-            raise serializers.ValidationError("Password and username should not be only numbers")
-        elif password == username:
-            raise serializers.ValidationError("Password and username should be different")
-
-        return data
+        return check_valid_format(data)
 
     def create(self, validated_data):
         user = CustomUser.objects.create_user(
@@ -101,6 +101,8 @@ class UpdateUserSerializer(serializers.ModelSerializer):
             'max_length': 7,
             },
             'board_name': {'required': False,
+            },
+            'avatar_url': {'required': False,
             },
         }
 

@@ -37,7 +37,6 @@ from django.utils.timezone import now
 from rest_framework.decorators import action
 from django.db.models import Q
 
-
 URL_FRONT = os.getenv('URL_FRONT')
 URL_BACK = os.getenv('URL_BACK')
 
@@ -444,6 +443,14 @@ class UpdateUserView(APIView):
             updated = True
         if updated:
             user.save()
+        print("---> data: ", data)
+        avatar_file = data.get('avatar_url')
+        if avatar_file:
+            # url = os.path.join("http://localhost:8000/avatars/", avatar_file.name)
+            url = avatar_file
+            user.avatar_url = url
+            user.save()
+            return Response(status=status.HTTP_200_OK)
         user_data = UpdateUserSerializer(user).data
         return Response(user_data, status=status.HTTP_200_OK)
 

@@ -113,18 +113,16 @@ const Popup = ({
     <div>
       {isOpen && (
         <div className="fixed inset-0 bg-gray-500
-              bg-opacity-75 flex items-center justify-center min-h-screen w-full overflow-hidden min-w-[400px]">
+              bg-opacity-75 flex items-center justify-center h-screen w-full min-h-[700px] overflow-hidden min-w-[400px]">
           <div
-            className="bg-[#1A1F26] flex w-[400px] tablet:w-[600px] h-[500px]
-            laptop:w-[800px] laptop:flex-row flex-col
-              min-w-[600px] laptop:min-w-[400px] overflow-hidden rounded-2xl 
-          "
-          >
+            className="bg-[#1A1F26] flex w-[380px] tablet:w-[500px] h-[670px]
+            laptop:w-[800px] laptop:flex-row flex-col items-center justify-center laptop:h-[400px]
+            desktop:w-[1000px] laptop:min-w-[400px] overflow-hidden rounded-2xl">
                         {
             !authUser?.enabeld_2fa &&
             <div
               className="
-            flex items-center justify-center laptop:mr-2 mt-5 laptop:mt-0 
+            flex items-center justify-center mt-5 laptop:mt-0 
             "
             >
               {!qrcode && (
@@ -133,7 +131,7 @@ const Popup = ({
                   {
                     <MoonLoader
                     color="#fff"
-                    loading={qrcode ? false: true}
+                    loading={qrcode ? false : true}
                     size={50}
                     />
                   }
@@ -143,8 +141,8 @@ const Popup = ({
               {qrcode && (
               <img
                 className={`bg-white text-white
-              w-[300px] h-[300px]
-               rounded-[30px] laptop:ml-5
+              tablet:w-[300px] tablet:h-[300px] w-[250px] h-[250px]
+               rounded-[30px] tablet:ml-5 mt-5 laptop:mt-0
               `}
                 src={`${qrcode}`}
                 alt="2fa QR Code"

@@ -57,7 +57,6 @@ export  const disableTwoFactorAuth = async () => {
   
       return response.status;
     } catch (error) {
-      console.error("Error verifying 2FA:", error);
     }
   };
   

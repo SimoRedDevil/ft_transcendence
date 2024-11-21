@@ -84,7 +84,8 @@ function TextFieldTmp({ title, label1, label2, label3, type, values, setValues }
   };
 
   return (
-    <div className="bg-[#1A1F26] bg-opacity-50 laptop:h-[90%] min-h-[600px] laptop:w-[691px] border-[0.5px] border-white border-opacity-40 rounded-[50px] flex flex-col my-5 mb-10 w-[90%] tablet:h-[500px] tablet:my-5 laptop:mx-3">
+    <div className="bg-[#1A1F26] bg-opacity-50 laptop:h-[90%] min-h-[600px] laptop:w-[691px] border-[0.5px]
+       border-white border-opacity-40 rounded-[50px] flex flex-col my-5 mb-10 w-[90%] tablet:h-[500px] tablet:my-5 laptop:mx-3">
       <h1 className="laptop:text-[25px] flex w-full h-[150px] items-center justify-center text-white opacity-50 tablet:text-[20px] text-[20px] mt-2">{title}</h1>
 
       <div>{renderInputFields([label1, label2, label3])}</div>

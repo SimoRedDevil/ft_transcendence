@@ -19,3 +19,6 @@ npm install axios
 npm install recharts
 npm i rc-progress
 npm install tailwindcss-textshadow
+npm i next-cloudinary
+npm install -g nextui-cli  
+npm install @nextui-org/react

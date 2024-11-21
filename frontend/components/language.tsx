@@ -58,7 +58,7 @@ export default function Language() {
     return (
 <div className="text-white w-full h-full flex items-center min-h-[500px] tablet:justify-center flex-col overflow-y-auto overflow-x-hidden no-scrollbar">
     <div className="bg-[#1A1F26] bg-opacity-50 mt-10 mx-5 h-[75%] border-[0.5px] border-white border-opacity-40 rounded-[50px] flex flex-col
-                    w-[90%] tablet:w-[496px] laptop:w-[696px] desktop:w-[1400px] overflow-y-auto no-scrollbar
+                    w-[90%] tablet:w-[496px] laptop:w-[696px] desktop:w-[830px] 3xl:w-[1300px] overflow-y-auto no-scrollbar
                     ">
         <h1 className="laptop:text-[30px] mt-4 h-[20%] flex justify-center items-center text-white opacity-70 text-[20px] text-xl">
             {t('Select Language')}

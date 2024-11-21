@@ -58,37 +58,38 @@ export default function Security() {
     return <div>Loading...</div>;
   }
 
-  const getqrcode = async () => {
-    try {
-      const response = await axios(`${API}/get-qrcode/`, {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      if (response.status === 200) {
-        const qr = response.data.qrcode_url;
-        setQrcode(qr);
-      }
-    } catch (error) {
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const getqrcode = async () => {
+  //   try {
+  //     const response = await axios(`${API}/get-qrcode/`, {
+  //       withCredentials: true,
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //     });
+  //     if (response.status === 200) {
+  //       const qr = response.data.qrcode_url;
+  //       setQrcode(qr);
+  //     }
+  //   } catch (error) {
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   useEffect(() => {
     authUser && fetchAuthUser();
-    if (authUser?.qrcode_dir) {
-      getqrcode();
+    if (authUser?.qrcode_path) {
+      setQrcode(authUser?.qrcode_url);
+      // getqrcode();
       setEnable2FA(true);
     } else {
       setQrcode("");
     }
-  }, [authUser?.qrcode_dir, enable2FA]);
+  }, [authUser?.qrcode_path, enable2FA]);
 
   useEffect(() => {
     authUser && fetchAuthUser();
-  }, [authUser?.qrcode_dir, enable2FA]);
+  }, [authUser?.qrcode_path, enable2FA]);
   const handelChange = async () => {
     {
       setIsPopupOpen(true);
@@ -118,7 +119,7 @@ export default function Security() {
             border-0 w-full
             "
         >
-          <div className="flex flex-col items-start w-full pl-5">
+          <div className="flex flex-col items-start w-full pl-5  max-sm:mt-5">
             <h1
               className="laptop:text-[22px] w-full text-white opacity-70 
                     text-[18px] tablet:text-[20px] mt-2
@@ -196,12 +197,14 @@ export default function Security() {
           {authUser?.enabeld_2fa ? (
             <div>
               <div className="flex flex-col items-center w-full text-md tablet:text-lg font-thin text-center">
+              <img src="/images/lock1.png" alt="" />
                 <p>{t("Two-factor authentication is enabled")}</p>
               </div>
             </div>
           ) : (
             <div>
               <div className="flex flex-col items-center w-full text-md tablet:text-lg font-thin text-center">
+                <img src="/images/unlock.png" alt="" />
                 <p>{t("Two-factor authentication is disabled")}</p>
               </div>
             </div>
@@ -213,18 +216,6 @@ export default function Security() {
               size="lg"
               checked={authUser?.enabeld_2fa}
               onChange={handelChange}
-              trackLabel={{
-                on: (
-                  <FaLock color="yellow.400">
-                    <FaSun />
-                  </FaLock>
-                ),
-                off: (
-                  <ImUnlocked color="gray.400">
-                    <FaMoon />
-                  </ImUnlocked>
-                ),
-              }}
             />
           </div>
           <div className="flex justify-center">

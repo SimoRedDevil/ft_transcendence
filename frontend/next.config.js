@@ -14,6 +14,10 @@ module.exports = {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'i.postimg.cc',
+      }
     ],
   },
   reactStrictMode: false, // Disable React Strict Mode

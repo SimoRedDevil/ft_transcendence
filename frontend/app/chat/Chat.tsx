@@ -17,13 +17,13 @@ import { axiosInstance } from '../../utils/axiosInstance';
 import { ToastContainer, toast} from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { json } from 'stream/consumers';
-import {getCookies} from "../../components/auth";
-function Chat() {
+
+function Chat({setShowBlockDialog}) {
   const [showEmoji, setShowEmoji] = useState(false)
   const [input, setInput] = useState('')
   const {authUser, loading} = useUserContext()
-  let typingTimeout;
   const { t } = useTranslation();
+  const [isBlocked, setIsBlocked] = useState(true)
 
   const
   {
@@ -34,7 +34,6 @@ function Chat() {
     messagesLoading,
     isMobile,
     lastMessageRef,
-    otherUserTyping,
     page,
     setPage,
     pageCount,
@@ -69,26 +68,6 @@ function Chat() {
 
   const handleInputChange = (e) => {
     setInput(e.target.value)
-    ws.current.send(JSON.stringify({
-      'type': 'typing',
-      'conversation_id': selectedConversation.id,
-      'sent_by_user': authUser?.username,
-      'sent_to_user': otherUser.username,
-      'content': 'Typing...'
-    }))
-  }
-
-  const handleKeyUp = (e) => {
-    clearTimeout(typingTimeout)
-    typingTimeout = setTimeout(() => {
-      ws.current.send(JSON.stringify({
-        'type': 'stop_typing',
-        'conversation_id': selectedConversation.id,
-        'sent_by_user': authUser?.username,
-        'sent_to_user': otherUser.username,
-        'content': 'Stop Typing...'
-      }))
-    }, 2000)
   }
 
   const handleScroll = (e) => {
@@ -98,34 +77,32 @@ function Chat() {
       if (page < pageCount)
         setPage((prevPage) => prevPage + 1)
     }
-    // else if (scrollTop === scroll.scrollHeight - scroll.clientHeight) {
-    //   if (page > 1) {
-    //     setPage((prevPage) => prevPage - 1)
-    //   }
-    // }
   }
 
   const handleBlockUser = async () => {
-    const body = {
-      username: otherUser?.username
-    }
-    try {
-      const cookies = await getCookies();
-      const csrfToken = cookies.cookies.csrftoken;
-      const response = await axios.post('http://localhost:8000/api/auth/block/', body, {
-        headers: {
-          "Content-Type": "application/json",
-          'X-CSRFToken': csrfToken,
-        },
-        withCredentials: true,
-      });
-      if (response.status === 200) {
-        console.log(response.data)
-      }
-    } catch (error) {
-      console.log('error')
-    }
+    setShowBlockDialog(true)
   }
+
+  const checkUserBlocked = () => {
+    axiosInstance.get(`auth/check-blocked/`, {
+      params: {
+        username: otherUser?.username
+      }
+    }).then((response) => {
+      if (response.status === 200) {
+        setIsBlocked(response.data.blocked)
+        console.log(response.data.blocked)
+      }
+    }).catch((error) => {
+      toast.error(t(error.response.data.error))
+    })
+  }
+
+  useEffect(() => {
+    if (selectedConversation !== null) {
+      checkUserBlocked()
+    }
+  }, [selectedConversation])
 
   if (selectedConversation === null) return;
 
@@ -148,8 +125,8 @@ function Chat() {
             </div>
             <div className='flex flex-col justify-center gap-4'>
               <span className='text-[20px]'>{otherUser.full_name}</span>
+              <span className='text-[18px] text-white text-opacity-60'>Online</span>
               {/* otherUser.online === true ? 'Active Now' : 'Offline' */}
-              <span className='text-[18px] text-white text-opacity-65'>{otherUserTyping === true ? 'Typing...' : 'Active now'}</span>
             </div>
           </div>
           <div className='w-[140px] flex gap-2'>
@@ -176,11 +153,6 @@ function Chat() {
                         <span className='text-white text-opacity-50 text-[0.8rem]'>{message.get_human_readable_time}</span>
                       </div>
                     </div> : null
-                    // <div key={message.id} className={(message.sent_by_user === authUser?.username || (message.sender !== undefined && message.sender.username === authUser?.username)) ? 'flex flex-row-reverse' : 'flex flex-row'}>
-                    //   <div className={(message.sent_by_user === authUser?.username || (message.sender !== undefined && message.sender.username === authUser?.username)) ? 'bg-[#0D161A]' : 'bg-black'}>
-                    //     <span className='text-white text-opacity-90 p-[20px]'>{message.content}</span>
-                    //   </div>
-                    // </div>
                   )
                 })
               }
@@ -190,13 +162,13 @@ function Chat() {
             </div>
           </div>
           <div className='w-full h-[100px] bg-transparent flex items-center justify-center'>
-            <div onKeyDown={handleKeyDown} className='flex justify-between h-[80px] w-full rounded-[30px] border border-white border-opacity-30 bg-black bg-opacity-50'>
-              <TextBox input={input} onKeyUp={(e) => handleKeyUp(e)} onChange={(e) => handleInputChange(e)} placeholder='Type a message...' icon={undefined} className='w-full h-full bg-transparent rounded-[30px] p-[20px]'></TextBox>
+            <div onKeyDown={handleKeyDown} className={`flex justify-between h-[80px] w-full rounded-[30px] border border-white border-opacity-30 bg-black bg-opacity-50 ${isBlocked ? ' border-red-600 bg-red-600 bg-opacity-20 ' : ''} `}>
+              <TextBox input={input} onChange={(e) => handleInputChange(e)} placeholder={`${isBlocked ? 'You can\'t talk with this user because you are blocked by him or blocked him!' : 'Type a message...'}`} icon={undefined} className={`w-full h-full bg-transparent rounded-[30px] p-[20px]`} disabled={isBlocked === true ? true : false}></TextBox>
               <div className='w-[140px] flex items-center justify-center gap-3'>
-                <button onClick={handleEmoji}>
+                <button disabled={isBlocked === true ? true : false} onClick={handleEmoji}>
                   <MdEmojiEmotions className={!showEmoji ? 'text-white text-opacity-90 w-[40px] h-[40px] hover:text-opacity-100' : 'text-[#4682B4] text-opacity-100 w-[40px] h-[40px]'} />
                 </button>
-                <button onClick={handleSendMessage}>
+                <button disabled={isBlocked === true ? true : false} onClick={handleSendMessage}>
                   <BsFillSendFill className='text-white text-opacity-90 w-[35px] h-[35px] hover:text-opacity-100' />
                 </button>
               </div>

@@ -259,7 +259,7 @@ class UserViewSet(viewsets.ModelViewSet):
 def generate_tokens(request):
     user = request.user
     refresh = RefreshToken.for_user(user)
-    res = requests.postf('{URL_BACK}/api/auth/refresh/', data={'refresh': str(refresh),
+    res = requests.post('{URL_BACK}/api/auth/refresh/', data={'refresh': str(refresh),
     'X-CSRFToken': request.COOKIES.get('csrftoken')})
     if res.status_code != 200:
         return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -537,3 +537,18 @@ class unblock_user(APIView):
         user.blocked_users.remove(blocked_user)
         user.save()
         return Response({'info': f'{blocked_user.username} is unblocked'}, status=status.HTTP_200_OK)
+    
+class check_blocked(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        username = request.GET.get('username')
+        if not username:
+            return Response({'error': 'username is required'}, status=status.HTTP_400_BAD_REQUEST)
+        if not CustomUser.objects.filter(username=username).exists():
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        if user.blocked_users.filter(username=username).exists() or CustomUser.objects.get(username=username).blocked_users.filter(username=user.username).exists():
+            return Response({'blocked': True}, status=status.HTTP_200_OK)
+        return Response({'blocked': False}, status=status.HTTP_200_OK)

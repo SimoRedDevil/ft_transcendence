@@ -23,6 +23,6 @@ urlpatterns = [
     path('google/callback/', GoogleLoginCallback.as_view(), name='google_callback'),
     path('delete/', Delete_account.as_view(), name='delete_account'),
     path('block/', block_user.as_view(), name='block_user'),
-    path('unblock/', unblock_user.as_view(), name='unblock_user')
-
+    path('unblock/', unblock_user.as_view(), name='unblock_user'),
+    path('check-blocked/', check_blocked.as_view(), name='check_blocked'),
 ]

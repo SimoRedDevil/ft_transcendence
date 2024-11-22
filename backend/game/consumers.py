@@ -60,8 +60,10 @@ class Game(AsyncWebsocketConsumer):
     players = []
     match_making = []
     paddles = {}
+    player_match = {}
     games = {}
     Ball = {}
+    matchs = {}
     async def connect(self):
         await self.accept()
         self.player = None
@@ -71,13 +73,13 @@ class Game(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         data = json.loads(text_data)
         if data['type'] == 'connection':
-            username = data['data']['username']
+            username = data['username']
             
             existPlayer = await sync_to_async(Player.objects.filter(username=username).exists)()
             if not existPlayer:
                 await self.create_player(username)
             self.player = {
-                'name': data['data']['username'],
+                'name': username,
                 'id': self.channel_name,
                 'player_id': '',
                 'group_name': ''
@@ -112,7 +114,48 @@ class Game(AsyncWebsocketConsumer):
                         'playernumber': self.games[game_channel][player_id].playerNu,
                     }
                 )
-    
+        if data['type'] == 'playerReady':
+            if data['game_roum'] not in self.player_match:
+                self.player_match[data['game_roum']] = []
+            self.player_match[data['game_roum']].append(self.player)
+            if len(self.player_match[data['game_roum']]) == 2:
+                await self.channel_layer.group_send(
+                    data['game_roum'],
+                    {
+                        'type': 'go_to_game',
+                    })
+        if data['type'] == 'game_started':
+            if data['data']['groupname'] not in self.matchs:
+                    self.matchs[data['data']['groupname']] = []
+            self.matchs[data['data']['groupname']].append(data['data'])
+            if len(self.matchs[data['data']['groupname']]) == 2:
+                match_name = data['data']['groupname']
+                player1 = self.matchs[data['data']['groupname']][0]
+                player2 = self.matchs[data['data']['groupname']][1]
+                self.paddles['player1'] = paddles(data['data']['x'],data['data']['y1'], data['data']['pw'], data['data']['ph'] ,data['data']['sp'], 'white', player1['id_channel'], 1, player1['username'])
+                self.paddles['player2'] = paddles(data['data']['x'],data['data']['y2'],data['data']['pw'], data['data']['ph'], data['data']['sp'], 'white', player2['id_channel'], 2, player2['username'])
+                self.Ball = ball(0.5, 0.5, data['data']['Walls']['wallsHeight']/25/2/data['data']['Walls']['wallsHeight'], data['data']['dirY'], data['data']['sp'] ,'white')
+                self.games[match_name] = {
+                    'player1' : self.paddles['player1'],
+                    'player2' : self.paddles['player2'],
+                    'ball' : self.Ball,
+                }
+                game_serialized = {
+                    'player1': self.games[match_name]['player1'].to_dict(),
+                    'player2': self.games[match_name]['player2'].to_dict(),
+                    'ball': self.games[match_name]['ball'].to_dict()
+                }
+                await self.channel_layer.group_send(
+                    match_name,
+                    {
+                        'type': 'start_game',
+                        'players': [player1, player2],
+                        'name_channel': match_name,
+                        'game_serialized': game_serialized,  
+                    }
+                )
+                asyncio.create_task(self.update_ball_loop(match_name))
+            
         if data['type'] == 'update_ball':
             self.Ball.x += self.Ball.directionX
             self.Ball.y += self.Ball.directionY
@@ -122,8 +165,7 @@ class Game(AsyncWebsocketConsumer):
                     'type': 'update_ball',
                     'ball': self.Ball.to_dict()
                 }
-            )
-    
+            ) 
     async def disconnect(self, close_code):
         if self.player in Game.players:
             other_player_id = 'player1' if self.player['player_id'] == 'player2' else 'player2'
@@ -145,8 +187,7 @@ class Game(AsyncWebsocketConsumer):
                     game[other_player_id].chan_name
                 )
                 del self.games[self.player['group_name']]
-                
-
+            
     async def matchmaking(self, data):
         if len(Game.match_making) >= 2:
             player1 = Game.match_making.pop(0)
@@ -160,37 +201,20 @@ class Game(AsyncWebsocketConsumer):
                 self.game_channel,
                 player1['id']
             )
-            
+
             await self.channel_layer.group_add(
                 self.game_channel,
                 player2['id']
             )
-
-            self.paddles['player1'] = paddles(data['data']['x'],data['data']['y1'], data['data']['pw'], data['data']['ph'] ,data['data']['sp'], 'white', player1['id'], 1, player1['name'])
-            self.paddles['player2'] = paddles(data['data']['x'],data['data']['y2'],data['data']['pw'], data['data']['ph'], data['data']['sp'], 'white', player2['id'], 2, player2['name'])
-            self.Ball = ball(0.5, 0.5, data['data']['Walls']['wallsHeight']/25/2/data['data']['Walls']['wallsHeight'], data['data']['dirY'], data['data']['sp'] ,'white')
-            self.games[self.game_channel] = {
-                'player1' : self.paddles['player1'],
-                'player2' : self.paddles['player2'],
-                'ball' : self.Ball,
-            }
-            await self.update_matchCount(player1['name'])
-            await self.update_matchCount(player2['name'])
-            game_serialized = {
-                'player1': self.games[self.game_channel]['player1'].to_dict(),
-                'player2': self.games[self.game_channel]['player2'].to_dict(),
-                'ball': self.games[self.game_channel]['ball'].to_dict()
-            }
             await self.channel_layer.group_send(
                 self.game_channel,
                 {
-                    'type': 'start_game',
+                    'type': 'match_ready',
                     'players': [player1, player2],
                     'game_channel': self.game_channel,
-                    'game_serialized': game_serialized,
                 }
             )
-            asyncio.create_task(self.update_ball_loop(self.game_channel))
+
 
     async def colletion(self, player, ball):
         topBall  = ball.y - ball.radius
@@ -241,7 +265,7 @@ class Game(AsyncWebsocketConsumer):
                         winer = self.games[game_channel]['player1'] 
                         loser = self.games[game_channel]['player2']
                         Tscore = winer.score - loser.score
-                        await self.gameOver(game_channel, winer.username, loser.username, winer.chan_name, loser.chan_name, Tscore)
+                        await self.gameOver(game_channel, winer.username, loser.username, winer.chan_name, loser.chan_name, Tscore, winer.score, loser.score)
                         break
                 if self.games[game_channel]['ball'].y >= 1:
                     self.games[game_channel]['ball'].directionX = 0
@@ -253,7 +277,8 @@ class Game(AsyncWebsocketConsumer):
                         winer = self.games[game_channel]['player2']
                         loser = self.games[game_channel]['player1']
                         Tscore = winer.score - loser.score
-                        await self.gameOver(game_channel, winer.username, loser.username, winer.chan_name, loser.chan_name, Tscore)
+                        await self.gameOver(game_channel, winer.username, loser.username, winer.chan_name, loser.chan_name, Tscore, winer.score, loser.score)
+                        print('game over')
                         break
                 await self.channel_layer.group_send(   
                     game_channel,
@@ -265,9 +290,9 @@ class Game(AsyncWebsocketConsumer):
                     }
                 )
                 await asyncio.sleep(1/40)
+        
     
-    
-    async def gameOver(self, game_chan ,winer, loser, chan_name1, chan_name2, Tscore):
+    async def gameOver(self, game_chan ,winer, loser, chan_name1, chan_name2, Tscore, scoreWiner, scoreLoser):
         await self.top_score(winer, Tscore)
         await self.update_winner(winer)
         await self.update_loser(loser)
@@ -275,6 +300,8 @@ class Game(AsyncWebsocketConsumer):
             game_chan,
             {
                 'type': 'game_over',
+                'scoreWiner': scoreWiner,
+                'scoreLoser': scoreLoser,
                 'winner': winer
             }
         )
@@ -293,10 +320,21 @@ class Game(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'type': 'start_game',
             'players': event['players'],
-            'game_channel': event['game_channel'],
+            'name_channel': event['name_channel'],
             'game_serialized': event['game_serialized']
         }))
-    
+
+    async def match_ready(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'match_ready',
+            'players': event['players'],
+            'game_channel': event['game_channel']
+        }))
+        
+    async def go_to_game(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'go_to_game',
+        }))
 
     async def paddle_update(self, event):
         paddle_data = event['paddle']
@@ -306,7 +344,7 @@ class Game(AsyncWebsocketConsumer):
             'paddle': paddle_data,
             'playernumber': playernumber
         }))
-        
+    
     async def update_ball(self, event):
         ball_data = event['ball']
         await self.send(text_data=json.dumps({
@@ -315,11 +353,12 @@ class Game(AsyncWebsocketConsumer):
             'player1': event['player1'],
             'player2': event['player2']
         }))
-        
 
     async def game_over(self, event):
         await self.send(text_data=json.dumps({
             'type': 'game_over',
+            'scoreWiner': event['scoreWiner'],
+            'scoreLoser': event['scoreLoser'],
             'winner': event['winner']
         }))
     

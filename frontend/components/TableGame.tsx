@@ -9,6 +9,7 @@ import { walls } from '../app/game/remotegame/Object';
 import { countdown } from '../app/game/Score';
 import dynamic from 'next/dynamic';
 import { redirect } from 'next/navigation';
+import { useUserContext } from '../components/context/usercontext';
 
 
 
@@ -25,16 +26,15 @@ let gameIsStarted = false;
 interface GameProps {
     playerna: string ;
     socketRef: WebSocket;
-    playernambre: string;
     groupname: string;
     player_id: string;
-    onGameEnd: (winner: string, number: string) => void;
+    onGameEnd: (winner: string, scoreWinner: string, scoreLoser: string) => void;
 }
 
 
-export default function TableGame({ playerna, socketRef, playernambre, groupname ,  player_id, onGameEnd}: GameProps) {
+export default function TableGame({ playerna, socketRef,  groupname ,  player_id, onGameEnd}: GameProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
-//   const {users, loading} = useUserContext();
+  const {authUser, loading} = useUserContext();
   const [gameStarted, setGameStarted] = useState(false);
   let count = 3; 
   let startTime = 0;
@@ -49,7 +49,6 @@ export default function TableGame({ playerna, socketRef, playernambre, groupname
       let Walls : walls = { wallsWidth: canvasRef.current.clientWidth, wallsHeight: canvasRef.current.clientHeight };
         const firtsData = { username: playerna , 
                             x: 4/ Walls.wallsWidth,
-                            playerNumber: playernambre,
                             y1: (Walls.wallsHeight - Walls.wallsHeight / 20) / Walls.wallsHeight,
                             y2: ((Walls.wallsHeight / 20) - (Walls.wallsHeight/40)) / Walls.wallsHeight,
                             pw: (Walls.wallsWidth/4) / Walls.wallsWidth ,
@@ -58,12 +57,12 @@ export default function TableGame({ playerna, socketRef, playernambre, groupname
                             dirY: 5/ Walls.wallsHeight,
                             Walls: Walls,
                             id_channel: player_id,
-                            playernambre: playernambre,
                             groupname: groupname};
-      socketRef.send(JSON.stringify({ type: 'match_tour', data: firtsData }));
+      socketRef.send(JSON.stringify({ type: 'game_started', data: firtsData }));
       socketRef.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.type === 'start_game') {
+          console.log(data);
           game_state = data.game_serialized;
           game_channel = data.name_channel;
           socketIsOpen = true;
@@ -81,9 +80,8 @@ export default function TableGame({ playerna, socketRef, playernambre, groupname
           game_state['player2'] = data.player2;
         }
         if (data.type === 'game_over') {
-          onGameEnd(data['winner'].username, data['winner'].playernambertour);
-          game_state = {};
-          game_channel = '';
+          console.log(data);
+          onGameEnd(data.winner, data.scoreWiner, data.scoreLoser);
         }
       };
 
@@ -169,8 +167,8 @@ export default function TableGame({ playerna, socketRef, playernambre, groupname
         <div className="w-[85%] h-[80vh] flex justify-center items-center xl:flex-row  flex-col mt-[5vh]">
                     { gameStarted && (
                       <Player1 
-                          image="/images/adil.png"
-                          name={game_state['player1'].username || ''} 
+                          image={authUser.avatar_url}
+                          name={game_state['player1']?.username || ''} 
                           />
                         )}
                         <div ref={canvasRef} className="aspect-[3/4] w-[250px]
@@ -187,8 +185,8 @@ export default function TableGame({ playerna, socketRef, playernambre, groupname
                                               shadow-[0_0_12px_#fff]"/>
                         { gameStarted && (
                       <Player2 
-                          image="/images/abdellah.png"
-                          name={game_state['player2'].username || ''} 
+                          image={authUser.avatar_url}
+                          name={game_state['player2']?.username || ''} 
                       />
                     )}
         </div>

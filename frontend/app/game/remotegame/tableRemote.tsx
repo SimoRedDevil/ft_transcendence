@@ -7,7 +7,6 @@ import p5 from 'p5';
 import { player , ball } from './Object';
 import { walls } from './Object';
 import { countdown } from './ScoreRemote';
-import { useUserContext } from '../../../components/context/usercontext';
 import dynamic from 'next/dynamic';
 
 
@@ -22,10 +21,17 @@ let Balls: ball = { x: 0, y: 0, radius: 0, color: '', directionX: 0, directionY:
 let socketIsOpen = false;
 let gameIsStarted = false;
 
-export default function Table() {
+interface GameProps {
+    username: string ;
+    socketRef: WebSocket;
+    groupname: string;
+    player_id: string;
+    onGameEnd: (winner: string, number: string) => void;
+}
+
+
+export default function Table({ username, socketRef, groupname ,  player_id, onGameEnd}: GameProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
-  const socketRef = useRef<WebSocket | null>(null);
-  const {users, loading} = useUserContext();
   const [gameStarted, setGameStarted] = useState(false);
   let count = 3; 
   let startTime = 0;
@@ -34,24 +40,19 @@ export default function Table() {
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      socketRef.current = new WebSocket('ws://localhost:8000/ws/game/');
       let Walls : walls = { wallsWidth: canvasRef.current.clientWidth, wallsHeight: canvasRef.current.clientHeight };
-      socketRef.current.onopen = () => {
-        console.log('WebSocket connected');
-        const firtsData = { username: getRandomName() , 
-                            x: 4/ Walls.wallsWidth,
-                            y1: (Walls.wallsHeight - Walls.wallsHeight / 20) / Walls.wallsHeight,
-                            y2: ((Walls.wallsHeight / 20) - (Walls.wallsHeight/40)) / Walls.wallsHeight,
-                            pw: (Walls.wallsWidth/4) / Walls.wallsWidth ,
-                            ph: (Walls.wallsHeight/40) / Walls.wallsHeight,
-                            sp: 8 / Walls.wallsWidth,
-                            dirY: 5/ Walls.wallsHeight,
-                            Walls: Walls,
-                            game_channel: game_channel};
-        socketRef.current.send(JSON.stringify({ type: 'connection', data: firtsData }));
-      };
-
-      socketRef.current.onmessage = (event) => {
+      const firtsData = { username: username , 
+        x: 4/ Walls.wallsWidth,
+        y1: (Walls.wallsHeight - Walls.wallsHeight / 20) / Walls.wallsHeight,
+        y2: ((Walls.wallsHeight / 20) - (Walls.wallsHeight/40)) / Walls.wallsHeight,
+        pw: (Walls.wallsWidth/4) / Walls.wallsWidth ,
+        ph: (Walls.wallsHeight/40) / Walls.wallsHeight,
+        sp: 8 / Walls.wallsWidth,
+        dirY: 5/ Walls.wallsHeight,
+        Walls: Walls,
+        game_channel: game_channel};
+      socketRef.send(JSON.stringify({ type: 'game_started', data: firtsData }));
+      socketRef.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.type === 'connection') {
           playerInfo.player_id = data.player.id;
@@ -82,12 +83,12 @@ export default function Table() {
         }
       };
 
-      socketRef.current.onclose = (event) => {
+      socketRef.onclose = (event) => {
         console.log('WebSocket closed:', event);
         socketIsOpen = false;
       };
 
-      socketRef.current.onerror = (event: Event) => {
+      socketRef.onerror = (event: Event) => {
         console.log('WebSocket error:', event);
     };
       const p = new p5((sketch) => {

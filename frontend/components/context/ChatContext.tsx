@@ -20,7 +20,8 @@ export const ChatProvider = ({ children }) => {
     const lastMessageRef = useRef(null);
     const [page, setPage] = useState(1);
     const [pageCount, setPageCount] = useState(1);
-    const [isBlocked, setIsBlocked] = useState(false);
+    const [blockerUsername, setBlockUsername] = useState(null);
+    const [unblockedUsername, setUnblockUsername] = useState(null);
     
     useEffect(() => {
         const checkMobile = () => {
@@ -56,7 +57,11 @@ export const ChatProvider = ({ children }) => {
                 );
             }
             else if (newMessage.msg_type === 'block') {
-                setIsBlocked(true);
+                setBlockUsername(newMessage.sent_by_user);
+            }
+            else if (newMessage.msg_type === 'unblock') {
+                setBlockUsername(null);
+                setUnblockUsername(newMessage.sent_by_user);
             }
         };
         ws.current.onclose = () => {
@@ -139,7 +144,8 @@ export const ChatProvider = ({ children }) => {
     return (
         <ChatContext.Provider value={{ messages, Conversations, conversationsLoading, messagesLoading,
             error, selectedConversation, otherUser, ws, isMobile, lastMessageRef, page, pageCount,
-            chatWindowRef, isBlocked, setConversations, fetchMessages, fetchConversations, setSelectedConversation, setOtherUser, setPage, setIsBlocked }}>
+            chatWindowRef, blockerUsername, unblockedUsername, setConversations, fetchMessages, fetchConversations,
+            setSelectedConversation, setOtherUser, setPage, setBlockUsername, setUnblockUsername }}>
             {children}
         </ChatContext.Provider>
     );

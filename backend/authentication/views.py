@@ -496,26 +496,37 @@ class Delete_account(APIView):
         user.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+@async_to_sync
+async def broadcast_msg(user, other_user, msg_type):
+    channel_layer = get_channel_layer()
+    room_group_name = f'chat_{user}'
+    other_user_room_group_name = f'chat_{other_user}'
+    await channel_layer.group_send(
+        room_group_name,
+        {
+            'type': 'send_message',
+            'msg_type': msg_type,
+            'content': 'blocked',
+            'id': -1,
+            'conversation_id': -1,
+            'sent_by_user': user
+        }
+    )
+    await channel_layer.group_send(
+        other_user_room_group_name,
+        {
+            'type': 'send_message',
+            'msg_type': msg_type,
+            'content': 'blocked',
+            'id': -1,
+            'conversation_id': -1,
+            'sent_by_user': user
+        }
+    )
+
 class block_user(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
-
-    @async_to_sync
-    async def broadcast_msg(self, user, other_user):
-        channel_layer = get_channel_layer()
-        room_group_name = f'chat_{user}'
-        other_user_room_group_name = f'chat_{other_user}'
-        await channel_layer.group_send(
-            room_group_name,
-            {
-                'type': 'send_message',
-                'msg_type': 'block',
-                'content': 'blocked',
-                'id': -1,
-                'conversation_id': -1,
-                'sent_by_user': user
-            }
-        )
 
     def post(self, request):
         user = request.user
@@ -535,8 +546,7 @@ class block_user(APIView):
             user.friends.remove(blocked_user)
         user.blocked_users.add(blocked_user)
         user.save()
-        self.broadcast_msg(user.username, username)
-        
+        broadcast_msg(user.username, username, 'block')
         return Response({'info': f'{blocked_user.username} is blocked'}, status=status.HTTP_200_OK)
 
 class unblock_user(APIView):
@@ -557,6 +567,7 @@ class unblock_user(APIView):
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
         user.blocked_users.remove(blocked_user)
         user.save()
+        broadcast_msg(user.username, username, 'unblock')
         return Response({'info': f'{blocked_user.username} is unblocked'}, status=status.HTTP_200_OK)
     
 class check_blocked(APIView):
@@ -571,5 +582,7 @@ class check_blocked(APIView):
         if not CustomUser.objects.filter(username=username).exists():
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
         if user.blocked_users.filter(username=username).exists():
-            return Response({'blocked': True}, status=status.HTTP_200_OK)
+            return Response({'blocked': True, 'blocker': user.username}, status=status.HTTP_200_OK)
+        if CustomUser.objects.get(username=username).blocked_users.filter(username=user.username).exists():
+            return Response({'blocked': True, 'blocker': username}, status=status.HTTP_200_OK)
         return Response({'blocked': False}, status=status.HTTP_200_OK)

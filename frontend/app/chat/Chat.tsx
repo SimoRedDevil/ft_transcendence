@@ -18,6 +18,7 @@ import { ToastContainer, toast} from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { json } from 'stream/consumers';
 import Link from 'next/link'
+import { getCookies } from '../../components/auth';
 
 function Chat({setShowBlockDialog}) {
   const [showEmoji, setShowEmoji] = useState(false)
@@ -26,6 +27,8 @@ function Chat({setShowBlockDialog}) {
   const { t } = useTranslation();
   const [checkBlockLoading, setCheckBlockLoading] = useState(true)
   const [otherUserOnline, setOtherUserOnline] = useState(false)
+  const [isBlocked, setIsBlocked] = useState(false)
+  const [blocker, setBlocker] = useState(null)
 
   const
   {
@@ -40,8 +43,10 @@ function Chat({setShowBlockDialog}) {
     setPage,
     pageCount,
     chatWindowRef,
-    isBlocked,
-    setIsBlocked
+    blockerUsername,
+    unblockedUsername,
+    setBlockUsername,
+    setUnblockUsername,
   } = useChatContext()
 
   const handleKeyDown = (e) => {
@@ -87,6 +92,29 @@ function Chat({setShowBlockDialog}) {
     setShowBlockDialog(true)
   }
 
+  const handleUnblockUser = async () => {
+    const body = {
+      username: otherUser?.username
+    }
+    try {
+      const cookies = await getCookies();
+      const csrfToken = cookies.cookies.csrftoken;
+      const response = await axios.post('http://localhost:8000/api/auth/unblock/', body, {
+        headers: {
+          "Content-Type": "application/json",
+          'X-CSRFToken': csrfToken,
+        },
+        withCredentials: true,
+      });
+      if (response.status === 200) {
+        setIsBlocked(false)
+        toast.success("User unblocked successfully")
+      }
+    } catch (error) {
+      toast.error(t(error.response.data.error))
+    }
+  }
+
   const checkUserBlocked = () => {
     axiosInstance.get(`auth/check-blocked/`, {
       params: {
@@ -95,6 +123,10 @@ function Chat({setShowBlockDialog}) {
     }).then((response) => {
       if (response.status === 200) {
         setIsBlocked(response.data.blocked)
+        console.log(response.data.blocker)
+        if (response.data.blocker !== null) {
+          setBlocker(response.data.blocker)
+        }
       }
     }).catch((error) => {
       toast.error(t(error.response.data.error))
@@ -114,6 +146,22 @@ function Chat({setShowBlockDialog}) {
       setOtherUserOnline(otherUser.online)
     }
   }, [otherUser])
+
+  useEffect(() => {
+    if (blockerUsername !== null && (blockerUsername === authUser?.username || blockerUsername === otherUser?.username)) {
+      setIsBlocked(true)
+      setBlocker(blockerUsername)
+      setBlockUsername(null)
+    }
+  }, [blockerUsername])
+
+  useEffect(() => {
+    if (unblockedUsername !== null && (unblockedUsername === authUser?.username || unblockedUsername === otherUser?.username)) {
+      setIsBlocked(false)
+      setBlocker(null)
+      setUnblockUsername(null)
+    }
+  }, [unblockedUsername])
 
   if (selectedConversation === null) return;
 
@@ -172,9 +220,20 @@ function Chat({setShowBlockDialog}) {
               <EmojiPicker onEmojiClick={handleEmojiClick} width={400} theme='dark' emojiStyle='google' searchDisabled={false} lazyLoadEmojis={true}/>
             </div>
           </div>
-          <div className='w-full h-[100px] bg-transparent flex items-center justify-center'>
+          <div className={`w-[90%] h-[250px] bg-black bg-opacity-50 border border-white border-opacity-30 rounded-[30px] p-5 flex flex-col items-center justify-center text-center gap-3 ${!isBlocked && 'invisible'}`}>
+              <div className={`text-red-600 text-opacity-60`}>
+                {blocker === authUser?.username ? <p>You have blocked this user. Unblock him to send messages.</p> : <p>You have been blocked by this user. You cannot send messages.</p>}
+              </div>
+              {
+                blocker === authUser?.username &&
+                <button onClick={handleUnblockUser} className='hover:bg-[#427baa] w-[220px] h-[55px] bg-[#3b6e98] rounded-[30px] flex items-center justify-center'>
+                  <span className='text-white text-opacity-90'>Unblock</span>
+                </button>
+              }
+          </div>
+          <div className={`w-full h-[100px] bg-transparent flex items-center justify-center ${isBlocked && 'invisible'}`}>
             <div onKeyDown={handleKeyDown} className={`flex justify-between h-[80px] w-full rounded-[30px] border border-white border-opacity-30 bg-black bg-opacity-50 ${isBlocked ? ' border-red-600 bg-red-600 bg-opacity-20 ' : ''} `}>
-              <TextBox input={input} onChange={(e) => handleInputChange(e)} placeholder={`${isBlocked ? 'You can\'t talk with this user because you are blocked by him or blocked him!' : 'Type a message...'}`} icon={undefined} className={`w-full h-full bg-transparent rounded-[30px] p-[20px]`} disabled={isBlocked === true ? true : false}></TextBox>
+              <TextBox input={input} onChange={(e) => handleInputChange(e)} placeholder={`${isBlocked ? 'You can\'t talk with this user because you are blocked by him or blocked him!' : 'Type a message...'}`} icon={undefined} className={`w-full h-full bg-transparent rounded-[30px] p-[20px] ${isBlocked && 'invisible'}`} disabled={isBlocked === true ? true : false}></TextBox>
               <div className='w-[140px] flex items-center justify-center gap-3'>
                 <button disabled={isBlocked === true ? true : false} onClick={handleEmoji}>
                   <MdEmojiEmotions className={!showEmoji ? 'text-white text-opacity-90 w-[40px] h-[40px] hover:text-opacity-100' : 'text-[#4682B4] text-opacity-100 w-[40px] h-[40px]'} />

@@ -36,6 +36,8 @@ import jwt
 from django.utils.timezone import now
 from rest_framework.decorators import action
 from django.db.models import Q
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 URL_FRONT = os.getenv('URL_FRONT')
 URL_BACK = os.getenv('URL_BACK')
@@ -498,6 +500,23 @@ class block_user(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
+    @async_to_sync
+    async def broadcast_msg(self, user, other_user):
+        channel_layer = get_channel_layer()
+        room_group_name = f'chat_{user}'
+        other_user_room_group_name = f'chat_{other_user}'
+        await channel_layer.group_send(
+            room_group_name,
+            {
+                'type': 'send_message',
+                'msg_type': 'block',
+                'content': 'blocked',
+                'id': -1,
+                'conversation_id': -1,
+                'sent_by_user': user
+            }
+        )
+
     def post(self, request):
         user = request.user
         data = request.data
@@ -516,6 +535,8 @@ class block_user(APIView):
             user.friends.remove(blocked_user)
         user.blocked_users.add(blocked_user)
         user.save()
+        self.broadcast_msg(user.username, username)
+        
         return Response({'info': f'{blocked_user.username} is blocked'}, status=status.HTTP_200_OK)
 
 class unblock_user(APIView):
@@ -549,6 +570,6 @@ class check_blocked(APIView):
             return Response({'error': 'username is required'}, status=status.HTTP_400_BAD_REQUEST)
         if not CustomUser.objects.filter(username=username).exists():
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-        if user.blocked_users.filter(username=username).exists() or CustomUser.objects.get(username=username).blocked_users.filter(username=user.username).exists():
+        if user.blocked_users.filter(username=username).exists():
             return Response({'blocked': True}, status=status.HTTP_200_OK)
         return Response({'blocked': False}, status=status.HTTP_200_OK)

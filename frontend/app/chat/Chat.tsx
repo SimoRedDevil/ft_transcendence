@@ -24,7 +24,6 @@ function Chat({setShowBlockDialog}) {
   const [input, setInput] = useState('')
   const {authUser, loading} = useUserContext()
   const { t } = useTranslation();
-  const [isBlocked, setIsBlocked] = useState(false)
   const [checkBlockLoading, setCheckBlockLoading] = useState(true)
   const [otherUserOnline, setOtherUserOnline] = useState(false)
 
@@ -40,7 +39,9 @@ function Chat({setShowBlockDialog}) {
     page,
     setPage,
     pageCount,
-    chatWindowRef
+    chatWindowRef,
+    isBlocked,
+    setIsBlocked
   } = useChatContext()
 
   const handleKeyDown = (e) => {

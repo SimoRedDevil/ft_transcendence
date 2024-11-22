@@ -20,6 +20,7 @@ export const ChatProvider = ({ children }) => {
     const lastMessageRef = useRef(null);
     const [page, setPage] = useState(1);
     const [pageCount, setPageCount] = useState(1);
+    const [isBlocked, setIsBlocked] = useState(false);
     
     useEffect(() => {
         const checkMobile = () => {
@@ -41,7 +42,7 @@ export const ChatProvider = ({ children }) => {
         };
         ws.current.onmessage = (message) => {
             const newMessage = JSON.parse(message.data);
-            if (newMessage.type === 'message') {
+            if (newMessage.msg_type === 'message') {
                 console.log('New message:', newMessage);
                 setMessages((prevMessages) => [...prevMessages, newMessage]);
                 setConversations((prevConversations) => {
@@ -53,6 +54,9 @@ export const ChatProvider = ({ children }) => {
                     setConversations([updatedConversation, ...otherConversations]);
                 }
                 );
+            }
+            else if (newMessage.msg_type === 'block') {
+                setIsBlocked(true);
             }
         };
         ws.current.onclose = () => {
@@ -135,7 +139,7 @@ export const ChatProvider = ({ children }) => {
     return (
         <ChatContext.Provider value={{ messages, Conversations, conversationsLoading, messagesLoading,
             error, selectedConversation, otherUser, ws, isMobile, lastMessageRef, page, pageCount,
-            chatWindowRef, setConversations, fetchMessages, fetchConversations, setSelectedConversation, setOtherUser, setPage }}>
+            chatWindowRef, isBlocked, setConversations, fetchMessages, fetchConversations, setSelectedConversation, setOtherUser, setPage, setIsBlocked }}>
             {children}
         </ChatContext.Provider>
     );

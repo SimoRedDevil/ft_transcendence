@@ -61,6 +61,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             info['room_group_name'],
             {
                 'type': 'send_message',
+                'msg_type': 'message',
                 'id': info['id'],
                 'conversation_id': info['conversation_id'],
                 'sent_by_user': info['sent_by_user'],
@@ -101,8 +102,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         timestamp = timezone.now().strftime("%A, %I:%M %p")
         id = event['id']
         conversation_id = event['conversation_id']
+        msg_type = event['msg_type']
         await self.send(text_data=json.dumps({
-            'type': 'message',
+            'msg_type': msg_type,
             'id': id,
             'conversation_id': conversation_id,
             'sent_by_user': sent_by_user,

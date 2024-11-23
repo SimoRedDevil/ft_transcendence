@@ -51,6 +51,9 @@ export default function Game() {
                     setGameRoom(data.game_channel);
                     setMatchReady(true);
                 }
+                if (data.type === 'exist_player') {
+                    console.log(data);
+                }
                 if (data.type === 'go_to_game') {
                     setGameStarted(true);
                 }

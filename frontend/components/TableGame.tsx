@@ -6,7 +6,7 @@ import { movePaddle } from '../app/game/remotegame/PaddleRemote';
 import p5 from 'p5';
 import { player , ball } from '../app/game/remotegame/Object';
 import { walls } from '../app/game/remotegame/Object';
-import { countdown } from '../app/game/Score';
+import { countdown } from '../app/game/remotegame/ScoreRemote';
 import dynamic from 'next/dynamic';
 import { redirect } from 'next/navigation';
 import { useUserContext } from '../components/context/usercontext';
@@ -45,9 +45,8 @@ export default function TableGame({ playerna, socketRef,  groupname ,  player_id
     playerInfo.player_id = player_id;
     playerInfo.name = playerna;
     if (typeof window !== 'undefined') {
-
       let Walls : walls = { wallsWidth: canvasRef.current.clientWidth, wallsHeight: canvasRef.current.clientHeight };
-        const firtsData = { username: playerna , 
+      const firtsData = { username: playerna , 
                             x: 4/ Walls.wallsWidth,
                             y1: (Walls.wallsHeight - Walls.wallsHeight / 20) / Walls.wallsHeight,
                             y2: ((Walls.wallsHeight / 20) - (Walls.wallsHeight/40)) / Walls.wallsHeight,

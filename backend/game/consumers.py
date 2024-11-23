@@ -3,6 +3,7 @@ import math
 import asyncio
 from .models import Player, Match
 from asgiref.sync import sync_to_async
+from authentication.models import CustomUser
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 
@@ -68,7 +69,15 @@ class Game(AsyncWebsocketConsumer):
         await self.accept()
         self.player = None
         self.game_channel = None
-
+        # useRname = self.scope['user']
+        # existPlayer = await sync_to_async(Player.objects.filter(username=useRname).exists)()
+        # if existPlayer:
+        #     await self.send(text_data=json.dumps({
+        #         'type': 'exist_player',
+        #         'message': 'You are already connected'
+        #     }))
+        #     await self.close()
+        # else:
 
     async def receive(self, text_data):
         data = json.loads(text_data)
@@ -186,7 +195,8 @@ class Game(AsyncWebsocketConsumer):
                     self.player['group_name'],
                     game[other_player_id].chan_name
                 )
-                del self.games[self.player['group_name']]
+                if self.player['group_name'] in self.games:
+                    del self.games[self.player['group_name']]
             
     async def matchmaking(self, data):
         if len(Game.match_making) >= 2:
@@ -197,6 +207,9 @@ class Game(AsyncWebsocketConsumer):
             self.game_channel = f'game{player1["name"]}vs{player2["name"]}'
             player1['group_name'] = self.game_channel
             player2['group_name'] = self.game_channel
+            await self.update_matchCount(player1['name'])
+            await self.update_matchCount(player2['name'])
+            await self.maches(player1['name'], player2['name'])
             await self.channel_layer.group_add(
                 self.game_channel,
                 player1['id']
@@ -238,7 +251,7 @@ class Game(AsyncWebsocketConsumer):
         
         ball.directionY = direc * ball.speed * math.cos(angle)
         ball.directionX = ball.speed * math.sin(angle)
-        
+
     async def update_ball_loop(self, game_channel):
         await asyncio.sleep(3)
         while True:
@@ -265,6 +278,7 @@ class Game(AsyncWebsocketConsumer):
                         winer = self.games[game_channel]['player1'] 
                         loser = self.games[game_channel]['player2']
                         Tscore = winer.score - loser.score
+                        await self.Update_matches(winer.username, loser.username, winer.score, loser.score)
                         await self.gameOver(game_channel, winer.username, loser.username, winer.chan_name, loser.chan_name, Tscore, winer.score, loser.score)
                         break
                 if self.games[game_channel]['ball'].y >= 1:
@@ -277,6 +291,7 @@ class Game(AsyncWebsocketConsumer):
                         winer = self.games[game_channel]['player2']
                         loser = self.games[game_channel]['player1']
                         Tscore = winer.score - loser.score
+                        await self.Update_matches(loser.username, winer.username, loser.score, winer.score)
                         await self.gameOver(game_channel, winer.username, loser.username, winer.chan_name, loser.chan_name, Tscore, winer.score, loser.score)
                         print('game over')
                         break
@@ -379,27 +394,51 @@ class Game(AsyncWebsocketConsumer):
 
     @sync_to_async
     def update_matchCount(self, username):
-        player = Player.objects.get(username=username)
-        player.matchCount += 1
+        player = CustomUser.objects.get(username=username)
+        player.matches += 1
         player.save()
         
     @sync_to_async
     def update_winner(self, username):
-        player = Player.objects.get(username=username)
+        player = CustomUser.objects.get(username=username)
         player.wins += 1
         player.save()
         
     @sync_to_async
     def update_loser(self, username):
-        player = Player.objects.get(username=username)
-        player.loses += 1
+        player = CustomUser.objects.get(username=username)
+        player.losses += 1
         player.save()
 
     @sync_to_async 
     def top_score(self, username, score):
-        player = Player.objects.get(username=username)
-        if player.topScore < score:
-            player.topScore = score
+        player = CustomUser.objects.get(username=username)
+        if player.top_score < score:
+            player.top_score = score
             player.save()
     
 
+    @sync_to_async
+    def maches(self, username1 , username2):
+        player1 = CustomUser.objects.get(username=username1)
+        player2 = CustomUser.objects.get(username=username2)
+        mAtch = Match.objects.create(
+            player1=player1,
+            player2=player2,
+            score1=0,
+            score2=0,
+            winer=player1
+        )
+        
+    @sync_to_async
+    def Update_matches(self, username1, username2, score1, score2):
+        player1 = CustomUser.objects.get(username=username1)
+        player2 = CustomUser.objects.get(username=username2)
+        match = Match.objects.filter(player1=player1, player2=player2).latest('id')
+        match.score1 = score1
+        match.score2 = score2
+        if score1 > score2:
+            match.winer = player1
+        else:
+            match.winer = player2
+        match.save()

@@ -12,6 +12,7 @@ def get_all_players(request):
     serializer = PlayerSerializer(players, many=True)
     return Response(serializer.data)
 
+@api_view(['GET'])
 def get_all_matches(request):
     matches = Match.objects.all()
     serializer = MatchSerializer(matches, many=True)

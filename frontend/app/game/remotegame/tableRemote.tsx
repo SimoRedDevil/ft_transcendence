@@ -122,7 +122,7 @@ export default function Table({ username, socketRef, groupname ,  player_id, onG
                 countdown(sketch, Walls, count);
                 return;
             }
-              movePaddle(sketch, playerInfo, game_channel, socketRef.current);
+              movePaddle(sketch, playerInfo, game_channel, socketRef);
               if (game_state['player1'] && game_state['player2'])
                 tableDraw(sketch, game_state ,Walls, playerInfo);
             const elapsedTime = sketch.millis() - startTime;
@@ -140,7 +140,7 @@ export default function Table({ username, socketRef, groupname ,  player_id, onG
             countdown(sketch, Walls, count);
             return;
         }
-          movePaddle(sketch, playerInfo, game_channel, socketRef.current);
+          movePaddle(sketch, playerInfo, game_channel, socketRef);
           if (game_state['player1'] && game_state['player2'])
             tableDraw(sketch, game_state ,Walls, playerInfo);
         };
@@ -158,8 +158,8 @@ export default function Table({ username, socketRef, groupname ,  player_id, onG
       return () => {
         p.remove();
         window.removeEventListener('resize', handleResize);
-        if (socketRef.current) {
-          socketRef.current.close();
+        if (socketRef) {
+          socketRef.close();
         }
       };
     }

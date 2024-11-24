@@ -32,4 +32,5 @@ class FriendRequest(models.Model):
             return False
         self.status = 'R'
         self.save()
+        self.delete()
         return True

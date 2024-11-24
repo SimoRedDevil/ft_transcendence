@@ -187,7 +187,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
                     {
                         (isAuthenticated && isSearching) && (
                             <div className='z-50 fixed left-0 flex items-center justify-center w-full h-[600px] text-white'>
-                                <div className='border border-white/40 ml-[-100px] w-[50%] sm:w-[400px] md:w-[500px] lg:w-[600px] 2xl:w-[700px] h-full bg-black bg-opacity-80 rounded-[30px]'>
+                                <div className='border border-white/40 ml-[-100px] w-[50%] sm:w-[400px] md:w-[500px] lg:w-[600px] 2xl:w-[700px] h-full bg-black bg-opacity-80 rounded-[30px] no-scrollbar overflow-y-auto scroll-smooth'>
                                     <div className='border-b border-white/40 p-4'>
                                         <span className='text-white text-[20px]'>Search Results</span>
                                     </div>
@@ -208,9 +208,9 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
           {isAuthenticated && profileDropDownClicked && (
             <div className="w-[calc(100%_-_100px)] fixed h-[170px] flex flex-row-reverse">
               <DropDown
-                className="w-[250px] h-[50px] flex items-center border 
+                className="w-[250px] h-[50px] flex items-center border
                 border-white border-opacity-20 cursor-pointer hover:bg-white
-                hover:bg-opacity-10"
+                hover:bg-opacity-10 bg-[#201f1f] bg-opacity-100"
                 items={["View Profile", "Friend Requests", "Logout"]}
               />
             </div>

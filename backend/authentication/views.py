@@ -253,10 +253,28 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     def get_queryset(self):
         search = self.request.GET.get('search')
+        username = self.request.GET.get('username')
         if search:
             result_users = CustomUser.objects.filter(Q(username__icontains=search) | Q(full_name__icontains=search))
             return result_users.exclude(username__in=self.request.user.blocked_users.all().values_list('username', flat=True)).filter(is_active=True)
         return CustomUser.objects.filter(is_active=True)
+
+class GetUser(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        username = request.GET.get('username')
+        if username:
+            try:
+                user = CustomUser.objects.get(username=username)
+                if user.is_active == False or user.username in request.user.blocked_users.all().values_list('username', flat=True):
+                    return Response("User not found", status=status.HTTP_404_NOT_FOUND)
+            except CustomUser.DoesNotExist:
+                return Response("User not found", status=status.HTTP_404_NOT_FOUND)
+            user_data = UserSerializer(user).data
+            return Response(user_data, status=status.HTTP_200_OK)
+        return Response("Username required", status=status.HTTP_400_BAD_REQUEST)
 
 def generate_tokens(request):
     user = request.user
@@ -586,3 +604,13 @@ class check_blocked(APIView):
         if CustomUser.objects.get(username=username).blocked_users.filter(username=user.username).exists():
             return Response({'blocked': True, 'blocker': username}, status=status.HTTP_200_OK)
         return Response({'blocked': False}, status=status.HTTP_200_OK)
+
+class friends_list(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        friends = user.friends.all()
+        friends_data = UserSerializer(friends, many=True).data
+        return Response(friends_data, status=status.HTTP_200_OK)

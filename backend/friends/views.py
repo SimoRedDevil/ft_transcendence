@@ -14,11 +14,8 @@ from django.db.models import Q
 
 # Create your views here.
 
-def check_friendship_exists(sender, receiver):
-    return FriendRequest.objects.filter(sender=sender, receiver=receiver).exists()
-
 def check_friendrequest_exists(sender, receiver):
-    return FriendRequest.objects.filter(sender=sender, receiver=receiver).filter(status != 'A').exists()
+    return FriendRequest.objects.filter(sender=sender, receiver=receiver).exists()
 
 class CreateRequest(APIView):
     permission_classes = [IsAuthenticated]
@@ -26,7 +23,8 @@ class CreateRequest(APIView):
 
     def post(self, request):
         data = request.data
-        if (check_friendship_exists(data['sender'], data['receiver']) or check_friendship_exists(data['receiver'], data['sender'])):
+        print(data, flush=True)
+        if (check_friendrequest_exists(data['sender'], data['receiver']) or check_friendrequest_exists(data['receiver'], data['sender'])):
             return Response({"detail: Friend request already sent."}, status=status.HTTP_400_BAD_REQUEST)
         if (data['sender'] == data['receiver']):
             return Response({"detail: Cannot send friend request to yourself."}, status=status.HTTP_400_BAD_REQUEST)
@@ -35,7 +33,7 @@ class CreateRequest(APIView):
         serializer = FriendRequestSerializer(data=data)
         if serializer.is_valid() == False:
             return Response({"detail: data not valid"}, status=status.HTTP_400_BAD_REQUEST)
-        serializer.save()
+        FriendRequest.objects.create(sender=CustomUser.objects.get(id=data['sender']), receiver=CustomUser.objects.get(id=data['receiver']))
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class GetRequests(APIView):

@@ -19,21 +19,43 @@ import { axiosInstance } from '@/utils/axiosInstance';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import {useRouter} from 'next/navigation';
+import { getCookies } from '../../../components/auth';
 
 export default function Profile({params}) {
   const { authUser, loading } = useUserContext();
   const [data, setData] = useState(null);
-  const [Send, SetSend] = useState(null);
+  const [Send, SetSend] = useState(false);
   const [user, setUser] = useState(null);
   const [userLoading, setUserLoading] = useState(true);
   const resolvedParam = React.use(params);
   const { t } = useTranslation();
   const router = useRouter();
 
-  const handleSend = () => {
-    SetSend(!Send)
+  const handleSend = async () => {
+    const body = {
+      sender: authUser?.id,
+      receiver: user?.id,
+    }
+
+    try {
+      const cookies = await getCookies();
+      const csrfToken = cookies.cookies.csrftoken;
+      const response = await axios.post('http://localhost:8000/api/friends/requests/create-request/', body, {
+        headers: {
+          "Content-Type": "application/json",
+          'X-CSRFToken': csrfToken,
+        },
+        withCredentials: true,
+      });
+      if (response.status === 200) {
+        toast.success(t('Friend request sent!'))
+      }
+    } catch (error) {
+      toast.error(t(error.response.data.error))
+    }
+    // SetSend(!Send)
   }
-  // Fetch data from JSON file in the public folder
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -73,7 +95,7 @@ export default function Profile({params}) {
     <div className="lg:w-[100%] lg:h-full  lg:overflow-hidden lg:flex  lg:flex-col items-center justify-center gap-5 xs:h-[90vh] xs:overflow-y-auto xs:overflow-x-hidden  xs:space-y-4 lg:space-y-0 overflow-hidden  rounded-xl" >
       
       <div className="lg:h-[30%] lg:w-[95%]  bg-inherit  flex justify-around items-center gap-6" >
-               <div className='w-[40%] relative   h-[80%] flex justify-around  gap-4 border border-[white]/40 rounded-xl '>
+               <div className='w-[40%] relative h-[80%] flex justify-around  gap-4 border border-[white]/40 rounded-xl '>
                 <img src={user?.avatar_url} alt=""  className='w-56 h-56  rounded-3xl  relative top-4 left-4 border border-[#bff1fafb] p-1'/>
                 <div className='w-[60%] flex flex-col justify-around items-start'>
                     <h1 className='text-white text-[2rem] text-center font-Earth'>{user?.full_name}</h1>
@@ -83,6 +105,7 @@ export default function Profile({params}) {
                         <h3 className='relative -top-5 text-white  font-Informative'>Username: {user?.username} </h3>
                         <h3 className='relative -top-5 text-white  font-Informative'>Email: {user?.email}</h3>
                       </div>
+                      <button className='w-[200px] h-[50px] bg-[#f5f5f5] text-black rounded-xl font-Informative' onClick={handleSend}>Add friend</button>
                 </div>
                </div>
        <div className="lg:h-full lg:w-[60%]   flex relative  xs:h-[60vh]  xs:w-[90%] border border-[white]/40 rounded-xl ">

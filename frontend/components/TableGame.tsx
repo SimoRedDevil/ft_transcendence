@@ -154,9 +154,6 @@ export default function TableGame({ playerna, socketRef,  groupname ,  player_id
       return () => {
         p.remove();
         window.removeEventListener('resize', handleResize);
-        if (socketRef) {
-          socketRef.close();
-        }
       };
     }
   }, []);

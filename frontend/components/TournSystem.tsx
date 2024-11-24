@@ -6,7 +6,7 @@ import LocalGame from './LocalGame';
 import Image from 'next/image';
 import { useEffect , useRef} from 'react';
 import { player } from '../app/game/Object';
-import Table from './TableGame';
+import TableTourGame from '@/app/game/tournament/remote/TableTourGame';
 
 
 
@@ -111,7 +111,7 @@ export default function TournamentSyst({ PlayerName }: Props) {
     return (
         <div className="w-[90%] h-[80vh] flex justify-center items-center flex-col  ml-[28px]">
             {showLocalGame ? (
-                <Table playerna={PlayerName} socketRef={socketRef.current} playernambre={currentPlayers} groupname={group_name} player_id={player_id} onGameEnd={handleGameEnd}/>
+                <TableTourGame playerna={PlayerName} socketRef={socketRef.current} playernambre={currentPlayers} groupname={group_name} player_id={player_id} onGameEnd={handleGameEnd}/>
             ) : ((
                     <div className="w-[85%] h-[80vh] flex justify-center items-center lg:justify-start lg:items-start flex-col mt-[5vh]">
                         <div className='sm:hidden w[100px] h-[60px] text-white '>{currentGame === 3 ? "Final" : "Demi Final"}</div>

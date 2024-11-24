@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import { useUserContext } from '../../../components/context/usercontext';
 import Platform from '@/components/Platform';
 import Versus from '@/components/Versus';
-import Table from '../../../components/TableGame';
+import TableGame from '../../../components/TableGame';
 import Winner from '@/components/Winner';
 
 interface player {
@@ -70,7 +70,7 @@ export default function Game() {
                         md:bg-black md:bg-opacity-20
                         md:rounded-[50px]'>
         {!gameStarted ? ( !matchready ? (<Platform />) : (<Versus socket={socketRef.current} game_roum={game_roum} username={authUser.username} />)) 
-        : (!gameOver ? (<Table playerna={authUser.username} socketRef={socketRef.current}  groupname={game_roum} player_id={id_channel} onGameEnd={handleGameEnd}/>) 
+        : (!gameOver ? (<TableGame playerna={authUser.username} socketRef={socketRef.current}  groupname={game_roum} player_id={id_channel} onGameEnd={handleGameEnd}/>) 
         : (<Winner winer={winer} scoreWinner={scoreWinner} scoreLoser={scoreLoser} />))}
         </div>
     );

@@ -31,31 +31,6 @@ export default function Profile({params}) {
   const { t } = useTranslation();
   const router = useRouter();
 
-  const handleSend = async () => {
-    const body = {
-      sender: authUser?.id,
-      receiver: user?.id,
-    }
-
-    try {
-      const cookies = await getCookies();
-      const csrfToken = cookies.cookies.csrftoken;
-      const response = await axios.post('http://localhost:8000/api/friends/requests/create-request/', body, {
-        headers: {
-          "Content-Type": "application/json",
-          'X-CSRFToken': csrfToken,
-        },
-        withCredentials: true,
-      });
-      if (response.status === 200) {
-        toast.success(t('Friend request sent!'))
-      }
-    } catch (error) {
-      toast.error(t(error.response.data.error))
-    }
-    // SetSend(!Send)
-  }
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -105,7 +80,6 @@ export default function Profile({params}) {
                         <h3 className='relative -top-5 text-white  font-Informative'>Username: {user?.username} </h3>
                         <h3 className='relative -top-5 text-white  font-Informative'>Email: {user?.email}</h3>
                       </div>
-                      <button className='w-[200px] h-[50px] bg-[#f5f5f5] text-black rounded-xl font-Informative' onClick={handleSend}>Add friend</button>
                 </div>
                </div>
        <div className="lg:h-full lg:w-[60%]   flex relative  xs:h-[60vh]  xs:w-[90%] border border-[white]/40 rounded-xl ">

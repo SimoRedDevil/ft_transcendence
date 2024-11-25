@@ -23,7 +23,6 @@ class CreateRequest(APIView):
 
     def post(self, request):
         data = request.data
-        print(data, flush=True)
         if (check_friendrequest_exists(data['sender'], data['receiver']) or check_friendrequest_exists(data['receiver'], data['sender'])):
             return Response({"detail: Friend request already sent."}, status=status.HTTP_400_BAD_REQUEST)
         if (data['sender'] == data['receiver']):
@@ -77,6 +76,13 @@ class RejectRequest(APIView):
             return Response("{detail: Friend request already rejected}", status=status.HTTP_400_BAD_REQUEST)
         return Response("{detail: Friend request rejected}", status=status.HTTP_200_OK)
 
+class CheckFriendRequestExists(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionAuthentication]
+
+    def get(self, request):
+        user = request.query_params.get('user')
+        return Response(False, status=status.HTTP_200_OK)
 # class FriendRequestViewSet(ModelViewSet):
 #     permission_classes = [IsAuthenticated]
 #     authentication_classes = [SessionAuthentication]

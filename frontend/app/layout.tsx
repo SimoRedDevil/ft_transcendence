@@ -15,6 +15,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useTranslation } from "react-i18next";
 import { Provider } from "@/components/ui/provider";
 import Image from "next/image";
+import Link from "next/link";
 
 
 function RootLayout({ children }: any) {
@@ -193,12 +194,13 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
                                     </div>
                                     {searchLoading && <div/>}
                                     {searchResults.map((user: any) => (
-                                        <div key={user.id} className='w-full p-4 flex gap-3 items-center hover:bg-white hover:bg-opacity-10 hover:cursor-pointer'>
+                                        user.username !== authUser?.username &&
+                                        <Link key={user.id} href={`/profile/${user.username}/`} className='w-full p-4 flex gap-3 items-center hover:bg-white hover:bg-opacity-10 hover:cursor-pointer'>
                                             <div className='w-[50px] h-[50px] rounded-full bg-green-800'>
                                                 <Image src={user?.avatar_url} height={50} width={50} alt='avatar' className='rounded-full' />
                                             </div>
                                             <span>{user.full_name}</span>
-                                        </div>
+                                        </Link>
                                     ))} 
                                 </div>
                             </div>

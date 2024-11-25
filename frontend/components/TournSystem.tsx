@@ -12,7 +12,8 @@ import TableTourGame from '@/app/game/tournament/remote/TableTourGame';
 
 interface Props {
     PlayerName: string;
-    HandleUserExist: (exist: boolean) => void;
+    HandleUserExist: (exist: boolean, playerExit: string) => void;
+    GameEnd: (winer: string) => void; 
 }
 
 interface Player {
@@ -24,7 +25,7 @@ interface Player {
 
 
 
-export default function TournamentSyst({ PlayerName, HandleUserExist }: Props) {
+export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }: Props) {
     const socketRef = useRef<WebSocket | null>(null);
     const [players, setPlayers] = useState<Player[]>([]);
     const [userExist, setUserExist] = useState(false);
@@ -44,7 +45,7 @@ export default function TournamentSyst({ PlayerName, HandleUserExist }: Props) {
                 if (data.type === 'connection') {
                     if (data.message === 'player_exist') {
                         setUserExist(false);
-                        HandleUserExist(true);
+                        HandleUserExist(true, data['player']);
                     }
                     else {
                     setPlayer_id(data.player.id)
@@ -124,6 +125,7 @@ export default function TournamentSyst({ PlayerName, HandleUserExist }: Props) {
         setWinner(wineer);
         setShowLocalGame(false);
         setCurrentGame(currentGame + 2);
+        GameEnd(wineer);
     }
 
 

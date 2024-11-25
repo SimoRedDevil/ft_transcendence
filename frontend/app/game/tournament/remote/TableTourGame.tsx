@@ -100,7 +100,7 @@ export default function TableTourGame({ playerna, socketRef, playernambre, group
             if (data['final_tournament'] === false)
               handleUpdate(data['players'][0].winer, data['players'][0].numberwiner, data['players'][1].winer, data['players'][1].numberwiner);
             else
-              handlefinal(data['players'][0].winer);
+              handlefinal(data['players'].winer);
 
           }
       };

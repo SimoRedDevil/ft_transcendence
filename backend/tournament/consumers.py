@@ -123,9 +123,10 @@ class Tournament(AsyncWebsocketConsumer):
             else:
                 await self.send(text_data=json.dumps({
                     'type': 'connection',
-                    'message': 'player_exist'
+                    'message': 'player_exist',
+                    'player': data['playerName']
                 }))
-                
+            
         if data['type'] == 'move':
             game_channel = data['game_channel']
             player_id = self.player['player_id'] 
@@ -412,7 +413,7 @@ class Tournament(AsyncWebsocketConsumer):
                         loser = self.games[game_channel]['player2']
                         Tscore = winer.score - loser.score
                         await self.gameOver(game_channel, winer, final_tournament)
-                        break 
+                        break
                 if self.games[game_channel]['ball'].y >= 1:
                     self.games[game_channel]['ball'].directionX = 0
                     self.games[game_channel]['ball'].y = 0.5

@@ -7,12 +7,19 @@ import TournamentSyst from '../../../../components/TournSystem'
 export default function TournamentRemote() {
     const [player, setPlayer] = useState('')
     const [form, setForm] = useState(false)
+    const [userExist, setUserExist] = useState(false)
 
     const handlSubmit = (e) => {
         e.preventDefault()
         console.log(player)
         setForm(true)
     }
+    const HandleUserExist = (exist) => {
+        console.log(exist)
+        setUserExist(true)
+        setForm(false)
+    }
+
   return (
     <div className='w-[90%] h-[80vh] flex justify-center items-center flex-col  ml-[28px]
                     md:border md:border-white md:border-opacity-30
@@ -22,6 +29,7 @@ export default function TournamentRemote() {
             <div className='flex justify-center items-center'>
                 <div className='w-[300px] h-[400px] border border-white border-opacity-30 flex justify-center items-center flex-col space-y-10 rounded-[20px]'>
                     <h1 className='text-white font-bold'>Join Tournament</h1>
+                    {userExist && <div className='text-red-500 text-center text-sm'>user exist</div>}
                     <form action="" className='flex flex-col items-center' onSubmit={handlSubmit}>
                         <input type="text" id="player" placeholder="AliasName" required
                                     value={player}
@@ -32,7 +40,7 @@ export default function TournamentRemote() {
                 </div>
             </div>
         ) : (
-            <TournamentSyst PlayerName={player} />
+            <TournamentSyst PlayerName={player} HandleUserExist={HandleUserExist} />
         )}
     </div>
   )

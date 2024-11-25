@@ -28,11 +28,14 @@ interface GameProps {
     playernambre: string;
     groupname: string;
     player_id: string;
+    qualified: boolean;
     onGameEnd: (winner: string, number: string) => void;
+    handleUpdate: (winer1: string, playerN1: string, winer2: string, playerN2: string) => void;
+    handlefinal: (wineer: string) => void;
 }
 
 
-export default function TableTourGame({ playerna, socketRef, playernambre, groupname ,  player_id, onGameEnd}: GameProps) {
+export default function TableTourGame({ playerna, socketRef, playernambre, groupname ,  player_id, qualified,onGameEnd, handleUpdate, handlefinal}: GameProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [gameStarted, setGameStarted] = useState(false);
   let count = 3; 
@@ -58,6 +61,7 @@ export default function TableTourGame({ playerna, socketRef, playernambre, group
                             Walls: Walls,
                             id_channel: player_id,
                             playernambre: playernambre,
+                            qualified: qualified,
                             groupname: groupname};
       socketRef.send(JSON.stringify({ type: 'match_tour', data: firtsData }));
       socketRef.onmessage = (event) => {
@@ -80,10 +84,25 @@ export default function TableTourGame({ playerna, socketRef, playernambre, group
           game_state['player2'] = data.player2;
         }
         if (data.type === 'game_over') {
+          console.log(data);
           onGameEnd(data['winner'].username, data['winner'].playernambertour);
+          gameIsStarted = false;
+          socketIsOpen = false;
+          if (data['winner'].username === playerInfo.name) {
+            socketRef.send(JSON.stringify({ type: 'qualified', final_tournament: data['final_tournament'],
+            data: { winer: data['winner'].username, numberwiner: data['winner'].playernambertour} , groupname: groupname}));
+          }
           game_state = {};
           game_channel = '';
         }
+        if (data.type === 'update_state')
+          {
+            if (data['final_tournament'] === false)
+              handleUpdate(data['players'][0].winer, data['players'][0].numberwiner, data['players'][1].winer, data['players'][1].numberwiner);
+            else
+              handlefinal(data['players'][0].winer);
+
+          }
       };
 
       socketRef.onerror = (event: Event) => {
@@ -183,7 +202,7 @@ export default function TableTourGame({ playerna, socketRef, playernambre, group
                                               shadow-[0_0_12px_#fff]"/>
                         { gameStarted && (
                       <Player2 
-                          image="/images/abdellah.png"
+                          image="/images/adil.png"
                           name={game_state['player2'].username || ''} 
                       />
                     )}

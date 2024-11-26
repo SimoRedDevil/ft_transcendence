@@ -5,7 +5,7 @@ import BadgeTour from "./BadgeTour"
 // import { useState, useEffect } from 'react';
 // import BadgeTour from './BadgeTour';  // Assuming this is the correct import path
 
-export default function Versus({ img , socket , game_roum , username}: any) {
+export default function Versus({ socket , game_roum , username, image1, image2}: any) {
   const images = [
     "/images/minipic.jpeg",
     "/images/ach1.jpeg",
@@ -17,16 +17,17 @@ export default function Versus({ img , socket , game_roum , username}: any) {
   const [currentImage, setCurrentImage] = useState(images[0]);
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
   const [isFinal, setIsFinal] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
   const handleButtonClick = () => {
     socket.send(JSON.stringify({ type: 'playerReady', game_roum: game_roum, username: username }));
+    setIsReady(true);
 };
   useEffect(() => {
     let randomIndex;
     let intervalId;
 
     if (!isFinal) {
-      // Start interval only if it's not final
       intervalId = setInterval(() => {
         randomIndex = Math.floor(Math.random() * images.length);
         setCurrentImage(images[randomIndex]);
@@ -35,9 +36,8 @@ export default function Versus({ img , socket , game_roum , username}: any) {
 
 
     
-    // Set timeout to stop after 5 seconds
     const timeoutId = setTimeout(() => {
-      setCurrentImage(images[randomIndex]);  // Use the last randomIndex
+      setCurrentImage(images[randomIndex]); 
       setIsFinal(true);
     }, 1000);
     return () => {
@@ -50,7 +50,7 @@ export default function Versus({ img , socket , game_roum , username}: any) {
     <>
       <div className="bg-[url('/images/vs.png')] bg-cover bg-center xs:flex xs:justify-between xs:w-[85%] xs:items-center xs:h-[70%] md:flex-row xs:flex-col md:w-[90%] md:h-[40%] md:justify-between lg:w-[70%] xl:w-[60%] 2xl:w-[60%] xl:h-[60%] lg:h-[50%] border border-white/50 rounded-xl lg:flex items-center scale-down scaleDown_page">
         <div className="xs:w-[10rem] md:w-[40%] xs:h-full lg:w-[40%] lg:h-[70%] xl:h-[90%] xl:w-[40%] xs:flex xs:flex-col xs:justify-center xs:items-center xs:gap-2">
-          <BadgeTour img={img} />
+          <BadgeTour img={image1} />
         </div>
         <div className="flex justify-center items-center flex-col">
           <div className="relative xs:h-[30%] lg:w-[40%] md:h-[40%] shadow-black xs:flex-col md:flex-row rounded-xl flex justify-center items-center gap-3 lg:h-full">
@@ -64,7 +64,7 @@ export default function Versus({ img , socket , game_roum , username}: any) {
         </div>
 
         <div className="xs:w-[10rem] md:w-[40%] xs:h-full lg:w-[40%] lg:h-[70%] xl:h-[90%] xl:w-[40%] xs:flex xs:flex-col xs:justify-center xs:items-center xs:gap-2 opacity-85">
-          <BadgeTour img={currentImage} />
+          <BadgeTour img={image2} />
         </div>
       </div>
 

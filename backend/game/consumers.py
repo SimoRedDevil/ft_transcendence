@@ -20,7 +20,7 @@ class paddles:
         self.username = username
         self.playerNu = playerNu
         self.score = 0
-         
+    
     def to_dict(self):
         return {
             'x': self.x,
@@ -62,6 +62,7 @@ class Game(AsyncWebsocketConsumer):
     match_making = []
     paddles = {}
     player_match = {}
+    games_invites = {}
     games = {}
     Ball = {}
     matchs = {}
@@ -83,23 +84,30 @@ class Game(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         if data['type'] == 'connection':
             username = data['username']
-            
             existPlayer = await sync_to_async(Player.objects.filter(username=username).exists)()
             if not existPlayer:
                 await self.create_player(username)
+            User = await self.get_user(username)
             self.player = {
                 'name': username,
                 'id': self.channel_name,
+                'image': User.avatar_url,
                 'player_id': '',
                 'group_name': ''
             }
-            Game.players.append(self.player)
-            Game.match_making.append(self.player)
+            if data['flag'] == 'invite':
+                Game.games_invites[self.player['name']] = self.player
+            else:
+                Game.players.append(self.player)
+                Game.match_making.append(self.player) 
             await self.send(text_data=json.dumps({
                 'type': 'connection',
                 'player': self.player
             }))
-            await self.matchmaking(data)
+            if data['flag'] == 'invite':
+                await self.invite_game(data) 
+            else:
+                await self.matchmaking(data)
         if data['type'] == 'move':
             game_channel = data.get('game_channel')
             player_id = self.player.get('player_id')
@@ -124,6 +132,8 @@ class Game(AsyncWebsocketConsumer):
                     }
                 )
         if data['type'] == 'playerReady':
+            print(data)
+            
             if data['game_roum'] not in self.player_match:
                 self.player_match[data['game_roum']] = []
             self.player_match[data['game_roum']].append(self.player)
@@ -163,6 +173,7 @@ class Game(AsyncWebsocketConsumer):
                         'game_serialized': game_serialized,  
                     }
                 )
+                await self.is_playing(player1['username'], player2['username'])
                 asyncio.create_task(self.update_ball_loop(match_name))
             
         if data['type'] == 'update_ball':
@@ -228,7 +239,37 @@ class Game(AsyncWebsocketConsumer):
                 }
             )
 
+    async def invite_game(self, data):
+        if len(Game.games_invites) >= 2:
+            player1 = Game.games_invites[data['sender']]
+            player2 = Game.games_invites[data['receiver']]
+            player1['player_id'] = 'player1'
+            player2['player_id'] = 'player2'
+            self.game_channel = f'game{player1["name"]}vs{player2["name"]}'
+            player1['group_name'] = self.game_channel
+            player2['group_name'] = self.game_channel
+            await self.channel_layer.group_add(
+                    self.game_channel,
+                    player1['id']
+                )
 
+            await self.channel_layer.group_add(
+                self.game_channel,
+                player2['id']
+            )
+            await self.channel_layer.group_send(
+                self.game_channel,
+                {
+                    'type': 'match_ready',
+                    'players': [player1, player2],
+                    'game_channel': self.game_channel,
+                }
+            )
+            Game.games_invites[data['sender']] = None
+            Game.games_invites[data['receiver']] = None
+    
+        
+    
     async def colletion(self, player, ball):
         topBall  = ball.y - ball.radius
         topPadd = player.y
@@ -293,7 +334,6 @@ class Game(AsyncWebsocketConsumer):
                         Tscore = winer.score - loser.score
                         await self.Update_matches(loser.username, winer.username, loser.score, winer.score)
                         await self.gameOver(game_channel, winer.username, loser.username, winer.chan_name, loser.chan_name, Tscore, winer.score, loser.score)
-                        print('game over')
                         break
                 await self.channel_layer.group_send(   
                     game_channel,
@@ -305,12 +345,15 @@ class Game(AsyncWebsocketConsumer):
                     }
                 )
                 await asyncio.sleep(1/40)
-        
     
     async def gameOver(self, game_chan ,winer, loser, chan_name1, chan_name2, Tscore, scoreWiner, scoreLoser):
         await self.top_score(winer, Tscore)
         await self.update_winner(winer)
         await self.update_loser(loser)
+        await self.is_not_playing(winer, loser)
+        self.player_match[game_chan].clear()
+        self.matchs[game_chan].clear()
+        self.games[game_chan].clear()
         await self.channel_layer.group_send(
             game_chan,
             {
@@ -397,6 +440,33 @@ class Game(AsyncWebsocketConsumer):
         player = CustomUser.objects.get(username=username)
         player.matches += 1
         player.save()
+        
+    @sync_to_async
+    def get_user(self, username):
+        try:
+            return CustomUser.objects.get(username=username)
+        except CustomUser.DoesNotExist:
+            return None
+    
+    @sync_to_async
+    def is_playing(self, username1, username2):
+        player1 = CustomUser.objects.get(username=username1)
+        player2 = CustomUser.objects.get(username=username2)
+        player1.is_playing = True
+        player2.is_playing = True
+        player1.save()
+        player2.save()
+        
+        
+    @sync_to_async
+    def is_not_playing(self, username1, username2):
+        player1 = CustomUser.objects.get(username=username1)
+        player2 = CustomUser.objects.get(username=username2)
+        player1.is_playing = False
+        player2.is_playing = False
+        player1.save()
+        player2.save()
+
         
     @sync_to_async
     def update_winner(self, username):

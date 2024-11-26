@@ -17,17 +17,14 @@ def create_notification(sender, receiver, notif_type, title, description):
 
 class NotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        # user = self.scope['user']
-        # if user.is_anonymous or not user.is_authenticated:
-        #     pass
-        #     await self.close(code=1008)
-        # else:
-        user = self.scope["url_route"]["kwargs"]["room_name"]
-        self.user = user
-        room_name = self.scope["url_route"]["kwargs"]["room_name"]
-        self.room_group_name = f'notif_{room_name}'
-        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
-        await self.accept()
+        user = self.scope['user']
+        if user.is_anonymous or not user.is_authenticated:
+            pass
+            await self.close(code=1008)
+        else:
+            self.room_group_name = f'notif_{user.username}'
+            await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+            await self.accept()
     async def disconnect(self, close_code):
         pass
     async def receive(self, text_data):
@@ -35,7 +32,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         notif_type = data['notif_type']
         sender = await get_user(data['sender'])
         receiver = await get_user(data['receiver'])
-        title = data['title']
+        title = data['title'] 
         description = data['description']
 
         if (sender == None or receiver == None):
@@ -50,7 +47,33 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                 'title': title,
                 'description': description
             })
-            await create_notification(sender, receiver, notif_type, title, description)
+            if (notif_type != 'invite_game' and notif_type != 'accept_game' and notif_type != 'reject_game'):
+                await create_notification(sender, receiver, notif_type, title, description)
+             
+        if (notif_type == 'accept_game'):
+            receiver_room_group_name = f'notif_{receiver.username}'
+            await self.channel_layer.group_send(receiver_room_group_name, {
+                'type': 'send_notification',
+                'notif_type': notif_type,
+                'sender': sender.username,
+                'receiver': receiver.username,
+                'title': title,
+                'description': description
+            })
+        
+        if (notif_type == 'reject_game'):
+            print(data) 
+            receiver_room_group_name = f'notif_{receiver.username}'
+            await self.channel_layer.group_send(receiver_room_group_name, {
+                'type': 'send_notification',
+                'notif_type': notif_type,
+                'sender': sender.username,
+                'receiver': receiver.username,
+                'title': title,
+                'description': description
+            })
+            # await create_notification(sender, receiver, notif_type, title, description)
+            # await create_notification(receiver, sender, 'invite_game', title, description)
 
     async def send_notification(self, event):
         await self.send(text_data=json.dumps({

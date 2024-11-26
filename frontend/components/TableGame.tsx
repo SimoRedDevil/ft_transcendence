@@ -28,14 +28,17 @@ interface GameProps {
     socketRef: WebSocket;
     groupname: string;
     player_id: string;
+    image1: string;
+    image2: string;
     onGameEnd: (winner: string, scoreWinner: string, scoreLoser: string) => void;
 }
 
 
-export default function TableGame({ playerna, socketRef,  groupname ,  player_id, onGameEnd}: GameProps) {
+export default function TableGame({ playerna, socketRef,  groupname ,  player_id, image1, image2 ,onGameEnd}: GameProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const {authUser, loading} = useUserContext();
   const [gameStarted, setGameStarted] = useState(false);
+  const [isplayer1, setIsPlayer1] = useState(false);
   let count = 3; 
   let startTime = 0;
   let Duration = 1000;
@@ -64,6 +67,8 @@ export default function TableGame({ playerna, socketRef,  groupname ,  player_id
           console.log(data);
           game_state = data.game_serialized;
           game_channel = data.name_channel;
+          if ( playerna === game_state['player2'].username)
+            setIsPlayer1(true);
           socketIsOpen = true;
           setGameStarted(true);
         }
@@ -161,11 +166,14 @@ export default function TableGame({ playerna, socketRef,  groupname ,  player_id
   return (
     <div className="flex justify-center items-center">
         <div className="w-[85%] h-[80vh] flex justify-center items-center xl:flex-row  flex-col mt-[5vh]">
-                    { gameStarted && (
-                      <Player1 
-                          image={authUser.avatar_url}
-                          name={game_state['player1']?.username || ''} 
-                          />
+                    { gameStarted && ( !isplayer1 ?
+                      (<Player2 
+                          image={image2}
+                          name={game_state['player2']?.username || ''} 
+                          />) : ((<Player1 
+                            image={image1}
+                            name={game_state['player1']?.username || ''} 
+                            />))
                         )}
                         <div ref={canvasRef} className="aspect-[3/4] w-[250px]
                                               xs:w-[350px]
@@ -179,11 +187,14 @@ export default function TableGame({ playerna, socketRef,  groupname ,  player_id
                                               rounded-lg overflow-hidden 
                                               border-2 border-teal-300
                                               shadow-[0_0_12px_#fff]"/>
-                        { gameStarted && (
-                      <Player2 
-                          image={authUser.avatar_url}
+                        { gameStarted && ( isplayer1 ?
+                      (<Player2 
+                          image={image2}
                           name={game_state['player2']?.username || ''} 
-                      />
+                          />) : (<Player1 
+                          image={image1}
+                          name={game_state['player1']?.username || ''}
+                      />)
                     )}
         </div>
     </div>

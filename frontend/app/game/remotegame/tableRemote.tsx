@@ -8,6 +8,7 @@ import { player , ball } from './Object';
 import { walls } from './Object';
 import { countdown } from './ScoreRemote';
 import dynamic from 'next/dynamic';
+import axios from 'axios';
 
 
 
@@ -36,7 +37,6 @@ export default function Table({ username, socketRef, groupname ,  player_id, onG
   let count = 3; 
   let startTime = 0;
   let Duration = 1000;
-
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -59,6 +59,7 @@ export default function Table({ username, socketRef, groupname ,  player_id, onG
           playerInfo.name = data.player.name;
         }
         if (data.type === 'start_game') {
+          console.log(data['players']);
           game_state = data.game_serialized;
           game_channel = data.game_channel;
           socketIsOpen = true;
@@ -180,7 +181,7 @@ export default function Table({ username, socketRef, groupname ,  player_id, onG
                         md:rounded-[50px]">
                     { gameStarted && (
                       <Player1 
-                          image="/images/adil.png"
+                          image={game_state['player1'].image}
                           name={game_state['player1'].username || ''} 
                           />
                         )}
@@ -198,7 +199,7 @@ export default function Table({ username, socketRef, groupname ,  player_id, onG
                                               shadow-[0_0_12px_#fff]"/>
                         { gameStarted && (
                       <Player2 
-                          image="/images/abdellah.png"
+                          image={game_state['player2'].image}
                           name={game_state['player2'].username || ''} 
                       />
                     )}

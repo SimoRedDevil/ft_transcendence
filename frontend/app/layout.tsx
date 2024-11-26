@@ -15,6 +15,9 @@ import "react-toastify/dist/ReactToastify.css";
 import { useTranslation } from "react-i18next";
 import { Provider } from "@/components/ui/provider";
 import Image from "next/image";
+import Link from "next/link";
+import { NotificationProvider } from "@/components/context/NotificationContext";
+import { useNotificationContext } from "@/components/context/NotificationContext";
 
 
 function RootLayout({ children }: any) {
@@ -23,57 +26,52 @@ function RootLayout({ children }: any) {
   const router = useRouter();
 
   return (
-    <UserProvider>
-      <html lang="en">
-        <head>
-          <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0"
-            title="TrueTalk"
-          />
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          
-          <link rel="preconnect" href="https://fonts.gstatic.com" />
-          <link href="https://fonts.googleapis.com/css2?family=Chelsea+Market&family=Faculty+Glyphic&family=Nabla&display=swap" rel="stylesheet" />
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" />
-          <link href="https://fonts.googleapis.com/css2?family=Bona+Nova+SC:ital,wght@0,400;0,700;1,400&family=Doto:wght@100..900&display=swap" rel="stylesheet" />
-          <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lilita+One&display=swap" rel="stylesheet" />
-          <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Bowlby+One&family=Itim&family=Lilita+One&display=swap" rel="stylesheet" />
-          <link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic&display=swap" rel="stylesheet"></link>
-          <link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic&display=swap" rel="stylesheet"></link>
-          <link href="https://fonts.cdnfonts.com/css/barcade" rel="stylesheet" />
-          <link href="https://fonts.cdnfonts.com/css/barcade" rel="stylesheet" />
-          <link href="https://fonts.cdnfonts.com/css/earth-orbiter" rel="stylesheet" />
-          <link href="https://fonts.cdnfonts.com/css/pilot-command" rel="stylesheet" />
-          <link href="https://fonts.cdnfonts.com/css/landepz-glitch" rel="stylesheet" />
-          <link href="https://fonts.cdnfonts.com/css/veritas-sans" rel="stylesheet" />
-          <link href="https://fonts.cdnfonts.com/css/informative" rel="stylesheet" />
-          <link href="https://fonts.cdnfonts.com/css/warriot-tech" rel="stylesheet" />
-          <link href="https://fonts.cdnfonts.com/css/nevermind-bauhaus" rel="stylesheet" /> 
-          <link href="https://fonts.cdnfonts.com/css/a-space-demo" rel="stylesheet" />
-          <link href="https://fonts.cdnfonts.com/css/flexsteel" rel="stylesheet" />
-          <link href="https://fonts.cdnfonts.com/css/i-itik-kecil" rel="stylesheet"/>
-          <link href="https://fonts.cdnfonts.com/css/major-mono-display-2" rel="stylesheet"/>
-          <link href="https://fonts.cdnfonts.com/css/bruno-ace-sc-2" rel="stylesheet"/>
-                
-                
-              
-          <title>
-            {pathname.charAt(1).toUpperCase() + pathname.slice(2)}
-          </title>
-        </head>
-        <body className="h-screen">
-          <AuthProtectedLayout
-            pathname={pathname}
-            exclude={exclude}
-            router={router}
-          >
-            {children}
-          </AuthProtectedLayout>
-        </body>
-      </html>
-    </UserProvider>
+    <NotificationProvider>
+      <UserProvider>
+        <html lang="en">
+          <head>
+            <meta
+              name="viewport"
+              content="width=device-width, initial-scale=1.0"
+              title="TrueTalk"
+            />
+            <link rel="preconnect" href="https://fonts.googleapis.com" />
+            <link rel="preconnect" href="https://fonts.gstatic.com" />
+            <link href="https://fonts.googleapis.com/css2?family=Chelsea+Market&family=Faculty+Glyphic&family=Nabla&display=swap" rel="stylesheet" />
+            <link rel="preconnect" href="https://fonts.googleapis.com" />
+            <link rel="preconnect" href="https://fonts.gstatic.com" />
+            <link href="https://fonts.googleapis.com/css2?family=Bona+Nova+SC:ital,wght@0,400;0,700;1,400&family=Doto:wght@100..900&display=swap" rel="stylesheet" />
+            <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lilita+One&display=swap" rel="stylesheet" />
+            <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Bowlby+One&family=Itim&family=Lilita+One&display=swap" rel="stylesheet" />
+            <link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic&display=swap" rel="stylesheet"></link>
+            <link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic&display=swap" rel="stylesheet"></link>
+            <link href="https://fonts.cdnfonts.com/css/barcade" rel="stylesheet" />
+            <link href="https://fonts.cdnfonts.com/css/barcade" rel="stylesheet" />
+            <link href="https://fonts.cdnfonts.com/css/earth-orbiter" rel="stylesheet" />
+            <link href="https://fonts.cdnfonts.com/css/pilot-command" rel="stylesheet" />
+            <link href="https://fonts.cdnfonts.com/css/landepz-glitch" rel="stylesheet" />
+            <link href="https://fonts.cdnfonts.com/css/veritas-sans" rel="stylesheet" />
+            <link href="https://fonts.cdnfonts.com/css/informative" rel="stylesheet" />
+            <link href="https://fonts.cdnfonts.com/css/warriot-tech" rel="stylesheet" />
+            <link href="https://fonts.cdnfonts.com/css/nevermind-bauhaus" rel="stylesheet" /> 
+            <link href="https://fonts.cdnfonts.com/css/a-space-demo" rel="stylesheet" />
+            <link href="https://fonts.cdnfonts.com/css/flexsteel" rel="stylesheet" />
+            <title>
+              {pathname.charAt(1).toUpperCase() + pathname.slice(2)}
+            </title>
+          </head>
+          <body className="h-screen">
+            <AuthProtectedLayout
+              pathname={pathname}
+              exclude={exclude}
+              router={router}
+            >
+              {children}
+            </AuthProtectedLayout>
+          </body>
+        </html>
+      </UserProvider>
+    </NotificationProvider>
   );
 }
 
@@ -92,6 +90,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
   const [notificationClicked, setNotificationClicked] = useState(false);
   const [profileDropDownClicked, setProfileDropDownClicked] = useState(false);
   const { t } = useTranslation();
+  const {notifications, notif_socket} = useNotificationContext();
 
   useEffect(() => {
     const globalSocket = () => {
@@ -107,10 +106,10 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
 
     }
   }
-  if (pathname != '/login')
+    if (pathname !== '/login' && pathname !== '/twofa') 
       globalSocket();
   }
-  , []);
+  , [pathname]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -169,7 +168,8 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
   }
 
   return (
-    <div className="bg-main-bg border border-black w-screen h-full bg-cover bg-no-repeat bg-center fixed min-w-[280px] min-h-[800px]">
+    <div className="bg-main-bg border border-black
+        w-screen h-full bg-cover bg-no-repeat bg-center fixed min-w-[280px] min-h-[800px]">
       {!exclude.includes(pathname) && (
         <div className="h-[100px]">
           <Header
@@ -181,7 +181,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
         </div>
       )}
 
-            <div className="h-[calc(100%_-_100px)] flex flex-col-reverse sm:flex-row">
+            <div className="h-[90%] flex flex-col-reverse sm:flex-row max-sm:justify-center max-sm:items-center">
                 {/* Render Sidebar if pathname is not in exclude list */}
                 {!exclude.includes(pathname) && (
                     <div className="flex sm:flex-col w-full sm:w-[100px]">
@@ -189,22 +189,23 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
                     </div>
                 )}
                 
-                <div className="h-[calc(100%_-_100px)] w-full">
+                <div className="h-[90%]  w-full flex ">
                     {
                         (isAuthenticated && isSearching) && (
-                            <div className='fixed left-0 flex items-center justify-center w-full h-[600px] text-white'>
-                                <div className='border border-white/40 ml-[-100px] w-[50%] sm:w-[400px] md:w-[500px] lg:w-[600px] 2xl:w-[700px] h-full bg-black bg-opacity-80 rounded-[30px]'>
+                            <div className='z-50 fixed left-0 flex items-center justify-center w-full h-[600px] text-white'>
+                                <div className='border border-white/40 ml-[-100px] w-[50%] sm:w-[400px] md:w-[500px] lg:w-[600px] 2xl:w-[700px] h-full bg-black bg-opacity-80 rounded-[30px] no-scrollbar overflow-y-auto scroll-smooth'>
                                     <div className='border-b border-white/40 p-4'>
                                         <span className='text-white text-[20px]'>Search Results</span>
                                     </div>
                                     {searchLoading && <div/>}
                                     {searchResults.map((user: any) => (
-                                        <div key={user.id} className='w-full p-4 flex gap-3 items-center hover:bg-white hover:bg-opacity-10 hover:cursor-pointer'>
+                                        user.username !== authUser?.username &&
+                                        <Link key={user.id} href={`/profile/${user.username}/`} className='w-full p-4 flex gap-3 items-center hover:bg-white hover:bg-opacity-10 hover:cursor-pointer'>
                                             <div className='w-[50px] h-[50px] rounded-full bg-green-800'>
                                                 <Image src={user?.avatar_url} height={50} width={50} alt='avatar' className='rounded-full' />
                                             </div>
                                             <span>{user.full_name}</span>
-                                        </div>
+                                        </Link>
                                     ))} 
                                 </div>
                             </div>
@@ -214,7 +215,9 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
           {isAuthenticated && profileDropDownClicked && (
             <div className="w-[calc(100%_-_100px)] fixed h-[170px] flex flex-row-reverse">
               <DropDown
-                className="w-[250px] h-[50px] flex items-center border border-white border-opacity-20 cursor-pointer hover:bg-white hover:bg-opacity-10"
+                className="w-[250px] h-[50px] flex items-center border
+                border-white border-opacity-20 cursor-pointer hover:bg-white
+                hover:bg-opacity-10 bg-[#201f1f] bg-opacity-100"
                 items={["View Profile", "Friend Requests", "Logout"]}
               />
             </div>
@@ -224,7 +227,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
           </Provider>
           <ToastContainer
             position="top-center"
-            autoClose={1000}
+            autoClose={1500}
             hideProgressBar={false}
             newestOnTop={false}
             closeOnClick

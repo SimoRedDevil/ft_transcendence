@@ -44,7 +44,7 @@ function Header({setNotificationClicked, notificationClicked, setProfileDropDown
           }
         </div>
           {authUser?.avatar_url ?
-          ( <Image id='profile-id' onClick={handleProfileClick} src={authUser?.avatar_url} 
+          ( <Image id='profile-id' unoptimized onClick={handleProfileClick} src={authUser?.avatar_url} 
             height={70} width={70} alt='avatar' className='rounded-full cursor-pointer'/> ) : (
         <div className='w-full flex justify-center items-center h-full text-white text-opacity-50 text-xs'>
           <BounceLoader color={'#949DA2'} loading={true} size={50} />

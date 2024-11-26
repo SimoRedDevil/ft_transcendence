@@ -6,6 +6,7 @@ phone_regex = RegexValidator(
     regex=r'^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s./0-9]*$'
 )
 
+
 class CustomUser(BaseUser):
     LANGUAGE_CHOICES = (
         ('en', 'English'),
@@ -18,16 +19,16 @@ class CustomUser(BaseUser):
         ('bd1', 'board1'),
         ('bd2', 'board2'),
     )
-    
-    full_name = models.CharField(max_length=50)
+
+    full_name = models.CharField(max_length=20)
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=15, blank=True, default='06-00-00-00-00', validators=[phone_regex])
-    city = models.CharField(max_length=50, blank=True, default='Khouribga')
-    address = models.CharField(max_length=50, blank=True, default='1337 school')
+    city = models.CharField(max_length=20, blank=True, default='Khouribga')
+    address = models.CharField(max_length=20, blank=True, default='1337 school')
     language = models.CharField(max_length=2, choices=LANGUAGE_CHOICES, default='en', error_messages={'invalid': 'Please select a valid language'})
     color = models.CharField(max_length=7, blank=True, null=True, default='#0B4464')
     board_name = models.CharField(max_length=3, choices=BOARD_CHOICES, default='df', error_messages={'invalid': 'Please select a valid board'})
-    tournament_name = models.CharField(max_length=50, blank=True, null=True)
+    tournament_name = models.CharField(max_length=20, blank=True, null=True)
     is_already_logged = models.BooleanField(default=False)
     tournament_score = models.IntegerField(default=0)
     enabeld_2fa = models.BooleanField(default=False)
@@ -55,6 +56,7 @@ class CustomUser(BaseUser):
     connection_count = models.IntegerField(default=0)
     friends = models.ManyToManyField('self', blank=True, symmetrical=True)
     blocked_users = models.ManyToManyField("self", symmetrical=False, blank=True)
+    is_playing = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'full_name']  # Specify any additional required fields

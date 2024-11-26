@@ -29,18 +29,11 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
   const handleSignup = async (e) => {
     e.preventDefault();
   
-    const body = {
-      full_name,
-      username,
-      email,
-      password,
-    };
+    const body = { full_name, username, email, password };
   
     try {
       const response = await axios.post(`${API}/signup/`, body, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       });
   
       if (response.status === 201) {
@@ -49,9 +42,18 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
         onNavigate();
       }
     } catch (error) {
-      toast.error(t("Something Went Wrong."));
+      const errorMessage =
+      error.response?.data?.email?.[0] ||
+      error.response?.data?.non_field_errors?.[0] ||
+      error.response?.data?.username?.[0] ||
+      error.response?.data?.password?.[0] ||
+      error.response?.data?.full_name?.[0] ||
+      t("Something went wrong");
+  
+      toast.error(errorMessage);
     }
   };
+  
 
   const handleEnterPress = (event) => {
     if (event.key === 'Enter') {
@@ -68,9 +70,10 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
 
     return (
     <motion.form onSubmit={(e) => e.preventDefault()} 
-    className="flex flex-col items-center justify-center h-screen w-screen min-h-[800px] overflow-hidden">
-      <div className="flex items-center justify-center h-[720px] mb-10 laptop:w-[850px]
-        tablet:w-[620px] tablet:h-[770px] desktop:h-[760px] desktop:w-[950px]
+    className="flex flex-col items-center justify-center h-screen w-screen min-h-[800px]
+      overflow-hidden">
+      <div className="flex items-center justify-center h-[720px] max-sm:mb-10 laptop:w-[850px]
+        tablet:w-[750px] tablet:h-[770px] desktop:h-[760px] desktop:w-[950px]
         laptop:h-[770px]  min-w-[500px] overflow-hidden
        ">
         <motion.div
@@ -89,7 +92,8 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigate }) => {
           initial={{ opacity: 1, x: "-50%" }}
           animate={{ opacity: 1, x: "0" }}
           transition={{ duration: 0.6 }}
-          className="h-full w-1/2 max-sm:w-[70%] max-xl:w-[400px] bg-[#131E24] rounded-r-[20px] text-sm"
+          className="h-full w-1/2 max-sm:w-[70%] max-xl:w-[400px]
+           bg-[#131E24] rounded-r-[20px] text-sm"
         >
           <img
             className="w-13 h-16 mx-auto mt-[18px]"

@@ -112,15 +112,49 @@ const Popup = ({
   return (
     <div>
       {isOpen && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
+        <div className="fixed inset-0 bg-gray-500
+              bg-opacity-75 flex items-center justify-center min-h-screen w-full overflow-hidden min-w-[400px]">
           <div
-            className="
-          bg-[#1A1F26] flex
+            className="bg-[#1A1F26] flex w-[400px] tablet:w-[600px] h-[500px]
+            laptop:w-[800px] laptop:flex-row flex-col
+              min-w-[600px] laptop:min-w-[400px] overflow-hidden rounded-2xl 
           "
           >
-            <div className="py-[70px] px-6 rounded-lg shadow-lg w-auto ">
+                        {
+            !authUser?.enabeld_2fa &&
+            <div
+              className="
+            flex items-center justify-center laptop:mr-2 mt-5 laptop:mt-0 
+            "
+            >
+              {!qrcode && (
+                <div className="
+                  flex items-center justify-center w-[250px] h-[250px]  rounded-[30px]">
+                  {
+                    <MoonLoader
+                    color="#fff"
+                    loading={qrcode ? false: true}
+                    size={50}
+                    />
+                  }
+                </div>
+              )
+              }
+              {qrcode && (
+              <img
+                className={`bg-white text-white
+              w-[300px] h-[300px]
+               rounded-[30px] laptop:ml-5
+              `}
+                src={`${qrcode}`}
+                alt="2fa QR Code"
+              />
+              )}
+            </div>
+            }
+            <div className="py-[70px] px-6 rounded-lg shadow-lg ">
               <h1 className="text-xl font-bold mb-4">Enter The Code</h1>
-              <p className="text-white mb-4">
+              <p className="text-white w-full mb-4">
                 Enter the six-digit code from your authenticator app:
               </p>
               <form
@@ -139,7 +173,7 @@ const Popup = ({
                     autoFocus={index === 0}
                     onChange={(e) => handleChange(e, index)}
                     onKeyDown={(e) => handleKeyDown(e, index)}
-                    className="w-12 h-12 text-center text-2xl border border-gray-300 rounded-lg focus:outline-none"
+                    className="w-10 h-10 tablet:w-12 tablet:h-12 text-center tablet:mx-2 text-2xl border border-gray-300 rounded-lg focus:outline-none"
                   />
                 ))}
               </form>
@@ -168,39 +202,6 @@ const Popup = ({
                 </button>
               </div>
             </div>
-            {
-            !authUser?.enabeld_2fa &&
-            <div
-              className="
-            flex items-center justify-center mr-2
-            "
-            >
-              {!qrcode && (
-                <div className="
-                  flex items-center justify-center w-[250px] h-[250px] rounded-[30px]">
-                  {
-                    <MoonLoader
-                    color="#fff"
-                    loading={qrcode ? false: true}
-                    size={50}
-                    />
-                  }
-                </div>
-              )
-              }
-              {qrcode && (
-              <img
-                className={`bg-white text-white desktop:w-[250px]
-              laptop:w-[170px] laptop:h-[170px] tablet:w-[250px] sm:h-[250px] 
-              w-[200px] h-[200px]
-              desktop:h-[250px] rounded-[30px] 
-              `}
-                src={`${qrcode}`}
-                alt="2fa QR Code"
-              />
-              )}
-            </div>
-            }
           </div>
         </div>
       )}

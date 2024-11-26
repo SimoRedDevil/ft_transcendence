@@ -1,6 +1,8 @@
 
 from django.db import models
 from authentication.models import CustomUser
+from django.utils.timezone import now
+
 
 class Player(models.Model):
     username = models.CharField(max_length=100, default='')
@@ -18,4 +20,5 @@ class Match(models.Model):
     score1 = models.IntegerField(default=0)
     score2 = models.IntegerField(default=0)
     winer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='match_winner')
-
+    match_date = models.DateField(auto_now_add=True)
+    match_time = models.TimeField(auto_now_add=True)

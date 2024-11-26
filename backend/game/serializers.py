@@ -10,7 +10,7 @@ class PlayerSerializer(serializers.ModelSerializer):
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = '__all__'        
+        fields = ['username', 'full_name', 'avatar_url', 'level', 'top_score', 'current_xp', 'online',  'is_playing']       
 
 class MatchSerializer(serializers.ModelSerializer):
     player1 = CustomUserSerializer()

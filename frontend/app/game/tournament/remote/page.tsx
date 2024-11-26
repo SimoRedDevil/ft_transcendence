@@ -36,16 +36,19 @@ export default function TournamentRemote() {
                     md:rounded-[50px]'>
         {!form ? (
             <div className='flex justify-center items-center'>
-                <div className="3xl:w-[450px] 3xl:h-[550px] border border-white border-opacity-20 bg-[url('/images/tour7.png')] bg-cover bg-centre flex justify-center items-center flex-col space-y-5 rounded-[20px]
-                                l:w-[400px] l:h-[500px]">
-                    <h1 className='text-white font-bold mt-6'>Join Tournament</h1>
-                    <form action="" className='flex flex-col items-center mb-[10px] h-full' onSubmit={handlSubmit}>
+                <div className="3xl:w-[450px] 3xl:h-[550px] 3xl:space-y-[150px] border border-white border-opacity-20 bg-[url('/images/tour7.png')] bg-cover bg-centre flex justify-center items-center flex-col rounded-[20px]
+                                l:w-[400px] l:h-[500px] l:space-y-[120px]
+                                lm:w-[400px] lm:h-[500px] lm:space-y-[120px]
+                                xs:w-[300px] xs:h-[400px] xs:space-y-[100px]
+                                w-[200px] h-[300px] space-y-[30px]">
+                    <h1 className='text-white font-bold 3xl:mt-[40px] l:mt-[40px] lm:mt-[40px] ls:mt-[30px] mt-[30px]'>Join Tournament</h1>
+                    <form action="" className='flex flex-col items-center h-full' onSubmit={handlSubmit}>
                         <input type="text" id="player" placeholder="AliasName" required
                                     value={player}
                                     onChange={(e) => setPlayer(e.target.value)}
-                                    className='w-[70%] h-10 bg-transparent border-b ml-[30px] border-white border-opacity-30 text-white text-center mt-6'/>
-                        <button type='submit' className='bg-blue-500 text-white rounded-lg w-[30%] mt-16 p-2'>Join</button>
-                                    {userExist && <div className=' text-red-500 text-center text-sm mt-11'>{playerExit } already exists in the game!</div>}
+                                    className='w-[70%] h-10 bg-transparent border-b ml-[20px] border-white border-opacity-30 text-white text-center'/>
+                                    {userExist && <div className=' text-red-500 text-center text-sm'>{playerExit } already exists in the game!</div>}
+                        <button type='submit' className='bg-blue-500 text-white rounded-lg w-[30%] p-2 3xl:mt-[150px] l:mt-[130px] lm:mt-[130px] xs:mt-[90px]'>Join</button>
                     </form>
                 </div>
             </div>

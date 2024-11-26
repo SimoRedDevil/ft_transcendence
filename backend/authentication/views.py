@@ -348,7 +348,6 @@ class EnableTwoFactorView(APIView):
         user.twofa_secret = key
         user.qrcode_path = qrcode_path
         user.qrcode_url = qrcode_url
-        print("qrcode_url: ", qrcode_url)
         user.qrcode_path = qrcode_path
         user.save()
         return Response({'qrcode_url': user.qrcode_path}, status=status.HTTP_200_OK)

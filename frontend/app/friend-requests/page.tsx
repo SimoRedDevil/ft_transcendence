@@ -1,5 +1,4 @@
-'use client'
-
+'use client';
 import React, { useEffect } from 'react'
 import { useState } from 'react'
 import { axiosInstance } from '@/utils/axiosInstance'
@@ -7,9 +6,14 @@ import { UserContext, useUserContext } from '@/components/context/usercontext'
 import Image from 'next/image'
 import axios from 'axios'
 import { getCookies } from '../../components/auth';
+import { FaUserFriends } from "react-icons/fa";
+import { TbMessageUser } from "react-icons/tb";
+import { IoIosSend } from "react-icons/io";
 
 function page() {
     const [friendRequests, setFriendRequests] = useState([]);
+    const [receivedRequests, setReceivedRequests] = useState([]);
+    const [sentRequests, setSentRequests] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const { authUser, loading } = useUserContext();
 
@@ -29,6 +33,7 @@ function page() {
     }, [])
 
     const handleAccept = async (requestId) => {
+        console.log("....", requestId);
         const body = {
             id: requestId
         }
@@ -84,9 +89,23 @@ function page() {
   return (
     <div className='w-full h-full flex items-center justify-center'>
         <div className='border border-white/30 rounded-[30px] bg-black bg-opacity-50 w-[90%] h-[95%] p-5'>
-            <div className='text-white text-lg'>Friend Requests</div>
+            <div className='flex justify-start w-[700px]'>
+            <button className='flex  justify-start mx-2'>
+                <FaUserFriends className='text-[30px] text-white mr-2' />
+                <div className='text-white text-lg'>Requests</div>
+            </button>
+            <button className='flex  justify-start mx-2 '>
+                <TbMessageUser className='text-[30px] text-white mr-2' />
+                <div className='text-white text-lg'>Sent</div>
+            </button>
+            <button className='flex  justify-start mx-2 '>
+                <IoIosSend className='text-[30px] text-white mr-2' />
+                <div className='text-white text-lg'>Send</div>
+            </button>
+            </div>
             <div className='w-full h-[1px] bg-white/30 my-5'></div>
             <div className='w-full text-white gap-3'>
+                {friendRequests && friendRequests.length < 1 && <p>No friend requests</p>}
                 {friendRequests?.map((request) => (
                     request.receiver_info.username === authUser?.username &&
                     <div key={request.id} className='flex flex-col gap-2 xs:gap-0 xs:flex-row xs:items-center xs:justify-between'>

@@ -54,7 +54,8 @@ class AcceptRequest(APIView):
         if (not FriendRequest.objects.filter(id=id).exists()):
             return Response("{detail: Friend request does not exist}", status=status.HTTP_400_BAD_REQUEST)
         friend_req = FriendRequest.objects.get(id=id)
-        if (request.user.id != friend_req.receiver):
+        print(friend_req.receiver, flush=True)
+        if (request.user.id != friend_req.receiver.id):
             return Response("{detail: Unauthorized operation}", status=status.HTTP_401_UNAUTHORIZED)
         if (not friend_req.accept_request()):
             return Response("{detail: Friend request already accepted}", status=status.HTTP_400_BAD_REQUEST)

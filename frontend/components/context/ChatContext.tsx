@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { axiosInstance } from '../../utils/axiosInstance';
+import { toast } from 'react-toastify';
 
 const ChatContext = createContext(null);
 
@@ -20,6 +21,8 @@ export const ChatProvider = ({ children }) => {
     const lastMessageRef = useRef(null);
     const [page, setPage] = useState(1);
     const [pageCount, setPageCount] = useState(1);
+    const [blockerUsername, setBlockUsername] = useState(null);
+    const [unblockedUsername, setUnblockUsername] = useState(null);
     
     useEffect(() => {
         const checkMobile = () => {
@@ -41,8 +44,7 @@ export const ChatProvider = ({ children }) => {
         };
         ws.current.onmessage = (message) => {
             const newMessage = JSON.parse(message.data);
-            if (newMessage.type === 'message') {
-                console.log('New message:', newMessage);
+            if (newMessage.msg_type === 'message') {
                 setMessages((prevMessages) => [...prevMessages, newMessage]);
                 setConversations((prevConversations) => {
                     const updatedConversations = prevConversations.map((conversation) =>
@@ -53,6 +55,16 @@ export const ChatProvider = ({ children }) => {
                     setConversations([updatedConversation, ...otherConversations]);
                 }
                 );
+            }
+            else if (newMessage.msg_type === 'block') {
+                setBlockUsername(newMessage.sent_by_user);
+            }
+            else if (newMessage.msg_type === 'unblock') {
+                setBlockUsername(null);
+                setUnblockUsername(newMessage.sent_by_user);
+            }
+            else if (newMessage.msg_type === 'invite_game') {
+                toast.info(`${newMessage.sent_by_user} has invited you to play a game!`);
             }
         };
         ws.current.onclose = () => {
@@ -135,7 +147,8 @@ export const ChatProvider = ({ children }) => {
     return (
         <ChatContext.Provider value={{ messages, Conversations, conversationsLoading, messagesLoading,
             error, selectedConversation, otherUser, ws, isMobile, lastMessageRef, page, pageCount,
-            chatWindowRef, setConversations, fetchMessages, fetchConversations, setSelectedConversation, setOtherUser, setPage }}>
+            chatWindowRef, blockerUsername, unblockedUsername, setConversations, fetchMessages, fetchConversations,
+            setSelectedConversation, setOtherUser, setPage, setBlockUsername, setUnblockUsername }}>
             {children}
         </ChatContext.Provider>
     );

@@ -3,6 +3,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from .models import CustomUser
 from collections import defaultdict
+import json
 
 User = CustomUser
 
@@ -35,3 +36,18 @@ class MyWebSocketConsumer(AsyncWebsocketConsumer):
         except User.DoesNotExist:
             response =  {'error': 'User not found'}
             return response
+    
+    async def broadcast_message(self, event):
+        message = event["message"]
+        await self.send(text_data=message)
+
+    async def broadcast_online_users(self):
+        online_users = CustomUser.objects.filter(online=True).values_list("id", flat=True)
+        message = json.dumps({
+            "type": "user_status_update",
+            "online_users": list(online_users),
+        })
+        await self.channel_layer.group_send("online_status", {
+            "type": "broadcast_message",
+            "message": message,
+        })

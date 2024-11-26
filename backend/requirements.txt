@@ -13,3 +13,4 @@ pyotp==2.6.0
 qrcode==7.2
 channels-redis==4.2.0
 python-dotenv===1.0.1
+cloudinary==1.26.0

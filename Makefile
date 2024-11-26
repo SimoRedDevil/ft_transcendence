@@ -25,9 +25,9 @@ push:
 	git commit -m "$(msg)"; \
     git push
 
-fclean:
-	@rm -rf  database/*
-	@rm -rf  redis/*
+fclean: stop down
+	@rm -rf  database
+	@rm -rf  redis
 	@rm -rf backend/*/__pycache__
 	@rm -rf backend/*/migrations
 	@rm -rf backend/*/*/__pycache__

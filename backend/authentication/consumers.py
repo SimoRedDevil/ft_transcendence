@@ -25,12 +25,13 @@ class MyWebSocketConsumer(AsyncWebsocketConsumer):
             await self.set_user_online_status(False)
 
     async def set_user_online_status(self, status):
-        await database_sync_to_async(self.update_online_status)(status)
+        await database_sync_to_async(self.update_status)(status)
 
-    def update_online_status(self, status):
+    def update_status(self, status):
         try:
             user = User.objects.get(pk=self.user.id)
             user.online = status
             user.save()
         except User.DoesNotExist:
-            pass
+            response =  {'error': 'User not found'}
+            return response

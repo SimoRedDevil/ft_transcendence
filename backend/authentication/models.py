@@ -30,11 +30,12 @@ class CustomUser(BaseUser):
     tournament_name = models.CharField(max_length=20, blank=True, null=True)
     is_already_logged = models.BooleanField(default=False)
     tournament_score = models.IntegerField(default=0)
+    ## 2FA
     enabeld_2fa = models.BooleanField(default=False)
     twofa_secret = models.CharField(max_length=32, blank=True, null=True)
     twofa_verified = models.BooleanField(default=False)
-    qrcode_dir = models.CharField(max_length=100, blank=True, null=True)
     qrcode_path = models.CharField(max_length=100, blank=True, null=True)
+    qrcode_url = models.URLField(max_length=200, blank=True, null=True)
     avatar_url = models.URLField(max_length=200, blank=True, null=True)
     social_logged = models.BooleanField(default=False)
     password_is_set = models.BooleanField(default=False)
@@ -55,6 +56,7 @@ class CustomUser(BaseUser):
     connection_count = models.IntegerField(default=0)
     friends = models.ManyToManyField('self', blank=True, symmetrical=True)
     blocked_users = models.ManyToManyField("self", symmetrical=False, blank=True)
+    anonymous = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'full_name']  # Specify any additional required fields
@@ -65,5 +67,17 @@ class CustomUser(BaseUser):
 
     class Meta:
         db_table = 'users'
-        db_table = 'users'
         verbose_name_plural = 'users'
+
+class anonymousUser(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='anonymous_user')
+    id = models.AutoField(primary_key=True, unique=True, editable=False)
+    username = models.CharField(max_length=20, unique=True, blank=True)
+    email = models.EmailField(unique=True, blank=True)
+    full_name = models.CharField(max_length=20, blank=True)
+    def __str__(self):
+        return self.user.username
+
+    class Meta:
+        db_table = 'anonymous_users'
+        verbose_name_plural = 'anonymous_users'

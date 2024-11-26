@@ -25,4 +25,5 @@ urlpatterns = [
     path('block/', block_user.as_view(), name='block_user'),
     path('unblock/', unblock_user.as_view(), name='unblock_user'),
     path('check-blocked/', check_blocked.as_view(), name='check_blocked'),
+    path('anonym-user/', AnonymousUserViewSet.as_view(), name='anonym_user'),
 ]

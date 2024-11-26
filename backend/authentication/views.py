@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework import viewsets
 from django.contrib.auth import login, authenticate, logout
 from .serializers import *
-from .models import CustomUser
+from .models import CustomUser, anonymousUser
 from django.http import JsonResponse
 import requests
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -39,7 +39,6 @@ from django.db.models import Q
 
 URL_FRONT = os.getenv('URL_FRONT')
 URL_BACK = os.getenv('URL_BACK')
-
 
 # Sign Up View
 class SignUpView(generics.CreateAPIView):
@@ -104,7 +103,6 @@ class Intra42Callback(APIView):
                 full_name=user_info['displayname'],
                 avatar_url=user_info['image']['link'],
                 social_logged=True,
-                online=True,
                 password_is_set=False
             )
 
@@ -259,7 +257,7 @@ class UserViewSet(viewsets.ModelViewSet):
 def generate_tokens(request):
     user = request.user
     refresh = RefreshToken.for_user(user)
-    res = requests.post('{URL_BACK}/api/auth/refresh/', data={'refresh': str(refresh),
+    res = requests.post(f'{URL_BACK}/api/auth/refresh/', data={'refresh': str(refresh),
     'X-CSRFToken': request.COOKIES.get('csrftoken')})
     if res.status_code != 200:
         return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -326,12 +324,13 @@ class EnableTwoFactorView(APIView):
     def get(self, request):
         user = request.user
 
-        key, otp, qrcode_path, qrcode_dir = twofactorAuth(user.username)
+        key, qrcode_path, qrcode_url = twofactorAuth(user.username)
         user.twofa_secret = key
-        user.qrcode_dir = qrcode_dir
+        user.qrcode_path = qrcode_path
+        user.qrcode_url = qrcode_url
+        print("qrcode_url: ", qrcode_url)
         user.qrcode_path = qrcode_path
         user.save()
-        user.qrcode_path = qrcode_path
         return Response({'qrcode_url': user.qrcode_path}, status=status.HTTP_200_OK)
 
 #disable 2fa
@@ -343,7 +342,7 @@ class DisableTwoFactorView(APIView):
         user = request.user
         user.enabeld_2fa = False
         user.twofa_secret = None
-        user.qrcode_dir = None
+        user.qrcode_url = None
         if os.path.exists(str(user.qrcode_path)):
             os.remove(str(user.qrcode_path))
         user.qrcode_path = None
@@ -360,7 +359,9 @@ class VerifyTwoFactorView(APIView):
         user_code = request.data.get('code')
 
         if not user.twofa_secret:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            response = Response(status=status.HTTP_400_BAD_REQUEST)
+            response.data = {'error': 'secret not found'} 
+            return response
 
         totp = pyotp.TOTP(user.twofa_secret)
 
@@ -371,7 +372,9 @@ class VerifyTwoFactorView(APIView):
             user.save()
             return Response(status=status.HTTP_200_OK)
         else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            response = Response(status=status.HTTP_400_BAD_REQUEST)
+            response.data = {'error': 'Invalid code'}
+            return response
 
 #get cookies
 class GetCookies(APIView):
@@ -552,3 +555,31 @@ class check_blocked(APIView):
         if user.blocked_users.filter(username=username).exists() or CustomUser.objects.get(username=username).blocked_users.filter(username=user.username).exists():
             return Response({'blocked': True}, status=status.HTTP_200_OK)
         return Response({'blocked': False}, status=status.HTTP_200_OK)
+
+class AnonymousUserViewSet(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        try:
+            anonymous_user = anonymousUser.objects.get(user=user)
+        except anonymousUser.DoesNotExist:
+            return Response({'error': 'Anonymous user not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_200_OK)
+    def post(self, request):
+        user = request.user
+        try:
+            anonymous_user = anonymousUser.objects.get(user=user)
+            user.anonymous = True
+            user.save()
+            anonymous_user.username = 'anonymous' + str(user.id)
+            anonymous_user.email = 'anonymous' + str(user.id) + '@gmail.com'
+            anonymous_user.full_name = 'anonymous'
+            anonymous_user.save()
+        except anonymousUser.DoesNotExist:
+            response = Response(status=status.HTTP_404_NOT_FOUND)
+            return response
+        response = Response(status=status.HTTP_200_OK)
+        response.data = model_to_dict(anonymous_user)
+        return response

@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { axiosInstance } from '../../utils/axiosInstance';
+import { toast } from 'react-toastify';
 
 const ChatContext = createContext(null);
 
@@ -44,7 +45,6 @@ export const ChatProvider = ({ children }) => {
         ws.current.onmessage = (message) => {
             const newMessage = JSON.parse(message.data);
             if (newMessage.msg_type === 'message') {
-                console.log('New message:', newMessage);
                 setMessages((prevMessages) => [...prevMessages, newMessage]);
                 setConversations((prevConversations) => {
                     const updatedConversations = prevConversations.map((conversation) =>
@@ -62,6 +62,9 @@ export const ChatProvider = ({ children }) => {
             else if (newMessage.msg_type === 'unblock') {
                 setBlockUsername(null);
                 setUnblockUsername(newMessage.sent_by_user);
+            }
+            else if (newMessage.msg_type === 'invite_game') {
+                toast.info(`${newMessage.sent_by_user} has invited you to play a game!`);
             }
         };
         ws.current.onclose = () => {

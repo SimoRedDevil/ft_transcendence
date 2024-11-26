@@ -19,6 +19,7 @@ import { useTranslation } from "react-i18next";
 import { json } from 'stream/consumers';
 import Link from 'next/link'
 import { getCookies } from '../../components/auth';
+import { useNotificationContext } from '../../components/context/NotificationContext';
 
 function Chat({setShowBlockDialog}) {
   const [showEmoji, setShowEmoji] = useState(false)
@@ -49,6 +50,8 @@ function Chat({setShowBlockDialog}) {
     setUnblockUsername,
   } = useChatContext()
 
+  const {notif_socket} = useNotificationContext()
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       handleSendMessage()
@@ -66,7 +69,7 @@ function Chat({setShowBlockDialog}) {
   const handleSendMessage = () => {
     if (checkStringEmpty(input)) return;
     ws.current.send(JSON.stringify({
-      'type': 'message',
+      'msg_type': 'message',
       'conversation_id': selectedConversation.id,
       'sent_by_user': authUser?.username,
       'sent_to_user': otherUser.username,
@@ -135,6 +138,16 @@ function Chat({setShowBlockDialog}) {
     })
   }
 
+  const handleInviteGame = async () => {
+    notif_socket.current.send(JSON.stringify({
+      'notif_type': 'invite_game',
+      'sender': authUser?.username,
+      'receiver': otherUser?.username,
+      'title': 'Game Invitation',
+      'description': 'You have been invited to play a game by ' + authUser?.username,
+    }))
+  }
+
   useEffect(() => {
     if (selectedConversation !== null) {
       checkUserBlocked()
@@ -189,7 +202,7 @@ function Chat({setShowBlockDialog}) {
             </div>
           </div>
           <div className='w-[140px] flex gap-2'>
-            <button className='cursor-pointer w-[60px] h-[60px] border border-white border-opacity-30 bg-white bg-opacity-15 hover:bg-opacity-20 rounded-full flex items-center justify-center'>
+            <button onClick={handleInviteGame} className='cursor-pointer w-[60px] h-[60px] border border-white border-opacity-30 bg-white bg-opacity-15 hover:bg-opacity-20 rounded-full flex items-center justify-center'>
               <IoGameController className='text-white w-[30px] h-[30px]' />
             </button>
             <button onClick={handleBlockUser} className='cursor-pointer w-[60px] h-[60px] border border-white border-opacity-30 bg-white bg-opacity-15 hover:bg-opacity-20 rounded-full flex items-center justify-center'>

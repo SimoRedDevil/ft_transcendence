@@ -25,6 +25,7 @@ export default function Game() {
     const [gameOver, setGameOver] = useState(false);
     const [game_roum, setGameRoom] = useState('');
     const [gameStarted, setGameStarted] = useState(false);
+    const [playernumber, setPlayerNumber] = useState('');
     const socketRef = useRef<WebSocket | null>(null);
     const searchParams = useSearchParams();
     const sender = searchParams.get('sender');
@@ -50,6 +51,7 @@ export default function Game() {
                 if (data.type === 'connection') {
                     
                     console.log(data);
+                    setPlayerNumber(data.player.player_number)
                     setIdChannel(data.player.id);
                 }
                 if (data.type === 'match_ready') {
@@ -78,7 +80,7 @@ export default function Game() {
                         md:bg-black md:bg-opacity-20
                         md:rounded-[50px]'>
         {!gameStarted ? ( !matchready ? (<Platform />) : (<Versus socket={socketRef.current} game_roum={game_roum} username={authUser.username} image1={image1} image2={image2}/>)) 
-        : (!gameOver ? (<TableGame playerna={authUser.username} socketRef={socketRef.current}  groupname={game_roum} player_id={id_channel} image1={image1} image2={image2} onGameEnd={handleGameEnd}/>) 
+        : (!gameOver ? (<TableGame playerna={authUser.username} socketRef={socketRef.current}  groupname={game_roum} player_id={id_channel} image1={image1} image2={image2} player_number={playernumber} onGameEnd={handleGameEnd}/>) 
         : (<Winner winer={winer} scoreWinner={scoreWinner} scoreLoser={scoreLoser} />))}
         </div>
     );

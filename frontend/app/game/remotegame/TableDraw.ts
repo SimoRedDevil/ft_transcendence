@@ -39,10 +39,7 @@ export function tableDraw(sketch: p5, game_state: {} ,Walls: walls, playerInofo:
   let bl2 = 50;
   let detailX2 = 0;
   let detailY2 = 0;
-  let isplayeR2 = false;
-  if ( playerInofo.player_id === game_state['player2'].chan_name)
-      isplayeR2 = true;
-  if (isplayeR2) 
+  if (playerInofo.player_number === 'player2') 
     {
       Score2(sketch, Walls, game_state['player2'].score);
       Score1(sketch, Walls, game_state['player1'].score);

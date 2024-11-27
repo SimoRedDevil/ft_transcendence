@@ -20,7 +20,7 @@ class paddles:
         self.username = username
         self.playerNu = playerNu
         self.score = 0
-    
+
     def to_dict(self):
         return {
             'x': self.x,
@@ -79,7 +79,6 @@ class Game(AsyncWebsocketConsumer):
         #     }))
         #     await self.close()
         # else:
-
     async def receive(self, text_data):
         data = json.loads(text_data)
         if data['type'] == 'connection':
@@ -92,14 +91,18 @@ class Game(AsyncWebsocketConsumer):
                 'name': username,
                 'id': self.channel_name,
                 'image': User.avatar_url,
+                'player_number': '',
                 'player_id': '',
                 'group_name': ''
             }
             if data['flag'] == 'invite':
                 Game.games_invites[self.player['name']] = self.player
             else:
-                Game.players.append(self.player)
-                Game.match_making.append(self.player) 
+                Game.match_making.append(self.player)
+            if len(Game.match_making) >= 2:
+                self.player['player_number'] = 'player2'
+            else:
+                self.player['player_number'] = 'player1'
             await self.send(text_data=json.dumps({
                 'type': 'connection',
                 'player': self.player
@@ -132,8 +135,6 @@ class Game(AsyncWebsocketConsumer):
                     }
                 )
         if data['type'] == 'playerReady':
-            print(data)
-            
             if data['game_roum'] not in self.player_match:
                 self.player_match[data['game_roum']] = []
             self.player_match[data['game_roum']].append(self.player)
@@ -185,29 +186,19 @@ class Game(AsyncWebsocketConsumer):
                     'type': 'update_ball',
                     'ball': self.Ball.to_dict()
                 }
-            ) 
+            )
     async def disconnect(self, close_code):
-        if self.player in Game.players:
-            other_player_id = 'player1' if self.player['player_id'] == 'player2' else 'player2'
-            game = self.games.get(self.player['group_name'])
-            if self.player['group_name'] in self.games:
-                await self.channel_layer.group_send(
-                    self.player['group_name'],
-                    {
-                        'type': 'game_over',
-                        'winner': game[other_player_id].username
-                    }
-                )
-                await self.channel_layer.group_discard(
-                    self.player['group_name'],
-                    self.player['id']
-                )
-                await self.channel_layer.group_discard(
-                    self.player['group_name'],
-                    game[other_player_id].chan_name
-                )
-                if self.player['group_name'] in self.games:
-                    del self.games[self.player['group_name']]
+        other_player_number = ''
+        if self.player: 
+            print(self.player)
+            print(other_player_number) 
+            game = self.games[self.player['group_name']]
+            print(game['player1'].to_dict())
+            print(game['player2'].to_dict()) 
+            if self.player['group_name'] in self.games: 
+                if self.player['player_number'] == 'player2': 
+                    await self.gameOver(self.player['group_name'],  game['player2'].username, game['player1'].username, game['player2'].chan_name, game['player1'].chan_name, 3, 3, 0)
+                    
             
     async def matchmaking(self, data):
         if len(Game.match_making) >= 2:
@@ -420,7 +411,7 @@ class Game(AsyncWebsocketConsumer):
             'winner': event['winner']
         }))
     
-    
+
     @sync_to_async
     def create_player(self, username):
         Player.objects.create(
@@ -447,7 +438,7 @@ class Game(AsyncWebsocketConsumer):
             return CustomUser.objects.get(username=username)
         except CustomUser.DoesNotExist:
             return None
-    
+
     @sync_to_async
     def is_playing(self, username1, username2):
         player1 = CustomUser.objects.get(username=username1)

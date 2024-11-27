@@ -3,6 +3,7 @@
 export interface player {
     player_id: string;
     name: string;
+    player_number: string;
 }
 
 export interface walls {

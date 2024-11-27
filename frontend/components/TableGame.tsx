@@ -15,7 +15,7 @@ import { useUserContext } from '../components/context/usercontext';
 
 const Player1 = dynamic(() => import('../app/game/remotegame/Player1Remote'), { ssr: false });
 const Player2 = dynamic(() => import('../app/game/remotegame/Player2Remote'), { ssr: false });
-let playerInfo: player = { player_id: '', name: '' };
+let playerInfo: player = { player_id: '', name: '',  player_number: '' };
 let game_channel: string = '';
 let playeNum: string = '';
 let game_state = {};
@@ -30,23 +30,25 @@ interface GameProps {
     player_id: string;
     image1: string;
     image2: string;
+    player_number : string;
     onGameEnd: (winner: string, scoreWinner: string, scoreLoser: string) => void;
 }
 
 
-export default function TableGame({ playerna, socketRef,  groupname ,  player_id, image1, image2 ,onGameEnd}: GameProps) {
+export default function TableGame({ playerna, socketRef,  groupname ,  player_id, image1, image2 , player_number,onGameEnd}: GameProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const {authUser, loading} = useUserContext();
   const [gameStarted, setGameStarted] = useState(false);
-  const [isplayer1, setIsPlayer1] = useState(false);
+  const [isplayer2, setIsPlayer2] = useState(false);
   let count = 3; 
   let startTime = 0;
   let Duration = 1000;
-
   
   useEffect(() => {
     playerInfo.player_id = player_id;
     playerInfo.name = playerna;
+    playerInfo.player_number = player_number;
+    console.log(playerInfo.player_number)
     if (typeof window !== 'undefined') {
       let Walls : walls = { wallsWidth: canvasRef.current.clientWidth, wallsHeight: canvasRef.current.clientHeight };
       const firtsData = { username: playerna , 
@@ -67,8 +69,11 @@ export default function TableGame({ playerna, socketRef,  groupname ,  player_id
           console.log(data);
           game_state = data.game_serialized;
           game_channel = data.name_channel;
-          if ( playerna === game_state['player2'].username)
-            setIsPlayer1(true);
+          console.log(playerInfo.player_id , game_state['player2'].chan_name)
+          if ( playerInfo.player_id === game_state['player1'].chan_name)
+          {
+            setIsPlayer2(true); 
+          }
           socketIsOpen = true;
           setGameStarted(true);
         }
@@ -85,6 +90,9 @@ export default function TableGame({ playerna, socketRef,  groupname ,  player_id
         }
         if (data.type === 'game_over') {
           console.log(data);
+          setIsPlayer2(false);
+          game_state = {};
+          playerInfo = { player_id: '', name: '',  player_number: '' };
           onGameEnd(data.winner, data.scoreWiner, data.scoreLoser);
         }
       };
@@ -123,9 +131,6 @@ export default function TableGame({ playerna, socketRef,  groupname ,  player_id
                 countdown(sketch, Walls, count);
                 return;
             }
-            movePaddle(sketch, playerInfo, game_channel, socketRef);
-            if (game_state['player1'] && game_state['player2'])
-              tableDraw(sketch, game_state ,Walls, playerInfo);
             const elapsedTime = sketch.millis() - startTime;
 
             if (elapsedTime >= Duration) {
@@ -141,9 +146,12 @@ export default function TableGame({ playerna, socketRef,  groupname ,  player_id
             countdown(sketch, Walls, count);
             return;
         }
+        if (gameIsStarted)
+        {
           movePaddle(sketch, playerInfo, game_channel, socketRef);
           if (game_state['player1'] && game_state['player2'])
             tableDraw(sketch, game_state ,Walls, playerInfo);
+        }
         };
       }, canvasRef.current);
 
@@ -166,13 +174,13 @@ export default function TableGame({ playerna, socketRef,  groupname ,  player_id
   return (
     <div className="flex justify-center items-center">
         <div className="w-[85%] h-[80vh] flex justify-center items-center xl:flex-row  flex-col mt-[5vh]">
-                    { gameStarted && ( !isplayer1 ?
+                    { gameStarted && ( playerInfo.player_number === 'player1' ?
                       (<Player2 
                           image={image2}
-                          name={game_state['player2']?.username || ''} 
-                          />) : ((<Player1 
+                          name={game_state['player1']?.username || ''} 
+                          />) : ((<Player1
                             image={image1}
-                            name={game_state['player1']?.username || ''} 
+                            name={game_state['player2']?.username || ''} 
                             />))
                         )}
                         <div ref={canvasRef} className="aspect-[3/4] w-[250px]
@@ -187,13 +195,13 @@ export default function TableGame({ playerna, socketRef,  groupname ,  player_id
                                               rounded-lg overflow-hidden 
                                               border-2 border-teal-300
                                               shadow-[0_0_12px_#fff]"/>
-                        { gameStarted && ( isplayer1 ?
-                      (<Player2 
-                          image={image2}
-                          name={game_state['player2']?.username || ''} 
-                          />) : (<Player1 
+                        { gameStarted && ( playerInfo.player_number === 'player1' ?
+                      (<Player1 
                           image={image1}
-                          name={game_state['player1']?.username || ''}
+                          name={game_state['player2']?.username || ''} 
+                          />) : (<Player2 
+                          image={image2}
+                          name={game_state['player2']?.username || ''}
                       />)
                     )}
         </div>

@@ -257,6 +257,16 @@ class UserViewSet(viewsets.ModelViewSet):
             return result_users.exclude(username__in=self.request.user.blocked_users.all().values_list('username', flat=True)).filter(is_active=True)
         return CustomUser.objects.filter(is_active=True)
 
+class FriendsListView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        friends = user.friends.all()
+        serializer = FriendListSerializer(friends, many=True)
+        return Response(serializer.data)
+
 class GetUser(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]

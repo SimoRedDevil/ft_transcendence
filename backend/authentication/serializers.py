@@ -118,6 +118,11 @@ class UserSerializer(serializers.ModelSerializer):
             'password': {'write_only': True},
         }
 
+class FriendListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'email', 'full_name', 'username', 'avatar_url', 'online']
+
 class AnonymousUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser

@@ -23,7 +23,7 @@ function TextBox({placeholder, icon, className, onChange, onKeyUp, onClick, inpu
         <div className='ml-[15px] mr-[15px]'>
           {icon != undefined ? <Image className='opacity-60' src={icon} alt='icon' width={32} height={32}/> : null}
         </div>
-        <input id={id} disabled={disabled} value={input} onClick={onClick} onKeyUp={onKeyUp} onChange={onChange} type='text' placeholder={placeholder} className='text-white w-full h-full bg-transparent border-none rounded-[inherit] focus:outline-none p-[5px]'/>
+        <input autoFocus id={id} disabled={disabled} value={input} onClick={onClick} onKeyUp={onKeyUp} onChange={onChange} type='text' placeholder={placeholder} className='text-white w-full h-full bg-transparent border-none rounded-[inherit] focus:outline-none p-[5px]'/>
     </div>
   )
 }

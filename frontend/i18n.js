@@ -19,7 +19,7 @@ i18n
       },
     },
     lng: 'en', // default language
-    fallbackLng: 'en', // fallback language
+    fallbackLng: 'en', // fallback language if translation not found
     interpolation: {
       escapeValue: false, // react already safe from xss
     },

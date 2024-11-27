@@ -28,4 +28,5 @@ urlpatterns = [
     path('anonym-user/', AnonymousUserViewSet.as_view(), name='anonym_user'),
     path('friends/', friends_list.as_view(), name='friends'),
     path('get-user/', GetUser.as_view(), name='get_user'),
+    path('get-friends/', FriendsListView.as_view(), name='get_friends'),
 ]

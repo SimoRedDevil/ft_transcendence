@@ -8,4 +8,6 @@ urlpatterns = [
     path('requests/accept-request/', AcceptRequest.as_view(), name='accept_request'),
     path('requests/reject-request/', RejectRequest.as_view(), name='reject_request'),
     path('requests/check-friendrequest/', CheckFriendRequestExists.as_view(), name='check_friendrequest_exists'),
+    path('requests/remove-friend/', RemoveFriend.as_view(), name='remove_friend'),
+    
 ]

@@ -14,7 +14,7 @@ import { redirect } from 'next/navigation';
 
 const Player1 = dynamic(() => import('../../../../app/game/remotegame/Player1Remote'), { ssr: false });
 const Player2 = dynamic(() => import('../../../../app/game/remotegame/Player2Remote'), { ssr: false });
-let playerInfo: player = { player_id: '', name: '' };
+let playerInfo: player = { player_id: '', name: '' , player_number: '' };
 let game_channel: string = '';
 let playeNum: string = '';
 let game_state = {};
@@ -26,6 +26,11 @@ interface GameProps {
     playerna: string ;
     socketRef: WebSocket;
     playernambre: string;
+    image1: string;
+    image2: string;
+    player_nambre: string;
+    playername1: string;
+    playername2: string;
     groupname: string;
     player_id: string;
     qualified: boolean;
@@ -35,7 +40,8 @@ interface GameProps {
 }
 
 
-export default function TableTourGame({ playerna, socketRef, playernambre, groupname ,  player_id, qualified,onGameEnd, handleUpdate, handlefinal}: GameProps) {
+export default function TableTourGame({ playerna, socketRef, playernambre, groupname ,  player_id, qualified,
+   image1, image2, player_nambre , playername1, playername2,onGameEnd, handleUpdate, handlefinal}: GameProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [gameStarted, setGameStarted] = useState(false);
   let count = 3; 
@@ -46,6 +52,8 @@ export default function TableTourGame({ playerna, socketRef, playernambre, group
   useEffect(() => {
     playerInfo.player_id = player_id;
     playerInfo.name = playerna;
+    console.log("herherherehr ", player_nambre)
+    playerInfo.player_number = player_nambre;
     if (typeof window !== 'undefined') {
 
       let Walls : walls = { wallsWidth: canvasRef.current.clientWidth, wallsHeight: canvasRef.current.clientHeight };
@@ -84,7 +92,7 @@ export default function TableTourGame({ playerna, socketRef, playernambre, group
           game_state['player2'] = data.player2;
         }
         if (data.type === 'game_over') {
-          console.log(data);
+          console.log("game over", data);
           onGameEnd(data['winner'].username, data['winner'].playernambertour);
           gameIsStarted = false;
           socketIsOpen = false;
@@ -182,11 +190,14 @@ export default function TableTourGame({ playerna, socketRef, playernambre, group
   return (
     <div className="flex justify-center items-center">
         <div className="w-[85%] h-[80vh] flex justify-center items-center xl:flex-row  flex-col mt-[5vh]">
-                    { gameStarted && (
-                      <Player1 
-                          image="/images/adil.png"
-                          name={game_state['player1'].username || ''} 
-                          />
+        { gameStarted && ( playerInfo.player_number === 'player1' ?
+                      (<Player2 
+                          image={image2}
+                          name={playername2 || ''} 
+                          />) : ((<Player1
+                            image={image1}
+                            name={playername1 || ''} 
+                            />))
                         )}
                         <div ref={canvasRef} className="aspect-[3/4] w-[250px]
                                               xs:w-[350px]
@@ -200,11 +211,14 @@ export default function TableTourGame({ playerna, socketRef, playernambre, group
                                               rounded-lg overflow-hidden 
                                               border-2 border-teal-300
                                               shadow-[0_0_12px_#fff]"/>
-                        { gameStarted && (
-                      <Player2 
-                          image="/images/adil.png"
-                          name={game_state['player2'].username || ''} 
-                      />
+                        { gameStarted && ( playerInfo.player_number === 'player1' ?
+                      (<Player1 
+                          image={image1}
+                          name={playername1 || ''} 
+                          />) : (<Player2 
+                          image={image2}
+                          name={playername2 || ''}
+                      />)
                     )}
         </div>
     </div>

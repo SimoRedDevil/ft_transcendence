@@ -83,6 +83,10 @@ export default function Game() {
             }
             socketRef.current.onerror = () => {
             }
+            return () => {
+                socketRef.current.close();
+                socketRef.current = null;
+            }
         } 
     }, []);
     return (
@@ -90,7 +94,7 @@ export default function Game() {
                         md:border md:border-white md:border-opacity-30
                         md:bg-black md:bg-opacity-20
                         md:rounded-[50px]'>
-        {!gameStarted ? ( !matchready ? (isplaying ? (<Platform />) : <>already playing</>) : (<Versus socket={socketRef.current} game_roum={game_roum} username={authUser.username} image1={image1} image2={image2}/>)) 
+        {!gameStarted ? ( !matchready ? (!isplaying ? (<Platform />) : <>already playing</>) : (<Versus socket={socketRef.current} game_roum={game_roum} username={authUser.username} image1={image1} image2={image2}/>)) 
         : (!gameOver ? (<TableGame playerna={authUser.username} socketRef={socketRef.current}  groupname={game_roum} player_id={id_channel} 
             image1={image1} image2={image2} player_number={playernumber} playername1={nameplayer1} playername2={nameplayer2} onGameEnd={handleGameEnd}/>) 
         : (<Winner winer={winerImage} loser={loserImage} scoreWinner={scoreWinner} scoreLoser={scoreLoser} />))}

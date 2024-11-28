@@ -87,7 +87,11 @@ export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }:
     const [player2, setPlayer2] = useState('');
     const [player3, setPlayer3] = useState('');
     const [player4, setPlayer4] = useState('');
-    const [winnerNum, setwinnerNum] = useState('');
+    const [image1, setImage1] = useState('');
+    const [image2, setImage2] = useState('');
+    const [playername1, setNamePlayer1] = useState('');
+    const [playername2, setNamePlayer2] = useState('');
+    const [nameplayer, setNamePlayer] = useState('');
     const [qualified, setQualified] = useState(false);
     const [player_id, setPlayer_id] = useState('');
     const [currentPlayers, setCurrentPlayers] = useState('');
@@ -98,12 +102,73 @@ export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }:
     const [winner2, setWinner2] = useState('');
     const [winner, setWinner] = useState('');
 
+    const getImage = (name: string) => {
+        for (let i = 0; i < players.length; i++) {
+            if (players[i]['name'] === name)
+                return players[i]['image'];
+        }
+    }
+
     const handleButtonClick = () => {
         for (let i = 0; i < players.length; i++) {
-            if (players[i]['name'] === PlayerName) {
+            if (players[i]['name'] === PlayerName && (winner1 === '' || winner2 === '')) {
+                if (players[i]['numberplayer'] === 'player1')
+                {
+                    setNamePlayer(players[i]['player_id']);
+                    setImage1(players[i]['image']);
+                    setImage2(players[i + 1]['image']);
+                    setNamePlayer1(players[i]['name']);
+                    setNamePlayer2(players[i + 1]['name']);
+                    
+                }
+                else if (players[i]['numberplayer'] === 'player2')
+                {
+                    setNamePlayer(players[i]['player_id']);
+                    setImage1(players[i - 1]['image']);
+                    setImage2(players[i]['image']);
+                    setNamePlayer1(players[i - 1]['name']);
+                    setNamePlayer2(players[i]['name']);
+                }
+                else if (players[i]['numberplayer'] === 'player3')
+                    {
+                    setNamePlayer(players[i]['player_id']);
+                    setImage1(players[i]['image']);
+                    setImage2(players[i + 1]['image']);
+                    setNamePlayer1(players[i]['name']);
+                    setNamePlayer2(players[i + 1]['name']);
+                    
+                }
+                else if (players[i]['numberplayer'] === 'player4')
+                {
+                    setNamePlayer(players[i]['player_id']);
+                    setImage1(players[i - 1]['image']);
+                    setImage2(players[i]['image']);
+                    setNamePlayer1(players[i - 1]['name']);
+                    setNamePlayer2(players[i]['name']);
+                }
                 setGroup_name(players[i]['group_name']);
                 setId(players[i]['id']);
                 break;
+            }
+            else if (players[i]['name'] === PlayerName && winner1 !== '' && winner2 !== '') {
+                if (PlayerName === winner1)
+                {
+                    setNamePlayer('player1');
+                    setImage1(players[i]['image']);
+                    setImage2(getImage(winner2));
+                    setNamePlayer1(winner1);
+                    setNamePlayer2(winner2);
+                    console.log('player1');
+                }
+                else if (PlayerName === winner2)
+                {
+                    setNamePlayer('player2');
+                    setImage1(getImage(winner1));
+                    setImage2(players[i]['image']);
+                    setNamePlayer1(winner1);
+                    setNamePlayer2(winner2);
+                    console.log('player2');
+                }
             }
         }
         setShowLocalGame(true);
@@ -145,7 +210,9 @@ export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }:
     return (
         <div className="w-[90%] h-[80vh] flex justify-center items-center flex-col  ml-[28px]">
             {showLocalGame ? (
-                <TableTourGame playerna={PlayerName} socketRef={socketRef.current} playernambre={currentPlayers} groupname={group_name} 
+                <TableTourGame playerna={PlayerName} socketRef={socketRef.current} playernambre={currentPlayers}
+                 groupname={group_name} image1={image1} image2={image2} 
+                player_nambre={nameplayer} playername1={playername1} playername2={playername2}
                 player_id={player_id} qualified={qualified} onGameEnd={handleGameEnd} handleUpdate={handleUpdateState} handlefinal={handlefinal}/>
             ) : (userExist && (
                     <div className="w-[85%] h-[80vh] flex justify-center items-center lg:justify-start lg:items-start flex-col mt-[5vh]">

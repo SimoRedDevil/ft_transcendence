@@ -72,48 +72,49 @@ class Game(AsyncWebsocketConsumer):
         self.player = None
         self.game_channel = None
         useRname = self.scope['user']
-        isPlaying = await sync_to_async(CustomUser.objects.get)(username=useRname)
-        if isPlaying.is_playing:
-            print('You are already playing a game', flush=True)
-            await self.send(text_data=json.dumps({
-                'type': 'is_playing',
-                'message': 'You are already playing a game'
-            }))
-            await self.close()
     async def receive(self, text_data):
         data = json.loads(text_data)
         if data['type'] == 'connection':
             username = data['username']
-            await self.is_playing(username)
-            existPlayer = await sync_to_async(Player.objects.filter(username=username).exists)()
-            if not existPlayer:
-                await self.create_player(username)
-            User = await self.get_user(username)
-            self.player = {
-                'name': username,
-                'id': self.channel_name,
-                'image': User.avatar_url,
-                'player_number': '',
-                'player_id': '',
-                'group_name': ''
-            }
-            
-            if data['flag'] == 'invite':
-                Game.games_invites[self.player['name']] = self.player
+            isPlaying = await sync_to_async(CustomUser.objects.get)(username=username)
+            if isPlaying.is_playing:
+                print('You are already playing a game', flush=True)
+                await self.send(text_data=json.dumps({
+                    'type': 'is_playing',
+                    'message': 'You are already playing a game'
+                }))
+                await self.close()
             else:
-                Game.match_making.append(self.player)
-            if len(Game.match_making) >= 2:
-                self.player['player_number'] = 'player2'
-            else:
-                self.player['player_number'] = 'player1'
-            await self.send(text_data=json.dumps({
-                'type': 'connection',
-                'player': self.player
-            }))
-            if data['flag'] == 'invite':
-                await self.invite_game(data) 
-            else:
-                await self.matchmaking(data)
+                await self.is_playing(username)
+                existPlayer = await sync_to_async(Player.objects.filter(username=username).exists)()
+                if not existPlayer:
+                    await self.create_player(username)
+                User = await self.get_user(username)
+                self.player = {
+                    'name': username,
+                    'id': self.channel_name,
+                    'image': User.avatar_url,
+                    'player_number': '',
+                    'player_id': '',
+                    'group_name': ''
+                }
+                
+                if data['flag'] == 'invite':
+                    Game.games_invites[self.player['name']] = self.player
+                else:
+                    Game.match_making.append(self.player)
+                if len(Game.match_making) >= 2:
+                    self.player['player_number'] = 'player2'
+                else:
+                    self.player['player_number'] = 'player1'
+                await self.send(text_data=json.dumps({
+                    'type': 'connection',
+                    'player': self.player
+                }))
+                if data['flag'] == 'invite':
+                    await self.invite_game(data) 
+                else:
+                    await self.matchmaking(data)
         if data['type'] == 'move':
             game_channel = data.get('game_channel')
             player_id = self.player.get('player_id')
@@ -486,7 +487,7 @@ class Game(AsyncWebsocketConsumer):
     def is_not_playing(self, username):
         player = CustomUser.objects.get(username=username)
         player.is_playing = False
-        player1.save()
+        player.save()
 
         
     @sync_to_async

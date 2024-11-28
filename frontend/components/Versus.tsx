@@ -59,7 +59,13 @@ export default function Versus({ socket , game_roum , username, image1, image2}:
             <h1 className="text-[200px] text-[#d3e2e5fb] shadow-[#d3e2e5fb] shado down font-thin">S</h1>
           </div>
           <div>
-            <button className='w-[70px] h-[70px] rounded-[100px]  bg-[#C28F5F] text-white' onClick={() => handleButtonClick()}>Ready</button>
+              <button
+                    className={`w-[70px] h-[70px] rounded-[100px] border-[4px] ${!isReady ? 'bg-[#C28F5F] text-white border-[#39696e]' : 'text-white/60 bg-[#C28F5F]/30 border-[#39696e]/30'} `}
+                    onClick={handleButtonClick}
+                    disabled={isReady}
+                  >
+                    {!isReady ? 'Play' : 'Ready'}
+              </button>
           </div>
         </div>
 

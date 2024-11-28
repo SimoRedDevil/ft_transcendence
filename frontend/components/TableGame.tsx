@@ -31,11 +31,13 @@ interface GameProps {
     image1: string;
     image2: string;
     player_number : string;
-    onGameEnd: (winner: string, scoreWinner: string, scoreLoser: string) => void;
+    playername1: string;
+    playername2: string;
+    onGameEnd: (winner: string, scoreWinner: string, scoreLoser: string, imageWin: string, imageLos: string) => void;
 }
 
 
-export default function TableGame({ playerna, socketRef,  groupname ,  player_id, image1, image2 , player_number,onGameEnd}: GameProps) {
+export default function TableGame({ playerna, socketRef,  groupname ,  player_id, image1, image2 , player_number,playername1, playername2,onGameEnd}: GameProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const {authUser, loading} = useUserContext();
   const [gameStarted, setGameStarted] = useState(false);
@@ -93,7 +95,7 @@ export default function TableGame({ playerna, socketRef,  groupname ,  player_id
           setIsPlayer2(false);
           game_state = {};
           playerInfo = { player_id: '', name: '',  player_number: '' };
-          onGameEnd(data.winner, data.scoreWiner, data.scoreLoser);
+          onGameEnd(data.winner, data.scoreWiner, data.scoreLoser, data.winerImage, data.loserImage);
         }
       };
 
@@ -177,10 +179,10 @@ export default function TableGame({ playerna, socketRef,  groupname ,  player_id
                     { gameStarted && ( playerInfo.player_number === 'player1' ?
                       (<Player2 
                           image={image2}
-                          name={game_state['player1']?.username || ''} 
+                          name={playername2 || ''} 
                           />) : ((<Player1
                             image={image1}
-                            name={game_state['player2']?.username || ''} 
+                            name={playername1 || ''} 
                             />))
                         )}
                         <div ref={canvasRef} className="aspect-[3/4] w-[250px]
@@ -198,10 +200,10 @@ export default function TableGame({ playerna, socketRef,  groupname ,  player_id
                         { gameStarted && ( playerInfo.player_number === 'player1' ?
                       (<Player1 
                           image={image1}
-                          name={game_state['player2']?.username || ''} 
+                          name={playername1 || ''} 
                           />) : (<Player2 
                           image={image2}
-                          name={game_state['player2']?.username || ''}
+                          name={playername2 || ''}
                       />)
                     )}
         </div>

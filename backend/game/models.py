@@ -21,4 +21,4 @@ class Match(models.Model):
     score2 = models.IntegerField(default=0)
     winer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='match_winner')
     match_date = models.DateField(auto_now_add=True)
-    match_time = models.TimeField(auto_now_add=True)
+    match_time = models.TimeField(auto_now_add=True) 

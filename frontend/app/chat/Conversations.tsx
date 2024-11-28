@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useEffect, useState } from 'react'
 import Image from "next/image";
 import TextBox from '../../components/TextBox';
@@ -8,8 +10,11 @@ import { useRef } from 'react';
 import { truncateMessage } from '../../utils/tools';
 import { useChatContext } from '../../components/context/ChatContext';
 import axios from 'axios'
+import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 
 function Conversations() {
+  
   const {authUser, loading} = useUserContext()
   const [input, setInput] = useState('')
   const
@@ -24,8 +29,14 @@ function Conversations() {
     isMobile,
     refScroll
   } = useChatContext()
-
+  
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const friendName = searchParams.get('username');
+  
   if (loading === true || conversationsLoading === true) return <div>Loading...</div> ;
+
+  console.log(friendName)
 
   const scrollToLastMessage = () => {
     if (refScroll.current) {

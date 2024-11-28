@@ -12,6 +12,7 @@ import { IoIosSend } from "react-icons/io";
 import TextBox from '@/components/TextBox';
 import { fetchSearchResults } from '@/components/friendHelper';
 import {toast} from 'react-toastify'
+import { useRouter } from 'next/navigation';
 
 function page() {
     const [friendRequests, setFriendRequests] = useState([]);
@@ -28,6 +29,7 @@ function page() {
     const [searchResults, setSearchResults] = useState([]);
     const {authUser,loading,} = useUserContext();
     const [debouncedSearchInput, setDebouncedSearchInput] = useState(searchInput);
+
     useEffect(() => {
         const handler = setTimeout(() => {
           setDebouncedSearchInput(searchInput);
@@ -148,7 +150,10 @@ function page() {
         }
         setSearchInput(value);
     };
-    
+    const router = useRouter();
+    const handleChatClick = (username) => {
+        router.push(`/chat/?username=${username}`);
+    }
     
     if (loading || isLoading) {
         return (
@@ -271,9 +276,13 @@ function page() {
                         <div className='text-white text-[15px] sm:text-[20px]'>{friend.full_name}</div>
                         </div>
                         <div className='flex gap-1'>
-                        <button className='bg-[#c75462] hover:bg-[#db5e6c] text-[15px]
+                            <button className='bg-[#c75462] hover:bg-[#db5e6c] text-[15px]
                             sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>
                                 Remove
+                            </button>
+                            <button onClick={() => handleChatClick(friend.username)} className='bg-[#0b637b] text-[15px]
+                            sm:text-[20px] w-[80px] hover:bg-[#318aa2] sm:w-[100px] rounded-[30px] p-2'>
+                                Chat
                             </button>
                         </div>
                     </div>

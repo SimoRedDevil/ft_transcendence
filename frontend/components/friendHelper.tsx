@@ -1,5 +1,4 @@
 import { axiosInstance } from '@/utils/axiosInstance';
-import { useState } from 'react';
 
 export const fetchSearchResults = async (
     searchInput: string,

@@ -73,7 +73,7 @@ function Conversations() {
                 </div>
               </div>
               <div className='h-[100px] flex items-center justify-center'>
-                <TextBox onChange={(e) => handleConversationSearch(e)} placeholder='Search...' icon='/icons/search.png' className='border border-white border-opacity-20 w-[95%] h-[70px] bg-white bg-opacity-10 rounded-[40px] flex items-center'></TextBox>
+                <TextBox focus={false}  onChange={(e) => handleConversationSearch(e)} placeholder='Search...' icon='/icons/search.png' className='border border-white border-opacity-20 w-[95%] h-[70px] bg-white bg-opacity-10 rounded-[40px] flex items-center'></TextBox>
               </div>
             </div>
         <div className='mt-[20px] h-[calc(100%_-_270px)] no-scrollbar overflow-y-auto scroll-smooth'>

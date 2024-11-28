@@ -26,6 +26,7 @@ class FriendRequest(models.Model):
             return False
         self.status = 'A'
         self.save()
+        self.delete()
         return True
     def reject_request(self):
         if self.status != 'P':

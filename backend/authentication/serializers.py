@@ -121,7 +121,7 @@ class UserSerializer(serializers.ModelSerializer):
 class FriendListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'email', 'full_name', 'username', 'avatar_url', 'online']
+        fields = ['id', 'email', 'full_name', 'username', 'avatar_url', 'online', 'friends']
 
 class AnonymousUserSerializer(serializers.ModelSerializer):
     class Meta:

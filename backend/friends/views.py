@@ -22,6 +22,7 @@ class CreateRequest(APIView):
 
     def post(self, request):
         data = request.data
+
         if (check_friendrequest_exists(data['sender'], data['receiver']) or check_friendrequest_exists(data['receiver'], data['sender'])):
             return Response({"detail: Friend request already sent."}, status=status.HTTP_400_BAD_REQUEST)
         if (data['sender'] == data['receiver']):

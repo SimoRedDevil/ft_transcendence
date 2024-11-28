@@ -21,6 +21,7 @@ export const UserProvider = ({ children }) => {
     const [searchResults, setSearchResults] = useState([]);
     const [searchLoading, setSearchLoading] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
+    const [debouncedSearchInput, setDebouncedSearchInput] = useState(searchInput);
 
     const API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -54,12 +55,23 @@ export const UserProvider = ({ children }) => {
         }
     };
 
+    useEffect(() => {
+        const handler = setTimeout(() => {
+          setDebouncedSearchInput(searchInput);
+        }, 300);
+        return () => {
+          clearTimeout(handler);
+        };
+      }
+      , [searchInput]);
+      
+
       useEffect(() => {
         setSearchResults([]);
         if(searchInput.length > 0) {
           fetchSearchResults(searchInput, setSearchResults, setSearchLoading);
         }
-      }, [searchInput])
+      }, [debouncedSearchInput]);
 
     useEffect(() => {
         fetchAuthUser();

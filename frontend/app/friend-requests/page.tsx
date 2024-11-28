@@ -245,8 +245,8 @@ function page() {
                 )}
                 {sentRequest && (
                 <>
-                    {sentRequests && sentRequests.length < 1 && <p>No sent requests</p>}
-                    {sentRequests?.map((request) => (
+                    {friendRequests && friendRequests.length < 1 && <p>No sent requests</p>}
+                    {friendRequests?.map((request) => (
                     request.sender_info.username === authUser?.username && (
                         <div key={request.id} className='flex flex-col gap-2 xs:gap-0 xs:flex-row xs:items-center xs:justify-between'>
                         <div className='flex items-center gap-2 w-full'>
@@ -254,7 +254,7 @@ function page() {
                             <div className='text-white text-[15px] sm:text-[20px]'>{request.receiver_info.full_name}</div>
                         </div>
                         <div className='flex gap-1'>
-                            <button className='bg-[#2A9D8F] hover:bg-[#32b7a8] text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>Sent</button>
+                        <button onClick={() => handleReject(request.id)} className='bg-[#c75462] hover:bg-[#db5e6c] text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>Cancel</button>
                         </div>
                         </div>
                     )
@@ -271,7 +271,7 @@ function page() {
                         <div className='text-white text-[15px] sm:text-[20px]'>{friend.full_name}</div>
                         </div>
                         <div className='flex gap-1'>
-                        <button className='bg-[#c75462] hover:bg-[#db5e6c] 
+                        <button className='bg-[#c75462] hover:bg-[#db5e6c] text-[15px]
                             sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>
                                 Remove
                             </button>

@@ -41,7 +41,7 @@ class GetRequests(APIView):
 
     def get(self, request):
         user = request.user
-        friend_requests = FriendRequest.objects.filter(Q(receiver=user.id) & Q(status='P'))
+        friend_requests = FriendRequest.objects.filter(Q(status='P'))
         serializer = FriendRequestSerializer(friend_requests, many=True)
         return Response(serializer.data)
 
@@ -72,6 +72,9 @@ class RejectRequest(APIView):
             return Response("{detail: Friend request does not exist}", status=status.HTTP_400_BAD_REQUEST)
         friend_req = FriendRequest.objects.get(id=id)
         if (request.user.id != friend_req.receiver.id):
+            if (request.user.id == friend_req.sender.id):
+                friend_req.delete()
+                return Response("{detail: Friend request deleted}", status=status.HTTP_200_OK)
             return Response("{detail: Unauthorized operation}", status=status.HTTP_401_UNAUTHORIZED)
         if (not friend_req.reject_request()):
             return Response("{detail: Friend request already rejected}", status=status.HTTP_400_BAD_REQUEST)

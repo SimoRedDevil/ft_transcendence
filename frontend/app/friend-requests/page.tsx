@@ -170,6 +170,7 @@ function page() {
     }
     useEffect(() => {
         getFriendRequests();
+        getBlockedUsers();
     }
     , [isFriend])
     const handleInputChange = (e) => {
@@ -209,10 +210,10 @@ function page() {
             } className={`flex  justify-start mx-2 xs:mx-0
                 ${requests ? 'sm:border-b-2 border-[#37c8b7] text-[#37c8b7]' : 'text-white'}
             `}>
-                <FaUserFriends className={`text-[30px] text-white mr-2
+                <FaUserFriends className={`text-[30px]  mr-2
                     ${requests ? 'text-[#37c8b7]' : 'text-white'}
                 `} />
-                <div className={`text-white text-lg hidden sm:block
+                <div className={`text-lg hidden sm:block
                     ${requests ? 'text-[#37c8b7]' : 'text-white'}
                 `}>Requests</div>
             </button>
@@ -228,10 +229,10 @@ function page() {
                 ${sentRequest ? 'sm:border-b-2 border-[#37c8b7] text-[#37c8b7]' : 'text-white'}
             `}
             >
-                <TbMessageUser className={`text-[30px] text-white mr-2
+                <TbMessageUser className={`text-[30px] mr-2
                     ${sentRequest ? 'text-[#37c8b7]' : 'text-white'}
                 `} />
-                <div className={`text-white text-lg hidden sm:block
+                <div className={`text-lg hidden sm:block
                     ${sentRequest ? 'text-[#37c8b7]' : 'text-white'}
                 `}>Sent</div>
             </button>
@@ -246,10 +247,10 @@ function page() {
             } className={`flex  justify-start mx-2 xs:mx-0 
                 ${isFriend ? 'sm:border-b-2 border-[#37c8b7] text-[#37c8b7]' : 'text-white'}
             `}>
-                <FaUserFriends className={`text-[30px] text-white mr-2
+                <FaUserFriends className={`text-[30px] mr-2
                     ${isFriend ? 'text-[#37c8b7]' : 'text-white'}
                 `} />
-                <div className={`text-white text-lg hidden sm:block
+                <div className={`text-lg hidden sm:block
                     ${isFriend ? 'text-[#37c8b7]' : 'text-white'}
                 `}>
                     Friends
@@ -356,7 +357,7 @@ function page() {
                     {searchResults?.map((result) => (
                         result.username !== authUser?.username &&
                         friends.filter(friend => friend.username === result.username ).length < 1 &&
-                        blockedUsers.filter(blocked => blocked.username === authUser.username ).length < 1 &&
+                        blockedUsers.filter(blocked => blocked.username === result.username ).length < 1 &&
                          (
                         <div key={result.id} className='flex gap-2 xs:gap-0 flex-row min-w-[220px] xs:items-center xs:justify-between mb-3'>
                             <div className='flex items-center gap-2 w-full'>

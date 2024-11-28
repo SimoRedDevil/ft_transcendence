@@ -123,6 +123,11 @@ class FriendListSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ['id', 'email', 'full_name', 'username', 'avatar_url', 'online', 'friends']
 
+class BlockedUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'email', 'full_name', 'username', 'avatar_url', 'online', 'blocked_users']
+
 class AnonymousUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser

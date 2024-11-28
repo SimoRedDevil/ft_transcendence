@@ -267,6 +267,16 @@ class FriendsListView(APIView):
         serializer = FriendListSerializer(friends, many=True)
         return Response(serializer.data)
 
+class BlockListView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        blocked_users = user.blocked_users.all()
+        serializer = BlockedUserSerializer(blocked_users, many=True)
+        return Response(serializer.data)
+
 class GetUser(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
@@ -478,7 +488,6 @@ class UpdateUserView(APIView):
         print("---> data: ", data)
         avatar_file = data.get('avatar_url')
         if avatar_file:
-            # url = os.path.join("http://localhost:8000/avatars/", avatar_file.name)
             url = avatar_file
             user.avatar_url = url
             user.save()
@@ -644,13 +653,3 @@ class AnonymousUserViewSet(APIView):
         response = Response(status=status.HTTP_200_OK)
         response.data = model_to_dict(anonymous_user)
         return response
-
-class friends_list(APIView):
-    authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        user = request.user
-        friends = user.friends.all()
-        friends_data = UserSerializer(friends, many=True).data
-        return Response(friends_data, status=status.HTTP_200_OK)

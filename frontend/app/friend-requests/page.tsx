@@ -10,15 +10,14 @@ import { FaUserFriends } from "react-icons/fa";
 import { TbMessageUser } from "react-icons/tb";
 import { IoIosSend } from "react-icons/io";
 import TextBox from '@/components/TextBox';
-import { fetchSearchResults } from '@/components/friendHelper';
+import { fetchSearchResults, handleBlock } from '@/components/friendHelper';
 import {toast} from 'react-toastify'
 
 function page() {
     const [friendRequests, setFriendRequests] = useState([]);
     const [friends, setFriends] = useState([]);
+    const [blockedUsers, setBlockedUsers] = useState([]);
     const [isFriend, setIsFriend] = useState(false);
-    const [createdRequests, setCreatedRequests] = useState([]);
-    const [sentRequests, setSentRequests] = useState([]);
     const [isSearch, setIsSearch] = useState(false);
     const [requests, setRequests] = useState(true);
     const [sentRequest, setSentRequest] = useState(false);
@@ -28,6 +27,8 @@ function page() {
     const [searchResults, setSearchResults] = useState([]);
     const {authUser,loading,} = useUserContext();
     const [debouncedSearchInput, setDebouncedSearchInput] = useState(searchInput);
+
+
     useEffect(() => {
         const handler = setTimeout(() => {
           setDebouncedSearchInput(searchInput);
@@ -49,7 +50,7 @@ function page() {
             }
         }
         fetchFriendRequests();
-    }, [requests, sentRequest, isSearch]);
+    }, [requests, sentRequest, isSearch, isFriend]);
 
     const handleAccept = async (requestId) => {
         const body = {
@@ -66,10 +67,10 @@ function page() {
               withCredentials: true,
             });
             if (response.status === 200) {
-                toast.success('Friend request accepted')
+                toast.success(response.data)
             }
           } catch (error) {
-            toast.error('An error occurred')
+            toast.error(error.response.data)
           }
     }
     
@@ -96,10 +97,10 @@ function page() {
               withCredentials: true,
             });
             if (response.status === 200) {
-                toast.success('Friend request rejected')
+                toast.success(response.data)
             }
           } catch (error) {
-            toast.error('An error occurred')
+            toast.error(error.response.data)
           }
     }
 
@@ -119,10 +120,10 @@ function page() {
               withCredentials: true,
             });
             if (response.status === 201) {
-                toast.success('Friend request sent')
+                toast.success(response.data)
             }
           } catch (error) {
-            toast.error('An error occurred')
+            toast.error(error.response.data)
           }
     }
     const getFriendRequests = async () => {
@@ -134,6 +135,38 @@ function page() {
         } catch (error) {
             console.log(error)
         }
+    }
+
+    const getBlockedUsers = async () => {
+        try {
+            const res = await axiosInstance.get('auth/get-blocked/')
+            if (res.status === 200) {
+                setBlockedUsers(res.data)
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    const removeFriend = async (friendId) => {
+        const body = {
+            id: friendId
+        }
+        try {
+            const cookies = await getCookies();
+            const csrfToken = cookies.cookies.csrftoken;
+            const response = await axios.post(`http://localhost:8000/api/friends/requests/remove-friend/`, body, {
+              headers: {
+                "Content-Type": "application/json",
+                'X-CSRFToken': csrfToken,
+              },
+              withCredentials: true,
+            });
+            if (response.status === 200) {
+                toast.success(response.data)
+            }
+          } catch (error) {
+            toast.error(error.response.data)
+          }
     }
     useEffect(() => {
         getFriendRequests();
@@ -161,7 +194,7 @@ function page() {
     }
   return (
     <div className='w-full h-full flex items-center justify-center'>
-        <div className='border border-white/30 rounded-[30px] bg-black bg-opacity-50 w-[90%] h-[95%] pr-10 p-5 
+        <div className='border border-white/30 rounded-[30px] bg-black bg-opacity-50 w-[90%] 3xl:w-[1700px] h-[95%] pr-10 p-5 
         overflow-hidden no-scrollbar
         '>
             <div className='flex justify-around w-full  sm:w-[900px] h-[30px] sm:h-[50px]'>
@@ -173,9 +206,15 @@ function page() {
                     setSearchInput('');
                     setSearchResults([])
                 }
-            } className='flex  justify-start mx-2 xs:mx-0'>
-                <FaUserFriends className='text-[30px] text-white mr-2' />
-                <div className='text-white text-lg hidden sm:block'>Requests</div>
+            } className={`flex  justify-start mx-2 xs:mx-0
+                ${requests ? 'sm:border-b-2 border-[#37c8b7] text-[#37c8b7]' : 'text-white'}
+            `}>
+                <FaUserFriends className={`text-[30px] text-white mr-2
+                    ${requests ? 'text-[#37c8b7]' : 'text-white'}
+                `} />
+                <div className={`text-white text-lg hidden sm:block
+                    ${requests ? 'text-[#37c8b7]' : 'text-white'}
+                `}>Requests</div>
             </button>
             <button onClick={
                 () => {setSentRequest(true)
@@ -185,9 +224,16 @@ function page() {
                     setSearchInput('');
                     setSearchResults([])
                 }
-            } className='flex  justify-start mx-2 xs:mx-0 '>
-                <TbMessageUser className='text-[30px] text-white mr-2' />
-                <div className='text-white text-lg hidden sm:block'>Sent</div>
+            } className={`flex  justify-start mx-2 xs:mx-0 
+                ${sentRequest ? 'sm:border-b-2 border-[#37c8b7] text-[#37c8b7]' : 'text-white'}
+            `}
+            >
+                <TbMessageUser className={`text-[30px] text-white mr-2
+                    ${sentRequest ? 'text-[#37c8b7]' : 'text-white'}
+                `} />
+                <div className={`text-white text-lg hidden sm:block
+                    ${sentRequest ? 'text-[#37c8b7]' : 'text-white'}
+                `}>Sent</div>
             </button>
             <button onClick={
                 () => {setSentRequest(false)
@@ -197,9 +243,15 @@ function page() {
                     setSearchInput('');
                     setSearchResults([])
                 }
-            } className='flex  justify-start mx-2 xs:mx-0 '>
-                <FaUserFriends className='text-[30px] text-white mr-2' />
-                <div className='text-white text-lg hidden sm:block'>
+            } className={`flex  justify-start mx-2 xs:mx-0 
+                ${isFriend ? 'sm:border-b-2 border-[#37c8b7] text-[#37c8b7]' : 'text-white'}
+            `}>
+                <FaUserFriends className={`text-[30px] text-white mr-2
+                    ${isFriend ? 'text-[#37c8b7]' : 'text-white'}
+                `} />
+                <div className={`text-white text-lg hidden sm:block
+                    ${isFriend ? 'text-[#37c8b7]' : 'text-white'}
+                `}>
                     Friends
                 </div>
             </button>
@@ -209,7 +261,8 @@ function page() {
                     setIsFriend(false)
                     setIsSearch(true)
                 }
-            } className='flex justify-start mx-2 xs:mx-0 '>
+            } className={`flex justify-start mx-2 xs:mx-0
+            `}>
                 {!isSearch ?
                 <>
                     <IoIosSend className='text-[30px] text-white mr-2' />
@@ -226,39 +279,49 @@ function page() {
             <div className='w-full text-white gap-3 h-full overflow-y-auto overflow-x-hidden no-scrollbar '>
             {requests && (
                 <>
-                    {friendRequests && friendRequests.length < 1 && <p>No friend requests</p>}
-                    {friendRequests?.map((request) => (
-                    request.receiver_info.username === authUser?.username && (
-                        <div key={request.id} className='flex flex-col gap-2 xs:gap-0 xs:flex-row xs:items-center xs:justify-between'>
-                        <div className='flex items-center gap-2 w-full'>
-                            <Image src={request.sender_info.avatar_url} alt='profile_pic' width={50} height={50} className='rounded-full' />
-                            <div className='text-white text-[15px] sm:text-[20px]'>{request.sender_info.full_name}</div>
-                        </div>
-                        <div className='flex gap-1'>
-                            <button onClick={() => handleAccept(request.id)} className='bg-[#2A9D8F] hover:bg-[#32b7a8] text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>Accept</button>
-                            <button onClick={() => handleReject(request.id)} className='bg-[#c75462] hover:bg-[#db5e6c] text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>Reject</button>
-                        </div>
-                        </div>
-                    )
-                    ))}
+                    {friendRequests?.length === 0 ? (
+                        <p>No friend requests</p>
+                    ) : (
+                        friendRequests?.map((request) => (
+                            request.receiver_info.username === authUser?.username ? (
+                                <div key={request.id} className='flex gap-2 xs:gap-0 flex-row xs:items-center xs:justify-between'>
+                                    <div className='flex items-center gap-2 w-full'>
+                                        <Image src={request.sender_info.avatar_url} alt='profile_pic' width={50} height={50} className='rounded-full' />
+                                        <div className='text-white text-[15px] sm:text-[20px]'>{request.sender_info.full_name}</div>
+                                    </div>
+                                    <div className='flex gap-1'>
+                                        <button onClick={() => handleAccept(request.id)} className='bg-[#37c8b7] hover:bg-[#32b7a8] text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>Accept</button>
+                                        <button onClick={() => handleReject(request.id)} className='bg-[#c75462] hover:bg-[#db5e6c] text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>Reject</button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <p key={request.id}>No friend requests</p>
+                            )
+                        ))
+                    )}
                 </>
                 )}
                 {sentRequest && (
                 <>
-                    {friendRequests && friendRequests.length < 1 && <p>No sent requests</p>}
-                    {friendRequests?.map((request) => (
-                    request.sender_info.username === authUser?.username && (
-                        <div key={request.id} className='flex flex-col gap-2 xs:gap-0 xs:flex-row xs:items-center xs:justify-between'>
-                        <div className='flex items-center gap-2 w-full'>
-                            <Image src={request.receiver_info.avatar_url} alt='profile_pic' width={50} height={50} className='rounded-full' />
-                            <div className='text-white text-[15px] sm:text-[20px]'>{request.receiver_info.full_name}</div>
-                        </div>
-                        <div className='flex gap-1'>
-                        <button onClick={() => handleReject(request.id)} className='bg-[#c75462] hover:bg-[#db5e6c] text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>Cancel</button>
-                        </div>
-                        </div>
-                    )
-                    ))}
+                    {friendRequests?.length === 0 ? (
+                        <p>No sent requests</p>
+                    ) : (
+                        friendRequests?.map((request) => (
+                            request.sender_info.username === authUser?.username ? (
+                                <div key={request.id} className='flex gap-2 xs:gap-0 flex-row xs:items-center xs:justify-between'>
+                                    <div className='flex items-center gap-2 w-full'>
+                                        <Image src={request.receiver_info.avatar_url} alt='profile_pic' width={50} height={50} className='rounded-full' />
+                                        <div className='text-white text-[15px] sm:text-[20px]'>{request.receiver_info.full_name}</div>
+                                    </div>
+                                    <div className='flex gap-1'>
+                                        <button onClick={() => handleReject(request.id)} className='bg-[#c75462] hover:bg-[#db5e6c] text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>Cancel</button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <p key={request.id}>No sent requests</p>
+                            )
+                        ))
+                    )}
                 </>
                 )}
                 {isFriend && (
@@ -270,15 +333,20 @@ function page() {
                         <Image src={friend.avatar_url} alt='profile_pic' width={50} height={50} className='rounded-full' />
                         <div className='text-white text-[15px] sm:text-[20px]'>{friend.full_name}</div>
                         </div>
-                        <div className='flex gap-1'>
-                        <button className='bg-[#c75462] hover:bg-[#db5e6c] text-[15px]
-                            sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>
-                                Remove
-                            </button>
+                        <div className='flex gap-3'>
+                        <button onClick={() => handleBlock(friend.username)}
+                            className='bg-[#f44336] hover:bg-[#d32f2f]
+                            text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>
+                                    Block
+                        </button>
+                        <button onClick={() => removeFriend(friend.id)}
+                            className='bg-[#c75462] hover:bg-[#db5e6c]
+                             text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>
+                                    Remove
+                        </button>
                         </div>
                     </div>
-                    ))}    
-
+                    ))}
                 </>
                 )
                 }
@@ -287,14 +355,16 @@ function page() {
                     {(!searchResults || searchResults.length < 1) && <p>No search results</p>}
                     {searchResults?.map((result) => (
                         result.username !== authUser?.username &&
-                        friends.filter(friend => friend.username === result.username).length < 1 && (
+                        friends.filter(friend => friend.username === result.username ).length < 1 &&
+                        blockedUsers.filter(blocked => blocked.username === authUser.username ).length < 1 &&
+                         (
                         <div key={result.id} className='flex gap-2 xs:gap-0 flex-row min-w-[220px] xs:items-center xs:justify-between mb-3'>
                             <div className='flex items-center gap-2 w-full'>
                                 <Image src={result.avatar_url} alt='profile_pic' width={50} height={50} className='rounded-full' />
                                 <div className='text-white text-[15px] sm:text-[20px]'>{result.full_name}</div>
                             </div>
                             <div className='flex gap-1'>
-                                <button onClick={() => createFriendRequest(result.id, authUser.id)} className='bg-[#2A9D8F] hover:bg-[#32b7a8]
+                                <button onClick={() => createFriendRequest(result.id, authUser.id)} className='bg-[#37c8b7] hover:bg-[#32b7a8]
                                     text-[17px] xs:text-[20px] w-[75px] xs:w-[100px] rounded-[30px] p-2'>Add</button>
                             </div>
                         </div>
@@ -302,7 +372,6 @@ function page() {
                     ))}
                     </>
                 )}
-
             </div>
         </div>
     </div>

@@ -26,7 +26,7 @@ urlpatterns = [
     path('unblock/', unblock_user.as_view(), name='unblock_user'),
     path('check-blocked/', check_blocked.as_view(), name='check_blocked'),
     path('anonym-user/', AnonymousUserViewSet.as_view(), name='anonym_user'),
-    path('friends/', friends_list.as_view(), name='friends'),
     path('get-user/', GetUser.as_view(), name='get_user'),
     path('get-friends/', FriendsListView.as_view(), name='get_friends'),
+    path('get-blocked/', BlockListView.as_view(), name='get_blocked'),
 ]

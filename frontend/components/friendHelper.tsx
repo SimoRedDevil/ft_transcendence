@@ -1,4 +1,7 @@
 import { axiosInstance } from '@/utils/axiosInstance';
+import { getCookies } from './auth';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 export const fetchSearchResults = async (
     searchInput: string,
@@ -17,5 +20,29 @@ export const fetchSearchResults = async (
       console.log(error);
     } finally {
       setSearchLoading(false);
+    }
+  }
+  
+  export const handleBlock = async (
+    username: string
+  ) => {
+    const body = {
+      username: username
+    }
+    try {
+      const cookies = await getCookies();
+      const csrfToken = cookies.cookies.csrftoken;
+      const response = await axios.post('http://localhost:8000/api/auth/block/', body, {
+        headers: {
+          "Content-Type": "application/json",
+          'X-CSRFToken': csrfToken,
+        },
+        withCredentials: true,
+      });
+      if (response.status === 200) {
+        toast.success("User blocked successfully")
+      }
+    } catch (error) {
+      toast.error(error.response.data.error)
     }
   }

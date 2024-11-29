@@ -32,12 +32,25 @@ function Conversations() {
   
   const router = useRouter();
   const searchParams = useSearchParams();
-  const friendName = searchParams.get('username');
+  const friendUserName = searchParams.get('username');
   
+  useEffect(() => {
+    if (friendUserName) {
+      axiosInstance.get(`/chat/conversations/`, {
+        params: {friend_username: friendUserName}
+      })
+      .then((response) => {
+        setSelectedConversation(response.data)
+        authUser?.username === response.data.user1_info.username ? setOtherUser(response.data.user2_info) : setOtherUser(response.data.user1_info)
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+    }
+  }, [])
+
   if (loading === true || conversationsLoading === true) return <div>Loading...</div> ;
-
-  console.log(friendName)
-
+  
   const scrollToLastMessage = () => {
     if (refScroll.current) {
       refScroll.current.scrollIntoView({ behavior: 'smooth' })

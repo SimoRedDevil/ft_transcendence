@@ -9,12 +9,17 @@ from rest_framework.response import Response
 from rest_framework import status
 from .paginations import ChatPagination
 from django.db.models import Q
+from authentication.models import CustomUser
 
 class ConversationViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = ConversationSerializer
     def get_queryset(self):
+        friend_username = self.request.GET.get('friend_username')
+        if friend_username:
+            friend = CustomUser.objects.get(username=friend_username)
+            return conversation.objects.filter(user1_id=self.request.user.id, user2_id=friend.id)
         return conversation.objects.filter(user1_id=self.request.user.id) | conversation.objects.filter(user2_id=self.request.user.id)
 
 class SearchConversationViewSet(viewsets.ModelViewSet):

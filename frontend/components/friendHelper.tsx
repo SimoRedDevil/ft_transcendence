@@ -46,3 +46,27 @@ export const fetchSearchResults = async (
       toast.error(error.response.data.error)
     }
   }
+
+  export const handleUnblock = async (
+    username: string
+  ) => {
+    const body = {
+      username: username
+    }
+    try {
+      const cookies = await getCookies();
+      const csrfToken = cookies.cookies.csrftoken;
+      const response = await axios.post('http://localhost:8000/api/auth/unblock/', body, {
+        headers: {
+          "Content-Type": "application/json",
+          'X-CSRFToken': csrfToken,
+        },
+        withCredentials: true,
+      });
+      if (response.status === 200) {
+        toast.success("User unblocked successfully")
+      }
+    } catch (error) {
+      toast.error(error.response.data.error)
+    }
+  }

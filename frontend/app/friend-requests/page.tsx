@@ -9,15 +9,18 @@ import { getCookies } from '../../components/auth';
 import { FaUserFriends } from "react-icons/fa";
 import { TbMessageUser } from "react-icons/tb";
 import { IoIosSend } from "react-icons/io";
+import { MdBlockFlipped } from "react-icons/md";
 import TextBox from '@/components/TextBox';
-import { fetchSearchResults, handleBlock } from '@/components/friendHelper';
+import { fetchSearchResults, handleBlock, handleUnblock } from '@/components/friendHelper';
 import {toast} from 'react-toastify'
+import { useRouter } from 'next/navigation';
 
 function page() {
     const [friendRequests, setFriendRequests] = useState([]);
     const [friends, setFriends] = useState([]);
     const [blockedUsers, setBlockedUsers] = useState([]);
     const [isFriend, setIsFriend] = useState(false);
+    const [isBlocked, setIsBlocked] = useState(false);
     const [isSearch, setIsSearch] = useState(false);
     const [requests, setRequests] = useState(true);
     const [sentRequest, setSentRequest] = useState(false);
@@ -27,6 +30,7 @@ function page() {
     const [searchResults, setSearchResults] = useState([]);
     const {authUser,loading,} = useUserContext();
     const [debouncedSearchInput, setDebouncedSearchInput] = useState(searchInput);
+    const router = useRouter();
 
 
     useEffect(() => {
@@ -141,7 +145,7 @@ function page() {
         try {
             const res = await axiosInstance.get('auth/get-blocked/')
             if (res.status === 200) {
-                setBlockedUsers(res.data)
+                setBlockedUsers(res.data.blocked_users)
             }
         } catch (error) {
             console.log(error)
@@ -204,6 +208,7 @@ function page() {
                     setSentRequest(false)
                     setIsSearch(false)
                     setIsFriend(false)
+                    setIsBlocked(false)
                     setSearchInput('');
                     setSearchResults([])
                 }
@@ -222,6 +227,7 @@ function page() {
                     setRequests(false)
                     setIsSearch(false)
                     setIsFriend(false)
+                    setIsBlocked(false)
                     setSearchInput('');
                     setSearchResults([])
                 }
@@ -241,6 +247,7 @@ function page() {
                     setRequests(false)
                     setIsSearch(false)
                     setIsFriend(true)
+                    setIsBlocked(false)
                     setSearchInput('');
                     setSearchResults([])
                 }
@@ -259,7 +266,30 @@ function page() {
             <button onClick={
                 () => {setSentRequest(false)
                     setRequests(false)
+                    setIsSearch(false)
                     setIsFriend(false)
+                    setIsBlocked(true)
+                    setSearchInput('');
+                    setSearchResults([])
+                }
+            } className={`flex  justify-start mx-2 xs:mx-0 
+                ${isBlocked ? 'sm:border-b-2 border-[#37c8b7] text-[#37c8b7]' : 'text-white'}
+            `}>
+                <MdBlockFlipped className={`text-[30px] mr-2
+                    ${isBlocked ? 'text-[#37c8b7]' : 'text-white'}
+                `} />
+                <div className={`text-lg hidden sm:block
+                    ${isBlocked ? 'text-[#37c8b7]' : 'text-white'}
+                `}>
+                    Blocked
+                </div>
+            </button>
+            <button onClick={
+                () => {setSentRequest(false)
+                    setRequests(false)
+                    setIsFriend(false)
+                    setIsSearch(false)
+                    setIsBlocked(false)
                     setIsSearch(true)
                 }
             } className={`flex justify-start mx-2 xs:mx-0
@@ -280,49 +310,45 @@ function page() {
             <div className='w-full text-white gap-3 h-full overflow-y-auto overflow-x-hidden no-scrollbar '>
             {requests && (
                 <>
-                    {friendRequests?.length === 0 ? (
-                        <p>No friend requests</p>
-                    ) : (
-                        friendRequests?.map((request) => (
-                            request.receiver_info.username === authUser?.username ? (
-                                <div key={request.id} className='flex gap-2 xs:gap-0 flex-row xs:items-center xs:justify-between'>
-                                    <div className='flex items-center gap-2 w-full'>
-                                        <Image src={request.sender_info.avatar_url} alt='profile_pic' width={50} height={50} className='rounded-full' />
-                                        <div className='text-white text-[15px] sm:text-[20px]'>{request.sender_info.full_name}</div>
-                                    </div>
-                                    <div className='flex gap-1'>
-                                        <button onClick={() => handleAccept(request.id)} className='bg-[#37c8b7] hover:bg-[#32b7a8] text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>Accept</button>
-                                        <button onClick={() => handleReject(request.id)} className='bg-[#c75462] hover:bg-[#db5e6c] text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>Reject</button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <p key={request.id}>No friend requests</p>
-                            )
-                        ))
-                    )}
+                    {(friendRequests || !friendRequests) && friendRequests.length < 1 && <p>No friend requests</p>}
+                    {friendRequests?.map((request) => (
+                    request.receiver_info.username === authUser?.username && (
+                    <div key={request.id} className='flex gap-2 xs:gap-0 flex-row xs:items-center xs:justify-between'>
+                        <button onClick={
+                            () => router.push(`/profile/${request.sender_info.username}`)
+                        }
+                         className='flex items-center gap-2 w-full'>
+                        <Image src={request.sender_info.avatar_url} alt='profile_pic' width={50} height={50} className='rounded-full' />
+                        <div className='text-white text-[15px] sm:text-[20px]'>{request.sender_info.full_name}</div>
+                        </button>
+                        <div className='flex gap-3'>
+                        <button onClick={() => handleAccept(request.id)} className='bg-[#37c8b7] hover:bg-[#32b7a8] text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>Accept</button>
+                        <button onClick={() => handleReject(request.id)} className='bg-[#c75462] hover:bg-[#db5e6c] text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>Reject</button>
+                        </div>
+                    </div>
+                    )
+                    ))}
                 </>
                 )}
                 {sentRequest && (
                 <>
-                    {friendRequests?.length === 0 ? (
-                        <p>No sent requests</p>
-                    ) : (
-                        friendRequests?.map((request) => (
-                            request.sender_info.username === authUser?.username ? (
-                                <div key={request.id} className='flex gap-2 xs:gap-0 flex-row xs:items-center xs:justify-between'>
-                                    <div className='flex items-center gap-2 w-full'>
-                                        <Image src={request.receiver_info.avatar_url} alt='profile_pic' width={50} height={50} className='rounded-full' />
-                                        <div className='text-white text-[15px] sm:text-[20px]'>{request.receiver_info.full_name}</div>
-                                    </div>
-                                    <div className='flex gap-1'>
-                                        <button onClick={() => handleReject(request.id)} className='bg-[#c75462] hover:bg-[#db5e6c] text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>Cancel</button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <p key={request.id}>No sent requests</p>
-                            )
-                        ))
-                    )}
+                    {(friendRequests || !friendRequests) && friendRequests.length < 1 && <p>No sent requests</p>}
+                    {friendRequests?.map((request) => (
+                    request.sender_info.username === authUser?.username && (
+                    <div key={request.id} className='flex gap-2 xs:gap-0 flex-row xs:items-center xs:justify-between'>
+                        <button onClick={
+                            () => router.push(`/profile/${request.receiver_info.username}`)
+                        }
+                         className='flex items-center gap-2 w-full'>
+                        <Image src={request.receiver_info.avatar_url} alt='profile_pic' width={50} height={50} className='rounded-full' />
+                        <div className='text-white text-[15px] sm:text-[20px]'>{request.receiver_info.full_name}</div>
+                        </button>
+                        <div className='flex gap-1'>
+                        <button onClick={() => handleReject(request.id)} className='bg-[#c75462] hover:bg-[#db5e6c] text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>Cancel</button>
+                        </div>
+                    </div>
+                    )
+                    ))}
                 </>
                 )}
                 {isFriend && (
@@ -330,10 +356,13 @@ function page() {
                     {friends && friends.length < 1 && <p>No friends</p>}
                     {friends?.map((friend) => (
                     <div key={friend.id} className='flex gap-2 xs:gap-0 flex-row min-w-[220px] xs:items-center xs:justify-between mb-3'>
-                        <div className='flex items-center gap-2 w-full'>
+                        <button onClick={
+                            () => console.log('clicked')
+                        }
+                         className='flex items-center gap-2 w-full'>
                         <Image src={friend.avatar_url} alt='profile_pic' width={50} height={50} className='rounded-full' />
                         <div className='text-white text-[15px] sm:text-[20px]'>{friend.full_name}</div>
-                        </div>
+                        </button>
                         <div className='flex gap-3'>
                         <button onClick={() => handleBlock(friend.username)}
                             className='bg-[#f44336] hover:bg-[#d32f2f]
@@ -351,19 +380,41 @@ function page() {
                 </>
                 )
                 }
+                {isBlocked && (
+                <>
+                    {blockedUsers && blockedUsers.length < 1 && <p>No blocked users</p>}
+                    {blockedUsers?.map((user) => (
+                    <div key={user.id} className='flex gap-2 xs:gap-0 flex-row min-w-[220px] xs:items-center xs:justify-between mb-3'>
+                        <div className='flex items-center gap-2 w-full'>
+                        <Image src={user.avatar_url} alt='profile_pic' width={50} height={50} className='rounded-full' />
+                        <div className='text-white text-[15px] sm:text-[20px]'>{user.full_name}</div>
+                        </div>
+                        <div className='flex gap-1'>
+                        <button onClick={() => handleUnblock(user.username)}
+                            className='bg-[#37c8b7] hover:bg-[#32b7a8]
+                            text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>
+                                    Unblock
+                        </button>
+                        </div>
+                    </div>
+                    ))}
+                </>
+                )
+                }
                 {isSearch && (
                     <>
                     {(!searchResults || searchResults.length < 1) && <p>No search results</p>}
                     {searchResults?.map((result) => (
                         result.username !== authUser?.username &&
-                        friends.filter(friend => friend.username === result.username ).length < 1 &&
-                        blockedUsers.filter(blocked => blocked.username === result.username ).length < 1 &&
                          (
                         <div key={result.id} className='flex gap-2 xs:gap-0 flex-row min-w-[220px] xs:items-center xs:justify-between mb-3'>
-                            <div className='flex items-center gap-2 w-full'>
+                            <button onClick={
+                                () => router.push(`/profile/${result.username}`)
+                            }
+                             className='flex items-center gap-2 w-full'>
                                 <Image src={result.avatar_url} alt='profile_pic' width={50} height={50} className='rounded-full' />
                                 <div className='text-white text-[15px] sm:text-[20px]'>{result.full_name}</div>
-                            </div>
+                            </button>
                             <div className='flex gap-1'>
                                 <button onClick={() => createFriendRequest(result.id, authUser.id)} className='bg-[#37c8b7] hover:bg-[#32b7a8]
                                     text-[17px] xs:text-[20px] w-[75px] xs:w-[100px] rounded-[30px] p-2'>Add</button>

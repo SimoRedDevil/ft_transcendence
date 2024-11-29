@@ -254,7 +254,11 @@ class UserViewSet(viewsets.ModelViewSet):
         username = self.request.GET.get('username')
         if search:
             result_users = CustomUser.objects.filter(Q(username__icontains=search) | Q(full_name__icontains=search))
-            return result_users.exclude(username__in=self.request.user.blocked_users.all().values_list('username', flat=True)).filter(is_active=True)
+            blocked_by_users = CustomUser.objects.filter(blocked_users=self.request.user)
+            blocked_users = self.request.user.blocked_users.all()
+            friends = self.request.user.friends.all()
+            return result_users.exclude(username__in=blocked_by_users.all().values_list('username', flat=True)).exclude(username__in=blocked_users.all().values_list('username', flat=True)).exclude(username__in=friends.all().values_list('username', flat=True)).filter(is_active=True)
+            # return result_users.exclude(username__in=blocked_by_users.all().values_list('username', flat=True)).exclude(username__in=blocked_users.all().values_list('username', flat=True)).filter(is_active=True)
         return CustomUser.objects.filter(is_active=True)
 
 class FriendsListView(APIView):
@@ -274,8 +278,10 @@ class BlockListView(APIView):
     def get(self, request):
         user = request.user
         blocked_users = user.blocked_users.all()
+        blocked_by_users = CustomUser.objects.filter(blocked_users=user)
         serializer = BlockedUserSerializer(blocked_users, many=True)
-        return Response(serializer.data)
+        blocked_by_serializer = BlockedUserSerializer(blocked_by_users, many=True)
+        return Response({'blocked_users': serializer.data, 'blocked_by_users': blocked_by_serializer.data})
 
 class GetUser(APIView):
     authentication_classes = [SessionAuthentication]

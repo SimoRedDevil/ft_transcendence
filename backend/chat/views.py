@@ -19,7 +19,10 @@ class ConversationViewSet(viewsets.ModelViewSet):
         friend_username = self.request.GET.get('friend_username')
         if friend_username:
             friend = CustomUser.objects.get(username=friend_username)
-            return conversation.objects.filter(user1_id=self.request.user.id, user2_id=friend.id)
+            conv = conversation.objects.filter(Q(user1_id=self.request.user.id, user2_id=friend.id) | Q(user1_id=friend.id, user2_id=self.request.user.id))
+            if not conv:
+                return conversation.objects.none()
+            return conv
         return conversation.objects.filter(user1_id=self.request.user.id) | conversation.objects.filter(user2_id=self.request.user.id)
 
 class SearchConversationViewSet(viewsets.ModelViewSet):

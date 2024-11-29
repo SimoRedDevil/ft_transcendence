@@ -32,6 +32,18 @@ export const NotificationProvider = ({ children }) => {
                 }
             );
             }
+            else if (newNotification.notif_type === 'friend_request') {
+                toast.info(t(`${newNotification.description}`),
+                {
+                    autoClose: 8000,
+                    position: 'top-right',
+                    transition: Bounce,
+                    onClick: () => {
+                        // Redirect to friend request page
+                    }
+                }
+            );
+            }
             setNotifications((prevNotifications) => [...prevNotifications, newNotification]);
         };
         notif_socket.current.onclose = () => {

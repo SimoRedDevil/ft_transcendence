@@ -10,6 +10,8 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action, api_view
 from authentication.models import CustomUser
 from django.db.models import Q
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 # Create your views here.
 
@@ -22,7 +24,6 @@ class CreateRequest(APIView):
 
     def post(self, request):
         data = request.data
-
         if (check_friendrequest_exists(data['sender'], data['receiver']) or check_friendrequest_exists(data['receiver'], data['sender'])):
             return Response({"detail: Friend request already sent."}, status=status.HTTP_400_BAD_REQUEST)
         if (data['sender'] == data['receiver']):
@@ -33,6 +34,20 @@ class CreateRequest(APIView):
         if serializer.is_valid() == False:
             return Response({"detail: data not valid"}, status=status.HTTP_400_BAD_REQUEST)
         FriendRequest.objects.create(sender=CustomUser.objects.get(id=data['sender']), receiver=CustomUser.objects.get(id=data['receiver']))
+        user = CustomUser.objects.get(id=data['receiver'])
+        channel_layer = get_channel_layer()
+        room_group_name = f'notif_{user.username}'
+        async_to_sync(channel_layer.group_send)(
+            room_group_name,
+            {
+                'type': 'send_notification',
+                'notif_type': 'friend_request',
+                'sender': request.user.id,
+                'receiver': user.id,
+                'title': 'Friend Request',
+                'description': f'{request.user.username} has sent you a friend request.'
+            }
+        )
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class GetRequests(APIView):

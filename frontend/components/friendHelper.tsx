@@ -6,7 +6,8 @@ import { toast } from 'react-toastify';
 export const fetchSearchResults = async (
     searchInput: string,
     setSearchResults: (data: any) => void,
-    setSearchLoading: (loading: boolean) => void
+    setSearchLoading: (loading: boolean) => void,
+    setIsUpdate: (update: boolean) => void
 ) => {
     try {
       setSearchLoading(true);
@@ -16,6 +17,7 @@ export const fetchSearchResults = async (
         }
       });
       setSearchResults(res.data);
+      setIsUpdate(true);
     } catch (error) {
       console.log(error);
     } finally {
@@ -24,7 +26,8 @@ export const fetchSearchResults = async (
   }
   
   export const handleBlock = async (
-    username: string
+    username: string,
+    setIsUpdate: (update: boolean) => void
   ) => {
     const body = {
       username: username
@@ -40,6 +43,7 @@ export const fetchSearchResults = async (
         withCredentials: true,
       });
       if (response.status === 200) {
+        setIsUpdate(true);
         toast.success("User blocked successfully")
       }
     } catch (error) {
@@ -48,7 +52,8 @@ export const fetchSearchResults = async (
   }
 
   export const handleUnblock = async (
-    username: string
+    username: string,
+    setIsUpdate: (update: boolean) => void
   ) => {
     const body = {
       username: username
@@ -64,6 +69,7 @@ export const fetchSearchResults = async (
         withCredentials: true,
       });
       if (response.status === 200) {
+        setIsUpdate(true);
         toast.success("User unblocked successfully")
       }
     } catch (error) {

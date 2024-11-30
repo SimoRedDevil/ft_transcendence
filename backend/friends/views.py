@@ -51,9 +51,16 @@ class GetRequests(APIView):
 
     def get(self, request):
         user = request.user
-        friend_requests = FriendRequest.objects.filter(Q(status='P'))
-        serializer = FriendRequestSerializer(friend_requests, many=True)
-        return Response(serializer.data)
+        send_requests = FriendRequest.objects.filter(Q(status='P') & Q(sender=user))
+        receive_requests = FriendRequest.objects.filter(Q(status='P') & Q(receiver=user))
+        serializer = FriendRequestSerializer(send_requests, many=True)
+        serializer2 = FriendRequestSerializer(receive_requests, many=True)
+        response = Response()
+        response.data = {
+            "send_requests": serializer.data,
+            "receive_requests": serializer2.data
+        }
+        return response
 
 class AcceptRequest(APIView):
     permission_classes = [IsAuthenticated]

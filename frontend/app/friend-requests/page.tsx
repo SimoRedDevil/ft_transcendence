@@ -15,6 +15,7 @@ import { FaUsers } from "react-icons/fa";
 import { fetchSearchResults, handleBlock, handleUnblock } from '@/components/friendHelper';
 import {toast} from 'react-toastify'
 import { useRouter } from 'next/navigation';
+import { useNotificationContext } from '@/components/context/NotificationContext';
 
 function page() {
     const [friendRequests, setFriendRequests] = useState([]);
@@ -35,6 +36,7 @@ function page() {
     const [debouncedSearchInput, setDebouncedSearchInput] = useState(searchInput);
     const [isUpdate, setIsUpdate] = useState(false);
     const router = useRouter();
+    const {notifications} = useNotificationContext();
 
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -59,7 +61,7 @@ function page() {
             }
         };
         fetchFriendRequests();
-    }, [isUpdate, isSearch, requests, sentRequest, isFriend, isBlocked]);
+    }, [isUpdate, isSearch, requests, sentRequest, isFriend, isBlocked, notifications]);
 
 
     const handleAccept = async (requestId) => {

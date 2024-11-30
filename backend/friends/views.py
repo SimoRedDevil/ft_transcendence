@@ -84,7 +84,8 @@ class AcceptRequest(APIView):
     authentication_classes = [SessionAuthentication]
 
     def check_conversation_exists(self, user1, user2):
-        return conversation.objects.filter((Q(user1_id=user1) & Q(user2_id=user2)) or (Q(user1_id=user2) & Q(user2_id=user1))).exists()
+        print(user1, user2, flush=True)
+        return conversation.objects.filter(user1_id=user1, user2_id=user2).exists() or conversation.objects.filter(user1_id=user2, user2_id=user1).exists()
 
     def post(self, request):
         id = request.data['id']

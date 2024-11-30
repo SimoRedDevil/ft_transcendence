@@ -25,15 +25,24 @@ class CreateRequest(APIView):
 
     def post(self, request):
         data = request.data
+        response = Response()
         if (check_friendrequest_exists(data['sender'], data['receiver']) or check_friendrequest_exists(data['receiver'], data['sender'])):
-            return Response({"detail: Friend request already sent."}, status=status.HTTP_400_BAD_REQUEST)
+            response = Response(status=status.HTTP_400_BAD_REQUEST)
+            response.data = "Friend request already sent"
+            return response
         if (data['sender'] == data['receiver']):
-            return Response({"detail: Cannot send friend request to yourself."}, status=status.HTTP_400_BAD_REQUEST)
+            response = Response(status=status.HTTP_400_BAD_REQUEST)
+            response.data = "Cannot send friend request to yourself"
+            return response
         if (request.user != CustomUser.objects.get(id=data['sender'])):
-            return Response({"detail: Unauthorized operation"}, status=status.HTTP_401_UNAUTHORIZED)
+            response = Response(status=status.HTTP_401_UNAUTHORIZED)
+            response.data = "Unauthorized operation"
+            return response
         serializer = FriendRequestSerializer(data=data)
         if serializer.is_valid() == False:
-            return Response({"detail: data not valid"}, status=status.HTTP_400_BAD_REQUEST)
+            response = Response(status=status.HTTP_400_BAD_REQUEST)
+            response.data = serializer.errors
+            return response
         FriendRequest.objects.create(sender=CustomUser.objects.get(id=data['sender']), receiver=CustomUser.objects.get(id=data['receiver']))
         user = CustomUser.objects.get(id=data['receiver'])
         channel_layer = get_channel_layer()
@@ -49,7 +58,9 @@ class CreateRequest(APIView):
                 'description': f'{request.user.username} has sent you a friend request.'
             }
         )
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        response = Response(status=status.HTTP_201_CREATED)
+        response.data = "Friend request sent"
+        return response
 
 class GetRequests(APIView):
     permission_classes = [IsAuthenticated]
@@ -57,27 +68,46 @@ class GetRequests(APIView):
 
     def get(self, request):
         user = request.user
-        friend_requests = FriendRequest.objects.filter(Q(status='P'))
-        serializer = FriendRequestSerializer(friend_requests, many=True)
-        return Response(serializer.data)
+        send_requests = FriendRequest.objects.filter(Q(status='P') & Q(sender=user))
+        receive_requests = FriendRequest.objects.filter(Q(status='P') & Q(receiver=user))
+        serializer = FriendRequestSerializer(send_requests, many=True)
+        serializer2 = FriendRequestSerializer(receive_requests, many=True)
+        response = Response()
+        response.data = {
+            "send_requests": serializer.data,
+            "receive_requests": serializer2.data
+        }
+        return response
 
 class AcceptRequest(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [SessionAuthentication]
 
+    def check_conversation_exists(self, user1, user2):
+        return conversation.objects.filter((Q(user1_id=user1) & Q(user2_id=user2)) or (Q(user1_id=user2) & Q(user2_id=user1))).exists()
+
     def post(self, request):
         id = request.data['id']
+        response = Response()
         if (not FriendRequest.objects.filter(id=id).exists()):
-            return Response("{detail: Friend request does not exist}", status=status.HTTP_400_BAD_REQUEST)
+            response = Response(status=status.HTTP_400_BAD_REQUEST)
+            response.data = "Friend request does not exist"
+            return response
         friend_req = FriendRequest.objects.get(id=id)
-        print(friend_req.receiver, flush=True)
         if (request.user.id != friend_req.receiver.id):
-            return Response("{detail: Unauthorized operation}", status=status.HTTP_401_UNAUTHORIZED)
+            response = Response(status=status.HTTP_401_UNAUTHORIZED)
+            response.data = "Unauthorized operation"
+            return response
         if (not friend_req.accept_request()):
-            return Response("{detail: Friend request already accepted}", status=status.HTTP_400_BAD_REQUEST)
+            response = Response(status=status.HTTP_400_BAD_REQUEST)
+            response.data = "Friend request already accepted"
+            return response
         request.user.friends.add(friend_req.sender)
-        conversation.objects.create(user1_id=request.user, user2_id=friend_req.sender, last_message='Tap to chat')
-        return Response("{detail: Friend request accepted}", status=status.HTTP_200_OK)
+        if (not self.check_conversation_exists(request.user, friend_req.sender)):
+            conversation.objects.create(user1_id=request.user, user2_id=friend_req.sender, last_message='Tap to chat')
+        response = Response(status=status.HTTP_200_OK)
+        response.data = "Friend request accepted"
+        return response
 
 class RejectRequest(APIView):
     permission_classes = [IsAuthenticated]
@@ -85,34 +115,43 @@ class RejectRequest(APIView):
 
     def post(self, request):
         id = request.data['id']
+        response = Response()
         if (not FriendRequest.objects.filter(id=id).exists()):
-            return Response("{detail: Friend request does not exist}", status=status.HTTP_400_BAD_REQUEST)
+            response = Response(status=status.HTTP_400_BAD_REQUEST)
+            response.data = "Friend request does not exist"
+            return response
         friend_req = FriendRequest.objects.get(id=id)
         if (request.user.id != friend_req.receiver.id):
             if (request.user.id == friend_req.sender.id):
                 friend_req.delete()
-                return Response("{detail: Friend request deleted}", status=status.HTTP_200_OK)
-            return Response("{detail: Unauthorized operation}", status=status.HTTP_401_UNAUTHORIZED)
+                response = Response(status=status.HTTP_200_OK)
+                response.data = "Friend request cancelled"
+                return response
+            response = Response(status=status.HTTP_401_UNAUTHORIZED)
+            response.data = "Unauthorized operation"
+            return response
         if (not friend_req.reject_request()):
-            return Response("{detail: Friend request already rejected}", status=status.HTTP_400_BAD_REQUEST)
-        return Response("{detail: Friend request rejected}", status=status.HTTP_200_OK)
-
-class CheckFriendRequestExists(APIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [SessionAuthentication]
-
-    def get(self, request):
-        user = request.query_params.get('user')
-        return Response(False, status=status.HTTP_200_OK)
+            response = Response(status=status.HTTP_400_BAD_REQUEST)
+            response.data = "Friend request already rejected"
+            return response
+        response = Response(status=status.HTTP_200_OK)
+        response.data = "Friend request rejected"
+        return response
 
 class RemoveFriend(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [SessionAuthentication]
 
     def post(self, request):
+        friend_id = request.data['id']
         user = request.user
-        friend = CustomUser.objects.get(id=request.data['id'])
+        response = Response()
+        friend = CustomUser.objects.get(id=friend_id)
         if (friend not in user.friends.all()):
-            return Response("{detail: User is not your friend}", status=status.HTTP_400_BAD_REQUEST)
+            response = Response(status=status.HTTP_400_BAD_REQUEST)
+            response.data = "Friend not found"
+            return response
         user.friends.remove(friend)
-        return Response("{detail: Friend removed}", status=status.HTTP_200_OK)
+        response = Response(status=status.HTTP_200_OK)
+        response.data = "Friend removed"
+        return response

@@ -1,9 +1,13 @@
 import { axiosInstance } from '@/utils/axiosInstance';
+import { getCookies } from './auth';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 export const fetchSearchResults = async (
     searchInput: string,
     setSearchResults: (data: any) => void,
-    setSearchLoading: (loading: boolean) => void
+    setSearchLoading: (loading: boolean) => void,
+    setIsUpdate: (update: boolean) => void
 ) => {
     try {
       setSearchLoading(true);
@@ -13,9 +17,62 @@ export const fetchSearchResults = async (
         }
       });
       setSearchResults(res.data);
+      setIsUpdate(true);
     } catch (error) {
       console.log(error);
     } finally {
       setSearchLoading(false);
+    }
+  }
+  
+  export const handleBlock = async (
+    username: string,
+    setIsUpdate: (update: boolean) => void
+  ) => {
+    const body = {
+      username: username
+    }
+    try {
+      const cookies = await getCookies();
+      const csrfToken = cookies.cookies.csrftoken;
+      const response = await axios.post('http://localhost:8000/api/auth/block/', body, {
+        headers: {
+          "Content-Type": "application/json",
+          'X-CSRFToken': csrfToken,
+        },
+        withCredentials: true,
+      });
+      if (response.status === 200) {
+        setIsUpdate(true);
+        toast.success("User blocked successfully")
+      }
+    } catch (error) {
+      toast.error(error.response.data.error)
+    }
+  }
+
+  export const handleUnblock = async (
+    username: string,
+    setIsUpdate: (update: boolean) => void
+  ) => {
+    const body = {
+      username: username
+    }
+    try {
+      const cookies = await getCookies();
+      const csrfToken = cookies.cookies.csrftoken;
+      const response = await axios.post('http://localhost:8000/api/auth/unblock/', body, {
+        headers: {
+          "Content-Type": "application/json",
+          'X-CSRFToken': csrfToken,
+        },
+        withCredentials: true,
+      });
+      if (response.status === 200) {
+        setIsUpdate(true);
+        toast.success("User unblocked successfully")
+      }
+    } catch (error) {
+      toast.error(error.response.data.error)
     }
   }

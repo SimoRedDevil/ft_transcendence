@@ -254,7 +254,11 @@ class UserViewSet(viewsets.ModelViewSet):
         username = self.request.GET.get('username')
         if search:
             result_users = CustomUser.objects.filter(Q(username__icontains=search) | Q(full_name__icontains=search))
-            return result_users.exclude(username__in=self.request.user.blocked_users.all().values_list('username', flat=True)).filter(is_active=True)
+            blocked_by_users = CustomUser.objects.filter(blocked_users=self.request.user)
+            blocked_users = self.request.user.blocked_users.all()
+            friends = self.request.user.friends.all()
+            return result_users.exclude(username__in=blocked_by_users.all().values_list('username', flat=True)).exclude(username__in=blocked_users.all().values_list('username', flat=True)).exclude(username__in=friends.all().values_list('username', flat=True)).filter(is_active=True)
+            # return result_users.exclude(username__in=blocked_by_users.all().values_list('username', flat=True)).exclude(username__in=blocked_users.all().values_list('username', flat=True)).filter(is_active=True)
         return CustomUser.objects.filter(is_active=True)
 
 class FriendsListView(APIView):
@@ -266,6 +270,18 @@ class FriendsListView(APIView):
         friends = user.friends.all()
         serializer = FriendListSerializer(friends, many=True)
         return Response(serializer.data)
+
+class BlockListView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        blocked_users = user.blocked_users.all()
+        blocked_by_users = CustomUser.objects.filter(blocked_users=user)
+        serializer = BlockedUserSerializer(blocked_users, many=True)
+        blocked_by_serializer = BlockedUserSerializer(blocked_by_users, many=True)
+        return Response({'blocked_users': serializer.data, 'blocked_by_users': blocked_by_serializer.data})
 
 class GetUser(APIView):
     authentication_classes = [SessionAuthentication]
@@ -478,7 +494,6 @@ class UpdateUserView(APIView):
         print("---> data: ", data)
         avatar_file = data.get('avatar_url')
         if avatar_file:
-            # url = os.path.join("http://localhost:8000/avatars/", avatar_file.name)
             url = avatar_file
             user.avatar_url = url
             user.save()
@@ -644,13 +659,3 @@ class AnonymousUserViewSet(APIView):
         response = Response(status=status.HTTP_200_OK)
         response.data = model_to_dict(anonymous_user)
         return response
-
-class friends_list(APIView):
-    authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        user = request.user
-        friends = user.friends.all()
-        friends_data = UserSerializer(friends, many=True).data
-        return Response(friends_data, status=status.HTTP_200_OK)

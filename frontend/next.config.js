@@ -1,4 +1,10 @@
 module.exports = {
+  webpack: (config) => {
+    config.infrastructureLogging = {
+        level: 'error', // Suppress warnings in build output
+    };
+    return config;
+},
   images: {
     remotePatterns: [
       {

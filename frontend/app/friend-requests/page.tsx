@@ -9,17 +9,21 @@ import { getCookies } from '../../components/auth';
 import { FaUserFriends } from "react-icons/fa";
 import { TbMessageUser } from "react-icons/tb";
 import { IoIosSend } from "react-icons/io";
+import { MdBlockFlipped } from "react-icons/md";
 import TextBox from '@/components/TextBox';
-import { fetchSearchResults } from '@/components/friendHelper';
+import { FaUsers } from "react-icons/fa";
+import { fetchSearchResults, handleBlock, handleUnblock } from '@/components/friendHelper';
 import {toast} from 'react-toastify'
 import { useRouter } from 'next/navigation';
 
 function page() {
     const [friendRequests, setFriendRequests] = useState([]);
+    const [sendSuccess, setSendSuccess] = useState(false);
+    const [friendRequestsSent, setFriendRequestsSent] = useState([]);
     const [friends, setFriends] = useState([]);
+    const [blockedUsers, setBlockedUsers] = useState([]);
     const [isFriend, setIsFriend] = useState(false);
-    const [createdRequests, setCreatedRequests] = useState([]);
-    const [sentRequests, setSentRequests] = useState([]);
+    const [isBlocked, setIsBlocked] = useState(false);
     const [isSearch, setIsSearch] = useState(false);
     const [requests, setRequests] = useState(true);
     const [sentRequest, setSentRequest] = useState(false);
@@ -29,6 +33,8 @@ function page() {
     const [searchResults, setSearchResults] = useState([]);
     const {authUser,loading,} = useUserContext();
     const [debouncedSearchInput, setDebouncedSearchInput] = useState(searchInput);
+    const [isUpdate, setIsUpdate] = useState(false);
+    const router = useRouter();
 
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -38,20 +44,23 @@ function page() {
         return () => clearTimeout(handler);
       }, [searchInput]);
 
-    useEffect(() => {
+      useEffect(() => {
         const fetchFriendRequests = async () => {
+            setIsLoading(true);
             try {
-                const res = await axiosInstance.get('friends/requests/')
-                setFriendRequests(res.data)
+                const res = await axiosInstance.get('friends/requests/');
+                setFriendRequests(res.data.receive_requests);
+                setFriendRequestsSent(res.data.send_requests);
             } catch (error) {
-                console.log(error)
+                console.error(error);
+            } finally {
+                setIsLoading(false);
+                setIsUpdate(false);
             }
-            finally {
-                setIsLoading(false)
-            }
-        }
+        };
         fetchFriendRequests();
-    }, [requests, sentRequest, isSearch]);
+    }, [isUpdate, isSearch, requests, sentRequest, isFriend, isBlocked]);
+
 
     const handleAccept = async (requestId) => {
         const body = {
@@ -68,23 +77,25 @@ function page() {
               withCredentials: true,
             });
             if (response.status === 200) {
-                toast.success('Friend request accepted')
+                setIsUpdate(true);
+                toast.success(response.data)
             }
           } catch (error) {
-            toast.error('An error occurred')
+            toast.error(error.response.data)
           }
     }
     
     useEffect(() => {
         if (debouncedSearchInput !== "") {
-          fetchSearchResults(debouncedSearchInput, setSearchResults, setSearchLoading);
+            setIsUpdate(true);
+          fetchSearchResults(debouncedSearchInput, setSearchResults, setSearchLoading, setIsUpdate);
         } else {
           setSearchResults([]);
         }
       }, [debouncedSearchInput]);
     
-    const handleReject = async (requestId) => {
-        const body = {
+      const handleReject = async (requestId) => {
+          const body = {
             id: requestId
         }
         try {
@@ -98,10 +109,11 @@ function page() {
               withCredentials: true,
             });
             if (response.status === 200) {
-                toast.success('Friend request rejected')
+                setIsUpdate(true);
+                toast.success(response.data)
             }
           } catch (error) {
-            toast.error('An error occurred')
+            toast.error(error.response.data)
           }
     }
 
@@ -121,13 +133,16 @@ function page() {
               withCredentials: true,
             });
             if (response.status === 201) {
-                toast.success('Friend request sent')
+                setIsUpdate(true);
+                setSendSuccess(true);
+                toast.success(response.data)
             }
           } catch (error) {
-            toast.error('An error occurred')
+            toast.error(error.response.data)
           }
     }
-    const getFriendRequests = async () => {
+    const getFriends = async () => {
+        
         try {
             const res = await axiosInstance.get('auth/get-friends/')
             if (res.status === 200) {
@@ -137,10 +152,44 @@ function page() {
             console.log(error)
         }
     }
-    useEffect(() => {
-        getFriendRequests();
+
+    const getBlockedUsers = async () => {
+        try {
+            const res = await axiosInstance.get('auth/get-blocked/')
+            if (res.status === 200) {
+                setBlockedUsers(res.data.blocked_users)
+            }
+        } catch (error) {
+            console.log(error)
+        }
     }
-    , [isFriend])
+    const removeFriend = async (friendId) => {
+        const body = {
+            id: friendId
+        }
+        try {
+            const cookies = await getCookies();
+            const csrfToken = cookies.cookies.csrftoken;
+            const response = await axios.post(`http://localhost:8000/api/friends/requests/remove-friend/`, body, {
+              headers: {
+                "Content-Type": "application/json",
+                'X-CSRFToken': csrfToken,
+              },
+              withCredentials: true,
+            });
+            if (response.status === 200) {
+                setIsUpdate(true);
+                toast.success(response.data)
+            }
+          } catch (error) {
+            toast.error(error.response.data)
+          }
+    }
+    useEffect(() => {
+        getFriends();
+        getBlockedUsers();
+    }
+    , [isFriend, isBlocked, isUpdate, isLoading]);
     const handleInputChange = (e) => {
         const value = e.target.value;
         if (!value || value.length < 1) {
@@ -150,12 +199,11 @@ function page() {
         }
         setSearchInput(value);
     };
-    const router = useRouter();
     const handleChatClick = (username) => {
         router.push(`/chat/?username=${username}`);
     }
     
-    if (loading || isLoading) {
+    if (loading) {
         return (
             <div className='w-full h-full flex items-center justify-center'>
                 <div className='border border-white/30 rounded-[30px] bg-black bg-opacity-50 w-[90%] h-[95%] flex items-center p-5'>
@@ -166,55 +214,116 @@ function page() {
     }
   return (
     <div className='w-full h-full flex items-center justify-center'>
-        <div className='border border-white/30 rounded-[30px] bg-black bg-opacity-50 w-[90%] h-[95%] pr-10 p-5 
+        <div className='border border-white/30 rounded-[30px] bg-black bg-opacity-50 w-[90%] 3xl:w-[1700px] h-[95%] pr-10 p-5 
         overflow-hidden no-scrollbar
         '>
             <div className='flex justify-around w-full  sm:w-[900px] h-[30px] sm:h-[50px]'>
             <button onClick={
-                () => {setRequests(true)
+                () => {
+                    setTimeout(() => {
+                    setRequests(true)
+                    }
+                    , 300);
                     setSentRequest(false)
                     setIsSearch(false)
                     setIsFriend(false)
+                    setIsBlocked(false)
+                    setIsUpdate(true);
                     setSearchInput('');
                     setSearchResults([])
                 }
-            } className='flex  justify-start mx-2 xs:mx-0'>
-                <FaUserFriends className='text-[30px] text-white mr-2' />
-                <div className='text-white text-lg hidden sm:block'>Requests</div>
+            } className={`flex  justify-start mx-2 xs:mx-0
+                ${requests ? 'sm:border-b-2 border-[#37c8b7] text-[#37c8b7]' : 'text-white'}
+            `}>
+                <FaUserFriends className={`text-[30px]  mr-2
+                    ${requests ? 'text-[#37c8b7]' : 'text-white'}
+                `} />
+                <div className={`text-lg hidden sm:block
+                    ${requests ? 'text-[#37c8b7]' : 'text-white'}
+                `}>Requests</div>
             </button>
             <button onClick={
-                () => {setSentRequest(true)
+                () => {
+                    setTimeout(() => {
+                        setSentRequest(true)
+                    }, 300);
                     setRequests(false)
                     setIsSearch(false)
                     setIsFriend(false)
+                    setIsBlocked(false)
+                    setIsUpdate(true);
                     setSearchInput('');
                     setSearchResults([])
                 }
-            } className='flex  justify-start mx-2 xs:mx-0 '>
-                <TbMessageUser className='text-[30px] text-white mr-2' />
-                <div className='text-white text-lg hidden sm:block'>Sent</div>
+            } className={`flex  justify-start mx-2 xs:mx-0 
+                ${sentRequest ? 'sm:border-b-2 border-[#37c8b7] text-[#37c8b7]' : 'text-white'}
+            `}
+            >
+                <TbMessageUser className={`text-[30px] mr-2
+                    ${sentRequest ? 'text-[#37c8b7]' : 'text-white'}
+                `} />
+                <div className={`text-lg hidden sm:block
+                    ${sentRequest ? 'text-[#37c8b7]' : 'text-white'}
+                `}>Sent</div>
             </button>
             <button onClick={
                 () => {setSentRequest(false)
                     setRequests(false)
                     setIsSearch(false)
-                    setIsFriend(true)
+                    setTimeout(() => {
+                        setIsFriend(true)
+                    }, 300);
+                    setIsBlocked(false)
+                    setIsUpdate(true);
                     setSearchInput('');
                     setSearchResults([])
                 }
-            } className='flex  justify-start mx-2 xs:mx-0 '>
-                <FaUserFriends className='text-[30px] text-white mr-2' />
-                <div className='text-white text-lg hidden sm:block'>
+            } className={`flex  justify-start mx-2 xs:mx-0 
+                ${isFriend ? 'sm:border-b-2 border-[#37c8b7] text-[#37c8b7]' : 'text-white'}
+            `}>
+                <FaUsers className={`text-[30px] mr-2
+                    ${isFriend ? 'text-[#37c8b7]' : 'text-white'}
+                `} />
+                <div className={`text-lg hidden sm:block
+                    ${isFriend ? 'text-[#37c8b7]' : 'text-white'}
+                `}>
                     Friends
                 </div>
             </button>
             <button onClick={
                 () => {setSentRequest(false)
                     setRequests(false)
+                    setIsSearch(false)
                     setIsFriend(false)
+                    setTimeout(() => {
+                        setIsBlocked(true)
+                    }, 300);
+                    setIsUpdate(true);
+                    setSearchInput('');
+                    setSearchResults([])
+                }
+            } className={`flex  justify-start mx-2 xs:mx-0 
+                ${isBlocked ? 'sm:border-b-2 border-[#37c8b7] text-[#37c8b7]' : 'text-white'}
+            `}>
+                <MdBlockFlipped className={`text-[30px] mr-2
+                    ${isBlocked ? 'text-[#37c8b7]' : 'text-white'}
+                `} />
+                <div className={`text-lg hidden sm:block
+                    ${isBlocked ? 'text-[#37c8b7]' : 'text-white'}
+                `}>
+                    Blocked
+                </div>
+            </button>
+            <button onClick={
+                () => {setSentRequest(false)
+                    setRequests(false)
+                    setIsFriend(false)
+                    setIsSearch(false)
+                    setIsBlocked(false)
                     setIsSearch(true)
                 }
-            } className='flex justify-start mx-2 xs:mx-0 '>
+            } className={`flex justify-start mx-2 xs:mx-0
+            `}>
                 {!isSearch ?
                 <>
                     <IoIosSend className='text-[30px] text-white mr-2' />
@@ -231,37 +340,44 @@ function page() {
             <div className='w-full text-white gap-3 h-full overflow-y-auto overflow-x-hidden no-scrollbar '>
             {requests && (
                 <>
-                    {friendRequests && friendRequests.length < 1 && <p>No friend requests</p>}
+                    {(friendRequests || !friendRequests) && friendRequests.length < 1 && <p>No friend requests</p>}
                     {friendRequests?.map((request) => (
                     request.receiver_info.username === authUser?.username && (
-                        <div key={request.id} className='flex flex-col gap-2 xs:gap-0 xs:flex-row xs:items-center xs:justify-between'>
-                        <div className='flex items-center gap-2 w-full'>
-                            <Image src={request.sender_info.avatar_url} alt='profile_pic' width={50} height={50} className='rounded-full' />
-                            <div className='text-white text-[15px] sm:text-[20px]'>{request.sender_info.full_name}</div>
+                    <div key={request.id} className='flex gap-2 xs:gap-0 flex-row min-w-[220px] xs:items-center xs:justify-between mb-3'>
+                        <button onClick={
+                            () => router.push(`/profile/${request.sender_info.username}`)
+                        }
+                         className='flex items-center gap-2 w-full'>
+                        <Image src={request.sender_info.avatar_url} alt='profile_pic' width={50} height={50} className='rounded-full' />
+                        <div className='text-white text-[15px] sm:text-[20px]'>{request.sender_info.full_name}</div>
+                        </button>
+                        <div className='flex gap-3'>
+                        <button onClick={() => handleAccept(request.id)} className='bg-[#37c8b7] hover:bg-[#32b7a8] text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>Accept</button>
+                        <button onClick={() => handleReject(request.id)} className='bg-[#c75462] hover:bg-[#db5e6c] text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>Reject</button>
                         </div>
-                        <div className='flex gap-1'>
-                            <button onClick={() => handleAccept(request.id)} className='bg-[#2A9D8F] hover:bg-[#32b7a8] text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>Accept</button>
-                            <button onClick={() => handleReject(request.id)} className='bg-[#c75462] hover:bg-[#db5e6c] text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>Reject</button>
-                        </div>
-                        </div>
+                    </div>
                     )
                     ))}
                 </>
                 )}
                 {sentRequest && (
                 <>
-                    {friendRequests && friendRequests.length < 1 && <p>No sent requests</p>}
-                    {friendRequests?.map((request) => (
+                    {(friendRequestsSent || !friendRequestsSent) && friendRequestsSent.length < 1 && <p>No sent requests</p>}
+                    {friendRequestsSent?.map((request) => (
                     request.sender_info.username === authUser?.username && (
-                        <div key={request.id} className='flex flex-col gap-2 xs:gap-0 xs:flex-row xs:items-center xs:justify-between'>
-                        <div className='flex items-center gap-2 w-full'>
-                            <Image src={request.receiver_info.avatar_url} alt='profile_pic' width={50} height={50} className='rounded-full' />
-                            <div className='text-white text-[15px] sm:text-[20px]'>{request.receiver_info.full_name}</div>
-                        </div>
+                    <div key={request.id} className='flex gap-2 xs:gap-0 flex-row min-w-[220px] xs:items-center xs:justify-between mb-3'>
+                        <button onClick={
+                            () => router.push(`/profile/${request.receiver_info.username}`)
+                        }
+                         className='flex items-center gap-2 w-full'>
+                        <Image src={request.receiver_info.avatar_url} alt='profile_pic' width={50} height={50} className='rounded-full' />
+                        <div className='text-white text-[15px] sm:text-[20px]'>{request.receiver_info.full_name}</div>
+                        </button>
                         <div className='flex gap-1'>
-                        <button onClick={() => handleReject(request.id)} className='bg-[#c75462] hover:bg-[#db5e6c] text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>Cancel</button>
+                        <button onClick={() => handleReject(request.id)} className='bg-[#c75462] hover:bg-[#db5e6c] 
+                        text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>Cancel</button>
                         </div>
-                        </div>
+                    </div>
                     )
                     ))}
                 </>
@@ -271,23 +387,55 @@ function page() {
                     {friends && friends.length < 1 && <p>No friends</p>}
                     {friends?.map((friend) => (
                     <div key={friend.id} className='flex gap-2 xs:gap-0 flex-row min-w-[220px] xs:items-center xs:justify-between mb-3'>
-                        <div className='flex items-center gap-2 w-full'>
+                        <button onClick={
+                            () => console.log('clicked')
+                        }
+                         className='flex items-center gap-2 w-full'>
                         <Image src={friend.avatar_url} alt='profile_pic' width={50} height={50} className='rounded-full' />
                         <div className='text-white text-[15px] sm:text-[20px]'>{friend.full_name}</div>
-                        </div>
-                        <div className='flex gap-1'>
-                            <button className='bg-[#c75462] hover:bg-[#db5e6c] text-[15px]
-                            sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>
-                                Remove
-                            </button>
-                            <button onClick={() => handleChatClick(friend.username)} className='bg-[#0b637b] text-[15px]
+                        </button>
+                        <div className='flex gap-3'>
+                        <button onClick={() => handleBlock(friend.username, setIsUpdate)}
+                            className='bg-[#f44336] hover:bg-[#d32f2f]
+                            text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>
+                                    Block
+                        </button>
+                        <button onClick={() => {removeFriend(friend.id)
+                            setIsUpdate(true)
+                        }
+                        }
+                            className='bg-[#c75462] hover:bg-[#db5e6c]
+                             text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>
+                                    Remove
+                        </button>
+                        <button onClick={() => handleChatClick(friend.username)} className='bg-[#0b637b] text-[15px]
                             sm:text-[20px] w-[80px] hover:bg-[#318aa2] sm:w-[100px] rounded-[30px] p-2'>
                                 Chat
-                            </button>
+                        </button>
                         </div>
                     </div>
-                    ))}    
-
+                    ))}
+                </>
+                )
+                }
+                {isBlocked && (
+                <>
+                    {blockedUsers && blockedUsers.length < 1 && <p>No blocked users</p>}
+                    {blockedUsers?.map((user) => (
+                    <div key={user.id} className='flex gap-2 xs:gap-0 flex-row min-w-[220px] xs:items-center xs:justify-between mb-3'>
+                        <div className='flex items-center gap-2 w-full'>
+                        <Image src={user.avatar_url} alt='profile_pic' width={50} height={50} className='rounded-full' />
+                        <div className='text-white text-[15px] sm:text-[20px]'>{user.full_name}</div>
+                        </div>
+                        <div className='flex gap-1'>
+                        <button onClick={() => handleUnblock(user.username, setIsUpdate)}
+                            className='bg-[#37c8b7] hover:bg-[#32b7a8]
+                            text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>
+                                    Unblock
+                        </button>
+                        </div>
+                    </div>
+                    ))}
                 </>
                 )
                 }
@@ -296,22 +444,33 @@ function page() {
                     {(!searchResults || searchResults.length < 1) && <p>No search results</p>}
                     {searchResults?.map((result) => (
                         result.username !== authUser?.username &&
-                        friends.filter(friend => friend.username === result.username).length < 1 && (
+                         (
                         <div key={result.id} className='flex gap-2 xs:gap-0 flex-row min-w-[220px] xs:items-center xs:justify-between mb-3'>
-                            <div className='flex items-center gap-2 w-full'>
+                            <button onClick={
+                                () => router.push(`/profile/${result.username}`)
+                            }
+                             className='flex items-center gap-2 w-full'>
                                 <Image src={result.avatar_url} alt='profile_pic' width={50} height={50} className='rounded-full' />
                                 <div className='text-white text-[15px] sm:text-[20px]'>{result.full_name}</div>
-                            </div>
+                            </button>
                             <div className='flex gap-1'>
-                                <button onClick={() => createFriendRequest(result.id, authUser.id)} className='bg-[#2A9D8F] hover:bg-[#32b7a8]
-                                    text-[17px] xs:text-[20px] w-[75px] xs:w-[100px] rounded-[30px] p-2'>Add</button>
+                                <button onClick={() => {
+                                    friendRequestsSent.some((request) => request.receiver_info.username === result.username) ?
+                                    handleReject(friendRequestsSent.find((request) => request.receiver_info.username === result.username).id) :
+                                    createFriendRequest(result.id, authUser.id)
+                                }}
+                                className={`${
+                                    friendRequestsSent.some((request) => request.receiver_info.username === result.username) ?
+                                    'bg-[#c75462] hover:bg-[#db5e6c]' : 'bg-[#37c8b7] hover:bg-[#32b7a8]'}
+                                    text-[17px] xs:text-[20px] w-[75px] xs:w-[100px] rounded-[30px] p-2`}>
+                                        {friendRequestsSent.some((request) => request.receiver_info.username === result.username) ? 'Cancel' : 'Send'}
+                                </button>
                             </div>
                         </div>
                         )
                     ))}
                     </>
                 )}
-
             </div>
         </div>
     </div>

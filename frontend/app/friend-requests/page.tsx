@@ -16,6 +16,8 @@ import { fetchSearchResults, handleBlock, handleUnblock } from '@/components/fri
 import {toast} from 'react-toastify'
 import { useRouter } from 'next/navigation';
 import { useNotificationContext } from '@/components/context/NotificationContext';
+import { SlMenu } from "react-icons/sl";
+import { MdMenuOpen } from "react-icons/md";
 
 function page() {
     const [friendRequests, setFriendRequests] = useState([]);
@@ -37,6 +39,7 @@ function page() {
     const [isUpdate, setIsUpdate] = useState(false);
     const router = useRouter();
     const {notifications} = useNotificationContext();
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -231,6 +234,7 @@ function page() {
                     setIsFriend(false)
                     setIsBlocked(false)
                     setIsUpdate(true);
+                    setIsMenuOpen(false);
                     setSearchInput('');
                     setSearchResults([])
                 }
@@ -252,6 +256,7 @@ function page() {
                     setRequests(false)
                     setIsSearch(false)
                     setIsFriend(false)
+                    setIsMenuOpen(false);
                     setIsBlocked(false)
                     setIsUpdate(true);
                     setSearchInput('');
@@ -297,6 +302,7 @@ function page() {
                     setRequests(false)
                     setIsSearch(false)
                     setIsFriend(false)
+                    setIsMenuOpen(false);
                     setTimeout(() => {
                         setIsBlocked(true)
                     }, 300);
@@ -321,6 +327,7 @@ function page() {
                     setRequests(false)
                     setIsFriend(false)
                     setIsSearch(false)
+                    setIsMenuOpen(false);
                     setIsBlocked(false)
                     setIsSearch(true)
                 }
@@ -390,13 +397,13 @@ function page() {
                     {friends?.map((friend) => (
                     <div key={friend.id} className='flex gap-2 xs:gap-0 flex-row min-w-[220px] xs:items-center xs:justify-between mb-3'>
                         <button onClick={
-                            () => console.log('clicked')
+                            () => router.push(`/profile/${friend.username}`)
                         }
                          className='flex items-center gap-2 w-full'>
                         <Image src={friend.avatar_url} alt='profile_pic' width={50} height={50} className='rounded-full' />
                         <div className='text-white text-[15px] sm:text-[20px]'>{friend.full_name}</div>
                         </button>
-                        <div className='flex gap-3'>
+                        {/* <div className='flex gap-3'>
                         <button onClick={() => handleBlock(friend.username, setIsUpdate)}
                             className='bg-[#f44336] hover:bg-[#d32f2f]
                             text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>
@@ -414,6 +421,35 @@ function page() {
                             sm:text-[20px] w-[80px] hover:bg-[#318aa2] sm:w-[100px] rounded-[30px] p-2'>
                                 Chat
                         </button>
+                        </div> */}
+                        <div className='
+                        relative flex flex-col items-center justify-center
+                        '>
+                        <button onClick={
+                            () => setIsMenuOpen(!isMenuOpen)
+                        }>
+                            <SlMenu className='text-[30px] text-white mb-2
+                            '/>
+                        </button>
+                        {isMenuOpen && (
+                                <div className='absolute top-0 right-0 bg-black p-2 rounded-lg'>
+                                    <button onClick={() => handleBlock(friend.username, setIsUpdate)}
+                                    className='text-white text-[15px] sm:text-[20px] w-[100px] rounded-[30px] p-2'>
+                                        Block
+                                    </button>
+                                    <button onClick={() => {removeFriend(friend.id)
+                                        setIsUpdate(true)
+                                    }
+                                    }
+                                    className='text-white text-[15px] sm:text-[20px] w-[100px] rounded-[30px] p-2'>
+                                        Remove
+                                    </button>
+                                    <button onClick={() => handleChatClick(friend.username)} className='text-white text-[15px]
+                                        sm:text-[20px] w-[100px] rounded-[30px] p-2'>
+                                        Chat
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                     ))}

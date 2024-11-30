@@ -12,6 +12,7 @@ from authentication.models import CustomUser
 from django.db.models import Q
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from chat.models import conversation
 
 # Create your views here.
 
@@ -75,6 +76,7 @@ class AcceptRequest(APIView):
         if (not friend_req.accept_request()):
             return Response("{detail: Friend request already accepted}", status=status.HTTP_400_BAD_REQUEST)
         request.user.friends.add(friend_req.sender)
+        conversation.objects.create(user1_id=request.user, user2_id=friend_req.sender, last_message='Tap to chat')
         return Response("{detail: Friend request accepted}", status=status.HTTP_200_OK)
 
 class RejectRequest(APIView):

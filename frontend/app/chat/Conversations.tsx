@@ -40,8 +40,15 @@ function Conversations() {
         params: {friend_username: friendUserName}
       })
       .then((response) => {
-        setSelectedConversation(response.data[0])
-        authUser?.username === response.data[0].user1_info.username ? setOtherUser(response.data[0].user2_info) : setOtherUser(response.data[0].user1_info)
+        if (response.data.length > 0) {
+          setSelectedConversation(response.data[0])
+          authUser?.username === response.data[0].user1_info.username ? setOtherUser(response.data[0].user2_info) : setOtherUser(response.data[0].user1_info)
+        }
+        else
+        {
+          setOtherUser(null)
+          setSelectedConversation(null)
+        }
       })
       .catch((err) => {
         console.log(err)

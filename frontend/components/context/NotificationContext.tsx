@@ -12,6 +12,7 @@ export const NotificationProvider = ({ children }) => {
     const [notifications, setNotifications] = useState([]);
     const notif_socket = useRef(null);
     const { t } = useTranslation();
+    const [onlineUsers, setOnlineUsers] = useState([]);
 
     useEffect(() => {
         notif_socket.current = new WebSocket('ws://localhost:8000/ws/notification/');
@@ -31,6 +32,7 @@ export const NotificationProvider = ({ children }) => {
                     }
                 }
             );
+                return;
             }
             else if (newNotification.notif_type === 'friend_request') {
                 toast.info(t(`${newNotification.description}`),
@@ -39,7 +41,7 @@ export const NotificationProvider = ({ children }) => {
                     position: 'top-right',
                     transition: Bounce,
                     onClick: () => {
-                        // Redirect to friend request page
+                        
                     }
                 }
             );

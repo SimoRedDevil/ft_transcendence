@@ -11,7 +11,9 @@ from rest_framework.authentication import SessionAuthentication
 # Create your views here.
 
 class NotificationViewSet(viewsets.ModelViewSet):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
     serializer_class = NotificationSerializer
     def get_queryset(self):
-        return Notification.objects.all()
+        return Notification.objects.filter(receiver=self.request.user)
     

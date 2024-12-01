@@ -5,9 +5,9 @@ from authentication.models import CustomUser
 from .models import Notification
 
 @database_sync_to_async
-def get_user(username):
+def get_user(id):
     try:
-        return CustomUser.objects.get(username=username)
+        return CustomUser.objects.get(id=id)
     except CustomUser.DoesNotExist:
         return None
 
@@ -47,14 +47,19 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                 'title': title,
                 'description': description
             })
-            if (notif_type != 'invite_game'):
-                await create_notification(sender, receiver, notif_type, title, description)
 
     async def send_notification(self, event):
+        sender = await get_user(event['sender'])
+        receiver = await get_user(event['receiver'])
+        notif_type = event['notif_type']
+        title = event['title']
+        description = event['description']
+        if (notif_type != 'invite_game'):
+            await create_notification(sender, receiver, notif_type, title, description)
         await self.send(text_data=json.dumps({
-            'notif_type': event['notif_type'],
-            'sender': event['sender'],
-            'receiver': event['receiver'],
-            'title': event['title'],
-            'description': event['description']
+            'notif_type': notif_type,
+            'sender': sender.id,
+            'receiver': receiver.id,
+            'title': title,
+            'description': description
         }))

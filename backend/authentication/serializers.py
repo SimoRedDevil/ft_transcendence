@@ -1,14 +1,19 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from .models import CustomUser
+import re
+
 
 
 def check_valid_format(data):
     username = data.get('username')
     password = data.get('password')
 
-    if (len(username) < 9 or len(username) > 20):
+    if (len(username) > 20):
         raise serializers.ValidationError("Username should be between 9 and 20 characters")
+    elif not re.match(r'^[A-Za-z-]+$', username):
+        raise serializers.ValidationError("Username should only contain letters and optional hyphens.")
+
     elif (len(password) < 9 or len(password) > 20):
         raise serializers.ValidationError("Password should be between 9 and 20 characters")
     elif password.isdigit() or username.isdigit():
@@ -17,6 +22,13 @@ def check_valid_format(data):
         raise serializers.ValidationError("Password and username should be different")
 
     return data
+
+def check_username_exist(username):
+    try:
+        CustomUser.objects.get(username=username)
+        return True
+    except CustomUser.DoesNotExist:
+        return False
 class SignUpSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
@@ -32,7 +44,6 @@ class SignUpSerializer(serializers.ModelSerializer):
         }
     def validate(self, data):
         return check_valid_format(data)
-
     def create(self, validated_data):
         user = CustomUser.objects.create_user(
             full_name=validated_data['full_name'],

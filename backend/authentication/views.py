@@ -97,7 +97,7 @@ class Intra42Callback(APIView):
             return response
 
         try:
-            user = CustomUser.objects.get(username=user_info['login'])
+            user = CustomUser.objects.get((Q(username=user_info['login']) | Q(email=user_info['email'])))
         except CustomUser.DoesNotExist:
             user = CustomUser.objects.create(
                 username=user_info['login'],
@@ -181,7 +181,7 @@ class GoogleLoginCallback(APIView):
                 response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
                 return response
             try:
-                user = CustomUser.objects.get(email=user_info['email'])
+                user = CustomUser.objects.get((Q(username=user_info['given_name']) | Q(email=user_info['email'])))
             except CustomUser.DoesNotExist:
                 user = CustomUser.objects.create(
                     username=user_info['given_name'],

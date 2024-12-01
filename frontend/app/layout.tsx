@@ -226,25 +226,32 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
           {children}
           </Provider>
           <ToastContainer
-            position="top-center"
-            autoClose={1500}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            pauseOnHover
-            draggable
-            stacked
-            theme="dark"
-            progressStyle={{backgroundColor: "#4cd964"}}
-            style={{
-              fontSize: "10px",
-              textAlign: "center",
-              color: "#fff",
-              width: "400px",
-            }}
-          />
+              position="top-center"
+              autoClose={1500}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              pauseOnHover
+              draggable
+              stacked
+              theme="dark"
+              progressStyle={{ backgroundColor: "#4cd964" }}
+              style={{
+                fontSize: "10px",
+                textAlign: "center",
+                color: "#fff",
+                width: "70%",
+                maxWidth: "400px",
+                margin: "0 auto", // Ensure horizontal centering
+                left: "50%", // Shift to center
+                top: "20px", // Ensure top position
+                transform: "translateX(-50%)", // Compensate for the left shift
+              }}
+            />
+
+
         </div>
       </div>
     </div>

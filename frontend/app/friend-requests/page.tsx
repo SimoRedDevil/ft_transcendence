@@ -403,16 +403,14 @@ function page() {
                         <Image src={friend.avatar_url} alt='profile_pic' width={50} height={50} className='rounded-full' />
                         <div className='text-white text-[15px] sm:text-[20px]'>{friend.full_name}</div>
                         </button>
-                        {/* <div className='flex gap-3'>
+                        <div className=' gap-3 hidden sm:flex
+                        '>
                         <button onClick={() => handleBlock(friend.username, setIsUpdate)}
                             className='bg-[#f44336] hover:bg-[#d32f2f]
                             text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>
                                     Block
                         </button>
-                        <button onClick={() => {removeFriend(friend.id)
-                            setIsUpdate(true)
-                        }
-                        }
+                        <button onClick={() => removeFriend(friend.id)}
                             className='bg-[#c75462] hover:bg-[#db5e6c]
                              text-[15px] sm:text-[20px] w-[80px] sm:w-[100px] rounded-[30px] p-2'>
                                     Remove
@@ -421,34 +419,34 @@ function page() {
                             sm:text-[20px] w-[80px] hover:bg-[#318aa2] sm:w-[100px] rounded-[30px] p-2'>
                                 Chat
                         </button>
-                        </div> */}
+                        </div>
                         <div className='
-                        relative flex flex-col items-center justify-center
+                        relative flex flex-col items-center justify-center sm:hidden
                         '>
-                        <button onClick={
-                            () => setIsMenuOpen(!isMenuOpen)
-                        }>
-                            <SlMenu className='text-[30px] text-white mb-2
-                            '/>
+                        <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                            {isMenuOpen ? <MdMenuOpen className='text-white text-[30px]' /> : <SlMenu className='text-white text-[30px]' />}
                         </button>
                         {isMenuOpen && (
-                                <div className='absolute top-0 right-0 bg-black p-2 rounded-lg'>
-                                    <button onClick={() => handleBlock(friend.username, setIsUpdate)}
-                                    className='text-white text-[15px] sm:text-[20px] w-[100px] rounded-[30px] p-2'>
-                                        Block
-                                    </button>
-                                    <button onClick={() => {removeFriend(friend.id)
-                                        setIsUpdate(true)
-                                    }
-                                    }
-                                    className='text-white text-[15px] sm:text-[20px] w-[100px] rounded-[30px] p-2'>
-                                        Remove
-                                    </button>
-                                    <button onClick={() => handleChatClick(friend.username)} className='text-white text-[15px]
-                                        sm:text-[20px] w-[100px] rounded-[30px] p-2'>
-                                        Chat
-                                    </button>
-                                </div>
+                            <div className='absolute top-6 right-0 bg-black p-2 rounded-lg block sm:hidden
+                            '>
+                                <button onClick={() => handleChatClick(friend.username)} className='text-white text-[15px]
+                                    sm:text-[20px] w-[100px] rounded-[20px] p-2 hover:bg-[#318aa2]
+                                    '>
+                                    Chat
+                                </button>
+                                <button onClick={() => removeFriend(friend.id)}
+                                className='text-white text-[15px] sm:text-[20px] w-[100px] rounded-[20px] p-2
+                                hover:bg-[#db5e6c]
+                                '>
+                                    Remove
+                                </button>
+                                <button onClick={() => handleBlock(friend.username, setIsUpdate)}
+                                className='text-white text-[15px] sm:text-[20px] w-[100px] rounded-[20px] p-2
+                                hover:bg-[#d32f2f]
+                                '>
+                                    Block
+                                </button>
+                            </div>
                             )}
                         </div>
                     </div>
@@ -481,21 +479,21 @@ function page() {
                     <>
                     {(!searchResults || searchResults.length < 1) && <p>No search results</p>}
                     {searchResults?.map((result) => (
-                        result.username !== authUser?.username &&
+                        result?.username !== authUser?.username &&
                          (
-                        <div key={result.id} className='flex gap-2 xs:gap-0 flex-row min-w-[220px] xs:items-center xs:justify-between mb-3'>
+                        <div key={result?.id} className='flex gap-2 xs:gap-0 flex-row min-w-[220px] xs:items-center xs:justify-between mb-3'>
                             <button onClick={
-                                () => router.push(`/profile/${result.username}`)
+                                () => router.push(`/profile/${result?.username}`)
                             }
                              className='flex items-center gap-2 w-full'>
-                                <Image src={result.avatar_url} alt='profile_pic' width={50} height={50} className='rounded-full' />
-                                <div className='text-white text-[15px] sm:text-[20px]'>{result.full_name}</div>
+                                <Image src={result?.avatar_url} alt='profile_pic' width={50} height={50} className='rounded-full' />
+                                <div className='text-white text-[15px] sm:text-[20px]'>{result?.full_name}</div>
                             </button>
                             <div className='flex gap-1'>
                                 <button onClick={() => {
                                     friendRequestsSent.some((request) => request.receiver_info.username === result.username) ?
-                                    handleReject(friendRequestsSent.find((request) => request.receiver_info.username === result.username).id) :
-                                    createFriendRequest(result.id, authUser.id)
+                                    handleReject(friendRequestsSent.find((request) => request.receiver_info?.username === result.username).id) :
+                                    createFriendRequest(result?.id, authUser?.id)
                                 }}
                                 className={`${
                                     friendRequestsSent.some((request) => request.receiver_info.username === result.username) ?

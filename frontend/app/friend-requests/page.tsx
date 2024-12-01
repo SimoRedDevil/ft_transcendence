@@ -217,6 +217,17 @@ function page() {
             </div>
         )
     }
+    const handleMenuClick = (e) => {
+        if (isMenuOpen && e.target.id !== 'menu') {
+            setIsMenuOpen(false);
+        }
+    }
+    useEffect(() => {
+        document.addEventListener('click', handleMenuClick);
+        return () => {
+            document.removeEventListener('click', handleMenuClick);
+        }
+    }, [isMenuOpen])
   return (
     <div className='w-full h-full flex items-center justify-center'>
         <div className='border border-white/30 rounded-[30px] bg-black bg-opacity-50 w-[90%] 3xl:w-[1700px] h-[95%] pr-10 p-5 
@@ -423,7 +434,8 @@ function page() {
                         <div className='
                         relative flex flex-col items-center justify-center sm:hidden
                         '>
-                        <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                        <button id='menu'
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}>
                             {isMenuOpen ? <MdMenuOpen className='text-white text-[30px]' /> : <SlMenu className='text-white text-[30px]' />}
                         </button>
                         {isMenuOpen && (

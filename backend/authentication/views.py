@@ -184,7 +184,7 @@ class GoogleLoginCallback(APIView):
                 user = CustomUser.objects.get((Q(username=user_info['given_name']) | Q(email=user_info['email'])))
             except CustomUser.DoesNotExist:
                 user = CustomUser.objects.create(
-                    username=user_info['given_name'],
+                    username=user_info['email'].split('@')[0],
                     email=user_info['email'],
                     full_name=user_info['name'],
                     avatar_url=user_info['picture'],

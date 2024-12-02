@@ -51,7 +51,7 @@ function Header({setNotificationClicked, notificationClicked, setProfileDropDown
             border border-white border-opacity-30 h-[70px] w-[70px] bg-white bg-opacity-50 rounded-full flex flex-col items-center justify-center hover:bg-opacity-15 hover:cursor-pointer
 
           `}>
-            <Image id='profile-id' unoptimized src={authUser?.avatar_url} 
+            <Image id='profile-id'  src={authUser?.avatar_url} 
             height={70} width={70} alt='avatar' className='rounded-full cursor-pointer'/> 
              <div className='absolute  bottom-1 left-1 text-xs text-opacity-50
              border border-white border-opacity-30 bg-[#7ED4AD] 

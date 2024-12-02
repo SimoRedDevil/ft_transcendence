@@ -241,7 +241,7 @@ function Chat({setShowBlockDialog}) {
                 blocker === authUser?.username &&
                 <button onClick={handleUnblockUser} className='hover:bg-[#427baa] w-[220px] h-[55px] bg-[#3b6e98] rounded-[30px] flex items-center justify-center'>
                   <span className='text-white text-opacity-90'>Unblock</span>
-                </button>
+                </button> 
               }
           </div>
           <div className={`w-full h-[100px] bg-transparent flex items-center justify-center ${isBlocked && 'invisible'}`}>

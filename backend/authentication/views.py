@@ -1,12 +1,10 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from django.contrib.auth import login, authenticate, logout
 from .serializers import *
-from .models import CustomUser, anonymousUser
-from django.http import JsonResponse
+from .models import CustomUser
 import requests
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import redirect
@@ -14,30 +12,18 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authentication import SessionAuthentication
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework_simplejwt.tokens import AccessToken
-from datetime import timedelta
-from rest_framework.decorators import api_view, permission_classes
 from django.forms.models import model_to_dict
 from authentication.twofaAuth import twofactorAuth
 import pyotp
-from django.http import HttpResponse
 from urllib.parse import urljoin
-from rest_framework_simplejwt.exceptions import TokenError
-import shutil
 import os
-from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
-from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
-from allauth.socialaccount.providers.oauth2.client import OAuth2Client
-from dj_rest_auth.registration.views import SocialLoginView
 from django.http import HttpResponseRedirect
-from rest_framework_simplejwt.authentication import JWTAuthentication
 import jwt
 from django.utils.timezone import now
-from rest_framework.decorators import action
 from django.db.models import Q
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+import random
 
 URL_FRONT = os.getenv('URL_FRONT')
 URL_BACK = os.getenv('URL_BACK')
@@ -639,23 +625,27 @@ class AnonymousUserViewSet(APIView):
     def get(self, request):
         user = request.user
         try:
-            anonymous_user = anonymousUser.objects.get(user=user)
-        except anonymousUser.DoesNotExist:
+            anonymous_user = CustomUser.objects.get(email=user.email)
+        except CustomUser.DoesNotExist:
             return Response({'error': 'Anonymous user not found'}, status=status.HTTP_404_NOT_FOUND)
-        return Response(status=status.HTTP_200_OK)
-    def post(self, request):
+        response = Response(status=status.HTTP_200_OK)
+        response.data = UserSerializer(anonymous_user).data
+        return response
+
+    def put(self, request):
         user = request.user
         try:
-            anonymous_user = anonymousUser.objects.get(user=user)
-            user.anonymous = True
-            user.save()
-            anonymous_user.username = 'anonymous' + str(user.id)
-            anonymous_user.email = 'anonymous' + str(user.id) + '@gmail.com'
-            anonymous_user.full_name = 'anonymous'
-            anonymous_user.save()
-        except anonymousUser.DoesNotExist:
-            response = Response(status=status.HTTP_404_NOT_FOUND)
-            return response
-        response = Response(status=status.HTTP_200_OK)
-        response.data = model_to_dict(anonymous_user)
+            anonymous_user = CustomUser.objects.get(email=user.email)
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'user not found'}, status=status.HTTP_404_NOT_FOUND)
+        random_number = random.randint(1, 100000)
+        anonymous_user.username = 'Anonymous' + str(random_number)
+        anonymous_user.email = 'anonymous' + str(random_number) + '@gmail.com'
+        anonymous_user.full_name = 'Anonymous' + str(random_number)
+        anonymous_user.avatar_url = f'{URL_BACK}/avatars/anonym.jpg'
+        anonymous_user.city = 'anonymous city'
+        anonymous_user.address = 'anonymous address'
+        anonymous_user.save()
+        response = delete_tokens(request, status=status.HTTP_200_OK)
+        response.data = UserSerializer(anonymous_user).data
         return response

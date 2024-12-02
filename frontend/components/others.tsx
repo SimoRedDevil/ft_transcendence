@@ -10,7 +10,11 @@ import "react-toastify/dist/ReactToastify.css";
 import { useRouter, usePathname } from "next/navigation";
 import { useContext } from "react";
 import { UserContext } from "./context/usercontext";
-import DeleteConfirmation from "./DeleteConfirmation";
+import Confirmation from "./Confirmation";
+import Swal from 'sweetalert2/dist/sweetalert2.js'
+import 'sweetalert2/src/sweetalert2.scss'
+import { iconButtonClasses } from "@mui/material";
+import { text } from "stream/consumers";
 
 export default function Others() {
   const [isOnline, setIsOnline] = useState("online");
@@ -51,6 +55,81 @@ export default function Others() {
     setShowDialog(true);
   };
 
+  const anonymize = async () => {
+    try {
+      const cookies = await getCookies();
+      const csrftoken = cookies.cookies.csrftoken;
+      const res = await axios.put(`${API}/anonymize/`,{},
+       {
+        withCredentials: true,
+        headers: {
+          "X-CSRFToken": csrftoken,
+        },
+      }
+    );
+      if (res.status === 200) {
+        return true;
+      }
+    } catch (err) {
+      return false;
+    }
+  };
+
+  const handelAnnonymizeClick = async () => {
+    Swal.fire({
+      title: "Are you sure?",
+      html: `
+        <p class="text-base sm:text-lg lg:text-xl text-red-500 font-bold">
+          Anonymizing your account information will remove all personal data associated with your account and replace
+           it with anonymous identifiers.
+        </p>
+        <p class="text-base sm:text-lg lg:text-xl text-blue-500 italic">
+          and you will not be able to recover your account.
+        </p>`,
+      icon: "warning",
+      showCancelButton: true,
+      customClass: {
+        confirmButton: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded",
+        cancelButton: "bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded",
+        popup: "bg-[#1A1F26] rounded-lg p-5 sm:p-6 md:p-8 lg:p-10",
+        title: "text-lg sm:text-xl md:text-2xl font-semibold text-white",
+        htmlContainer: "text-base sm:text-lg lg:text-xl",
+      },
+      confirmButtonText: "Yes, anonymize my account!",
+      cancelButtonText: "Cancel",
+    }).then(async(result) => {
+      if (result.isConfirmed) {
+        const isAnonymized = await anonymize();
+  
+        if (isAnonymized) {
+          Swal.fire({
+            title: "Anonymized!",
+            html: `<p class="text-base sm:text-lg lg:text-xl text-green-500 font-bold">
+              Your account has been anonymized.
+              </p>`,
+            icon: "success",
+            customClass: {
+              popup: "bg-[#1A1F26] rounded-lg p-5 sm:p-6 md:p-8 lg:p-10",
+              title: "text-lg sm:text-xl md:text-2xl font-semibold text-white",
+            },
+          }).then(() => {
+            router.push("/login");
+          }
+          );
+        } else {
+          Swal.fire({
+            title: "Error!",
+            text: "An error occurred while anonymizing your account. Please try again.",
+            icon: "error",
+            customClass: {
+              popup: "bg-[#1A1F26] rounded-lg p-5 sm:p-6 md:p-8 lg:p-10",
+              title: "text-lg sm:text-xl md:text-2xl font-semibold text-white",
+            },
+          });
+        }
+      }
+    });
+  };
 
   useEffect(() => {
     fetchAuthUser();
@@ -60,8 +139,7 @@ export default function Others() {
       <div
         className="text-white w-full h-full flex items-center laptop:justify-center flex-col
             overflow-y-auto no-scrollbar laptop:flex-row min-w-[300px]
-             "
-      >
+             ">
         <div
           className="bg-[#1A1F26] bg-opacity-80 h-[550px] laptop:w-[400px] border-[0.5px] border-white border-opacity-20
           rounded-[50px] flex flex-col w-[90%] tablet:w-[90%] desktop:w-[663px] mt-5 laptop:mt-0
@@ -149,7 +227,7 @@ export default function Others() {
                      </button>
             </div>
           <div className=" flex items-center w-full justify-center rounded-[50px] mt-5">
-            <button
+            <button onClick={handelAnnonymizeClick}
               className="rounded-[50px] w-[90%] mb-5 border-[0.5px] border-white border-opacity-40
                         h-[50px] tablet:h-[80px] bg-gradient-to-r from-[#1A1F26]/90 to-[#000]/70"
             >
@@ -162,7 +240,8 @@ export default function Others() {
               </h1>
             </button>
           </div>
-          {showDialog && (<DeleteConfirmation isOpen={showDialog} setIsOpen={setShowDialog} />)}
+          {showDialog && (<Confirmation title={t("Delete Account")} message={t("Are you sure you want to delete the account?")} action={t("Delete")}
+          isOpen={showDialog} setIsOpen={setShowDialog} />)}
         </div>
       </div>
     </>

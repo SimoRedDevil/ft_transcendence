@@ -250,8 +250,6 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
                 transform: "translateX(-50%)", // Compensate for the left shift
               }}
             />
-
-
         </div>
       </div>
     </div>

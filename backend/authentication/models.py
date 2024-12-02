@@ -22,6 +22,7 @@ class CustomUser(BaseUser):
     full_name = models.CharField(max_length=20)
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=15, blank=True, default='06-00-00-00-00', validators=[phone_regex])
+    is_anonymous = models.BooleanField(default=False)
     city = models.CharField(max_length=20, blank=True, default='Khouribga')
     address = models.CharField(max_length=20, blank=True, default='1337 school')
     language = models.CharField(max_length=2, choices=LANGUAGE_CHOICES, default='en', error_messages={'invalid': 'Please select a valid language'})
@@ -30,7 +31,7 @@ class CustomUser(BaseUser):
     tournament_name = models.CharField(max_length=20, blank=True, null=True)
     is_already_logged = models.BooleanField(default=False)
     tournament_score = models.IntegerField(default=0)
-    ## 2FA
+    ## 2FA fields
     enabeld_2fa = models.BooleanField(default=False)
     twofa_secret = models.CharField(max_length=32, blank=True, null=True)
     twofa_verified = models.BooleanField(default=False)
@@ -68,16 +69,3 @@ class CustomUser(BaseUser):
     class Meta:
         db_table = 'users'
         verbose_name_plural = 'users'
-
-class anonymousUser(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='anonymous_user')
-    id = models.AutoField(primary_key=True, unique=True, editable=False)
-    username = models.CharField(max_length=20, unique=True, blank=True)
-    email = models.EmailField(unique=True, blank=True)
-    full_name = models.CharField(max_length=20, blank=True)
-    def __str__(self):
-        return self.user.username
-
-    class Meta:
-        db_table = 'anonymous_users'
-        verbose_name_plural = 'anonymous_users'

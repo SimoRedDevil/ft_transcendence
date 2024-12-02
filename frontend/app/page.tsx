@@ -20,6 +20,11 @@ export default function Home() {
                 items-center
                 h-screen
                 text-white'>
+            <p>
+                upload
+            </p>
+            <input type="file" name="file" id="file" className="hidden" />
+            {/* <input type="image" name="file" id="file" className="hidden" /> */}
             </div>
     )
 }

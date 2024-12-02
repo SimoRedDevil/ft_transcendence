@@ -11,7 +11,13 @@ import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 
 
-const DeleteConfirmation = ({isOpen, setIsOpen}) => {
+const Confirmation = ({
+  isOpen,
+  setIsOpen,
+  title,
+  message,
+  action,
+}) => {
   const API = process.env.NEXT_PUBLIC_API_URL;
   const router = useRouter();
   const { t } = useTranslation();
@@ -55,12 +61,18 @@ const DeleteConfirmation = ({isOpen, setIsOpen}) => {
           <div
             className="bg-[#1A1F26] flex w-[380px] tablet:w-[500px] h-[220px]
             laptop:flex-row flex-col laptop:w-[600px] justify-center items-center
-               overflow-hidden rounded-2xl 
+               overflow-hidden rounded-2xl py-10 
           "
           >
             <div className="py-[70px] px-6 rounded-lg shadow-lg ">
-              <p className="text-white w-full mb-4">
-                Are you sure you want to delete the account?
+              <h1 className="
+                text-white text-2xl font-bold w-full mb-4
+                border-b-[0.5px] border-white border-opacity-40
+                pb-2
+              "> {title}
+              </h1>
+              <p className="text-white w-full mb-4 overflow-y-auto no-scrollbar h-[50px]">
+                {message}
               </p>
               <div className="flex justify-between">
                 <button
@@ -68,7 +80,7 @@ const DeleteConfirmation = ({isOpen, setIsOpen}) => {
                   p-2 px-4 rounded-lg border-[0.5px] border-white border-opacity-40 "
                   onClick={deleteAccount}
                 >
-                  Delete
+                  {action}
                 </button>
                 <button
                   type="submit"
@@ -87,4 +99,4 @@ const DeleteConfirmation = ({isOpen, setIsOpen}) => {
   );
 };
 
-export default DeleteConfirmation;
+export default Confirmation;

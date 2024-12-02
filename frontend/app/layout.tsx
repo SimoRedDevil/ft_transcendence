@@ -181,7 +181,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
         </div>
       )}
 
-            <div className="h-[90%] flex flex-col-reverse sm:flex-row max-sm:justify-center max-sm:items-center">
+            <div className="h-[95%] flex flex-col-reverse sm:flex-row max-sm:justify-center max-sm:items-center">
                 {/* Render Sidebar if pathname is not in exclude list */}
                 {!exclude.includes(pathname) && (
                     <div className="flex sm:flex-col w-full sm:w-[100px]">
@@ -226,25 +226,32 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
           {children}
           </Provider>
           <ToastContainer
-            position="top-center"
-            autoClose={1500}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            pauseOnHover
-            draggable
-            stacked
-            theme="dark"
-            progressStyle={{backgroundColor: "#4cd964"}}
-            style={{
-              fontSize: "10px",
-              textAlign: "center",
-              color: "#fff",
-              width: "400px",
-            }}
-          />
+              position="top-center"
+              autoClose={1500}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              pauseOnHover
+              draggable
+              stacked
+              theme="dark"
+              progressStyle={{ backgroundColor: "#4cd964" }}
+              style={{
+                fontSize: "10px",
+                textAlign: "center",
+                color: "#fff",
+                width: "70%",
+                maxWidth: "400px",
+                margin: "0 auto", // Ensure horizontal centering
+                left: "50%", // Shift to center
+                top: "20px", // Ensure top position
+                transform: "translateX(-50%)", // Compensate for the left shift
+              }}
+            />
+
+
         </div>
       </div>
     </div>

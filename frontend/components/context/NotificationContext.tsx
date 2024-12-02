@@ -5,11 +5,13 @@ import { toast } from 'react-toastify';
 import { Bounce } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { autocompleteClasses } from '@mui/material';
+import { axiosInstance } from '@/utils/axiosInstance';
 
 const NotificationContext = createContext(null);
 
 export const NotificationProvider = ({ children }) => {
     const [notifications, setNotifications] = useState([]);
+    const [notificationsLoading, setNotificationsLoading] = useState(true);
     const notif_socket = useRef(null);
     const { t } = useTranslation();
     const [onlineUsers, setOnlineUsers] = useState([]);
@@ -57,8 +59,24 @@ export const NotificationProvider = ({ children }) => {
         return () => notif_socket.current.close();
     }, []);
 
+    const fetchNotifications = async () => {
+        try {
+            setNotificationsLoading(true);
+            const response = await axiosInstance.get('notifications/');
+            if (response.status === 200) {
+                setNotifications(response.data);
+            }
+        }
+        catch (error) {
+            toast.error(t('Failed to fetch notifications'));
+        }
+        finally {
+            setNotificationsLoading(false);
+        }
+    }
+
     return (
-        <NotificationContext.Provider value={{ notifications, setNotifications, notif_socket }}>
+        <NotificationContext.Provider value={{ notifications, setNotifications, notif_socket, fetchNotifications }}>
             {children}
         </NotificationContext.Provider>
     );

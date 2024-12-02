@@ -43,7 +43,7 @@ class CreateRequest(APIView):
             response = Response(status=status.HTTP_400_BAD_REQUEST)
             response.data = serializer.errors
             return response
-        FriendRequest.objects.create(sender=CustomUser.objects.get(id=data['sender']), receiver=CustomUser.objects.get(id=data['receiver']))
+        friend_req = FriendRequest.objects.create(sender=CustomUser.objects.get(id=data['sender']), receiver=CustomUser.objects.get(id=data['receiver']))
         user = CustomUser.objects.get(id=data['receiver'])
         channel_layer = get_channel_layer()
         room_group_name = f'notif_{user.username}'
@@ -55,7 +55,8 @@ class CreateRequest(APIView):
                 'sender': request.user.id,
                 'receiver': user.id,
                 'title': 'Friend Request',
-                'description': f'{request.user.username} has sent you a friend request.'
+                'description': f'{request.user.full_name} has sent you a friend request.',
+                'friend_request': friend_req.id
             }
         )
         response = Response(status=status.HTTP_201_CREATED)

@@ -3,6 +3,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from authentication.models import CustomUser
 from .models import Notification
+from friends.models import FriendRequest
 
 @database_sync_to_async
 def get_user(id):
@@ -12,8 +13,15 @@ def get_user(id):
         return None
 
 @database_sync_to_async
-def create_notification(sender, receiver, notif_type, title, description):
-    return Notification.objects.create(sender=sender, receiver=receiver, notif_type=notif_type, title=title, description=description)
+def get_friend_request(id):
+    try:
+        return FriendRequest.objects.get(id=id)
+    except FriendRequest.DoesNotExist:
+        return None
+
+@database_sync_to_async
+def create_notification(sender, receiver, notif_type, title, description, friend_request=None):
+    return Notification.objects.create(sender=sender, receiver=receiver, notif_type=notif_type, title=title, description=description, friend_request=friend_request)
 
 class NotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -54,12 +62,17 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         notif_type = event['notif_type']
         title = event['title']
         description = event['description']
+        friend_request = None
+
+        if (notif_type == 'friend_request'):
+            friend_request = await get_friend_request(event['friend_request'])
         if (notif_type != 'invite_game'):
-            await create_notification(sender, receiver, notif_type, title, description)
+            await create_notification(sender, receiver, notif_type, title, description, friend_request)
         await self.send(text_data=json.dumps({
             'notif_type': notif_type,
             'sender': sender.id,
             'receiver': receiver.id,
             'title': title,
-            'description': description
+            'description': description,
+            'friend_request': friend_request.id
         }))

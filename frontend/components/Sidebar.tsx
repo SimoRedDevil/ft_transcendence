@@ -1,6 +1,6 @@
 "use client"
 import Link from 'next/link'
-import React, { use } from 'react'
+import React, { use, useContext } from 'react'
 import { TbLayoutDashboardFilled } from "react-icons/tb";
 import { IoLogoGameControllerB } from "react-icons/io";
 import { GiLaurelsTrophy } from "react-icons/gi";
@@ -12,8 +12,10 @@ import { BsList } from "react-icons/bs";
 import {useRef} from "react";
 import {white} from "next/dist/lib/picocolors";
 import NavLink from './NavLink';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { FaUserFriends } from "react-icons/fa";
+import { getCookies, logout } from './auth';
+import { UserContext } from './context/usercontext';
 
 function Sidebar() {
     const pathname = usePathname();
@@ -23,6 +25,15 @@ function Sidebar() {
     const settings = pathname.startsWith('/settings');
     const tournament = pathname.startsWith('/tournament');
     const friendrequests = pathname === '/friend-requests';
+    const router = useRouter();
+    const {setIsAuthenticated, setauthUser} = useContext(UserContext);
+
+    const handleLogout = async () => {
+        const cookies = await getCookies();
+        const csrfToken = cookies.cookies.csrftoken
+        if (csrfToken)
+            await logout(csrfToken, setIsAuthenticated, setauthUser, router);
+    };
     return (
         <nav className='w-full sm:w-[100px] sm:h-full h-16 flex sm:flex-col items-center justify-around sm:justify-center sm:gap-[5%]'>
             <NavLink href='/game' isActive={game}><IoLogoGameControllerB title='Game' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink>
@@ -31,6 +42,7 @@ function Sidebar() {
             <NavLink href='/chat' isActive={chat}><IoChatbubblesSharp title='Chat' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink>
             <NavLink href='/friend-requests' isActive={friendrequests}><FaUserFriends title='Friends Requests' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] hover:text-opacity-100 transition'/></NavLink>
             <NavLink href='/settings' isActive={settings}><IoSettings title='Settings' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink>
+            <button className='w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] text-white' onClick={handleLogout}><RiLogoutBoxRLine title='Logout' className='w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></button>
         </nav>
   )
 }

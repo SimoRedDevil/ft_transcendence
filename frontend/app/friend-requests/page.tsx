@@ -66,7 +66,6 @@ function page() {
         fetchFriendRequests();
     }, [isUpdate, isSearch, requests, sentRequest, isFriend, isBlocked, notifications]);
 
-
     const handleAccept = async (requestId) => {
         const body = {
             id: requestId
@@ -93,7 +92,7 @@ function page() {
     useEffect(() => {
         if (debouncedSearchInput !== "") {
             setIsUpdate(true);
-          fetchSearchResults(debouncedSearchInput, setSearchResults, setSearchLoading, setIsUpdate);
+          fetchSearchResults(debouncedSearchInput, setSearchResults, setSearchLoading);
         } else {
           setSearchResults([]);
         }
@@ -230,7 +229,7 @@ function page() {
     }, [isMenuOpen])
   return (
     <div className='w-full h-full flex items-center justify-center'>
-        <div className='border border-white/30 rounded-[30px] bg-black bg-opacity-50 w-[90%] 3xl:w-[1700px] h-[95%] pr-10 p-5 
+        <div className='border border-white/30 rounded-[30px] bg-black bg-opacity-50 md:w-[80%]  w-[90%] 3xl:w-[1700px] h-[95%] pr-10 p-5 
         overflow-hidden no-scrollbar
         '>
             <div className='flex justify-around w-full  sm:w-[900px] h-[30px] sm:h-[50px]'>

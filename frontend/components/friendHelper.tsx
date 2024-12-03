@@ -7,7 +7,6 @@ export const fetchSearchResults = async (
     searchInput: string,
     setSearchResults: (data: any) => void,
     setSearchLoading: (loading: boolean) => void,
-    setIsUpdate: (update: boolean) => void
 ) => {
     try {
       setSearchLoading(true);
@@ -17,7 +16,6 @@ export const fetchSearchResults = async (
         }
       });
       setSearchResults(res.data);
-      setIsUpdate(true);
     } catch (error) {
       console.log(error);
     } finally {

@@ -131,6 +131,8 @@ export default function Others() {
     });
   };
 
+  /* handle image upload*/
+  
   const uploadImage = async () => {
     const fileInput = document.getElementById("file") as HTMLInputElement;
   

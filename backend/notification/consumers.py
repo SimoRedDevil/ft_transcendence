@@ -63,16 +63,19 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         title = event['title']
         description = event['description']
         friend_request = None
+        notif = None
 
         if (notif_type == 'friend_request'):
             friend_request = await get_friend_request(event['friend_request'])
         if (notif_type != 'invite_game'):
-            await create_notification(sender, receiver, notif_type, title, description, friend_request)
+            notif = await create_notification(sender, receiver, notif_type, title, description, friend_request)
+
         await self.send(text_data=json.dumps({
             'notif_type': notif_type,
-            'sender': sender.id,
-            'receiver': receiver.id,
+            'sender_info': { 'username': sender.username, 'id': sender.id, 'full_name': sender.full_name, 'avatar_url': sender.avatar_url },
+            'receiver_info': { 'username': receiver.username, 'id': receiver.id, 'full_name': receiver.full_name, 'avatar_url': receiver.avatar_url },
             'title': title,
             'description': description,
-            'friend_request': friend_request.id
+            'friend_request': friend_request.id,
+            'get_human_readable_time': notif.get_human_readable_time() if notif else None,
         }))

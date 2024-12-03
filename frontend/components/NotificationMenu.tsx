@@ -54,9 +54,9 @@ function NotificationMenu() {
             <h1 className='text-[22px] ml-4'>Notifications</h1>
           </div>
           <div className='h-[calc(100%_-_65px)] w-full scrollbar-none overflow-y-auto scroll-smooth'>
-            {notifications?.map((notification) => {
+            {notifications?.map((notification, index) => {
               return (
-                <div key={notification?.id} className='w-full p-4 flex gap-3 hover:cursor-pointer hover:bg-white/5'>
+                <div key={index} className='w-full p-4 flex gap-3 hover:cursor-pointer hover:bg-white/5'>
                   <div className='w-[60px] h-[60px] rounded-full'>
                     <Image className='rounded-full' width={60} height={60} src={notification?.sender_info?.avatar_url} alt='user_image'></Image>
                   </div>

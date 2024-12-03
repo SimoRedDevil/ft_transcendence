@@ -37,6 +37,7 @@ export const NotificationProvider = ({ children }) => {
                 return;
             }
             else if (newNotification.notif_type === 'friend_request') {
+                console.log(newNotification);
                 toast.info(t(`${newNotification.description}`),
                 {
                     autoClose: 8000,

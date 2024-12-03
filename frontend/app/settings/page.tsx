@@ -97,7 +97,7 @@ export default function Home() {
                 className={`tablet:bg-[#D9D9D9] bg-opacity-10 
                 flex items-center justify-center  border-white border-opacity-40 h-full w-[349px]
                   mobile:w-[200px] tablet:w-full border-0 border-r-0
-                  text-sm p-2 rounded-r-[50px]
+                  text-sm p-2 pr-5 rounded-r-[50px]
                    text-white text-opacity-50 tablet:text-opacity-100
                 ${
                     activeComponent === 'others' ? 'tablet:bg-[#D9D9D9] tablet:bg-opacity-10 text-white text-opacity-100 underline underline-offset-4' : 'tablet:bg-transparent'}

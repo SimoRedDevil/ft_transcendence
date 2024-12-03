@@ -23,36 +23,6 @@ export default function Home() {
           h-screen
           text-white"
       >
-        <input type="file" name="file" id="file" />
-        <button
-          onClick={async () => {
-            const fileInput = document.getElementById('file') as HTMLInputElement;
-            if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-              alert('Please select a file first!');
-              return;
-            }
-  
-            const file = fileInput.files[0];
-            const formData = new FormData();
-            formData.append('file', file);
-  
-            try {
-                const cookies = await getCookies();
-                const csrfToken = cookies.cookies.csrftoken;
-              const response = await axios.post('http://localhost:8000/api/auth/upload/', formData, {
-                headers: {
-                  'Content-Type': 'multipart/form-data',
-                    'X-CSRFToken': csrfToken,
-                },
-              });
-  
-              console.log('Uploaded file URL:', response.data.url);
-            } catch (error) {
-            }
-          }}
-        >
-          Upload
-        </button>
       </div>
     )
 }

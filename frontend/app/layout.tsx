@@ -114,7 +114,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
   useEffect(() => {
     if (isAuthenticated) {
       fetchAuthUser();
-      if (pathname === "/login") {
+      if (pathname === "/login" || (pathname === "/twofa" && !authUser?.two_factor_enabled)) {
         router.push("/");
       }
     }

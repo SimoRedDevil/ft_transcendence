@@ -24,6 +24,8 @@ from django.db.models import Q
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 import random
+from django.core.files.storage import default_storage
+from rest_framework.parsers import MultiPartParser, FormParser
 
 URL_FRONT = os.getenv('URL_FRONT')
 URL_BACK = os.getenv('URL_BACK')
@@ -437,6 +439,7 @@ class GetQRCodeView(APIView):
 class UpdateUserView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
+
     def put(self, request):
         user = request.user
         data = request.data
@@ -475,16 +478,13 @@ class UpdateUserView(APIView):
             user.color = color
             user.board_name = board_name
             updated = True
+        if 'avatar' in request.FILES:
+            file_url = self.upload_avatar(request)
+            user.avatar_url = f"{URL_BACK}{file_url}"
+            updated = True
+        user_data = UpdateUserSerializer(user).data
         if updated:
             user.save()
-        print("---> data: ", data)
-        avatar_file = data.get('avatar_url')
-        if avatar_file:
-            url = avatar_file
-            user.avatar_url = url
-            user.save()
-            return Response(status=status.HTTP_200_OK)
-        user_data = UpdateUserSerializer(user).data
         return Response(user_data, status=status.HTTP_200_OK)
 
 #change password
@@ -494,17 +494,27 @@ class UpdateUserView(APIView):
         confirm_password = data.get('confirm_password')
         if not user.social_logged:
             if not user.check_password(current_password):
-                return Response({'error': 'Current password is incorrect'}, status=status.HTTP_400_BAD_REQUEST)
+                response = Response(status=status.HTTP_400_BAD_REQUEST)
+                response.data = 'Current password is incorrect'
+                return response
         else:
             if user.password_is_set:
                 if not user.check_password(current_password):
-                    return Response({'error': 'Current password is incorrect'}, status=status.HTTP_400_BAD_REQUEST)
+                    response = Response(status=status.HTTP_400_BAD_REQUEST)
+                    response.data = 'Current password is incorrect'
+                    return response
         if not new_password or not confirm_password:
-            return Response({'error': 'New password and confirmation are required'}, status=status.HTTP_400_BAD_REQUEST)
+            response = Response(status=status.HTTP_400_BAD_REQUEST)
+            response.data = 'New password and confirm password are required'
+            return response
         if new_password == current_password:
-            return Response({'error': 'New password must be different from the current password'}, status=status.HTTP_400_BAD_REQUEST)
+            response = Response(status=status.HTTP_400_BAD_REQUEST)
+            response.data = 'New password cannot be the same as the current password'
+            return response
         if new_password != confirm_password:
-            return Response({'error': 'Passwords do not match'}, status=status.HTTP_400_BAD_REQUEST)
+            response = Response(status=status.HTTP_400_BAD_REQUEST)
+            response.data = 'Passwords do not match'
+            return response
         user.set_password(new_password)
         if user.social_logged:
             user.password_is_set = True
@@ -516,6 +526,16 @@ class UpdateUserView(APIView):
             user.language = language
             return True
         return False
+    
+    def upload_avatar(self, request):
+        file_obj = request.FILES.get('avatar')
+        if not file_obj:
+            response = Response(status=status.HTTP_400_BAD_REQUEST)
+            response.data = 'No file provided'
+            return response
+        file_path = default_storage.save(f"avatars/{file_obj.name}", file_obj)
+        file_url = default_storage.url(file_path)
+        return file_url
 
 class Delete_account(APIView):
     authentication_classes = [SessionAuthentication]
@@ -649,3 +669,22 @@ class AnonymousUserViewSet(APIView):
         response = delete_tokens(request, status=status.HTTP_200_OK)
         response.data = UserSerializer(anonymous_user).data
         return response
+
+class ImageUploadView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser)
+
+    def post(self, request):
+        file_obj = request.FILES.get('file')
+        if not file_obj:
+            return Response({"error": "No file provided"}, status=400)
+        
+        # Save the file to your desired location
+        file_path = default_storage.save(f"avatars/{file_obj.name}", file_obj)
+        file_url = default_storage.url(file_path)
+        self.request.user.avatar_url = f"{URL_BACK}{file_url}"
+        self.request.user.save()
+        print("username: ", self.request.user.username, flush=True)
+
+        return Response({"url": file_url}, status=201)

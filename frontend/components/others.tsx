@@ -131,21 +131,52 @@ export default function Others() {
     });
   };
 
+  const uploadImage = async () => {
+    const fileInput = document.getElementById("file") as HTMLInputElement;
+  
+    if (!fileInput?.files?.[0]) {
+      toast.error("Please select a file");
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append("avatar", fileInput.files[0]);
+  
+    try {
+      const cookies = await getCookies();
+      const csrftoken = cookies.cookies.csrftoken;
+  
+      const response = await axios.put(`${API}/update/`, formData, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "multipart/form-data",
+          "X-CSRFToken": csrftoken,
+        },
+      });
+  
+      if (response.status === 200) {
+        toast.success("Image uploaded successfully");
+        console.log("Response data:", response.data);
+      }
+    } catch (error) {
+      toast.error("Error uploading image");
+    }
+  };
+  
+
   useEffect(() => {
     fetchAuthUser();
   }, [pathname]);
   return (
     <>
-      <div
-        className="text-white w-full h-full flex items-center laptop:justify-center flex-col
+      <div className="text-white w-full h-full flex items-center laptop:justify-center flex-col
             overflow-y-auto no-scrollbar laptop:flex-row min-w-[300px]
              ">
         <div
           className="bg-[#1A1F26] bg-opacity-80 h-[550px] laptop:w-[400px] border-[0.5px] border-white border-opacity-20
           rounded-[50px] flex flex-col w-[90%] tablet:w-[90%] desktop:w-[663px] mt-5 laptop:mt-0
            laptop:mx-2
-           "
-        >
+           ">
           <h1
             className="
             tablet:text-[25px] flex justify-center items-center text-white opacity-50

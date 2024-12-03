@@ -29,5 +29,4 @@ urlpatterns = [
     path('get-user/', GetUser.as_view(), name='get_user'),
     path('get-friends/', FriendsListView.as_view(), name='get_friends'),
     path('get-blocked/', BlockListView.as_view(), name='get_blocked'),
-    path('upload/', ImageUploadView.as_view(), name='upload_image'),
 ]

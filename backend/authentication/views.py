@@ -669,22 +669,3 @@ class AnonymousUserViewSet(APIView):
         response = delete_tokens(request, status=status.HTTP_200_OK)
         response.data = UserSerializer(anonymous_user).data
         return response
-
-class ImageUploadView(APIView):
-    authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAuthenticated]
-    parser_classes = (MultiPartParser, FormParser)
-
-    def post(self, request):
-        file_obj = request.FILES.get('file')
-        if not file_obj:
-            return Response({"error": "No file provided"}, status=400)
-        
-        # Save the file to your desired location
-        file_path = default_storage.save(f"avatars/{file_obj.name}", file_obj)
-        file_url = default_storage.url(file_path)
-        self.request.user.avatar_url = f"{URL_BACK}{file_url}"
-        self.request.user.save()
-        print("username: ", self.request.user.username, flush=True)
-
-        return Response({"url": file_url}, status=201)

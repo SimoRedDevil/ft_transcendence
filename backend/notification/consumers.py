@@ -64,18 +64,18 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         title = event['title']
         description = event['description']
         friend_request = None
-        notif = None
         now = datetime.now().strftime("%A, %I:%M %p")
 
         if (notif_type == 'friend_request'):
-            friend_request = await get_friend_request(event['friend_request'])
-
+            friend_request = event['friend_request']
+        if event['get_human_readable_time']:
+            now = event['get_human_readable_time']
         await self.send(text_data=json.dumps({
             'notif_type': notif_type,
             'sender_info': { 'username': sender.username, 'id': sender.id, 'full_name': sender.full_name, 'avatar_url': sender.avatar_url },
             'receiver_info': { 'username': receiver.username, 'id': receiver.id, 'full_name': receiver.full_name, 'avatar_url': receiver.avatar_url },
             'title': title,
             'description': description,
-            'friend_request': friend_request.id,
-            'get_human_readable_time': notif.get_human_readable_time() if notif else now,
+            'friend_request': friend_request,
+            'get_human_readable_time': now,
         }))

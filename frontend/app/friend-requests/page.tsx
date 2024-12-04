@@ -39,7 +39,7 @@ function page() {
     const [isUpdate, setIsUpdate] = useState(false);
     const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const {notifications, isFriendRequest, updateFriendsPage} = useNotificationContext();
+    const {notifications, isFriendRequest} = useNotificationContext();
 
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -64,7 +64,7 @@ function page() {
             }
         };
         fetchFriendRequests();
-    }, [isUpdate, isSearch, requests, sentRequest, isFriend, isBlocked, isFriendRequest, updateFriendsPage]);
+    }, [isUpdate, isSearch, requests, sentRequest, isFriend, isBlocked, isFriendRequest, notifications]);
 
 
     const handleAccept = async (requestId) => {
@@ -193,8 +193,8 @@ function page() {
     useEffect(() => {
         getFriends();
         getBlockedUsers();
-    }
-    , [isFriend, isBlocked, isUpdate, isLoading]);
+    }, [isFriend, isBlocked, isUpdate, isLoading, notifications]);
+
     const handleInputChange = (e) => {
         const value = e.target.value;
         if (!value || value.length < 1) {

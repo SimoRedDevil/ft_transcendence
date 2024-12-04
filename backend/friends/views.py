@@ -20,7 +20,7 @@ from notification.models import Notification
 def check_friendrequest_exists(sender, receiver):
     return FriendRequest.objects.filter(sender=sender, receiver=receiver).exists()
 
-def create_notification(sender, receiver, notif_type, title, description, friend_request=None):
+def create_notification(sender, receiver, notif_type, title, description, friend_request):
     return Notification.objects.create(sender=sender, receiver=receiver, notif_type=notif_type, title=title, description=description, friend_request=friend_request)
 
 class CreateRequest(APIView):
@@ -49,7 +49,7 @@ class CreateRequest(APIView):
             return response
         friend_req = FriendRequest.objects.create(sender=CustomUser.objects.get(id=data['sender']), receiver=CustomUser.objects.get(id=data['receiver']))
         user = CustomUser.objects.get(id=data['receiver'])
-        notif = create_notification(request.user, user, 'friend_request', 'Friend Request', description, friend_request)
+        notif = create_notification(request.user, user, 'friend_request', 'Friend Request', f'{request.user.full_name} has sent you a friend request.', friend_req)
         channel_layer = get_channel_layer()
         room_group_name = f'notif_{user.username}'
         async_to_sync(channel_layer.group_send)(
@@ -61,7 +61,8 @@ class CreateRequest(APIView):
                 'receiver': user.id,
                 'title': 'Friend Request',
                 'description': f'{request.user.full_name} has sent you a friend request.',
-                'friend_request': friend_req.id
+                'friend_request': friend_req.id,
+                'get_human_readable_time': notif.get_human_readable_time()
             }
         )
         response = Response(status=status.HTTP_201_CREATED)

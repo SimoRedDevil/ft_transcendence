@@ -13,7 +13,6 @@ export const NotificationProvider = ({ children }) => {
     const [notifications, setNotifications] = useState([]);
     const [isFriendRequest, setIsFriendRequest] = useState(false);
     const [notificationsLoading, setNotificationsLoading] = useState(true);
-    const [updateFriendsPage, setUpdateFriendsPage] = useState(false);
     const notif_socket = useRef(null);
     const { t } = useTranslation();
     const [onlineUsers, setOnlineUsers] = useState([]);
@@ -49,8 +48,19 @@ export const NotificationProvider = ({ children }) => {
                     onClick: () => {
                         
                     }
-                }
-            );
+                });
+            }
+            else if (newNotification.notif_type === 'message') {
+                setIsFriendRequest(true);
+                toast.info(t(`${newNotification.description}`),
+                {
+                    autoClose: 8000,
+                    position: 'top-right',
+                    transition: Bounce,
+                    onClick: () => {
+                        // Redirect to chat page
+                    }
+                });
             }
             setNotifications((prevNotifications) => [...prevNotifications, newNotification]);
         };
@@ -80,7 +90,7 @@ export const NotificationProvider = ({ children }) => {
     }
 
     return (
-        <NotificationContext.Provider value={{ notifications, setNotifications, notif_socket, fetchNotifications, isFriendRequest, updateFriendsPage, setUpdateFriendsPage }}>
+        <NotificationContext.Provider value={{ notifications, setNotifications, notif_socket, fetchNotifications, isFriendRequest }}>
             {children}
         </NotificationContext.Provider>
     );

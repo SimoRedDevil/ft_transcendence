@@ -6,17 +6,22 @@ import { getCookies } from '@/components/auth';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useState } from 'react';
+import Link from 'next/link'
+import { AiFillMessage } from "react-icons/ai";
 
 function NotificationMenu() {
 
-  const {fetchNotifications, notifications, notificationsLoading, setUpdateFriendsPage} = useNotificationContext()
+  const {fetchNotifications, notifications, notificationsLoading} = useNotificationContext()
   const router = useRouter()
   const [isUpdate, setIsUpdate] = useState(false)
 
   useEffect(() => {
     fetchNotifications()
-    setIsUpdate(false)
   }, [isUpdate])
+
+  useEffect(() => {
+    console.log(notifications)
+  }, [notifications])
 
   const handleNotificationClick = (notification) => {
     if (notification.notif_type === 'friend_request') {
@@ -45,8 +50,7 @@ function NotificationMenu() {
         toast.error(error.response.data)
       }
       finally {
-        setIsUpdate(true)
-        setUpdateFriendsPage(true)
+        setIsUpdate(!isUpdate)
       }
   }
 
@@ -71,8 +75,7 @@ function NotificationMenu() {
       toast.error(error.response.data)
     }
     finally {
-      setIsUpdate(true)
-      setUpdateFriendsPage(true)
+      setIsUpdate(!isUpdate)
     }
   }
 
@@ -81,7 +84,7 @@ function NotificationMenu() {
   }
 
   return (
-    <div className='text-white fixed w-[calc(100%_-_100px)] h-[600px] flex flex-row-reverse'>
+    <div className='text-white fixed w-[calc(100%_-_100px)] h-[600px] flex flex-row-reverse z-50'>
         <div className='w-full sm:w-[500px] sm:mr-[130px] h-full bg-[#201f1f] rounded-[30px] text-white flex flex-col'>
           <div className='w-full h-[65px] flex items-center border border-white border-t-0 border-r-0 border-l-0 border-opacity-20'>
             <h1 className='text-[22px] ml-4'>Notifications</h1>
@@ -89,19 +92,22 @@ function NotificationMenu() {
           <div className='h-[calc(100%_-_65px)] w-full scrollbar-none overflow-y-auto scroll-smooth'>
             {notifications?.map((notification, index) => {
               return (
-                <div key={index} className='w-full p-4 flex gap-3 hover:cursor-pointer hover:bg-white/5'>
+                <Link href='/friend-requests/' key={index} className='w-full p-4 flex gap-3 hover:cursor-pointer hover:bg-white/5'>
                   <div className='w-[60px] h-[60px] rounded-full'>
                     <Image className='rounded-full' width={60} height={60} src={notification?.sender_info?.avatar_url} alt='user_image'></Image>
                   </div>
                   <div className='flex flex-col gap-3'>
                     <span className='text-[18px]'>{notification?.description}</span>
                     <span className='text-[15px] text-white/50'>{notification?.get_human_readable_time}</span>
-                    <div className='flex gap-2'>
+                    {/* <div className='flex gap-2'>
                       <button onClick={() => handleAccept(notification?.friend_request)} className='w-[110px] h-[45px] bg-[#436850] hover:bg-[#538264] rounded-[30px] text-[18px]'>Accept</button>
                       <button onClick={() => handleReject(notification?.friend_request)} className='w-[110px] h-[45px] bg-[#c75462] hover:bg-[#d75b69] rounded-[30px] text-[18px]'>Reject</button>
-                    </div>
+                    </div> */}
                   </div>
-                </div>
+                  <div className='w-[45px] h-[45px]'>
+                    <AiFillMessage className='text-white w-[45px] h-[45px]' />
+                  </div>
+                </Link>
               )
             })}
           </div>

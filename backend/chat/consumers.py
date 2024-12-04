@@ -5,6 +5,7 @@ from authentication.models import CustomUser
 from .models import conversation, message
 from django.db.models import Q
 from django.utils import timezone
+from notification.models import Notification
 
 @database_sync_to_async
 def get_user(username):
@@ -37,6 +38,10 @@ def set_conversation_last_msg(conversation_obj, last_message):
 @database_sync_to_async
 def create_message(conversation, sender, receiver, content):
     return message.objects.create(conversation_id=conversation, sender_id=sender, receiver_id=receiver, content=content)
+
+@database_sync_to_async
+def create_notification(sender, receiver, notif_type, title, description, friend_request=None):
+    return Notification.objects.create(sender=sender, receiver=receiver, notif_type=notif_type, title=title, description=description, friend_request=friend_request)
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -95,6 +100,20 @@ class ChatConsumer(AsyncWebsocketConsumer):
             other_user_room_group_name = f'chat_{sent_to_user}'
             await self.broadcast_message({'room_group_name': self.room_group_name, 'sent_by_user': sent_by_user, 'content': message, 'id': message_obj.id, 'conversation_id': conversation_obj.id})
             await self.broadcast_message({'room_group_name': other_user_room_group_name, 'sent_by_user': sent_by_user, 'content': message, 'id': message_obj.id, 'conversation_id': conversation_obj.id})
+
+            notif_room_group_name = f'notif_{sent_to_user}'
+            notif = await create_notification(sender_obj, receiver_obj, 'message', 'New Message', f'You have a new message from {sender_obj.full_name}.')
+            await self.channel_layer.group_send(notif_room_group_name, 
+                {
+                    'type': 'send_notification', 
+                    'notif_type': 'message', 
+                    'sender': sender_obj.id, 
+                    'receiver': receiver_obj.id, 
+                    'title': 'New Message', 
+                    'description': f'You have a new message from {sender_obj.full_name}.',
+                    'get_human_readable_time': notif.get_human_readable_time()
+                }
+            )
         elif msg_type == 'invite_game':
             other_user_room_group_name = f'chat_{sent_to_user}'
             await self.channel_layer.group_send(other_user_room_group_name, {'sent_by_user': sent_by_user, 'msg_type': 'invite_game'})

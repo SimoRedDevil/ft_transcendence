@@ -5,15 +5,18 @@ import { useRouter } from "next/navigation";
 import { getCookies } from '@/components/auth';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { useState } from 'react';
 
 function NotificationMenu() {
 
-  const {fetchNotifications, notifications, notificationsLoading} = useNotificationContext()
+  const {fetchNotifications, notifications, notificationsLoading, setUpdateFriendsPage} = useNotificationContext()
   const router = useRouter()
+  const [isUpdate, setIsUpdate] = useState(false)
 
   useEffect(() => {
     fetchNotifications()
-  }, [])
+    setIsUpdate(false)
+  }, [isUpdate])
 
   const handleNotificationClick = (notification) => {
     if (notification.notif_type === 'friend_request') {
@@ -41,7 +44,37 @@ function NotificationMenu() {
       } catch (error) {
         toast.error(error.response.data)
       }
-}
+      finally {
+        setIsUpdate(true)
+        setUpdateFriendsPage(true)
+      }
+  }
+
+  const handleReject = async (requestId) => {
+    const body = {
+      id: requestId
+    }
+    try {
+      const cookies = await getCookies();
+      const csrfToken = cookies.cookies.csrftoken;
+      const response = await axios.post(`http://localhost:8000/api/friends/requests/reject-request/`, body, {
+        headers: {
+          "Content-Type": "application/json",
+          'X-CSRFToken': csrfToken,
+        },
+        withCredentials: true,
+      });
+      if (response.status === 200) {
+          toast.success(response.data)
+      }
+    } catch (error) {
+      toast.error(error.response.data)
+    }
+    finally {
+      setIsUpdate(true)
+      setUpdateFriendsPage(true)
+    }
+  }
 
   if (notificationsLoading) {
     return <div>Loading...</div>
@@ -65,7 +98,7 @@ function NotificationMenu() {
                     <span className='text-[15px] text-white/50'>{notification?.get_human_readable_time}</span>
                     <div className='flex gap-2'>
                       <button onClick={() => handleAccept(notification?.friend_request)} className='w-[110px] h-[45px] bg-[#436850] hover:bg-[#538264] rounded-[30px] text-[18px]'>Accept</button>
-                      <button className='w-[110px] h-[45px] bg-[#c75462] hover:bg-[#d75b69] rounded-[30px] text-[18px]'>Reject</button>
+                      <button onClick={() => handleReject(notification?.friend_request)} className='w-[110px] h-[45px] bg-[#c75462] hover:bg-[#d75b69] rounded-[30px] text-[18px]'>Reject</button>
                     </div>
                   </div>
                 </div>

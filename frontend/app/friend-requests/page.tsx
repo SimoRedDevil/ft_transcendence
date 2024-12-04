@@ -38,8 +38,8 @@ function page() {
     const [debouncedSearchInput, setDebouncedSearchInput] = useState(searchInput);
     const [isUpdate, setIsUpdate] = useState(false);
     const router = useRouter();
-    const {notifications} = useNotificationContext();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const {notifications, isFriendRequest, updateFriendsPage} = useNotificationContext();
 
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -64,7 +64,7 @@ function page() {
             }
         };
         fetchFriendRequests();
-    }, [isUpdate, isSearch, requests, sentRequest, isFriend, isBlocked, notifications]);
+    }, [isUpdate, isSearch, requests, sentRequest, isFriend, isBlocked, isFriendRequest, updateFriendsPage]);
 
 
     const handleAccept = async (requestId) => {

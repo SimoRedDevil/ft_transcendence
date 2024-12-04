@@ -11,7 +11,9 @@ const NotificationContext = createContext(null);
 
 export const NotificationProvider = ({ children }) => {
     const [notifications, setNotifications] = useState([]);
+    const [isFriendRequest, setIsFriendRequest] = useState(false);
     const [notificationsLoading, setNotificationsLoading] = useState(true);
+    const [updateFriendsPage, setUpdateFriendsPage] = useState(false);
     const notif_socket = useRef(null);
     const { t } = useTranslation();
     const [onlineUsers, setOnlineUsers] = useState([]);
@@ -23,8 +25,9 @@ export const NotificationProvider = ({ children }) => {
         };
         notif_socket.current.onmessage = (message) => {
             const newNotification = JSON.parse(message.data);
+            setIsFriendRequest(false);
             if (newNotification.notif_type === 'invite_game') {
-                toast.info(t(`You have been invited to a game by ${newNotification.sender}`),
+                toast.info(t(`You have been invited to a game by ${newNotification.sender_info.full_name}`),
                 {
                     autoClose: 8000,
                     position: 'top-right',
@@ -37,7 +40,7 @@ export const NotificationProvider = ({ children }) => {
                 return;
             }
             else if (newNotification.notif_type === 'friend_request') {
-                console.log(newNotification);
+                setIsFriendRequest(true);
                 toast.info(t(`${newNotification.description}`),
                 {
                     autoClose: 8000,
@@ -77,7 +80,7 @@ export const NotificationProvider = ({ children }) => {
     }
 
     return (
-        <NotificationContext.Provider value={{ notifications, setNotifications, notif_socket, fetchNotifications }}>
+        <NotificationContext.Provider value={{ notifications, setNotifications, notif_socket, fetchNotifications, isFriendRequest, updateFriendsPage, setUpdateFriendsPage }}>
             {children}
         </NotificationContext.Provider>
     );

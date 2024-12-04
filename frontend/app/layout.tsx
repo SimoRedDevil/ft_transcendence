@@ -122,7 +122,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
 
     const handleDocumentClick = (e: any) => {
         if (e.target.id !== 'notification-id') {
-            setNotificationClicked(false);
+            // setNotificationClicked(false);
         }
         if (e.target.id !== 'profile-id') {
             setProfileDropDownClicked(false);

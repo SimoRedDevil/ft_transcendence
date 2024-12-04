@@ -4,6 +4,7 @@ from channels.db import database_sync_to_async
 from authentication.models import CustomUser
 from .models import Notification
 from friends.models import FriendRequest
+from datetime import datetime
 
 @database_sync_to_async
 def get_user(id):
@@ -64,11 +65,10 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         description = event['description']
         friend_request = None
         notif = None
+        now = datetime.now().strftime("%A, %I:%M %p")
 
         if (notif_type == 'friend_request'):
             friend_request = await get_friend_request(event['friend_request'])
-        if (notif_type != 'invite_game'):
-            notif = await create_notification(sender, receiver, notif_type, title, description, friend_request)
 
         await self.send(text_data=json.dumps({
             'notif_type': notif_type,
@@ -77,5 +77,5 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             'title': title,
             'description': description,
             'friend_request': friend_request.id,
-            'get_human_readable_time': notif.get_human_readable_time() if notif else None,
+            'get_human_readable_time': notif.get_human_readable_time() if notif else now,
         }))

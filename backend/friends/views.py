@@ -13,11 +13,15 @@ from django.db.models import Q
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from chat.models import conversation
+from notification.models import Notification
 
 # Create your views here.
 
 def check_friendrequest_exists(sender, receiver):
     return FriendRequest.objects.filter(sender=sender, receiver=receiver).exists()
+
+def create_notification(sender, receiver, notif_type, title, description, friend_request=None):
+    return Notification.objects.create(sender=sender, receiver=receiver, notif_type=notif_type, title=title, description=description, friend_request=friend_request)
 
 class CreateRequest(APIView):
     permission_classes = [IsAuthenticated]
@@ -45,6 +49,7 @@ class CreateRequest(APIView):
             return response
         friend_req = FriendRequest.objects.create(sender=CustomUser.objects.get(id=data['sender']), receiver=CustomUser.objects.get(id=data['receiver']))
         user = CustomUser.objects.get(id=data['receiver'])
+        notif = create_notification(request.user, user, 'friend_request', 'Friend Request', description, friend_request)
         channel_layer = get_channel_layer()
         room_group_name = f'notif_{user.username}'
         async_to_sync(channel_layer.group_send)(

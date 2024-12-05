@@ -82,9 +82,11 @@ class Tournament(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         if data['type'] == 'connection':
             User = await self.get_user(self.scope["user"])
+            print(data) 
             if not any(player['name'] == data['playerName'] for player in self.players):
                 self.player = {
                     'name': data['playerName'],
+                    'usernameDB': data['username'], 
                     'id': self.channel_name,
                     'image': User.avatar_url,
                     'player_id': '',
@@ -123,6 +125,11 @@ class Tournament(AsyncWebsocketConsumer):
                             'players': self.tour_players
                         }
                     )
+                    """"
+                        self.tour_players[0]['usernameDB'] play with self.tour_players[1]['usernameDB']
+                        self.tour_players[2]['usernameDB'] play with self.tour_players[3]['usernameDB']
+                    """
+                    self.tour_players.clear()
             else:
                 await self.send(text_data=json.dumps({
                     'type': 'connection',
@@ -132,7 +139,7 @@ class Tournament(AsyncWebsocketConsumer):
             
         if data['type'] == 'move':
             game_channel = data['game_channel']
-            player_id = self.player['player_id'] 
+            player_id = self.player['player_id']
             if game_channel in self.games and player_id in self.games[game_channel]:
                 if data['direction'] == 'right':
                     if (self.games[game_channel][player_id].x + self.games[game_channel][player_id].width + self.games[game_channel][player_id].speed > 1):
@@ -144,7 +151,6 @@ class Tournament(AsyncWebsocketConsumer):
                         self.games[game_channel][player_id].x -= self.games[game_channel][player_id].speed
                     else:
                         self.games[game_channel][player_id].x = 0
-                
                 await self.channel_layer.group_send(
                     game_channel,
                     {
@@ -153,7 +159,6 @@ class Tournament(AsyncWebsocketConsumer):
                         'playernumber': self.games[game_channel][player_id].playerNu,
                     }
                 )
-                
         if data['type'] == 'qualified':
             if data['groupname'] not in self.players_final:
                 self.players_final[data['groupname']] = []
@@ -177,7 +182,7 @@ class Tournament(AsyncWebsocketConsumer):
                     }
                 )
     
-        if data['type'] == 'match_tour': 
+        if data['type'] == 'match_tour':
             if data['data']['playerNumber'] == 'player1' or data['data']['playerNumber'] == 'player2':
                 if data['data']['groupname'] not in self.match1:
                     self.match1[data['data']['groupname']] = []
@@ -240,7 +245,7 @@ class Tournament(AsyncWebsocketConsumer):
                         player2 = self.match2[data['data']['groupname']][1]
                     else:
                         player1 = self.match2[data['data']['groupname']][1]
-                        player2 = self.match2[data['data']['groupname']][0] 
+                        player2 = self.match2[data['data']['groupname']][0]
                     self.paddles['player1'] = paddles(data['data']['x'],data['data']['y1'], data['data']['pw'], data['data']['ph'] ,data['data']['sp'], 'white', player1['id_channel'], 1, player1['username'], player1['playerNumber'])
                     self.paddles['player2'] = paddles(data['data']['x'],data['data']['y2'],data['data']['pw'], data['data']['ph'], data['data']['sp'], 'white', player2['id_channel'], 2, player2['username'], player2['playerNumber'])
                     self.Ball = ball(0.5, 0.5, data['data']['Walls']['wallsHeight']/25/2/data['data']['Walls']['wallsHeight'], data['data']['dirY'], data['data']['sp'] ,'white')
@@ -264,8 +269,7 @@ class Tournament(AsyncWebsocketConsumer):
                         }
                     )
                     asyncio.create_task(self.update_ball_loop(match_name, False))
-            if data['data']['qualified'] == True:
-                print(data)
+            if data['data']['qualified'] == True: 
                 if data['data']['groupname'] not in self.final_match:
                     self.final_match[data['data']['groupname']] = []
                 self.final_match[data['data']['groupname']].append(data['data'])
@@ -282,9 +286,11 @@ class Tournament(AsyncWebsocketConsumer):
                     if data['data']['playerNumber'] == 'player4' or data['data']['playerNumber'] == 'player3':
                         player1 = self.final_match[data['data']['groupname']][0]
                         player2 = self.final_match[data['data']['groupname']][1]
+                        self.player['player_id'] = 'player2'
                     else:
-                        player1 = self.final_match[data['data']['groupname']][0]
-                        player2 = self.final_match[data['data']['groupname']][1] 
+                        player1 = self.final_match[data['data']['groupname']][1]
+                        player2 = self.final_match[data['data']['groupname']][0]
+                        self.player['player_id'] = 'player1'
                     self.paddles['player1'] = paddles(data['data']['x'],data['data']['y1'], data['data']['pw'], data['data']['ph'] ,data['data']['sp'], 'white', player1['id_channel'], 1, player1['username'], player1['playerNumber'])
                     self.paddles['player2'] = paddles(data['data']['x'],data['data']['y2'],data['data']['pw'], data['data']['ph'], data['data']['sp'], 'white', player2['id_channel'], 2, player2['username'], player2['playerNumber'])
                     self.Ball = ball(0.5, 0.5, data['data']['Walls']['wallsHeight']/25/2/data['data']['Walls']['wallsHeight'], data['data']['dirY'], data['data']['sp'] ,'white')

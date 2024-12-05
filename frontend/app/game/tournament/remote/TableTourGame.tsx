@@ -52,7 +52,6 @@ export default function TableTourGame({ playerna, socketRef, playernambre, group
   useEffect(() => {
     playerInfo.player_id = player_id;
     playerInfo.name = playerna;
-    console.log("herherherehr ", player_nambre)
     playerInfo.player_number = player_nambre;
     if (typeof window !== 'undefined') {
 

@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { useEffect , useRef} from 'react';
 import { player } from '../app/game/Object';
 import TableTourGame from '@/app/game/tournament/remote/TableTourGame';
+import { useUserContext } from '../components/context/usercontext';
 
 
 
@@ -29,6 +30,7 @@ export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }:
     const socketRef = useRef<WebSocket | null>(null);
     const [players, setPlayers] = useState<Player[]>([]);
     const [userExist, setUserExist] = useState(false);
+    const {authUser, loading} = useUserContext();
     
     
     useEffect(() => {  
@@ -36,12 +38,11 @@ export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }:
             socketRef.current = new WebSocket('ws://localhost:8000/ws/tournament/');
             socketRef.current.onopen = () => {
               console.log('WebSocket connected');
-              socketRef.current.send(JSON.stringify({ type: 'connection', playerName: PlayerName }));
+              socketRef.current.send(JSON.stringify({ type: 'connection', playerName: PlayerName , username: authUser.username}));
             };
       
             socketRef.current.onmessage = (event) => {
                 const data = JSON.parse(event.data);
-                console.log(data);
                 if (data.type === 'connection') {
                     if (data.message === 'player_exist') {
                         setUserExist(false);
@@ -55,7 +56,6 @@ export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }:
                 }
                 if (data.type === 'tournament_start') {
                     setPlayers(data.players);
-                    console.log(players);
                     setPlayer1(data.players[0]['name']);
                     setPlayer2(data.players[1]['name']);
                     setPlayer3(data.players[2]['name']);
@@ -158,7 +158,6 @@ export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }:
                     setImage2(getImage(winner2));
                     setNamePlayer1(winner1);
                     setNamePlayer2(winner2);
-                    console.log('player1');
                 }
                 else if (PlayerName === winner2)
                 {
@@ -167,7 +166,6 @@ export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }:
                     setImage2(players[i]['image']);
                     setNamePlayer1(winner1);
                     setNamePlayer2(winner2);
-                    console.log('player2');
                 }
             }
         }

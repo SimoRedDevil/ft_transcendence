@@ -51,7 +51,7 @@ class CustomUser(BaseUser):
     online_matches = models.IntegerField(default=0)
     offline_matches = models.IntegerField(default=0)
     current_xp = models.IntegerField(default=0)
-    target_xp = models.IntegerField(default=0)
+    target_xp = models.IntegerField(default=100)
     online = models.BooleanField(default=False)
     connection_count = models.IntegerField(default=0)
     friends = models.ManyToManyField('self', blank=True, symmetrical=True)

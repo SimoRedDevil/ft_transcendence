@@ -365,6 +365,8 @@ class Game(AsyncWebsocketConsumer):
     
     async def gameOver(self, game_chan ,winer, loser, chan_name1, chan_name2, Tscore, scoreWiner, scoreLoser, winerImage, loserImage):
         await self.top_score(winer, Tscore)
+        await self.update_xp(winer, 100)
+        await self.update_xp(loser, 50)
         await self.update_winner(winer)
         await self.update_loser(loser)
         await self.is_not_playing(winer)
@@ -537,3 +539,13 @@ class Game(AsyncWebsocketConsumer):
             match.save()
         except Match.DoesNotExist:
             print("Match does not exist")
+            
+    @sync_to_async
+    def update_xp(self, username, xp):
+        player = CustomUser.objects.get(username=username)
+        player.current_xp += xp
+        while player.current_xp >= player.target_xp:
+            player.level += 1
+            player.current_xp -= player.target_xp
+            player.target_xp = (player.level * (player.level + 1) // 2) * 100
+        player.save()

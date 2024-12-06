@@ -1,9 +1,12 @@
 import json
+import re
 import math
 import asyncio
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from authentication.models import CustomUser
+from .models import TournamentDB
+from django.shortcuts import get_object_or_404
 
 
 class paddles:
@@ -57,6 +60,11 @@ class ball:
             'speed': self.speed
         }
 
+def is_valid_player_name(name):
+    pattern = r'^[A-Za-z0-9._-]{1,9}$'
+    return re.match(pattern, name) is not None
+
+
 class Tournament(AsyncWebsocketConsumer):
 
     players = []
@@ -82,7 +90,13 @@ class Tournament(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         if data['type'] == 'connection':
             User = await self.get_user(self.scope["user"])
-            print(data) 
+            if not is_valid_player_name(data['playerName']):
+                await self.send(text_data=json.dumps({
+                    'type': 'error_valid_name',
+                    'message': 'Invalid player name',
+                    'player': data['playerName']
+                }))
+                return
             if not any(player['name'] == data['playerName'] for player in self.players):
                 self.player = {
                     'name': data['playerName'],
@@ -93,7 +107,7 @@ class Tournament(AsyncWebsocketConsumer):
                     'numberplayer': '',
                     'group_name': ''
                 }
-                
+                 
                 self.players.append(self.player)
                 self.players_tournament.append(self.player)
                 if len(self.players_tournament) % 2 != 0:
@@ -117,7 +131,12 @@ class Tournament(AsyncWebsocketConsumer):
                             self.group_name_tournament,  
                             player['id']
                         )
-                    Tournament.Tournaments[self.group_name_tournament] = self.tour_players
+                    Tournament.Tournaments[self.group_name_tournament] = {
+                        'player1': self.tour_players[0],
+                        'player2': self.tour_players[1],
+                        'player3': self.tour_players[2],
+                        'player4': self.tour_players[3],
+                    }
                     await self.channel_layer.group_send(
                         self.group_name_tournament,  
                         {
@@ -128,7 +147,8 @@ class Tournament(AsyncWebsocketConsumer):
                     """"
                         self.tour_players[0]['usernameDB'] play with self.tour_players[1]['usernameDB']
                         self.tour_players[2]['usernameDB'] play with self.tour_players[3]['usernameDB']
-                    """
+                    """  
+                    await self.create_tournament(self.tour_players[0]['usernameDB'], self.tour_players[1]['usernameDB'], self.tour_players[2]['usernameDB'], self.tour_players[3]['usernameDB'],  self.group_name_tournament)
                     self.tour_players.clear()
             else:
                 await self.send(text_data=json.dumps({
@@ -170,7 +190,7 @@ class Tournament(AsyncWebsocketConsumer):
                         'type': 'update_state',
                         'players': data['data'],
                         'final_tournament': True
-                    }
+                    } 
                 )
             elif len(self.players_final[data['groupname']]) == 2:
                 await self.channel_layer.group_send(
@@ -429,12 +449,12 @@ class Tournament(AsyncWebsocketConsumer):
                     self.games[game_channel]['ball'].x = 0.5
                     self.games[game_channel]['ball'].directionY *= -1
                     self.games[game_channel]['player1'].score += 1
-                    if self.games[game_channel]['player1'].score == 6:
+                    if self.games[game_channel]['player1'].score == 2:
                         
                         winer = self.games[game_channel]['player1']
                         loser = self.games[game_channel]['player2']
                         Tscore = winer.score - loser.score
-                        await self.gameOver(game_channel, winer, final_tournament)
+                        await self.gameOver(game_channel, winer, final_tournament, self.player['group_name'])
                         break
                 if self.games[game_channel]['ball'].y >= 1:
                     self.games[game_channel]['ball'].directionX = 0
@@ -442,11 +462,11 @@ class Tournament(AsyncWebsocketConsumer):
                     self.games[game_channel]['ball'].x = 0.5
                     self.games[game_channel]['ball'].directionY *= -1
                     self.games[game_channel]['player2'].score += 1
-                    if self.games[game_channel]['player2'].score == 6:
+                    if self.games[game_channel]['player2'].score == 2: 
                         winer = self.games[game_channel]['player2']
                         loser = self.games[game_channel]['player1']
                         Tscore = winer.score - loser.score
-                        await self.gameOver(game_channel, winer, final_tournament)
+                        await self.gameOver(game_channel, winer, final_tournament, self.player['group_name'])
                         break
                 await self.channel_layer.group_send(
                     game_channel,
@@ -484,7 +504,9 @@ class Tournament(AsyncWebsocketConsumer):
             'player2': event['player2']
         }))
         
-    async def gameOver(self, game_chan ,winer, finTour):
+    async def gameOver(self, game_chan ,winer, finTour, game_group):
+        if finTour == True:
+            await self.update_tournament(winer, game_group)
         await self.channel_layer.group_send(
             game_chan,
             {
@@ -509,3 +531,41 @@ class Tournament(AsyncWebsocketConsumer):
             return CustomUser.objects.get(username=username)
         except CustomUser.DoesNotExist:
             return None
+        
+    @sync_to_async
+    def create_tournament(self, username1 , username2, username3, username4, name):
+        player1 = CustomUser.objects.get(username=username1)
+        player2 = CustomUser.objects.get(username=username2)
+        player3 = CustomUser.objects.get(username=username3)
+        player4 = CustomUser.objects.get(username=username4)
+        tourn = TournamentDB.objects.create(
+            name=name,
+            player1=player1,
+            player2=player2,
+            player3=player3,
+            player4=player4,
+            winer=player1
+        )
+
+    @sync_to_async
+    def update_tournament(self, winer, tournamentname):
+        try:
+            username = self.get_usernames(tournamentname, winer.username)
+            winer_user = CustomUser.objects.get(username=username)
+            print(winer_user) 
+        except CustomUser.DoesNotExist:
+            print("CustomUser does not exist")  
+            return
+
+        try:
+            tournament = get_object_or_404(TournamentDB, name=tournamentname)
+            tournament.winer = winer_user
+            tournament.save()
+        except TournamentDB.DoesNotExist:
+            print("Tournament does not exist") 
+            
+    def get_usernames(self, tournamentname, name):
+        Tourn = Tournament.Tournaments[tournamentname]        
+        for i in range(4):
+            if Tourn[f'player{i+1}']['name'] == name:
+                return Tourn[f'player{i + 1}']['usernameDB'] 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-python manage.py makemigrations authentication game chat friends
+python manage.py makemigrations authentication game chat friends tournament
 
 python manage.py migrate
 

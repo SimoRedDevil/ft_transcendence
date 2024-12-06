@@ -9,6 +9,7 @@ export default function TournamentRemote() {
     const [player, setPlayer] = useState('')
     const [form, setForm] = useState(false)
     const [userExist, setUserExist] = useState(false)
+    const [message, setMessage] = useState('')
     const [gamEnd, setGameEnd] = useState(false)
     const [playerExit, setPlayerExit] = useState('')
 
@@ -17,9 +18,10 @@ export default function TournamentRemote() {
         console.log(player)
         setForm(true)
     }
-    const HandleUserExist = (exist, playerExit) => {
+    const HandleUserExist = (exist, playerExit, message) => {
         console.log(exist)
         setUserExist(true)
+        setMessage(message)
         console.log(playerExit)
         setPlayerExit(playerExit)
         setForm(false)
@@ -47,7 +49,13 @@ export default function TournamentRemote() {
                                     value={player}
                                     onChange={(e) => setPlayer(e.target.value)}
                                     className='w-[70%] h-10 bg-transparent border-b ml-[20px] border-white border-opacity-30 text-white text-center'/>
-                                    {userExist && <div className=' text-red-500 text-center text-sm'>{playerExit } already exists in the game!</div>}
+                                    <div className="relative w-full">
+                                        {userExist && (
+                                            <div className="absolute text-red-500 text-center text-sm">
+                                            {playerExit} {message}
+                                            </div>
+                                        )}
+                                    </div>
                         <button type='submit' className='bg-blue-500 text-white rounded-lg w-[30%] p-2 3xl:mt-[150px] l:mt-[130px] lm:mt-[130px] xs:mt-[90px]'>Join</button>
                     </form>
                 </div>

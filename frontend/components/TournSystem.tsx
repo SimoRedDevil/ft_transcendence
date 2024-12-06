@@ -13,7 +13,7 @@ import { useUserContext } from '../components/context/usercontext';
 
 interface Props {
     PlayerName: string;
-    HandleUserExist: (exist: boolean, playerExit: string) => void;
+    HandleUserExist: (exist: boolean, playerExit: string, message: string) => void;
     GameEnd: (winer: string) => void; 
 }
 
@@ -43,10 +43,14 @@ export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }:
       
             socketRef.current.onmessage = (event) => {
                 const data = JSON.parse(event.data);
+                if (data.type === 'error_valid_name') {
+                    setUserExist(false);
+                    HandleUserExist(true, data['player'], "Invalid name: Up to 9 chars, only A-Z,a-z,0-9,-_.");
+                }
                 if (data.type === 'connection') {
                     if (data.message === 'player_exist') {
                         setUserExist(false);
-                        HandleUserExist(true, data['player']);
+                        HandleUserExist(true, data['player'], "already exist, please choose another name");
                     }
                     else {
                     setPlayer_id(data.player.id)

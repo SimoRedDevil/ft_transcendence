@@ -8,7 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 from .paginations import ChatPagination
-from django.db.models import Q
+from django.db.models import Q 
 
 class ConversationViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication]

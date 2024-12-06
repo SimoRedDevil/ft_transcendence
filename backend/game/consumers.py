@@ -526,11 +526,14 @@ class Game(AsyncWebsocketConsumer):
     def Update_matches(self, username1, username2, score1, score2):
         player1 = CustomUser.objects.get(username=username1)
         player2 = CustomUser.objects.get(username=username2)
-        match = Match.objects.filter(player1=player1, player2=player2).latest('id')
-        match.score1 = score1
-        match.score2 = score2
-        if score1 > score2:
-            match.winer = player1
-        else:
-            match.winer = player2
-        match.save()
+        try:
+            match = Match.objects.filter(player1=player1, player2=player2).latest('id')
+            match.score1 = score1
+            match.score2 = score2
+            if score1 > score2:
+                match.winer = player1
+            else:
+                match.winer = player2
+            match.save()
+        except Match.DoesNotExist:
+            print("Match does not exist")

@@ -19,4 +19,4 @@ class MatchSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Match
-        fields = ['id', 'player1', 'player2', 'score1', 'score2', 'winer']
+        fields = ['id', 'player1', 'player2', 'score1', 'score2', 'winer', 'match_date', 'match_time']

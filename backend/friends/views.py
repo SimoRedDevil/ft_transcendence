@@ -113,6 +113,22 @@ class AcceptRequest(APIView):
         request.user.friends.add(friend_req.sender)
         if (not self.check_conversation_exists(request.user, friend_req.sender)):
             conversation.objects.create(user1_id=request.user, user2_id=friend_req.sender, last_message='Tap to chat')
+        notif = create_notification(friend_req.receiver, friend_req.sender, 'accept_friend_request', 'Friend Request Accepted', f'{friend_req.receiver.full_name} has accepted your friend request.', None)
+        room_group_name = f'notif_{friend_req.sender.username}'
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            room_group_name,
+            {
+                'type': 'send_notification',
+                'notif_type': 'accept_friend_request',
+                'sender': friend_req.receiver.id,
+                'receiver': friend_req.sender.id,
+                'title': 'Friend Request Accepted',
+                'description': f'{friend_req.receiver.full_name} has accepted your friend request.',
+                'friend_request': None,
+                'get_human_readable_time': notif.get_human_readable_time()
+            }
+        )
         response = Response(status=status.HTTP_200_OK)
         response.data = "Friend request accepted"
         return response

@@ -7,7 +7,7 @@ import { GiLaurelsTrophy } from "react-icons/gi";
 import { FaUser } from "react-icons/fa6";
 import { IoChatbubblesSharp } from "react-icons/io5";
 import { IoSettings } from "react-icons/io5";
-import { RiLogoutBoxRLine } from "react-icons/ri";
+import { RiLogoutBoxLine } from "react-icons/ri";
 import { BsList } from "react-icons/bs";
 import {useRef} from "react";
 import {white} from "next/dist/lib/picocolors";
@@ -45,9 +45,9 @@ function Sidebar() {
             <NavLink href='/chat' isActive={chat}><IoChatbubblesSharp title='Chat' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink>
             <NavLink href='/friend-requests' isActive={friendrequests}><FaUserFriends title='Friends Requests' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] hover:text-opacity-100 transition'/></NavLink>
             <NavLink href='/settings' isActive={settings}><IoSettings title='Settings' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink>
-            <button className='w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] text-white block sm:hidden' onClick={handleLogout}><RiLogoutBoxRLine title='Logout' className='w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></button>
+            <button className='w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] text-white block sm:hidden' onClick={handleLogout}><RiLogoutBoxLine title='Logout' className='w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></button>
             </div>
-            <button className='w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] sm:block hidden text-white' onClick={handleLogout}><RiLogoutBoxRLine title='Logout' className='w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></button>
+            <button className='w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] sm:block hidden text-white' onClick={handleLogout}><RiLogoutBoxLine title='Logout' className='w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></button>
         </nav>
   )
 }

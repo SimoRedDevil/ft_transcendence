@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { useEffect , useRef} from 'react';
 import { player } from '../app/game/Object';
 import TableTourGame from '@/app/game/tournament/remote/TableTourGame';
+import WaitingTournament from './WaitingTournament';
 import { useUserContext } from '../components/context/usercontext';
 
 
@@ -58,12 +59,16 @@ export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }:
                     setUserExist(true);
                 }
                 }
+                if (data.type === 'player_number') {
+                    setPlayernumber(data.number_of_number);
+                }
                 if (data.type === 'tournament_start') {
                     setPlayers(data.players);
                     setPlayer1(data.players[0]['name']);
                     setPlayer2(data.players[1]['name']);
                     setPlayer3(data.players[2]['name']);
                     setPlayer4(data.players[3]['name']);
+                    setFinPlayer(true);
                 }
             }
               
@@ -105,6 +110,8 @@ export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }:
     const [winner1, setWinner1] = useState('');
     const [winner2, setWinner2] = useState('');
     const [winner, setWinner] = useState('');
+    const [finPlayer, setFinPlayer] = useState(false);
+    const [playernum, setPlayernumber] = useState(0);
 
     const getImage = (name: string) => {
         for (let i = 0; i < players.length; i++) {
@@ -211,7 +218,7 @@ export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }:
 
     return (
         <div className="w-[90%] h-[80vh] flex justify-center items-center flex-col  ml-[28px]">
-            {showLocalGame ? (
+            {!finPlayer ? (<WaitingTournament numberplayer={playernum}  /> ): (showLocalGame ? (
                 <TableTourGame playerna={PlayerName} socketRef={socketRef.current} playernambre={currentPlayers}
                  groupname={group_name} image1={image1} image2={image2} 
                 player_nambre={nameplayer} playername1={playername1} playername2={playername2}
@@ -389,7 +396,7 @@ export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }:
                         </div>
                     </div>
                 )
-            )}
+            ))}
         </div>
     );
 }

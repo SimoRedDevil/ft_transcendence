@@ -3,6 +3,7 @@ import React from 'react'
 import { useState } from 'react'
 import TournamentSyst from '../../../../components/TournSystem'
 import WinnerTour from '@/components/WinnerTour'
+import WaitingTournament from '@/components/WaitingTournament'
 
 
 export default function TournamentRemote() {
@@ -36,6 +37,7 @@ export default function TournamentRemote() {
                     md:border md:border-white md:border-opacity-30
                     md:bg-black md:bg-opacity-20
                     md:rounded-[50px]'>
+            
         {!form ? (
             <div className='flex justify-center items-center'>
                 <div className="3xl:w-[450px] 3xl:h-[550px] 3xl:space-y-[150px] border border-white border-opacity-20 bg-[url('/images/tour7.png')] bg-cover bg-centre flex justify-center items-center flex-col rounded-[20px]

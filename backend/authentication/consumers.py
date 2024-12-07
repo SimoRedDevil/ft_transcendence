@@ -5,49 +5,48 @@ from .models import CustomUser
 from collections import defaultdict
 import json
 
-User = CustomUser
 
-active_tabs = defaultdict(int)
+@database_sync_to_async
+def update_user_status(user_id, status):
+    user = CustomUser.objects.get(id=user_id)
+    user.online = status
+    user.save()
+
 class MyWebSocketConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.user = self.scope.get("user")
-        if self.user and self.user.is_authenticated:
-            active_tabs[self.user.id] += 1
-            await self.set_user_online_status(True)
-
-        await self.accept()
+        self.user = self.scope['user']
+        self.room_group_name = 'online_users'
+        await self.channel_layer.group_add(
+            self.room_group_name,
+            self.channel_name
+        )
+        if not self.user.is_authenticated:
+            await self.close()
+        else:
+            await update_user_status(self.user.id, True)
+            await self.accept()
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'user_status',
+                    'user_id': self.user.username,
+                    'status': 'online'
+                }
+            )
 
     async def disconnect(self, close_code):
-        if self.user and self.user.is_authenticated:
-            active_tabs[self.user.id] -= 1
-            if active_tabs[self.user.id] == 0:
-                await self.set_user_online_status(False)
-        else:
-            await self.set_user_online_status(False)
-
-    async def set_user_online_status(self, status):
-        await database_sync_to_async(self.update_status)(status)
-
-    def update_status(self, status):
-        try:
-            user = User.objects.get(pk=self.user.id)
-            user.online = status
-            user.save()
-        except User.DoesNotExist:
-            response =  {'error': 'User not found'}
-            return response
-    
-    async def broadcast_message(self, event):
-        message = event["message"]
-        await self.send(text_data=message)
-
-    async def broadcast_online_users(self):
-        online_users = CustomUser.objects.filter(online=True).values_list("id", flat=True)
-        message = json.dumps({
-            "type": "user_status_update",
-            "online_users": list(online_users),
-        })
-        await self.channel_layer.group_send("online_status", {
-            "type": "broadcast_message",
-            "message": message,
-        })
+        await update_user_status(self.user.id, False)
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'user_status',
+                'user_id': self.user.username,
+                'status': 'offline'
+            }
+        )
+        await self.channel_layer.group_discard(
+            self.room_group_name,
+            self.channel_name
+        )
+    async def user_status(self, event):
+        await self.send(text_data=json.dumps(event))

@@ -97,7 +97,7 @@ function NotificationMenu() {
                 return (<NotificationElement Url='/friend-requests/' Avatar={notification?.sender_info.avatar_url} Description={notification?.description} Date={notification?.get_human_readable_time} Key={notification?.id} NotifType={notification?.notif_type} />)
               }
               else if (notification.notif_type === 'message') {
-                return (<NotificationElement Url='/messages/' Avatar={notification?.sender_info.avatar_url} Description={notification?.description} Date={notification?.get_human_readable_time} Key={notification?.id} NotifType={notification?.notif_type} />)
+                return (<NotificationElement Url={`/chat/?username=${notification?.sender_info.username}`} Avatar={notification?.sender_info.avatar_url} Description={notification?.description} Date={notification?.get_human_readable_time} Key={notification?.id} NotifType={notification?.notif_type} />)
               }
               else if (notification.notif_type === 'accept_friend_request') {
                 return (<NotificationElement Url='/friend-requests/' Avatar={notification?.sender_info.avatar_url} Description={notification?.description} Date={notification?.get_human_readable_time} Key={notification?.id} NotifType={notification?.notif_type} />)

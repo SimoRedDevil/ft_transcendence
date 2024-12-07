@@ -45,10 +45,12 @@ export const UserProvider = ({ children }) => {
                 router.push('/login');
             }
             } catch (error) {
+            setauthUser(null);
             setError(error);
             setIsAuthenticated(false);
             router.push('/login');
-        } finally {
+        } 
+        finally {
             setTimeout(() => {
                 setLoading(false);
             }, 1000);

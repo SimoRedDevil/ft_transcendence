@@ -30,6 +30,7 @@ function Chat({setShowBlockDialog}) {
   const [otherUserOnline, setOtherUserOnline] = useState(false)
   const [isBlocked, setIsBlocked] = useState(false)
   const [blocker, setBlocker] = useState(null)
+  const [onlineStatus, setOnlineStatus] = useState(null)
 
   const
   {

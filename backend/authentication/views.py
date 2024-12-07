@@ -356,7 +356,6 @@ class Logout(APIView):
             logout(request)
             user.twofa_verified = False
             user.is_already_logged = False
-            user.online = False
             user.save()
             return delete_tokens(request, status=status.HTTP_200_OK)
         else:

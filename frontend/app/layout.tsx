@@ -18,6 +18,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { NotificationProvider } from "@/components/context/NotificationContext";
 import { useNotificationContext } from "@/components/context/NotificationContext";
+import { OnlineStatusProvider } from "@/components/context/OnlineStatusContext";
 
 
 function RootLayout({ children }: any) {
@@ -26,52 +27,54 @@ function RootLayout({ children }: any) {
   const router = useRouter();
 
   return (
-    <NotificationProvider>
-      <UserProvider>
-        <html lang="en">
-          <head>
-            <meta
-              name="viewport"
-              content="width=device-width, initial-scale=1.0"
-              title="TrueTalk"
-            />
-            <link rel="preconnect" href="https://fonts.googleapis.com" />
-            <link rel="preconnect" href="https://fonts.gstatic.com" />
-            <link href="https://fonts.googleapis.com/css2?family=Chelsea+Market&family=Faculty+Glyphic&family=Nabla&display=swap" rel="stylesheet" />
-            <link rel="preconnect" href="https://fonts.googleapis.com" />
-            <link rel="preconnect" href="https://fonts.gstatic.com" />
-            <link href="https://fonts.googleapis.com/css2?family=Bona+Nova+SC:ital,wght@0,400;0,700;1,400&family=Doto:wght@100..900&display=swap" rel="stylesheet" />
-            <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lilita+One&display=swap" rel="stylesheet" />
-            <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Bowlby+One&family=Itim&family=Lilita+One&display=swap" rel="stylesheet" />
-            <link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic&display=swap" rel="stylesheet"></link>
-            <link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic&display=swap" rel="stylesheet"></link>
-            <link href="https://fonts.cdnfonts.com/css/barcade" rel="stylesheet" />
-            <link href="https://fonts.cdnfonts.com/css/barcade" rel="stylesheet" />
-            <link href="https://fonts.cdnfonts.com/css/earth-orbiter" rel="stylesheet" />
-            <link href="https://fonts.cdnfonts.com/css/pilot-command" rel="stylesheet" />
-            <link href="https://fonts.cdnfonts.com/css/landepz-glitch" rel="stylesheet" />
-            <link href="https://fonts.cdnfonts.com/css/veritas-sans" rel="stylesheet" />
-            <link href="https://fonts.cdnfonts.com/css/informative" rel="stylesheet" />
-            <link href="https://fonts.cdnfonts.com/css/warriot-tech" rel="stylesheet" />
-            <link href="https://fonts.cdnfonts.com/css/nevermind-bauhaus" rel="stylesheet" /> 
-            <link href="https://fonts.cdnfonts.com/css/a-space-demo" rel="stylesheet" />
-            <link href="https://fonts.cdnfonts.com/css/flexsteel" rel="stylesheet" />
-            <title>
-              {pathname.charAt(1).toUpperCase() + pathname.slice(2)}
-            </title>
-          </head>
-          <body className="h-screen">
-            <AuthProtectedLayout
-              pathname={pathname}
-              exclude={exclude}
-              router={router}
-            >
-              {children}
-            </AuthProtectedLayout>
-          </body>
-        </html>
-      </UserProvider>
-    </NotificationProvider>
+    <UserProvider>
+      <OnlineStatusProvider>
+        <NotificationProvider>
+          <html lang="en">
+            <head>
+              <meta
+                name="viewport"
+                content="width=device-width, initial-scale=1.0"
+                title="TrueTalk"
+              />
+              <link rel="preconnect" href="https://fonts.googleapis.com" />
+              <link rel="preconnect" href="https://fonts.gstatic.com" />
+              <link href="https://fonts.googleapis.com/css2?family=Chelsea+Market&family=Faculty+Glyphic&family=Nabla&display=swap" rel="stylesheet" />
+              <link rel="preconnect" href="https://fonts.googleapis.com" />
+              <link rel="preconnect" href="https://fonts.gstatic.com" />
+              <link href="https://fonts.googleapis.com/css2?family=Bona+Nova+SC:ital,wght@0,400;0,700;1,400&family=Doto:wght@100..900&display=swap" rel="stylesheet" />
+              <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lilita+One&display=swap" rel="stylesheet" />
+              <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Bowlby+One&family=Itim&family=Lilita+One&display=swap" rel="stylesheet" />
+              <link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic&display=swap" rel="stylesheet"></link>
+              <link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic&display=swap" rel="stylesheet"></link>
+              <link href="https://fonts.cdnfonts.com/css/barcade" rel="stylesheet" />
+              <link href="https://fonts.cdnfonts.com/css/barcade" rel="stylesheet" />
+              <link href="https://fonts.cdnfonts.com/css/earth-orbiter" rel="stylesheet" />
+              <link href="https://fonts.cdnfonts.com/css/pilot-command" rel="stylesheet" />
+              <link href="https://fonts.cdnfonts.com/css/landepz-glitch" rel="stylesheet" />
+              <link href="https://fonts.cdnfonts.com/css/veritas-sans" rel="stylesheet" />
+              <link href="https://fonts.cdnfonts.com/css/informative" rel="stylesheet" />
+              <link href="https://fonts.cdnfonts.com/css/warriot-tech" rel="stylesheet" />
+              <link href="https://fonts.cdnfonts.com/css/nevermind-bauhaus" rel="stylesheet" /> 
+              <link href="https://fonts.cdnfonts.com/css/a-space-demo" rel="stylesheet" />
+              <link href="https://fonts.cdnfonts.com/css/flexsteel" rel="stylesheet" />
+              <title>
+                {pathname.charAt(1).toUpperCase() + pathname.slice(2)}
+              </title>
+            </head>
+            <body className="h-screen">
+              <AuthProtectedLayout
+                pathname={pathname}
+                exclude={exclude}
+                router={router}
+              >
+                {children}
+              </AuthProtectedLayout>
+            </body>
+          </html>
+        </NotificationProvider>
+      </OnlineStatusProvider>
+    </UserProvider>
   );
 }
 
@@ -91,25 +94,6 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
   const [profileDropDownClicked, setProfileDropDownClicked] = useState(false);
   const { t } = useTranslation();
   const {notifications, notif_socket} = useNotificationContext();
-
-  useEffect(() => {
-    const globalSocket = () => {
-    const socket = new WebSocket('ws://localhost:8000/ws/authentication/');
-    socket.onopen = () => {
-      console.log('Socket Connected');
-    }
-    socket.onmessage = (e) => {
-      console.log("msg: ", e.data);
-    }
-    socket.onclose = () => {
-      console.log('Socket Closed');
-
-    }
-  }
-    if (pathname !== '/login' && pathname !== '/twofa') 
-      globalSocket();
-  }
-  , [pathname]);
 
   useEffect(() => {
     if (isAuthenticated) {

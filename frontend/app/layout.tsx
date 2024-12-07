@@ -94,7 +94,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
 
   useEffect(() => {
     const globalSocket = () => {
-    const socket = new WebSocket('ws://localhost:8000/ws/authentication/');
+    const socket = new WebSocket('wss://localhost/ws/authentication/');
     socket.onopen = () => {
       console.log('Socket Connected');
     }

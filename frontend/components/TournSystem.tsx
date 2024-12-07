@@ -29,7 +29,7 @@ export default function TournamentSyst({ PlayerName }: Props) {
     
     useEffect(() => {  
         if (typeof window !== 'undefined') {
-            socketRef.current = new WebSocket('ws://e2r2p4.1337.ma:8000/ws/tournament/');
+            socketRef.current = new WebSocket('wss://e2r2p4.1337.ma:8000/ws/tournament/');
             socketRef.current.onopen = () => {
               console.log('WebSocket connected');
               socketRef.current.send(JSON.stringify({ type: 'connection', playerName: PlayerName }));

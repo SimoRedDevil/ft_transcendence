@@ -38,7 +38,7 @@ export const ChatProvider = ({ children }) => {
     }, []);
 
     useEffect(() => {
-        ws.current = new WebSocket('ws://localhost:8000/ws/chat/');
+        ws.current = new WebSocket('wss://localhost/ws/chat/');
         ws.current.onopen = () => {
             
         };

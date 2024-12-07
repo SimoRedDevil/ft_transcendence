@@ -14,7 +14,7 @@ export const NotificationProvider = ({ children }) => {
     const { t } = useTranslation();
 
     useEffect(() => {
-        notif_socket.current = new WebSocket('ws://localhost:8000/ws/notification/');
+        notif_socket.current = new WebSocket('wss://localhost/ws/notification/');
         notif_socket.current.onopen = () => {
             console.log('Connected to notifications');
         };

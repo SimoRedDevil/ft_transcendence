@@ -55,13 +55,12 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000/',
-    'http://*',
-    'https://*',
+    'https://localhost:3000/',
+    "https://localhost",
 ]
 
 CSRF_COOKIE_HTTPONLY = False
-CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
+CSRF_TRUSTED_ORIGINS = ['https://localhost:3000',"https://localhost",]
 CSRF_USE_SESSIONS = False  # Unless explicitly using sessions for CSRF
 CSRF_COOKIE_NAME = "csrftoken"  # Ensure this matches what you're using on the client-side
 
@@ -134,10 +133,9 @@ SIMPLE_JWT = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'http://*',
-    'https://*',
+    'https://localhost:3000',
+    'https://127.0.0.1:3000',
+    "https://localhost",
 ]
 
 MIDDLEWARE = [

@@ -73,7 +73,7 @@ function page() {
         try {
             const cookies = await getCookies();
             const csrfToken = cookies.cookies.csrftoken;
-            const response = await axios.post(`http://localhost:8000/api/friends/requests/accept-request/`, body, {
+            const response = await axios.post(`https://localhost/backend/api/friends/requests/accept-request/`, body, {
               headers: {
                 "Content-Type": "application/json",
                 'X-CSRFToken': csrfToken,
@@ -105,7 +105,7 @@ function page() {
         try {
             const cookies = await getCookies();
             const csrfToken = cookies.cookies.csrftoken;
-            const response = await axios.post(`http://localhost:8000/api/friends/requests/reject-request/`, body, {
+            const response = await axios.post(`https://localhost/backend/api/friends/requests/reject-request/`, body, {
               headers: {
                 "Content-Type": "application/json",
                 'X-CSRFToken': csrfToken,
@@ -129,7 +129,7 @@ function page() {
         try {
             const cookies = await getCookies();
             const csrfToken = cookies.cookies.csrftoken;
-            const response = await axios.post(`http://localhost:8000/api/friends/requests/create-request/`, body, {
+            const response = await axios.post(`https://localhost/backend/api/friends/requests/create-request/`, body, {
               headers: {
                 "Content-Type": "application/json",
                 'X-CSRFToken': csrfToken,
@@ -174,7 +174,7 @@ function page() {
         try {
             const cookies = await getCookies();
             const csrfToken = cookies.cookies.csrftoken;
-            const response = await axios.post(`http://localhost:8000/api/friends/requests/remove-friend/`, body, {
+            const response = await axios.post(`https://localhost/backend/api/friends/requests/remove-friend/`, body, {
               headers: {
                 "Content-Type": "application/json",
                 'X-CSRFToken': csrfToken,

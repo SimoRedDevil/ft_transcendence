@@ -1,5 +1,5 @@
 
-all: up
+all: ssl up
 
 up :
 	docker-compose  up

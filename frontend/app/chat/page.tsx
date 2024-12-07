@@ -13,7 +13,7 @@ function ChatPage() {
   // const socket = useRef(null)
 
   // useEffect(() => {
-  //   socket.current = new WebSocket('ws://localhost:8000/ws/chat/')
+  //   socket.current = new WebSocket('wss://localhost/ws/chat/')
   //   socket.current.onopen = () => {
   //     console.log('Connected to the chat server')
   //   }

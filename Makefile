@@ -1,7 +1,7 @@
 
 all: up
 
-up : ssl
+up :
 	docker-compose  up
 
 ssl:

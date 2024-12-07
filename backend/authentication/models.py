@@ -58,9 +58,10 @@ class CustomUser(BaseUser):
     friends = models.ManyToManyField('self', blank=True, symmetrical=True)
     blocked_users = models.ManyToManyField("self", symmetrical=False, blank=True)
     anonymous = models.BooleanField(default=False)
+    is_bot = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email', 'full_name']  # Specify any additional required fields
+    REQUIRED_FIELDS = ['email', 'full_name']
 
 
     def __str__(self):

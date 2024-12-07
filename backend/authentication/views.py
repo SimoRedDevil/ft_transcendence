@@ -245,9 +245,8 @@ class UserViewSet(viewsets.ModelViewSet):
             blocked_by_users = CustomUser.objects.filter(blocked_users=self.request.user)
             blocked_users = self.request.user.blocked_users.all()
             friends = self.request.user.friends.all()
-            return result_users.exclude(username__in=blocked_by_users.all().values_list('username', flat=True)).exclude(username__in=blocked_users.all().values_list('username', flat=True)).exclude(username__in=friends.all().values_list('username', flat=True)).filter(is_active=True)
-            # return result_users.exclude(username__in=blocked_by_users.all().values_list('username', flat=True)).exclude(username__in=blocked_users.all().values_list('username', flat=True)).filter(is_active=True)
-        return CustomUser.objects.filter(is_active=True)
+            return result_users.exclude(username__in=blocked_by_users.all().values_list('username', flat=True)).exclude(username__in=blocked_users.all().values_list('username', flat=True)).exclude(username__in=friends.all().values_list('username', flat=True)).filter(Q(is_active=True) & Q(is_bot=False))
+        return CustomUser.objects.filter(Q(is_active=True) & Q(is_bot=False))
 
 class FriendsListView(APIView):
     authentication_classes = [SessionAuthentication]
@@ -665,6 +664,7 @@ class AnonymousUserViewSet(APIView):
         anonymous_user.avatar_url = f'{URL_BACK}/avatars/anonym.jpg'
         anonymous_user.city = 'anonymous city'
         anonymous_user.address = 'anonymous address'
+        anonymous_user.anonymous = True
         anonymous_user.save()
         response = delete_tokens(request, status=status.HTTP_200_OK)
         response.data = UserSerializer(anonymous_user).data

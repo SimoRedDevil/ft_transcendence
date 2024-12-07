@@ -120,7 +120,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ['id', 'full_name', 'username', 'email', 'is_anonymous', 'phone_number', 'city', 'address', 'language', 'color', 'board_name', 'avatar_url', 'social_logged', 'tournament_name', 
             'tournament_score', 'enabeld_2fa', 'is_already_logged', 'twofa_verified', 'qrcode_url', 'qrcode_path',
-            'level', 'matches', 'wins', 'losses', 'draws', 'profile_visited','is_active',
+            'level', 'matches', 'wins', 'losses', 'draws', 'profile_visited','is_active', 'is_bot',
             'friends_count', 'top_score', 'tournaments', 'online_matches',
             'offline_matches', 'current_xp', 'target_xp', 'online', 'friends', 'blocked_users']
         extra_kwargs = {

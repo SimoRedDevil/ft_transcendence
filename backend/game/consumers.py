@@ -193,8 +193,10 @@ class Game(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         winer = {'username': '', 'channel_id': ''}
         loser = {'username': '', 'channel_id': ''}
+        user = self.scope["user"]
+        await self.is_not_playing(user.username) 
+        Game.match_making = [player for player in Game.match_making if player['name'] != user.username]
         if self.player:
-            await self.is_not_playing(self.player['name'])
             if self.player['group_name'] in Game.games_infor:
                 game = Game.games_infor[self.player['group_name']]
                 if self.player['player_id'] == 'player1':
@@ -327,8 +329,6 @@ class Game(AsyncWebsocketConsumer):
                         loserimage = game['player2']
                         winerImage = winerimage['image'] 
                         loserImage = loserimage['image']
-                        print(winerImage) 
-                        print(loserImage) 
                         await self.Update_matches(winer.username, loser.username, winer.score, loser.score)
                         await self.gameOver(game_channel, winer.username, loser.username, winer.chan_name, loser.chan_name, Tscore, winer.score, loser.score, winerImage, loserImage)
                         break
@@ -346,8 +346,6 @@ class Game(AsyncWebsocketConsumer):
                         loserimage = game['player1']
                         winerImage = winerimage['image']
                         loserImage = loserimage['image']
-                        print(winerImage) 
-                        print(loserImage) 
                         Tscore = winer.score - loser.score
                         await self.Update_matches(loser.username, winer.username, loser.score, winer.score)
                         await self.gameOver(game_channel, winer.username, loser.username, winer.chan_name, loser.chan_name, Tscore, winer.score, loser.score, winerImage, loserImage)

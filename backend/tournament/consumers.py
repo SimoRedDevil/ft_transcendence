@@ -71,6 +71,7 @@ class Tournament(AsyncWebsocketConsumer):
     Tournaments = {}
     tour_players = []
     players_tournament = []
+    games_infor = {}
     match1 = {}
     match2 = {}
     final_match = {}
@@ -105,7 +106,8 @@ class Tournament(AsyncWebsocketConsumer):
                     'image': User.avatar_url,
                     'player_id': '',
                     'numberplayer': '',
-                    'group_name': ''
+                    'group_name': '',
+                    'game_channel': '',
                 }
                  
                 self.players.append(self.player)
@@ -209,6 +211,19 @@ class Tournament(AsyncWebsocketConsumer):
                 self.match1[data['data']['groupname']].append(data['data'])
                 if len(self.match1[data['data']['groupname']]) == 2:
                     match_name = f"{self.match1[data['data']['groupname']][0]['username']}vs{self.match1[data['data']['groupname']][1]['username']}"
+                    tourn = Tournament.Tournaments[data['data']['groupname']]
+                    player1 = tourn['player1']
+                    player2 = tourn['player2']
+                    player1['game_channel'] = match_name
+                    player2['game_channel'] = match_name
+                    if match_name not in self.games_infor:
+                        Tournament.games_infor[match_name] = []
+                    
+                    Tournament.games_infor[match_name] = {
+                        'player1': {"name": player1['name'], "channel_id": player1['id'], "image": player1['image'], "chanel_game": match_name},
+                        'player2': {"name": player2['name'], "channel_id": player2['id'], "image": player2['image'], "chanel_game": match_name},
+                        'final_tournament': False
+                    }
                     await self.channel_layer.group_add(
                         match_name,
                         self.match1[data['data']['groupname']][0]['id_channel']
@@ -260,6 +275,18 @@ class Tournament(AsyncWebsocketConsumer):
                         match_name,
                         self.match2[data['data']['groupname']][1]['id_channel']
                     )
+                    tourn = Tournament.Tournaments[data['data']['groupname']]
+                    player1 = tourn['player3']
+                    player2 = tourn['player4']
+                    player1['game_channel'] = match_name
+                    player2['game_channel'] = match_name
+                    if match_name not in self.games_infor:
+                        Tournament.games_infor[match_name] = []
+                    Tournament.games_infor[match_name] = {
+                        'player1': {"name": player1['name'], "channel_id": player1['id'], "image": player1['image'], "chanel_game": match_name},
+                        'player2': {"name": player2['name'], "channel_id": player2['id'], "image": player2['image'], "chanel_game": match_name},
+                        'final_tournament': False
+                    }
                     if data['data']['playerNumber'] == 'player4':
                         player1 = self.match2[data['data']['groupname']][0]
                         player2 = self.match2[data['data']['groupname']][1]
@@ -287,7 +314,7 @@ class Tournament(AsyncWebsocketConsumer):
                             'name_channel': match_name,
                             'game_serialized': game_serialized,
                         }
-                    )
+                    ) 
                     asyncio.create_task(self.update_ball_loop(match_name, False))
             if data['data']['qualified'] == True: 
                 if data['data']['groupname'] not in self.final_match:
@@ -295,6 +322,24 @@ class Tournament(AsyncWebsocketConsumer):
                 self.final_match[data['data']['groupname']].append(data['data'])
                 if len(self.final_match[data['data']['groupname']]) == 2:
                     match_name = f"{self.final_match[data['data']['groupname']][0]['username']}vs{self.final_match[data['data']['groupname']][1]['username']}"
+                    p1 = self.final_match[data['data']['groupname']][0]['playernambre'] 
+                    p2 = self.final_match[data['data']['groupname']][1]['playernambre']
+                    tourn = Tournament.Tournaments[data['data']['groupname']]
+                    if p1 == 'player1' or p1 == 'player2':
+                        player1 = tourn[p1]
+                        player2 = tourn[p2]
+                    else:
+                        player1 = tourn[p2]
+                        player2 = tourn[p1]
+                    player1['game_channel'] = match_name
+                    player2['game_channel'] = match_name
+                    if match_name not in self.games_infor:
+                        Tournament.games_infor[match_name] = []
+                    Tournament.games_infor[match_name] = {
+                        'player1': {"name": player1['name'], "channel_id": player1['id'], "image": player1['image'], "chanel_game": match_name},
+                        'player2': {"name": player2['name'], "channel_id": player2['id'], "image": player2['image'], "chanel_game": match_name},
+                        'final_tournament': True
+                    }
                     await self.channel_layer.group_add(
                         match_name,
                         self.final_match[data['data']['groupname']][0]['id_channel']
@@ -373,28 +418,48 @@ class Tournament(AsyncWebsocketConsumer):
 
 
     async def disconnect(self, close_code):
-        if self.player in Tournament.players:
-            other_player_id = 'player1' if self.player['player_id'] == 'player2' else 'player2'
-            game = self.games.get(self.player['group_name'])
-            if self.player['group_name'] in self.games:
-                await self.channel_layer.group_send(
-                    self.player['group_name'],
-                    {
-                        'type': 'game_over',
-                        'group_name': self.player['group_name'],
-                        'final_tournament': False,
-                        'winner': game[other_player_id].username
-                    }
-                )
-                await self.channel_layer.group_discard(
-                    self.player['group_name'],
-                    self.player['id']
-                )
-                await self.channel_layer.group_discard(
-                    self.player['group_name'],
-                    game[other_player_id].chan_name
-                )
-                del self.games[self.player['group_name']]
+        win = {'username': '', 'channel_id': ''}
+        los = {'username': '', 'channel_id': ''}
+        user = self.scope["user"]
+        if self.player:
+            game = Tournament.games_infor[self.player['game_channel']]
+            player1 = game.get('player1')
+            player2 = game.get('player2')
+            if player1 and player2:
+                if self.player['name'] == game['player1']['name']:
+                    win = game['player2']
+                    los = game['player1']
+                    is_final = game['final_tournament']
+                    winer = self.games[win['chanel_game']]['player2']
+                else:
+                    win = game['player1']
+                    los = game['player2']
+                    is_final = game['final_tournament']
+                    winer = self.games[win['chanel_game']]['player1']
+                print("win", win['chanel_game'], winer.to_dict(), self.player['group_name'], is_final, flush=True)
+                await self.gameOver(win['chanel_game'] ,winer, is_final, self.player['group_name'])
+        # elif self.player in Tournament.players:
+        #     other_player_id = 'player1' if self.player['player_id'] == 'player2' else 'player2'
+        #     game = self.games.get(self.player['group_name'])
+        #     if self.player['group_name'] in self.games:
+        #         await self.channel_layer.group_send(
+        #             self.player['group_name'],
+        #             {
+        #                 'type': 'game_over',
+        #                 'group_name': self.player['group_name'],
+        #                 'final_tournament': False,
+        #                 'winner': game[other_player_id].username
+        #             }
+        #         )
+        #         await self.channel_layer.group_discard(
+        #             self.player['group_name'],
+        #             self.player['id']
+        #         )
+        #         await self.channel_layer.group_discard(
+        #             self.player['group_name'],
+        #             game[other_player_id].chan_name
+        #         )
+        #         del self.games[self.player['group_name']]
     
 
     async def tournament_start(self, event):
@@ -431,6 +496,8 @@ class Tournament(AsyncWebsocketConsumer):
         await asyncio.sleep(3)
         while True:
             if game_channel in self.games:
+                if 'ball' not in self.games[game_channel]:
+                    break
                 self.games[game_channel]['ball'].x += self.games[game_channel]['ball'].directionX
                 self.games[game_channel]['ball'].y += self.games[game_channel]['ball'].directionY
                 if await self.colletion(self.games[game_channel]['player1'], self.games[game_channel]['ball']):
@@ -449,8 +516,7 @@ class Tournament(AsyncWebsocketConsumer):
                     self.games[game_channel]['ball'].x = 0.5
                     self.games[game_channel]['ball'].directionY *= -1
                     self.games[game_channel]['player1'].score += 1
-                    if self.games[game_channel]['player1'].score == 2:
-                        
+                    if self.games[game_channel]['player1'].score == 4:
                         winer = self.games[game_channel]['player1']
                         loser = self.games[game_channel]['player2']
                         Tscore = winer.score - loser.score
@@ -462,7 +528,7 @@ class Tournament(AsyncWebsocketConsumer):
                     self.games[game_channel]['ball'].x = 0.5
                     self.games[game_channel]['ball'].directionY *= -1
                     self.games[game_channel]['player2'].score += 1
-                    if self.games[game_channel]['player2'].score == 2: 
+                    if self.games[game_channel]['player2'].score == 4: 
                         winer = self.games[game_channel]['player2']
                         loser = self.games[game_channel]['player1']
                         Tscore = winer.score - loser.score
@@ -515,6 +581,11 @@ class Tournament(AsyncWebsocketConsumer):
                 'winner': winer.to_dict(),
             }
         )
+        if game_chan in self.games:
+            self.games[game_chan].clear()
+        if game_chan in self.games_infor:
+            self.games_infor[game_chan].clear()
+        
         
     async def game_over(self, event):
         await self.send(text_data=json.dumps({
@@ -551,8 +622,9 @@ class Tournament(AsyncWebsocketConsumer):
     def update_tournament(self, winer, tournamentname):
         try:
             username = self.get_usernames(tournamentname, winer.username)
+            print(username, flush=True)
+            print(tournamentname, flush=True)
             winer_user = CustomUser.objects.get(username=username)
-            print(winer_user) 
         except CustomUser.DoesNotExist:
             print("CustomUser does not exist")  
             return

@@ -100,7 +100,7 @@ function Conversations() {
                 </div>
                 <div className='flex flex-col justify-center gap-4'>
                   <span className='text-[1rem]'>{authUser?.full_name}</span>
-                  <span className='text-[0.9rem] text-white text-opacity-65'>{authUser?.online ? 'Online' : 'Offline'}</span>
+                  <span className='text-[0.9rem] text-white text-opacity-65'>Online</span>
                 </div>
               </div>
               <div className='h-[100px] flex items-center justify-center'>

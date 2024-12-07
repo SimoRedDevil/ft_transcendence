@@ -490,7 +490,6 @@ class UpdateUserView(APIView):
             updated = True
         if updated:
             user.save()
-        print("---> data: ", data)
         avatar_file = data.get('avatar_url')
         if avatar_file:
             url = avatar_file
@@ -658,3 +657,19 @@ class AnonymousUserViewSet(APIView):
         response = Response(status=status.HTTP_200_OK)
         response.data = model_to_dict(anonymous_user)
         return response
+
+class UserStatusView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        username = request.GET.get('username')
+        respone = Response()
+        if not username:
+            respone.data = 'username is required'
+            respone.status = status.HTTP_400_BAD_REQUEST
+            return respone
+        respone.status = status.HTTP_200_OK
+        respone.data = CustomUser.objects.get(username=username).online
+        return respone

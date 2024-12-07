@@ -20,6 +20,7 @@ import { json } from 'stream/consumers';
 import Link from 'next/link'
 import { getCookies } from '../../components/auth';
 import { useNotificationContext } from '../../components/context/NotificationContext';
+import { useOnlineStatus } from '@/components/context/OnlineStatusContext';
 
 function Chat({setShowBlockDialog}) {
   const [showEmoji, setShowEmoji] = useState(false)
@@ -31,6 +32,7 @@ function Chat({setShowBlockDialog}) {
   const [isBlocked, setIsBlocked] = useState(false)
   const [blocker, setBlocker] = useState(null)
   const [onlineStatus, setOnlineStatus] = useState(null)
+  const {onlineUsers} = useOnlineStatus()
 
   const
   {
@@ -157,9 +159,19 @@ function Chat({setShowBlockDialog}) {
 
   useEffect(() => {
     if (otherUser !== null) {
-      setOtherUserOnline(otherUser.online)
+      axiosInstance.get('auth/user-status/', {
+        params: {
+          username: otherUser?.username
+        }
+      }).then((response) => {
+        if (response.status === 200) {
+          setOtherUserOnline(response.data)
+        }
+      }).catch((error) => {
+        toast.error(t(error.response.data.error))
+      })
     }
-  }, [otherUser])
+  }, [otherUser, onlineUsers])
 
   useEffect(() => {
     if (blockerUsername !== null && (blockerUsername === authUser?.username || blockerUsername === otherUser?.username)) {
@@ -198,7 +210,7 @@ function Chat({setShowBlockDialog}) {
             </div>
             <div className='flex flex-col justify-center gap-4'>
               <span className='text-[20px]'>{otherUser.full_name}</span>
-              <span className='text-[18px] text-white text-opacity-60'>{otherUser?.online ? 'Online' : 'Offline'}</span>
+              <span className='text-[18px] text-white text-opacity-60'>{otherUserOnline ? 'Online' : 'Offline'}</span>
               {/* otherUser.online === true ? 'Active Now' : 'Offline' */}
             </div>
           </div>

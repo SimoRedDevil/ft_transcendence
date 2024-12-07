@@ -13,7 +13,6 @@ export const OnlineStatusProvider = ({ children }) => {
     const {authUser} = useUserContext();
 
     useEffect(() => {
-        console.log('Auth', authUser);
         if (authUser !== null) {
             const ws = new WebSocket("ws://localhost:8000/ws/online/");
             ws.onopen = () => {
@@ -21,9 +20,9 @@ export const OnlineStatusProvider = ({ children }) => {
             };
       
             ws.onmessage = (message) => {
-              console.log("Message received:", message.data);
+                setOnlineUsers(JSON.parse(message.data));
             };
-      
+
             ws.onclose = () => {
               console.log("Disconnected from online status");
             };

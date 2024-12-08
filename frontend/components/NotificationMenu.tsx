@@ -30,62 +30,12 @@ function NotificationMenu() {
     }
   }
 
-  const handleAccept = async (requestId) => {
-    const body = {
-        id: requestId
-    }
-    try {
-        const cookies = await getCookies();
-        const csrfToken = cookies.cookies.csrftoken;
-        const response = await axios.post(`http://localhost:8000/api/friends/requests/accept-request/`, body, {
-          headers: {
-            "Content-Type": "application/json",
-            'X-CSRFToken': csrfToken,
-          },
-          withCredentials: true,
-        });
-        if (response.status === 200) {
-            toast.success(response.data)
-        }
-      } catch (error) {
-        toast.error(error.response.data)
-      }
-      finally {
-        setIsUpdate(!isUpdate)
-      }
-  }
-
-  const handleReject = async (requestId) => {
-    const body = {
-      id: requestId
-    }
-    try {
-      const cookies = await getCookies();
-      const csrfToken = cookies.cookies.csrftoken;
-      const response = await axios.post(`http://localhost:8000/api/friends/requests/reject-request/`, body, {
-        headers: {
-          "Content-Type": "application/json",
-          'X-CSRFToken': csrfToken,
-        },
-        withCredentials: true,
-      });
-      if (response.status === 200) {
-          toast.success(response.data)
-      }
-    } catch (error) {
-      toast.error(error.response.data)
-    }
-    finally {
-      setIsUpdate(!isUpdate)
-    }
-  }
-
   if (notificationsLoading) {
     return <div>Loading...</div>
   }
 
   return (
-    <div className='text-white fixed w-[calc(100%_-_100px)] h-[600px] flex flex-row-reverse z-50'>
+    <div className='text-white fixed w-[95%] md:w-[calc(100%_-_100px)] h-[600px] flex flex-row-reverse z-50'>
         <div className='w-full sm:w-[500px] sm:mr-[130px] h-full bg-[#201f1f] rounded-[30px] text-white flex flex-col'>
           <div className='w-full h-[65px] flex items-center border border-white border-t-0 border-r-0 border-l-0 border-opacity-20'>
             <h1 className='text-[22px] ml-4'>Notifications</h1>

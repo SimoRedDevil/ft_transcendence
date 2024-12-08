@@ -115,7 +115,7 @@ export default function TableGame({ playerna, socketRef,  groupname ,  player_id
           if (canvasRef.current) {
             p.resizeCanvas(canvasRef.current.clientWidth, canvasRef.current.clientHeight);
         }
-          sketch.background("#0B4464");
+          sketch.background(authUser.color);
           if (socketIsOpen) {
             if (!gameIsStarted) {
                 const elapsedTime = sketch.millis() - startTime;

@@ -9,6 +9,7 @@ import { walls } from '../../remotegame/Object';
 import { countdown } from '../../../../app//game/remotegame/ScoreRemote';
 import dynamic from 'next/dynamic';
 import { redirect } from 'next/navigation';
+import { useUserContext } from '@/components/context/usercontext';
 
 
 
@@ -47,6 +48,7 @@ export default function TableTourGame({ playerna, socketRef, playernambre, group
   let count = 3; 
   let startTime = 0;
   let Duration = 1000;
+  const {authUser, loading} = useUserContext();
 
   
   useEffect(() => {
@@ -128,7 +130,7 @@ export default function TableTourGame({ playerna, socketRef, playernambre, group
           if (canvasRef.current) {
             p.resizeCanvas(canvasRef.current.clientWidth, canvasRef.current.clientHeight);
         }
-          sketch.background("#0B4464");
+          sketch.background(authUser.color);
           if (socketIsOpen) {
             if (!gameIsStarted) {
                 const elapsedTime = sketch.millis() - startTime;

@@ -98,7 +98,7 @@ class Tournament(AsyncWebsocketConsumer):
                     'player': data['playerName']
                 }))
                 return
-            if not any(player['name'] == data['playerName'] for player in self.players):
+            if not any(player['usernameDB'] == User.username for player in Tournament.players_tournament):
                 self.player = {
                     'name': data['playerName'],
                     'usernameDB': data['username'], 
@@ -136,6 +136,8 @@ class Tournament(AsyncWebsocketConsumer):
                 if len(self.players_tournament) >= 4:
                     for player in self.players_tournament:
                         self.group_name_tournament += f'{player["name"]}'
+                    count = await async_to_sync(TournamentDB.objects.count)()
+                    self.group_name_tournament += f'_{count}'
                     for _ in range(4):
                         player = self.players_tournament.pop(0)
                         Tournament.tour_players.append(player)
@@ -331,6 +333,10 @@ class Tournament(AsyncWebsocketConsumer):
                 if data['data']['groupname'] not in self.final_match:
                     self.final_match[data['data']['groupname']] = []
                 self.final_match[data['data']['groupname']].append(data['data'])
+                if data['data']['playernambre'] == 'player1' or data['data']['playernambre'] == 'player2':
+                    self.player['player_id'] = 'player1'
+                else:
+                    self.player['player_id'] = 'player2'
                 if len(self.final_match[data['data']['groupname']]) == 2:
                     match_name = f"{self.final_match[data['data']['groupname']][0]['username']}vs{self.final_match[data['data']['groupname']][1]['username']}"
                     p1 = self.final_match[data['data']['groupname']][0]['playernambre'] 
@@ -362,11 +368,9 @@ class Tournament(AsyncWebsocketConsumer):
                     if data['data']['playerNumber'] == 'player4' or data['data']['playerNumber'] == 'player3':
                         player1 = self.final_match[data['data']['groupname']][0]
                         player2 = self.final_match[data['data']['groupname']][1]
-                        self.player['player_id'] = 'player2'
                     else:
                         player1 = self.final_match[data['data']['groupname']][1]
                         player2 = self.final_match[data['data']['groupname']][0]
-                        self.player['player_id'] = 'player1'
                     self.paddles['player1'] = paddles(data['data']['x'],data['data']['y1'], data['data']['pw'], data['data']['ph'] ,data['data']['sp'], 'white', player1['id_channel'], 1, player1['username'], player1['playerNumber'])
                     self.paddles['player2'] = paddles(data['data']['x'],data['data']['y2'],data['data']['pw'], data['data']['ph'], data['data']['sp'], 'white', player2['id_channel'], 2, player2['username'], player2['playerNumber'])
                     self.Ball = ball(0.5, 0.5, data['data']['Walls']['wallsHeight']/25/2/data['data']['Walls']['wallsHeight'], data['data']['dirY'], data['data']['sp'] ,'white')
@@ -437,22 +441,26 @@ class Tournament(AsyncWebsocketConsumer):
         los = {'username': '', 'channel_id': ''}
         user = self.scope["user"]
         if self.player:
-            game = Tournament.games_infor[self.player['game_channel']]
-            player1 = game.get('player1')
-            player2 = game.get('player2')
-            if player1 and player2:
-                if self.player['name'] == game['player1']['name']:
-                    win = game['player2']
-                    los = game['player1']
-                    is_final = game['final_tournament']
-                    winer = self.games[win['chanel_game']]['player2']
-                else:
-                    win = game['player1']
-                    los = game['player2']
-                    is_final = game['final_tournament']
-                    winer = self.games[win['chanel_game']]['player1']
-                print("win", win['chanel_game'], winer.to_dict(), self.player['group_name'], is_final, flush=True)
-                await self.gameOver(win['chanel_game'] ,winer, is_final, self.player['group_name'])
+            game_channel = self.player.get('game_channel', None)
+            if game_channel and game_channel in Tournament.games_infor:
+                game = Tournament.games_infor[self.player['game_channel']]
+                player1 = game.get('player1')
+                player2 = game.get('player2')
+                if player1 and player2:
+                    if self.player['name'] == game['player1']['name']:
+                        win = game['player2']
+                        los = game['player1']
+                        is_final = game['final_tournament']
+                        winer = self.games[win['chanel_game']]['player2']
+                    else:
+                        win = game['player1']
+                        los = game['player2']
+                        is_final = game['final_tournament']
+                        winer = self.games[win['chanel_game']]['player1']
+                    print("win", win['chanel_game'], winer.to_dict(), self.player['group_name'], is_final, flush=True)
+                    await self.gameOver(win['chanel_game'] ,winer, is_final, self.player['group_name'])
+        Tournament.players_tournament = [player for player in Tournament.players_tournament if player['usernameDB'] != user.username]
+        print(Tournament.players_tournament, flush=True)
 
 
     async def tournament_start(self, event):

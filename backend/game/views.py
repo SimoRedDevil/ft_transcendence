@@ -25,6 +25,10 @@ class MatchesList(generics.ListAPIView):
     authentication_classes = [SessionAuthentication]
 
     def get_queryset(self):
+        
+        username = self.request.query_params.get('username', None)
+        if username:
+            return Match.objects.filter(Q(player1__username=username) | Q(player2__username=username))
+        
         user = self.request.user
-        print(user, flush=True)
         return Match.objects.filter(Q(player1=user) | Q(player2=user))

@@ -185,7 +185,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
                                     {searchResults.map((user: any) => (
                                         user.username !== authUser?.username &&
                                         <Link key={user.id} href={`/profile/${user.username}/`} className='w-full p-4 flex gap-3 items-center hover:bg-white hover:bg-opacity-10 hover:cursor-pointer'>
-                                            <div className='w-[50px] h-[50px] rounded-full bg-green-800'>
+                                            <div className='w-[50px] h-[50px] rounded-full'>
                                                 <Image src={user?.avatar_url} height={50} width={50} alt='avatar' className='rounded-full' />
                                             </div>
                                             <span>{user.full_name}</span>

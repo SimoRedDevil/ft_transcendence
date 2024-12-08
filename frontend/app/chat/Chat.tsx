@@ -211,13 +211,14 @@ function Chat({setShowBlockDialog}) {
       <div className='w-full flex flex-col'>
         <div className='flex p-[20px] justify-between'>
           <div className='flex flex-row gap-4'>
-            <div className={`${isMobile ? 'h-[150px] w-[90px]' : ' h-[80px] w-[90px]'}`}>
+            <div className={`${isMobile ? 'h-[150px] w-[90px]' : 'h-[80px] w-[90px]'} relative`}>
               {
                 isMobile &&
                 <button onClick={handleBackButton} className='bg-white/10 hover:bg-white/20 h-[40px] w-[40px] rounded-full border border-white/30'>
                   <MdOutlineKeyboardBackspace className='text-white w-[40px] h-[40px]' />
                 </button>
               }
+              <div className={`${!otherUserOnline ? 'bg-[#E63946]' : 'bg-[#7ED4AD]'} absolute bottom-1 right-3 text-xs text-opacity-50 border border-white border-opacity-30 rounded-full p-[5px]`}></div>
               <Link href={`/profile/${otherUser?.username}/`}><Image className='rounded-full' src={otherUser?.avatar_url} width={80} height={80} alt='avatar'/></Link>
             </div>
             <div className='flex flex-col justify-center gap-4'>

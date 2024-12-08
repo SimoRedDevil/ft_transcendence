@@ -21,6 +21,7 @@ import Link from 'next/link'
 import { getCookies } from '../../components/auth';
 import { useNotificationContext } from '../../components/context/NotificationContext';
 import { useOnlineStatus } from '@/components/context/OnlineStatusContext';
+import { MdOutlineKeyboardBackspace } from "react-icons/md";
 
 function Chat({setShowBlockDialog}) {
   const [showEmoji, setShowEmoji] = useState(false)
@@ -37,6 +38,7 @@ function Chat({setShowBlockDialog}) {
   const
   {
     selectedConversation,
+    setSelectedConversation,
     otherUser,
     ws,
     messages,
@@ -151,6 +153,10 @@ function Chat({setShowBlockDialog}) {
     }))
   }
 
+  const handleBackButton = () => {
+    setSelectedConversation(null)
+  }
+
   useEffect(() => {
     if (selectedConversation !== null) {
       checkUserBlocked()
@@ -205,11 +211,17 @@ function Chat({setShowBlockDialog}) {
       <div className='w-full flex flex-col'>
         <div className='flex p-[20px] justify-between'>
           <div className='flex flex-row gap-4'>
-            <div className='rounded-full h-[80px] w-[80px]'>
+            <div className={`${isMobile ? 'h-[150px] w-[90px]' : ' h-[80px] w-[90px]'}`}>
+              {
+                isMobile &&
+                <button onClick={handleBackButton} className='bg-white/10 hover:bg-white/20 h-[40px] w-[40px] rounded-full border border-white/30'>
+                  <MdOutlineKeyboardBackspace className='text-white w-[40px] h-[40px]' />
+                </button>
+              }
               <Link href={`/profile/${otherUser?.username}/`}><Image className='rounded-full' src={otherUser?.avatar_url} width={80} height={80} alt='avatar'/></Link>
             </div>
             <div className='flex flex-col justify-center gap-4'>
-              <span className='text-[20px]'>{otherUser.full_name}</span>
+              <span className={`text-[20px] ${isMobile ? 'mt-4' : 'mt-0'}`}>{otherUser.full_name}</span>
               <span className='text-[18px] text-white text-opacity-60'>{otherUserOnline ? 'Online' : 'Offline'}</span>
               {/* otherUser.online === true ? 'Active Now' : 'Offline' */}
             </div>
@@ -242,7 +254,7 @@ function Chat({setShowBlockDialog}) {
                 })
               }
             </div>
-            <div className={(showEmoji) ? 'flex absolute top-[calc(100%_-_430px)] left-[calc(100%_-_400px)] overflow-hidden' : 'hidden'}>
+            <div className={(showEmoji) ? 'flex absolute top-[calc(100%_-_300px)] left-[calc(100%_-_400px)] overflow-hidden' : 'hidden'}>
               <EmojiPicker onEmojiClick={handleEmojiClick} width={400} theme='dark' emojiStyle='google' searchDisabled={false} lazyLoadEmojis={true}/>
             </div>
           </div>

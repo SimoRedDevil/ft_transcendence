@@ -236,8 +236,8 @@ function Chat({setShowBlockDialog}) {
           </button>
         </div>
       </div>
-      <div className='p-[20px] h-[90%] w-full flex flex-col justify-between items-center overflow-hidden'>
-        <div className='w-full h-[89%] relative'>
+      <div className='border border-blue-400 p-[20px] h-[90%] w-full flex flex-col justify-between items-center overflow-hidden'>
+        <div className='w-full h-[89%] relative break-all'>
           <div ref={chatWindowRef} onScroll={(e) => handleScroll(e)} className='h-full scrollbar-none overflow-y-auto scroll-smooth whitespace-pre-wrap'>
             {
               messages.map((message, index) => {

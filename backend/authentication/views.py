@@ -26,6 +26,7 @@ from asgiref.sync import async_to_sync
 import random
 from django.core.files.storage import default_storage
 from rest_framework.parsers import MultiPartParser, FormParser
+from .host_image import host_qrcode
 
 URL_FRONT = os.getenv('URL_FRONT')
 URL_BACK = os.getenv('URL_BACK')
@@ -219,7 +220,8 @@ class LoginView(APIView):
             if user is not None:
                 login(request, user)
                 if not user.avatar_url:
-                    user.avatar_url = f'{URL_BACK}/avatars/default.png'
+                    avatar_url = host_qrcode('/app/avatars/default.png')
+                    user.avatar_url = avatar_url
                 if not user.enabeld_2fa:
                     user.is_already_logged = True
                 response = Response(status=status.HTTP_200_OK)
@@ -479,7 +481,7 @@ class UpdateUserView(APIView):
             updated = True
         if 'avatar' in request.FILES:
             file_url = self.upload_avatar(request)
-            user.avatar_url = f"{URL_BACK}{file_url}"
+            user.avatar_url = host_qrcode(f'/app{file_url}')
             updated = True
         user_data = UpdateUserSerializer(user).data
         if updated:
@@ -664,7 +666,7 @@ class AnonymousUserViewSet(APIView):
         anonymous_user.avatar_url = f'{URL_BACK}/avatars/anonym.jpg'
         anonymous_user.city = 'anonymous city'
         anonymous_user.address = 'anonymous address'
-        anonymous_user.anonymous = True
+        anonymous_user.is_anonymous = True
         anonymous_user.save()
         response = delete_tokens(request, status=status.HTTP_200_OK)
         response.data = UserSerializer(anonymous_user).data

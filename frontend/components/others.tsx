@@ -131,40 +131,6 @@ export default function Others() {
     });
   };
 
-  /* handle image upload*/
-  
-  const uploadImage = async () => {
-    const fileInput = document.getElementById("file") as HTMLInputElement;
-  
-    if (!fileInput?.files?.[0]) {
-      toast.error("Please select a file");
-      return;
-    }
-  
-    const formData = new FormData();
-    formData.append("avatar", fileInput.files[0]);
-  
-    try {
-      const cookies = await getCookies();
-      const csrftoken = cookies.cookies.csrftoken;
-  
-      const response = await axios.put(`${API}/update/`, formData, {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "multipart/form-data",
-          "X-CSRFToken": csrftoken,
-        },
-      });
-  
-      if (response.status === 200) {
-        toast.success("Image uploaded successfully");
-        console.log("Response data:", response.data);
-      }
-    } catch (error) {
-      toast.error("Error uploading image");
-    }
-  };
-  
 
   useEffect(() => {
     fetchAuthUser();

@@ -19,6 +19,10 @@ module.exports = {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
     ],
   },
   reactStrictMode: false, // Disable React Strict Mode

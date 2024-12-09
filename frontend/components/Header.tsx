@@ -9,10 +9,16 @@ import { useTranslation } from 'react-i18next';
 import BounceLoader from "react-spinners/ClipLoader";
 import { IoIosNotifications, IoIosNotificationsOutline } from 'react-icons/io';
 import { useState, useEffect } from 'react';
+import { CiCamera } from "react-icons/ci";
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import { getCookies } from './auth';
 
 function Header({setNotificationClicked, notificationClicked, setProfileDropDownClicked, profileDropDownClicked}) {
-  const { authUser, setSearchInput, searchInput, setIsSearching} = useContext(UserContext);
+  const { authUser, fetchAuthUser, setSearchInput, searchInput, setIsSearching} = useContext(UserContext);
   const { t } = useTranslation();
+  const API = process.env.NEXT_PUBLIC_API_URL;
+  const [imageUploaded, setImageUploaded] = useState(false);
 
   const handleNotificationClick = () => {
     setProfileDropDownClicked(false);
@@ -28,6 +34,52 @@ function Header({setNotificationClicked, notificationClicked, setProfileDropDown
     setSearchInput(e.target.value);
     setIsSearching(true);
   }
+
+    
+  const uploadImage = async () => {
+    const fileInput = document.getElementById("file") as HTMLInputElement;
+  
+    if (!fileInput?.files?.[0]) {
+      toast.error("Please select a file");
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append("avatar", fileInput.files[0]);
+  
+    try {
+      const cookies = await getCookies();
+      const csrftoken = cookies.cookies.csrftoken;
+  
+      const response = await axios.put(`${API}/update/`, formData, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "multipart/form-data",
+          "X-CSRFToken": csrftoken,
+        },
+      });
+  
+      if (response.status === 200) {
+        setImageUploaded(true);
+        toast.success("Image Changed Successfully");
+      }
+    } catch (error) {
+      toast.error("Error uploading image");
+      setImageUploaded(false);
+    }
+  };
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      uploadImage();
+    }
+  };
+
+  useEffect(() => {
+    fetchAuthUser();
+    setImageUploaded(false);
+  }
+  , [imageUploaded])
 
   return (
     <header className='text-white flex justify-between items-center p-[10px]'>
@@ -47,18 +99,41 @@ function Header({setNotificationClicked, notificationClicked, setProfileDropDown
         </div>
           {authUser?.avatar_url ?
           (
-          <div className={`relative
-            border border-white border-opacity-30 h-[70px] w-[70px] bg-white bg-opacity-50 rounded-full flex flex-col items-center justify-center hover:bg-opacity-15 hover:cursor-pointer
-
-          `}>
-            <Image id='profile-id' unoptimized src={authUser?.avatar_url} 
-            height={70} width={70} alt='avatar' className='rounded-full cursor-pointer'/> 
-             <div className='absolute  bottom-1 left-1 text-xs text-opacity-50
-             border border-white border-opacity-30 bg-[#7ED4AD] 
-             rounded-[10px] p-[5px] ' id='profile-dropdown-id
-             '>
-             </div>
-            </div>
+            <div
+            className={`relative border border-white border-opacity-30 h-[70px] w-[70px] 
+            bg-white bg-opacity-50 rounded-full flex items-center justify-center group`}
+          >
+            <Image
+              id="profile-id"
+              src={authUser?.avatar_url}
+              height={70}
+              width={70}
+              alt="avatar"
+              className="rounded-full"
+            />
+            <input
+              className="hidden"
+              type="file"
+              name="file"
+              id="file"
+              accept="image/*"
+              onChange={handleFileChange}
+            />
+            <label
+              htmlFor="file"
+              className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 
+              rounded-full opacity-0 group-hover:opacity-100 transition duration-300 cursor-pointer"
+            >
+              <CiCamera
+                className="w-8 h-8 text-white rounded-full p-1 transition duration-200 hover:text-white"
+              />
+            </label>
+            <div
+              className="absolute bottom-1 left-1 text-xs text-opacity-50 border border-white border-opacity-30 
+              bg-[#7ED4AD] rounded-[10px] p-[5px]"
+              id="profile-dropdown-id"
+            ></div>
+          </div>
           ) : (
         <div className='w-full flex justify-center items-center h-full text-white text-opacity-50 text-xs'>
           <BounceLoader color={'#949DA2'} loading={true} size={50} />

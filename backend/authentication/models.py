@@ -57,7 +57,6 @@ class CustomUser(BaseUser):
     connection_count = models.IntegerField(default=0)
     friends = models.ManyToManyField('self', blank=True, symmetrical=True)
     blocked_users = models.ManyToManyField("self", symmetrical=False, blank=True)
-    anonymous = models.BooleanField(default=False)
     is_bot = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'username'

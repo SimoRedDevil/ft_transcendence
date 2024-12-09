@@ -1,4 +1,4 @@
-POST https://localhost/backend/api/auth/block/ HTTP/1.1
+POST https://localhost/api/auth/block/ HTTP/1.1
 content-type: application/json
 
 {

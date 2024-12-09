@@ -29,7 +29,6 @@ push:
     git push
 
 fclean: stop down
-	@rm -rf  database
 	@rm -rf  redis
 	@rm -rf backend/*/__pycache__
 	@rm -rf backend/*/migrations

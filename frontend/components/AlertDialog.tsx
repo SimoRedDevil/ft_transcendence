@@ -32,7 +32,7 @@ export default function AlertDialog({showBlockDialog, setShowBlockDialog}) {
     try {
       const cookies = await getCookies();
       const csrfToken = cookies.cookies.csrftoken;
-      const response = await axios.post('https://localhost/backend/api/auth/block/', body, {
+      const response = await axios.post('https://localhost/api/auth/block/', body, {
         headers: {
           "Content-Type": "application/json",
           'X-CSRFToken': csrfToken,

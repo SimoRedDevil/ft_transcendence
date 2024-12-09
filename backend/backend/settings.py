@@ -55,7 +55,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
-    'https://localhost:3000/',
+    'https://localhost/',
     "https://localhost",
 ]
 

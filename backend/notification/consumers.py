@@ -18,14 +18,13 @@ def create_notification(sender, receiver, notif_type, title, description):
 class NotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         user = self.scope['user']
-        print(user, flush=True)
-        # if user.is_anonymous or not user.is_authenticated:
-        #     pass
-        #     await self.close(code=1008)
-        # else:
-        self.room_group_name = f'notif_{user.username}'
-        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
-        await self.accept()
+        if user.is_anonymous or not user.is_authenticated:
+            pass
+            await self.close(code=1008)
+        else:
+            self.room_group_name = f'notif_{user.username}'
+            await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+            await self.accept()
     async def disconnect(self, close_code):
         pass
     async def receive(self, text_data):

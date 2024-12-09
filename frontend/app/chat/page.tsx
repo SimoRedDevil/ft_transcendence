@@ -12,13 +12,13 @@ function ChatPage() {
   const [showBlockDialog, setShowBlockDialog] = useState(false)
   return (
     <ChatProvider>
-    <div className='w-full h-full flex items-center justify-center'>
-      <div className='text-white w-[97%] h-full flex flex-col bg-black bg-opacity-60 rounded-[50px] border border-white/30 sm:rounded-[50px] sm:w-[90%] sm:h-[90%] xl:w-[80%] xl:h-[90%] lg:flex-row min-h-[650px]'>
-        <Conversations />
-        <Chat setShowBlockDialog={setShowBlockDialog} />
-        {showBlockDialog && <AlertDialog showBlockDialog={showBlockDialog} setShowBlockDialog={setShowBlockDialog}/>}
+      <div className='w-full h-full flex items-center justify-center'>
+        <div className='text-white w-[97%] h-full flex flex-col bg-black bg-opacity-60 rounded-[50px] border border-white border-opacity-30 sm:border sm:rounded-[50px] sm:w-[90%] sm:h-[90%] xl:w-[80%] xl:h-[90%] lg:flex-row'>
+          <Conversations />
+          <Chat setShowBlockDialog={setShowBlockDialog} />
+          {showBlockDialog && <AlertDialog showBlockDialog={showBlockDialog} setShowBlockDialog={setShowBlockDialog}/>}
+        </div>
       </div>
-    </div>
     </ChatProvider>
   )
 }

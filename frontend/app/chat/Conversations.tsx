@@ -56,14 +56,7 @@ function Conversations() {
     }
   }, [])
 
-  if (loading === true || conversationsLoading === true) return <div>Loading...</div> ;
   
-  const scrollToLastMessage = () => {
-    if (refScroll.current) {
-      refScroll.current.scrollIntoView({ behavior: 'smooth' })
-    }
-  }
-
   const handleConversationClick = (conversation) => {
     setSelectedConversation(conversation)
     authUser?.username === conversation.user1_info.username ? setOtherUser(conversation.user2_info) : setOtherUser(conversation.user1_info)
@@ -90,7 +83,9 @@ function Conversations() {
     let otherUser = authUser?.username === conversation.user1_info.username ? conversation.user2_info : conversation.user1_info
     return otherUser?.avatar_url
   }
-
+  
+  if (loading === true || conversationsLoading === true) return <div>Loading...</div> ;
+  
   return (
     <div className={`whitespace-pre-wrap w-full h-full lg:w-[400px] 2xl:w-[550px] ${isMobile && selectedConversation ? 'hidden' : 'flex flex-col'}`}>
             <div className='h-[200px]'>

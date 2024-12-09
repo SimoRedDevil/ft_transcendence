@@ -201,7 +201,7 @@ function Chat({setShowBlockDialog}) {
   if (loading === true || lastMessageRef === null || messages === null || checkBlockLoading === true) return <div>Loading...</div> ;
 
   return (
-   <div className={``}>
+   <div className={`h-full lg:w-[calc(100%_-_400px)] 2xl:w-[calc(100%_-_550px)] lg:flex ${(isMobile && selectedConversation) ? 'flex' : 'hidden'}`}>
     {
       (!isMobile) &&
       <div className='flex items-center'>
@@ -209,7 +209,7 @@ function Chat({setShowBlockDialog}) {
       </div>
     }
 
-    <div className='w-full border flex flex-col'>
+    <div className='w-full flex flex-col'>
       <div className='flex p-[20px] justify-between'>
         <div className='flex flex-row gap-4'>
           <div className={`${isMobile ? 'h-[130px] w-[90px]' : 'h-[80px] w-[90px]'} relative`}>

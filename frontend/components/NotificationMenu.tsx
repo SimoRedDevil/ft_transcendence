@@ -9,6 +9,7 @@ import { useState } from 'react';
 import Link from 'next/link'
 import { AiFillMessage } from "react-icons/ai";
 import NotificationElement from './NotificationElement'
+import { BounceLoader } from 'react-spinners'
 
 function NotificationMenu() {
 
@@ -31,7 +32,7 @@ function NotificationMenu() {
   }
 
   if (notificationsLoading) {
-    return <div>Loading...</div>
+    return <div className='text-white fixed w-[95%] md:w-[calc(100%_-_100px)] h-[600px] flex flex-row-reverse z-50'></div>
   }
 
   return (
@@ -42,15 +43,14 @@ function NotificationMenu() {
           </div>
           <div className='h-[calc(100%_-_65px)] w-full scrollbar-none overflow-y-auto scroll-smooth'>
             {notifications?.map((notification, index) => {
-              console.log("notif id: ", notification?.id);
               if (notification.notif_type === 'friend_request') {
-                return (<NotificationElement Url='/friend-requests/' Avatar={notification?.sender_info.avatar_url} Description={notification?.description} Date={notification?.get_human_readable_time} Key={notification?.id} NotifType={notification?.notif_type} />)
+                return (<NotificationElement Url='/friend-requests/' Avatar={notification?.sender_info.avatar_url} Description={notification?.description} Date={notification?.get_human_readable_time} Key={notification?.id} NotifType={notification?.notif_type} IsRead={notification?.is_read} />)
               }
               else if (notification.notif_type === 'message') {
-                return (<NotificationElement Url={`/chat/?username=${notification?.sender_info.username}`} Avatar={notification?.sender_info.avatar_url} Description={notification?.description} Date={notification?.get_human_readable_time} Key={notification?.id} NotifType={notification?.notif_type} />)
+                return (<NotificationElement Url={`/chat/?username=${notification?.sender_info.username}`} Avatar={notification?.sender_info.avatar_url} Description={notification?.description} Date={notification?.get_human_readable_time} Key={notification?.id} NotifType={notification?.notif_type} IsRead={notification?.is_read} />)
               }
               else if (notification.notif_type === 'accept_friend_request') {
-                return (<NotificationElement Url='/friend-requests/' Avatar={notification?.sender_info.avatar_url} Description={notification?.description} Date={notification?.get_human_readable_time} Key={notification?.id} NotifType={notification?.notif_type} />)
+                return (<NotificationElement Url='/friend-requests/' Avatar={notification?.sender_info.avatar_url} Description={notification?.description} Date={notification?.get_human_readable_time} Key={notification?.id} NotifType={notification?.notif_type} IsRead={notification?.is_read} />)
               }
             })}
           </div>

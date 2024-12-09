@@ -57,8 +57,8 @@ class CreateRequest(APIView):
             {
                 'type': 'send_notification',
                 'notif_type': 'friend_request',
-                'sender': request.user.id,
-                'receiver': user.id,
+                'sender': request.user.username,
+                'receiver': user.username,
                 'title': 'Friend Request',
                 'description': f'{request.user.full_name} has sent you a friend request.',
                 'friend_request': friend_req.id,
@@ -120,8 +120,8 @@ class AcceptRequest(APIView):
             {
                 'type': 'send_notification',
                 'notif_type': 'accept_friend_request',
-                'sender': friend_req.receiver.id,
-                'receiver': friend_req.sender.id,
+                'sender': friend_req.receiver.username,
+                'receiver': friend_req.sender.username,
                 'title': 'Friend Request Accepted',
                 'description': f'{friend_req.receiver.full_name} has accepted your friend request.',
                 'friend_request': None,

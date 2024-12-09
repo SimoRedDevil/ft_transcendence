@@ -23,6 +23,7 @@ import { useNotificationContext } from '../../components/context/NotificationCon
 import { useOnlineStatus } from '@/components/context/OnlineStatusContext';
 import { MdOutlineKeyboardBackspace } from "react-icons/md";
 import { Textarea } from '@chakra-ui/react';
+import { BounceLoader } from 'react-spinners';
 
 function Chat({setShowBlockDialog}) {
   const [showEmoji, setShowEmoji] = useState(false)
@@ -56,7 +57,7 @@ function Chat({setShowBlockDialog}) {
     setUnblockUsername,
   } = useChatContext()
 
-  const {notif_socket} = useNotificationContext()
+  const {notifSocket} = useNotificationContext()
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
@@ -145,7 +146,7 @@ function Chat({setShowBlockDialog}) {
   }
 
   const handleInviteGame = async () => {
-    notif_socket.current.send(JSON.stringify({
+    notifSocket.send(JSON.stringify({
       'notif_type': 'invite_game',
       'sender': authUser?.username,
       'receiver': otherUser?.username,
@@ -198,7 +199,13 @@ function Chat({setShowBlockDialog}) {
 
   if (selectedConversation === null) return;
 
-  if (loading === true || lastMessageRef === null || messages === null || checkBlockLoading === true) return <div>Loading...</div> ;
+  if (loading === true || lastMessageRef === null || messages === null || checkBlockLoading === true) {
+    return (
+      <div className='w-full h-full flex items-center justify-center'>
+        <BounceLoader size={320} color='#1f959d' />
+      </div>
+    ) ;
+  }
 
   return (
    <div className={`h-full lg:w-[calc(100%_-_400px)] 2xl:w-[calc(100%_-_550px)] lg:flex ${(isMobile && selectedConversation) ? 'flex' : 'hidden'}`}>
@@ -236,7 +243,7 @@ function Chat({setShowBlockDialog}) {
           </button>
         </div>
       </div>
-      <div className='border border-blue-400 p-[20px] h-[90%] w-full flex flex-col justify-between items-center overflow-hidden'>
+      <div className='p-[20px] h-[90%] w-full flex flex-col justify-between items-center overflow-hidden'>
         <div className='w-full h-[89%] relative break-all'>
           <div ref={chatWindowRef} onScroll={(e) => handleScroll(e)} className='h-full scrollbar-none overflow-y-auto scroll-smooth whitespace-pre-wrap'>
             {

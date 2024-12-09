@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation';
 import { useNotificationContext } from '@/components/context/NotificationContext';
 import { SlMenu } from "react-icons/sl";
 import { MdMenuOpen } from "react-icons/md";
+import { BounceLoader } from 'react-spinners';
 
 function page() {
     const [friendRequests, setFriendRequests] = useState([]);
@@ -212,7 +213,7 @@ function page() {
         return (
             <div className='w-full h-full flex items-center justify-center'>
                 <div className='border border-white/30 rounded-[30px] bg-black bg-opacity-50 w-[90%] h-[95%] flex items-center p-5'>
-                    <div className='text-white text-lg'>Loading...</div>
+                    <BounceLoader size={320} color='#1f959d' />
                 </div>
             </div>
         )

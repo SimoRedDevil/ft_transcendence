@@ -12,6 +12,7 @@ import { useChatContext } from '../../components/context/ChatContext';
 import axios from 'axios'
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
+import { BounceLoader } from 'react-spinners';
 
 function Conversations() {
   
@@ -84,7 +85,13 @@ function Conversations() {
     return otherUser?.avatar_url
   }
   
-  if (loading === true || conversationsLoading === true) return <div>Loading...</div> ;
+  if (loading === true || conversationsLoading === true) {
+    return (
+      <div className='w-full h-full flex items-center justify-center'>
+        <BounceLoader size={320} color='#1f959d' />
+      </div>
+    )
+  }
   
   return (
     <div className={`whitespace-pre-wrap w-full h-full lg:w-[400px] 2xl:w-[550px] ${isMobile && selectedConversation ? 'hidden' : 'flex flex-col'}`}>

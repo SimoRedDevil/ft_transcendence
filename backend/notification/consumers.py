@@ -7,9 +7,9 @@ from friends.models import FriendRequest
 from datetime import datetime
 
 @database_sync_to_async
-def get_user(id):
+def get_user(username):
     try:
-        return CustomUser.objects.get(id=id)
+        return CustomUser.objects.get(username=username)
     except CustomUser.DoesNotExist:
         return None
 
@@ -38,6 +38,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         pass
     async def receive(self, text_data):
         data = json.loads(text_data)
+        print(data, flush=True)
         notif_type = data['notif_type']
         sender = await get_user(data['sender'])
         receiver = await get_user(data['receiver'])
@@ -68,8 +69,6 @@ class NotificationConsumer(AsyncWebsocketConsumer):
 
         if (notif_type == 'friend_request'):
             friend_request = event['friend_request']
-        if event['get_human_readable_time']:
-            now = event['get_human_readable_time']
         await self.send(text_data=json.dumps({
             'notif_type': notif_type,
             'sender_info': { 'username': sender.username, 'id': sender.id, 'full_name': sender.full_name, 'avatar_url': sender.avatar_url },

@@ -107,8 +107,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 {
                     'type': 'send_notification', 
                     'notif_type': 'message', 
-                    'sender': sender_obj.id, 
-                    'receiver': receiver_obj.id, 
+                    'sender': sender_obj.username, 
+                    'receiver': receiver_obj.username, 
                     'title': 'New Message', 
                     'description': f'You have a new message from {sender_obj.full_name}.',
                     'get_human_readable_time': notif.get_human_readable_time()

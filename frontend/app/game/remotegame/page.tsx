@@ -43,8 +43,41 @@ export default function Game() {
         setScoreLoser(scoreLoser);
         setGameOver(true);
         setIsPlaying(false);
-        
     };
+
+    const rematch = (rematch) => {
+        setGameOver(false);
+        setMatchReady(false);
+        setGameStarted(false);
+        setGameRoom('');
+        setPlayerNumber('');
+        setIsPlaying(false);
+        if (socketRef.current) {
+            socketRef.current.send(
+                JSON.stringify({ type: 'rematch' })
+            );
+        }
+    }
+
+    const handleRematch = (data) => {
+        setImage1(data['players'][0].image);
+        setImage2(data['players'][1].image);
+        setNamePlayer1(data['players'][0].name)
+        setNamePlayer2(data['players'][1].name)
+        setGameRoom(data.game_channel);
+        setMatchReady(true);
+    }
+
+    const handlGoToGame = () => {
+        setGameStarted(true);
+    } 
+
+    const handleConnection= (play_id, playerNumber) => {
+        setPlayerNumber(playerNumber)
+                    setIdChannel(play_id);
+    }
+
+
     useEffect(() => {
         if (typeof window !== 'undefined') {
             socketRef.current = new WebSocket('ws://localhost:8000/ws/game/');
@@ -97,7 +130,7 @@ export default function Game() {
         {!gameStarted ? ( !matchready ? (!isplaying ? (<Platform />) : <>already playing</>) : (<Versus socket={socketRef.current} game_roum={game_roum} username={authUser.username} image1={image1} image2={image2}/>)) 
         : (!gameOver ? (<TableGame playerna={authUser.username} socketRef={socketRef.current}  groupname={game_roum} player_id={id_channel} 
             image1={image1} image2={image2} player_number={playernumber} playername1={nameplayer1} playername2={nameplayer2} onGameEnd={handleGameEnd}/>) 
-        : (<Winner winer={winerImage} loser={loserImage} scoreWinner={scoreWinner} scoreLoser={scoreLoser} />))}
+        : (<Winner winer={winerImage} loser={loserImage} scoreWinner={scoreWinner} scoreLoser={scoreLoser} rematch={rematch} socket={socketRef.current} handleRematch={handleRematch} handlGoToGame={handlGoToGame} handleConnection={handleConnection} />))}
         </div>
     );
 }

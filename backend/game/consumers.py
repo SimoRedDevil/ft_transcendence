@@ -74,11 +74,16 @@ class Game(AsyncWebsocketConsumer):
         useRname = self.scope['user']
     async def receive(self, text_data):
         data = json.loads(text_data)
-        if data['type'] == 'connection':
-            username = data['username']
+        if data['type'] == 'connection' or data['type'] == 'rematch':
+            username = ''
+            if data['type'] == 'rematch':
+                user = self.scope["user"]
+                username = user.username
+            else:
+                username = data['username']
+            
             isPlaying = await sync_to_async(CustomUser.objects.get)(username=username)
             if isPlaying.is_playing:
-                print('You are already playing a game', flush=True)
                 await self.send(text_data=json.dumps({
                     'type': 'is_playing',
                     'message': 'You are already playing a game'
@@ -99,7 +104,7 @@ class Game(AsyncWebsocketConsumer):
                     'group_name': ''
                 }
                 
-                if data['flag'] == 'invite':
+                if data['type'] == 'invite':
                     Game.games_invites[self.player['name']] = self.player
                 else:
                     Game.match_making.append(self.player)
@@ -111,7 +116,7 @@ class Game(AsyncWebsocketConsumer):
                     'type': 'connection',
                     'player': self.player
                 }))
-                if data['flag'] == 'invite':
+                if data['type'] == 'invite':
                     await self.invite_game(data) 
                 else:
                     await self.matchmaking(data)
@@ -177,7 +182,7 @@ class Game(AsyncWebsocketConsumer):
                         'name_channel': match_name,
                         'game_serialized': game_serialized,  
                     }
-                )
+                ) 
                 asyncio.create_task(self.update_ball_loop(match_name))
             
         if data['type'] == 'update_ball':
@@ -200,12 +205,17 @@ class Game(AsyncWebsocketConsumer):
             if self.player['group_name'] in Game.games_infor:
                 game = Game.games_infor[self.player['group_name']]
                 if self.player['player_id'] == 'player1':
-                    winer = game['player2']
-                    loser = game['player1']
+                    if 'player1' in game and 'player2' in game:
+                        winer = game['player2']
+                        loser = game['player1']
                 else:
-                    winer = game['player1']
-                    loser = game['player2']
-                await self.gameOver(self.player['group_name'],  winer['username'], loser['username'], winer['channel_id'], loser['channel_id'], 3, 3, 0, winer['image'], loser['image'])
+                    if 'player1' in game and 'player2' in game:
+                        winer = game['player1']
+                        loser = game['player2']
+                if winer and loser and 'image' in winer and 'image' in loser:
+                    winer_image = winer['image']
+                    loser_image = loser['image']
+                    await self.gameOver(self.player['group_name'],  winer['username'], loser['username'], winer['channel_id'], loser['channel_id'], 3, 3, 0, winer_image, loser_image)
 
     async def matchmaking(self, data):
         if len(Game.match_making) >= 2:

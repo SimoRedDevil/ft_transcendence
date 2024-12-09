@@ -9,9 +9,11 @@ import { useTranslation } from 'react-i18next';
 import BounceLoader from "react-spinners/ClipLoader";
 import { IoIosNotifications, IoIosNotificationsOutline } from 'react-icons/io';
 import { useState, useEffect } from 'react';
+import { useNotificationContext } from './context/NotificationContext'
 
 function Header({setNotificationClicked, notificationClicked, setProfileDropDownClicked, profileDropDownClicked}) {
   const { authUser, setSearchInput, searchInput, setIsSearching} = useContext(UserContext);
+  const {notifications} = useNotificationContext()
   const { t } = useTranslation();
 
   const handleNotificationClick = () => {
@@ -38,7 +40,10 @@ function Header({setNotificationClicked, notificationClicked, setProfileDropDown
         <TextBox focus={false}  id='textsearch-id' onChange={(e) => handleInputChange(e)} placeholder='Search' icon='/icons/search.png' className='border border-white border-opacity-30 w-full h-full bg-black bg-opacity-50 rounded-[30px] flex items-center'/>
       </div>
       <div className='w-[170px] flex justify-between'>
-        <div id='notification-id' onClick={handleNotificationClick} className={`h-[70px] w-[70px] bg-white bg-opacity-0 rounded-full flex items-center justify-center hover:bg-opacity-15 hover:cursor-pointer`}>
+        <div id='notification-id' onClick={handleNotificationClick} className={`h-[70px] w-[70px] bg-white bg-opacity-0 rounded-full flex items-center justify-center hover:bg-opacity-15 hover:cursor-pointer relative`}>
+          <div className='w-[25px] h-[25px] rounded-full bg-red-500 absolute top-2 right-2 flex items-center justify-center'>
+            <span className='text-[15px]'>{notifications.length}</span>
+          </div>
           {
             notificationClicked === true ? 
             <IoIosNotifications id='notification-id' className='text-white h-[50px] w-[50px]'/> : 

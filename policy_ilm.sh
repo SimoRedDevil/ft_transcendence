@@ -28,6 +28,12 @@ curl -X PUT -u "elastic:${ELASTIC_PASSWORD}" --cacert /usr/share/elasticsearch/c
           }
         }
       },
+      "cold": {
+        "actions": {
+          "freeze": {}
+        },
+        "min_age": "60d"
+      },
       "delete": {
         "min_age": "90d",
         "actions": {

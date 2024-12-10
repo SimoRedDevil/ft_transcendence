@@ -93,12 +93,14 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
+      # - ./policy_ilm.sh:/usr/share/elasticsearch/policy_ilm.sh
     user: "0"
     networks:
       - mynetwork
+    environment:
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
     command: >
       bash -c '
-        ./policy_ilm.sh &&
         if [ x${ELASTIC_PASSWORD} == x ]; then
           echo "Set the ELASTIC_PASSWORD environment variable in the .env file";
           exit 1;
@@ -145,6 +147,7 @@ services:
         until curl -s --cacert config/certs/ca/ca.crt https://elasticsearch:9200 | grep -q "missing authentication credentials"; do sleep 30; done;
         echo "Setting kibana_system password";
         until curl -s -X POST --cacert config/certs/ca/ca.crt -u "elastic:${ELASTIC_PASSWORD}" -H "Content-Type: application/json" https://elasticsearch:9200/_security/user/kibana_system/_password -d "{\"password\":\"${KIBANA_PASSWORD}\"}" | grep -q "^{}"; do sleep 10; done;
+        echo "Running ILM script";
         echo "All done!";
       '
     healthcheck:
@@ -166,7 +169,7 @@ services:
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
       - esdata01:/usr/share/elasticsearch/data
-      - ./policy_ilm.sh:/usr/share/elasticsearch/policy_ilm.sh:ro
+      # - ./policy_ilm.sh:/usr/share/elasticsearch/policy_ilm.sh
     ports:
       - ${ES_PORT}:9200
     environment:
@@ -200,6 +203,8 @@ services:
       interval: 10s
       timeout: 10s
       retries: 120
+
+
 
   kibana:
     container_name: kibana
@@ -235,8 +240,7 @@ services:
       interval: 10s
       timeout: 10s
       retries: 120
-
-
+  
   logstash:
     container_name: logstash
     depends_on:

@@ -59,6 +59,7 @@ class CustomUser(BaseUser):
     blocked_users = models.ManyToManyField("self", symmetrical=False, blank=True)
     anonymous = models.BooleanField(default=False)
     is_playing = models.BooleanField(default=False)
+    is_bot = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'full_name']  # Specify any additional required fields

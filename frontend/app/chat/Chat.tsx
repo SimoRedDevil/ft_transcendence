@@ -234,7 +234,7 @@ function Chat({setShowBlockDialog}) {
             <span className='text-[18px] text-white text-opacity-60'>{otherUserOnline ? 'Online' : 'Offline'}</span>
           </div>
         </div>
-        <div className='w-[140px] flex gap-2'>
+        <div className={`${(!otherUser?.is_active || isBlocked) && 'invisible'}} w-[140px] flex gap-2`}>
           <button onClick={handleInviteGame} className='cursor-pointer w-[60px] h-[60px] border border-white border-opacity-30 bg-white bg-opacity-15 hover:bg-opacity-20 rounded-full flex items-center justify-center'>
             <IoGameController className='text-white w-[30px] h-[30px]' />
           </button>
@@ -266,20 +266,26 @@ function Chat({setShowBlockDialog}) {
             <EmojiPicker onEmojiClick={handleEmojiClick} width={400} theme='dark' emojiStyle='google' searchDisabled={false} lazyLoadEmojis={true}/>
           </div>
         </div>
-        <div className={`w-[90%] h-[250px] bg-black bg-opacity-50 border border-white border-opacity-30 rounded-[30px] p-5 flex flex-col items-center justify-center text-center gap-3 ${!isBlocked && 'hidden'}`}>
+        <div className={`w-[90%] h-[250px] bg-black bg-opacity-50 border border-white border-opacity-30 rounded-[30px] p-5 flex flex-col items-center justify-center text-center gap-3 ${(!isBlocked && otherUser?.is_active) && 'hidden'}`}>
             <div className={`text-red-600 text-opacity-60`}>
-              {blocker === authUser?.username ? <p>You have blocked this user. Unblock him to send messages.</p> : <p>You have been blocked by this user. You cannot send messages.</p>}
+              {
+                !otherUser?.is_active ? <p>You cannot chat with this user because his account is deleted.</p> :
+                  ((blocker === authUser?.username && otherUser?.is_active) ? <p>You have blocked this user. Unblock him to send messages.</p> : <p>You have been blocked by this user. You cannot send messages.</p>)
+              }
+              {
+                
+              }
             </div>
             {
-              blocker === authUser?.username &&
+              (blocker === authUser?.username && otherUser?.is_active) &&
               <button onClick={handleUnblockUser} className='hover:bg-[#427baa] w-[220px] h-[55px] bg-[#3b6e98] rounded-[30px] flex items-center justify-center'>
                 <span className='text-white text-opacity-90'>Unblock</span>
               </button> 
             }
         </div>
-        <div className={`w-full h-[100px] bg-transparent flex items-center justify-center ${isBlocked && 'invisible'}`}>
+        <div className={`w-full h-[100px] bg-transparent flex items-center justify-center ${(isBlocked || !otherUser?.is_active) && 'hidden'}`}>
           <div onKeyDown={handleKeyDown} className={`flex justify-between h-[80px] w-full rounded-[30px] border border-white border-opacity-30 bg-black bg-opacity-50 ${isBlocked ? ' border-red-600 bg-red-600 bg-opacity-20 ' : ''} `}>
-            <TextBox focus={true} input={input} onChange={(e) => handleInputChange(e)} placeholder={`${isBlocked ? 'You can\'t talk with this user because you are blocked by him or blocked him!' : 'Type a message...'}`} icon={undefined} className={`w-full h-full bg-transparent rounded-[30px] p-[20px] ${isBlocked && 'invisible'}`} disabled={isBlocked === true ? true : false}></TextBox>
+            <TextBox focus={true} input={input} onChange={(e) => handleInputChange(e)} placeholder='Type a message...' icon={undefined} className={`w-full h-full bg-transparent rounded-[30px] p-[20px] ${isBlocked && 'invisible'}`} disabled={isBlocked === true ? true : false}></TextBox>
             <div className='w-[140px] flex items-center justify-center gap-3'>
               <button disabled={isBlocked === true ? true : false} onClick={handleEmoji}>
                 <MdEmojiEmotions className={!showEmoji ? 'text-white text-opacity-90 w-[40px] h-[40px] hover:text-opacity-100' : 'text-[#4682B4] text-opacity-100 w-[40px] h-[40px]'} />

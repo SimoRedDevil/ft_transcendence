@@ -7,7 +7,9 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from authentication.models import CustomUser
 from .models import TournamentDB
 from django.shortcuts import get_object_or_404
-
+from channels.db import database_sync_to_async
+from chat.models import conversation, message
+from asgiref.sync import async_to_sync
 
 class paddles:
     def __init__(self, x, y,width, height, speed, color, chan_name, playerNu, username, N_tour):
@@ -23,7 +25,6 @@ class paddles:
         self.playernambertour = N_tour
         self.score = 0
          
-
     def to_dict(self):
         return {
             'x': self.x,
@@ -65,6 +66,32 @@ def is_valid_player_name(name):
     return re.match(pattern, name) is not None
 
 
+
+@database_sync_to_async
+def check_conversation_exists(conversation_id):
+    try:
+        conversation.objects.get(id=conversation_id)
+        return True
+    except conversation.DoesNotExist:
+        return False
+
+@database_sync_to_async
+def create_conversation(user1, user2, last_message=None):
+    return conversation.objects.create(user1_id=user1, user2_id=user2, last_message=last_message)
+
+async def broadcast_message(self, info):
+    await self.channel_layer.group_send(
+        info['room_group_name'],
+        {
+            'type': 'send_message',
+            'msg_type': 'bot_message',
+            'id': info['id'],
+            'conversation_id': info['conversation_id'],
+            'sent_by_user': info['sent_by_user'],
+            'content': info['content']
+        }
+    )
+
 class Tournament(AsyncWebsocketConsumer):
 
     players = []
@@ -79,8 +106,9 @@ class Tournament(AsyncWebsocketConsumer):
     paddles = {}
     games = {}
     Ball = {}
-    
+
     async def connect(self):
+        self.user = self.scope['user']
         await self.accept()
         self.player = None
         self.game_channel = None
@@ -163,6 +191,14 @@ class Tournament(AsyncWebsocketConsumer):
                         self.tour_players[0]['usernameDB'] play with self.tour_players[1]['usernameDB']
                         self.tour_players[2]['usernameDB'] play with self.tour_players[3]['usernameDB']
                     """  
+
+                    await broadcast_message({
+                        'room_group_name': f'{self.tour_players[0]["usernameDB"]}_chat',
+                        'id': -1,
+                        'conversation_id': -1,
+                        'sent_by_user': 'alienpong_bot',
+                        'content': f'You will play against {self.tour_players[1]["usernameDB"]}. Good luck!'
+                    })
                     await self.create_tournament(self.tour_players[0]['usernameDB'], self.tour_players[1]['usernameDB'], self.tour_players[2]['usernameDB'], self.tour_players[3]['usernameDB'],  self.group_name_tournament)
                     self.tour_players.clear()
             else:

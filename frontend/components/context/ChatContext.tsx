@@ -66,6 +66,9 @@ export const ChatProvider = ({ children }) => {
             else if (newMessage.msg_type === 'invite_game') {
                 toast.info(`${newMessage.sent_by_user} has invited you to play a game!`);
             }
+            else if (newMessage.msg_type === 'bot_message') {
+                toast.info(newMessage.content);
+            }
         };
         ws.current.onclose = () => {
             console.log('Disconnected from the chat server');

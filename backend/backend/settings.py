@@ -152,6 +152,30 @@ MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware',
 ]
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "json": {
+            "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
+        },
+    },
+    "handlers": {
+        "logstash": {
+            "class": "graypy.GELFUDPHandler",
+            "host": "logstash", 
+            "port": 5044,
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["logstash"],
+            "level": "INFO",
+            "propagate": True,
+        },
+    },
+}
+
 ROOT_URLCONF = 'backend.urls'
 
 TEMPLATES = [

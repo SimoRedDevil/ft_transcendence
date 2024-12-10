@@ -42,5 +42,4 @@ class MessageViewSet(viewsets.ModelViewSet):
     pagination_class = ChatPagination
     def get_queryset(self):
         conversation_id = self.request.GET.get('conversation_id')
-        # messages = message.objects.filter(conversation_id=conversation_id).exclude(receiver_id__in=self.request.user.blocked_users.all().values_list('id', flat=True)).order_by('-timestamp').all()
         return message.objects.order_by('-timestamp').filter(conversation_id=conversation_id).all()

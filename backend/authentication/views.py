@@ -585,6 +585,8 @@ class block_user(APIView):
             blocked_user = CustomUser.objects.get(username=username)
         except CustomUser.DoesNotExist:
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        if (not blocked_user.is_active):
+            return Response({'error': 'User deleted'}, status=status.HTTP_400_BAD_REQUEST)
         if user.friends.filter(username=username).exists():
             user.friends.remove(blocked_user)
         user.blocked_users.add(blocked_user)

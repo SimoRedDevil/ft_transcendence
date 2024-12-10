@@ -234,7 +234,7 @@ function Chat({setShowBlockDialog}) {
             <span className='text-[18px] text-white text-opacity-60'>{otherUserOnline ? 'Online' : 'Offline'}</span>
           </div>
         </div>
-        <div className={`${(!otherUser?.is_active || isBlocked) && 'invisible'}} w-[140px] flex gap-2`}>
+        <div className={`${(!otherUser?.is_active || isBlocked) ? 'invisible' : 'visible'} w-[140px] flex gap-2`}>
           <button onClick={handleInviteGame} className='cursor-pointer w-[60px] h-[60px] border border-white border-opacity-30 bg-white bg-opacity-15 hover:bg-opacity-20 rounded-full flex items-center justify-center'>
             <IoGameController className='text-white w-[30px] h-[30px]' />
           </button>

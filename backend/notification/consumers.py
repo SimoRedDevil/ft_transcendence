@@ -76,5 +76,6 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             'title': title,
             'description': description,
             'friend_request': friend_request,
+            'is_read': False,
             'get_human_readable_time': now,
         }))

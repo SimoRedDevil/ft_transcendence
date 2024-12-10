@@ -93,7 +93,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
   const [notificationClicked, setNotificationClicked] = useState(false);
   const [profileDropDownClicked, setProfileDropDownClicked] = useState(false);
   const { t } = useTranslation();
-  const {notifications, notifSocket} = useNotificationContext();
+  const {notifications, notifSocket, fetchNotifications} = useNotificationContext();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -101,6 +101,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
       if (pathname === "/login") {
         router.push("/");
       }
+      fetchNotifications();
     }
   }, [pathname, isAuthenticated]);
 

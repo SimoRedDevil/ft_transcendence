@@ -15,6 +15,7 @@ function Header({setNotificationClicked, notificationClicked, setProfileDropDown
   const { authUser, setSearchInput, searchInput, setIsSearching} = useContext(UserContext);
   const {notifications} = useNotificationContext()
   const { t } = useTranslation();
+  const [unreadNotifications, setUnreadNotifications] = useState('0');
 
   const handleNotificationClick = () => {
     setProfileDropDownClicked(false);
@@ -31,6 +32,16 @@ function Header({setNotificationClicked, notificationClicked, setProfileDropDown
     setIsSearching(true);
   }
 
+  useEffect(() => {
+    const unreadNotifications = notifications.filter(notification => notification.is_read === false).length
+    if (unreadNotifications > 99) {
+      setUnreadNotifications('+99')
+    }
+    else {
+      setUnreadNotifications(unreadNotifications)
+    }
+  }, [notifications])
+
   return (
     <header className='text-white flex justify-between items-center p-[10px]'>
       <div>
@@ -41,8 +52,8 @@ function Header({setNotificationClicked, notificationClicked, setProfileDropDown
       </div>
       <div className='w-[170px] flex justify-between'>
         <div id='notification-id' onClick={handleNotificationClick} className={`h-[70px] w-[70px] bg-white bg-opacity-0 rounded-full flex items-center justify-center hover:bg-opacity-15 hover:cursor-pointer relative`}>
-          <div className='w-[25px] h-[25px] rounded-full bg-red-500 absolute top-2 right-2 flex items-center justify-center'>
-            <span className='text-[15px]'>{notifications.length}</span>
+          <div className='w-[25px] h-[25px] rounded-full bg-red-500 absolute top-2 right-2 flex items-center justify-center text-center'>
+            <span className={`${unreadNotifications === '+99' ? 'text-[12px]' : 'text-[14px]'}`}>{unreadNotifications}</span>
           </div>
           {
             notificationClicked === true ? 

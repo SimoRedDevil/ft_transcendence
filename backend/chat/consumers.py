@@ -43,6 +43,10 @@ def create_message(conversation, sender, receiver, content):
 def create_notification(sender, receiver, notif_type, title, description, friend_request=None):
     return Notification.objects.create(sender=sender, receiver=receiver, notif_type=notif_type, title=title, description=description, friend_request=friend_request)
 
+@database_sync_to_async
+def block_check(user, receiver_obj, sender_obj):
+    return user.blocked_users.filter(username=receiver_obj.username).exists()
+
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         user = self.scope['user']
@@ -84,8 +88,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if not sender_obj or not receiver_obj:
             await self.close(code=1008)
 
-        if self.user.blocked_users.filter(username=receiver_obj.username).exists() or CustomUser.objects.filter(username=receiver_obj.username).get().blocked_users.filter(username=sender_obj.username).exists() or not receiver_obj.is_active:
-            return
+        # if block_check(self.user, receiver_obj, sender_obj) or not receiver_obj.is_active:
+        #     return
         if msg_type == 'message':
             message = data['content']
             conversation_id = data['conversation_id']

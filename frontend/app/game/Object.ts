@@ -4,13 +4,13 @@ export interface walls {
     
     wallsWidth: number;
     wallsHeight: number;
-    initialize(canvas: HTMLCanvasElement): void;
+    initialize(canvas: HTMLDivElement): void;
 }
 export const Walls: walls = {
     wallsWidth: 0,
     wallsHeight: 0,
 
-    initialize: function(canvasR: HTMLCanvasElement): void{
+    initialize: function(canvasR: HTMLDivElement): void{
         this.wallsWidth = canvasR.clientWidth;
         this.wallsHeight = canvasR.clientHeight;
     }
@@ -64,7 +64,7 @@ export interface ball {
     velocityX: number;
     velocityY: number;
     speedBall: number;
-    initialize(canvas: HTMLCanvasElement): void;
+    initialize(canvas: HTMLDivElement): void;
 }
 
 export const Ball: ball = {
@@ -75,7 +75,7 @@ export const Ball: ball = {
     velocityY: 5,
     speedBall: 9,
 
-    initialize(canvas: HTMLCanvasElement): void{
+    initialize(canvas: HTMLDivElement): void{
         this.radius = (canvas.clientHeight / 25) / 2;
         this.ballPosY = canvas.clientHeight / 2;
         this.ballPosX = canvas.clientWidth / 2;

@@ -6,12 +6,16 @@ import LocalGame from './LocalGame';
 import Image from 'next/image';
 import { useEffect , useRef} from 'react';
 import { player } from '../app/game/Object';
-import Table from './TableGame';
+import TableTourGame from '@/app/game/tournament/remote/TableTourGame';
+import WaitingTournament from './WaitingTournament';
+import { useUserContext } from '../components/context/usercontext';
 
 
 
 interface Props {
     PlayerName: string;
+    HandleUserExist: (exist: boolean, playerExit: string, message: string) => void;
+    GameEnd: (winer: string) => void; 
 }
 
 interface Player {
@@ -22,33 +26,49 @@ interface Player {
 }
 
 
-export default function TournamentSyst({ PlayerName }: Props) {
+
+export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }: Props) {
     const socketRef = useRef<WebSocket | null>(null);
     const [players, setPlayers] = useState<Player[]>([]);
+    const [userExist, setUserExist] = useState(false);
+    const {authUser, loading} = useUserContext();
     
     
     useEffect(() => {  
-        if (typeof window !== 'undefined') {
-            socketRef.current = new WebSocket('ws://e2r2p4.1337.ma:8000/ws/tournament/');
+        if (typeof window !== 'undefined' && !socketRef.current) {
+            socketRef.current = new WebSocket('ws://localhost:8000/ws/tournament/');
             socketRef.current.onopen = () => {
               console.log('WebSocket connected');
-              socketRef.current.send(JSON.stringify({ type: 'connection', playerName: PlayerName }));
+              socketRef.current.send(JSON.stringify({ type: 'connection', playerName: PlayerName , username: authUser.username}));
             };
       
             socketRef.current.onmessage = (event) => {
                 const data = JSON.parse(event.data);
-                console.log(data);
+                if (data.type === 'error_valid_name') {
+                    setUserExist(false);
+                    HandleUserExist(true, data['player'], "Invalid name: Up to 9 chars, only A-Z,a-z,0-9,-_.");
+                }
                 if (data.type === 'connection') {
+                    if (data.message === 'player_exist') {
+                        setUserExist(false);
+                        HandleUserExist(true, data['player'], "already exist, please choose another name");
+                    }
+                    else {
                     setPlayer_id(data.player.id)
-                    setAliasNam(data.player.name)
+                    setCurrentPlayers(data.player.numberplayer);
+                    setUserExist(true);
+                }
+                }
+                if (data.type === 'player_number') {
+                    setPlayernumber(data.number_of_number);
                 }
                 if (data.type === 'tournament_start') {
                     setPlayers(data.players);
-                    console.log(players);
                     setPlayer1(data.players[0]['name']);
                     setPlayer2(data.players[1]['name']);
                     setPlayer3(data.players[2]['name']);
                     setPlayer4(data.players[3]['name']);
+                    setFinPlayer(true);
                 }
             }
               
@@ -76,7 +96,12 @@ export default function TournamentSyst({ PlayerName }: Props) {
     const [player2, setPlayer2] = useState('');
     const [player3, setPlayer3] = useState('');
     const [player4, setPlayer4] = useState('');
-    const [aliasNam, setAliasNam] = useState('');
+    const [image1, setImage1] = useState('');
+    const [image2, setImage2] = useState('');
+    const [playername1, setNamePlayer1] = useState('');
+    const [playername2, setNamePlayer2] = useState('');
+    const [nameplayer, setNamePlayer] = useState('');
+    const [qualified, setQualified] = useState(false);
     const [player_id, setPlayer_id] = useState('');
     const [currentPlayers, setCurrentPlayers] = useState('');
     const [group_name, setGroup_name] = useState('');
@@ -85,38 +110,120 @@ export default function TournamentSyst({ PlayerName }: Props) {
     const [winner1, setWinner1] = useState('');
     const [winner2, setWinner2] = useState('');
     const [winner, setWinner] = useState('');
+    const [finPlayer, setFinPlayer] = useState(false);
+    const [playernum, setPlayernumber] = useState(0);
+
+    const getImage = (name: string) => {
+        for (let i = 0; i < players.length; i++) {
+            if (players[i]['name'] === name)
+                return players[i]['image'];
+        }
+    }
 
     const handleButtonClick = () => {
         for (let i = 0; i < players.length; i++) {
-            if (players[i]['name'] === PlayerName) {
-                console.log(PlayerName);
-                console.log("player Id ", players[i]['player_id']);
-                setCurrentPlayers(players[i]['player_id']);
+            if (players[i]['name'] === PlayerName && (winner1 === '' || winner2 === '')) {
+                if (players[i]['numberplayer'] === 'player1')
+                {
+                    setNamePlayer(players[i]['player_id']);
+                    setImage1(players[i]['image']);
+                    setImage2(players[i + 1]['image']);
+                    setNamePlayer1(players[i]['name']);
+                    setNamePlayer2(players[i + 1]['name']);
+                    
+                }
+                else if (players[i]['numberplayer'] === 'player2')
+                {
+                    setNamePlayer(players[i]['player_id']);
+                    setImage1(players[i - 1]['image']);
+                    setImage2(players[i]['image']);
+                    setNamePlayer1(players[i - 1]['name']);
+                    setNamePlayer2(players[i]['name']);
+                }
+                else if (players[i]['numberplayer'] === 'player3')
+                    {
+                    setNamePlayer(players[i]['player_id']);
+                    setImage1(players[i]['image']);
+                    setImage2(players[i + 1]['image']);
+                    setNamePlayer1(players[i]['name']);
+                    setNamePlayer2(players[i + 1]['name']);
+                    
+                }
+                else if (players[i]['numberplayer'] === 'player4')
+                {
+                    setNamePlayer(players[i]['player_id']);
+                    setImage1(players[i - 1]['image']);
+                    setImage2(players[i]['image']);
+                    setNamePlayer1(players[i - 1]['name']);
+                    setNamePlayer2(players[i]['name']);
+                }
                 setGroup_name(players[i]['group_name']);
                 setId(players[i]['id']);
                 break;
+            }
+            else if (players[i]['name'] === PlayerName && winner1 !== '' && winner2 !== '') {
+                if (PlayerName === winner1)
+                {
+                    setNamePlayer('player1');
+                    setImage1(players[i]['image']);
+                    setImage2(getImage(winner2));
+                    setNamePlayer1(winner1);
+                    setNamePlayer2(winner2);
+                }
+                else if (PlayerName === winner2)
+                {
+                    setNamePlayer('player2');
+                    setImage1(getImage(winner1));
+                    setImage2(players[i]['image']);
+                    setNamePlayer1(winner1);
+                    setNamePlayer2(winner2);
+                }
             }
         }
         setShowLocalGame(true);
     };
 
-    const handleGameEnd = (winner) => {
-        if (currentGame == 1)
+
+    const handleUpdateState = (winer1, playerN1, winer2, playerN2) => {
+        if(playerN1 === 'player1' || playerN1 === 'player2')
+            setWinner2(winer2);
+        else if(playerN1 === 'player3' || playerN1 === 'player4')
+            setWinner1(winer2);
+        if (playerN2 === 'player1' || playerN2 === 'player2')
+            setWinner2(winer1);
+        else if (playerN2 === 'player3' || playerN2 === 'player4')
+            setWinner1(winer1);
+    }
+
+    const handlefinal = (wineer) => {
+        setWinner(wineer);
+        setShowLocalGame(false);
+        setCurrentGame(currentGame + 2);
+        GameEnd(wineer);
+    }
+
+
+    const handleGameEnd = (winner, number) => {
+
+        if (winner === PlayerName)
+            setQualified(true);
+
+        if (number == 'player1' || number == 'player2')
             setWinner1(winner);
-        else if (currentGame == 2)
+        else if (number == 'player4' || number == 'player3')
             setWinner2(winner);
-        else
-            setWinner(winner)
-            
         setShowLocalGame(false);
         setCurrentGame(currentGame + 1);
     };
 
     return (
         <div className="w-[90%] h-[80vh] flex justify-center items-center flex-col  ml-[28px]">
-            {showLocalGame ? (
-                <Table playerna={PlayerName} socketRef={socketRef.current} playernambre={currentPlayers} groupname={group_name} id={id}  aliasname={aliasNam} player_id={player_id}/>
-            ) : ((
+            {!finPlayer ? (<WaitingTournament numberplayer={playernum}  /> ): (showLocalGame ? (
+                <TableTourGame playerna={PlayerName} socketRef={socketRef.current} playernambre={currentPlayers}
+                 groupname={group_name} image1={image1} image2={image2} 
+                player_nambre={nameplayer} playername1={playername1} playername2={playername2}
+                player_id={player_id} qualified={qualified} onGameEnd={handleGameEnd} handleUpdate={handleUpdateState} handlefinal={handlefinal}/>
+            ) : (userExist && (
                     <div className="w-[85%] h-[80vh] flex justify-center items-center lg:justify-start lg:items-start flex-col mt-[5vh]">
                         <div className='sm:hidden w[100px] h-[60px] text-white '>{currentGame === 3 ? "Final" : "Demi Final"}</div>
                         {currentGame === 1 && (<div className='text-white sm:hidden'>Match 1</div>)}
@@ -156,13 +263,13 @@ export default function TournamentSyst({ PlayerName }: Props) {
 
                             <div className='hidden sm:block l:hidden w-full h-full mb-10'>
                                 <div className='flex justify-between items-center flex-col h-full'>
-                                    <div className={`flex flex-row ${currentGame !== 1 ? 'space-x-36' : ''}`}>
+                                    <div className={`flex flex-row ${((currentPlayers === 'player1' || currentPlayers === 'player2') && currentGame == 1) ? '' : 'space-x-36'}`}>
                                             <div className={`border 
                                                     sm:w-[120px] sm:h-[40px]  md:w-[140px] md:h-[50px] rounded-tl-[50px] rounded-br-[50px]
                                                     flex justify-center items-center text-white
-                                                    ${currentGame > 1 && player1 !== winner1 ? 'bg-black/30 border-paddlefill/30 text-white/30' 
+                                                    ${currentGame > 1 && player1 !== winner1 && winner1 !== '' ? 'bg-black/30 border-paddlefill/30 text-white/30' 
                                                     : 'bg-gradient-to-r from-deepSeaBlue to-paddlestroke/30 border-paddlefill text-white'}`}>{player1}</div>
-                                            {currentGame === 1 && (
+                                            {((currentPlayers === 'player1' || currentPlayers === 'player2') && currentGame == 1) && (
                                             <div className="flex flex-col justify-center items-center mt-2 w-36">
                                                 <hr className="border-t border-paddlefill w-full" />
                                                 <hr className="border-l border-paddlefill h-8" />
@@ -172,14 +279,14 @@ export default function TournamentSyst({ PlayerName }: Props) {
                                             <div className={`border 
                                                     sm:w-[120px] sm:h-[40px] md:w-[140px] md:h-[50px] rounded-tr-[50px] rounded-bl-[50px]
                                                     flex justify-center items-center text-white
-                                                    ${currentGame > 1 && player2 !== winner1 ? 'bg-black/30 border-paddlefill/30 text-white/30' 
+                                                    ${currentGame > 1 && player2 !== winner1 && winner1 !== '' ? 'bg-black/30 border-paddlefill/30 text-white/30' 
                                                     : 'bg-gradient-to-r from-deepSeaBlue to-paddlestroke/30 border-paddlefill text-white'}`}>{player2}</div>
                                     </div>
                                     <div className='flex flex-col'>
                                         <div className={`border 
                                                         sm:w-[120px] sm:h-[40px] md:w-[140px] md:h-[50px] rounded-tr-[50px] rounded-bl-[50px]
                                                         flex justify-center items-center text-white
-                                                        ${currentGame > 3 && winner1 !== winner ? 'bg-black/30 border-paddlefill/30 text-white/30' 
+                                                        ${currentGame > 2 && winner1 !== winner && winner !== '' ? 'bg-black/30 border-paddlefill/30 text-white/30' 
                                                         : 'bg-gradient-to-r from-deepSeaBlue to-paddlestroke/30 border-paddlefill text-white'}`}>{winner1.substring(0, 9)}</div>
                                     </div>
                                     <div className='flex flex-col space-y-1'>
@@ -188,7 +295,7 @@ export default function TournamentSyst({ PlayerName }: Props) {
                                         <div className='sm:w-[120px] sm:h-[40px] md:w-[200px] md:h-[50px] border border-paddlefill bg-cover bg-center rounded-bl-[50px] rounded-br-[50px]
                                                          bg-gradient-to-r from-deepSeaBlue to-paddlestroke/30
                                                          flex justify-center items-center text-white'>{winner.substring(0,9)}</div>
-                                        {currentGame === 3 && (
+                                        {(currentGame === 2 && qualified == true) && (
                                             <button className='w-[60px] h-[60px] border-animated bg-deepSeaBlue rounded-[70px] text-white mx-auto' onClick={() => handleButtonClick()}>Play</button>
                                         )}
                                     </div>
@@ -196,16 +303,16 @@ export default function TournamentSyst({ PlayerName }: Props) {
                                         <div className={`border 
                                                         sm:w-[120px] sm:h-[40px] md:w-[140px] md:h-[50px] rounded-tr-[50px] rounded-bl-[50px]
                                                         flex justify-center items-center text-white
-                                                        ${currentGame > 3 && winner2 !== winner ? 'bg-black/30 border-paddlefill/30 text-white/30' 
+                                                        ${currentGame > 2 && winner2 !== winner && winner !== '' ? 'bg-black/30 border-paddlefill/30 text-white/30' 
                                                         : 'bg-gradient-to-r from-deepSeaBlue to-paddlestroke/30 border-paddlefill text-white'}`}>{winner2.substring(0, 9)}</div>
                                     </div>
-                                    <div className={`flex flex-row ${currentGame !== 2 ? 'space-x-36' : ''} items-end`}>
+                                    <div className={`flex flex-row ${((currentPlayers === 'player3' || currentPlayers === 'player4') && currentGame == 1) ? '' : 'space-x-36'} items-end`}>
                                             <div className={`border 
                                                     sm:w-[120px] sm:h-[40px] md:w-[140px] md:h-[50px] rounded-tr-[50px] rounded-bl-[50px]
                                                     flex justify-center items-center text-white 
-                                                    ${currentGame > 2 && player3 !== winner2 ? 'bg-black/30 border-paddlefill/30 text-white/30' 
+                                                    ${currentGame > 1 && player3 !== winner2 && winner2 !== '' ? 'bg-black/30 border-paddlefill/30 text-white/30' 
                                                     : 'bg-gradient-to-r from-deepSeaBlue to-paddlestroke/30 border-paddlefill text-white'}`}>{player3}</div>
-                                            {currentGame === 2 && (
+                                            {((currentPlayers === 'player3' || currentPlayers === 'player4') && currentGame == 1) && (
                                             <div className="flex flex-col justify-center items-center w-36">
                                                 <button className='w-[60px] h-[60px] border-animated bg-deepSeaBlue rounded-[70px] text-white' onClick={() => handleButtonClick()}>Play</button>
                                                 <hr className="border-l border-paddlefill h-8" />
@@ -215,7 +322,7 @@ export default function TournamentSyst({ PlayerName }: Props) {
                                             <div className={`border 
                                                     sm:w-[120px] sm:h-[40px] md:w-[140px] md:h-[50px] rounded-tl-[50px] rounded-br-[50px]
                                                     flex justify-center items-center text-white
-                                                    ${currentGame > 2 && player4 !== winner2 ? 'bg-black/30 border-paddlefill/30 text-white/30' 
+                                                    ${currentGame > 1 && player4 !== winner2 && winner2 !== '' ? 'bg-black/30 border-paddlefill/30 text-white/30' 
                                                     : 'bg-gradient-to-r from-deepSeaBlue to-paddlestroke/30 border-paddlefill text-white'}`}>{player4}</div>
                                     </div>
                                 </div>
@@ -225,13 +332,13 @@ export default function TournamentSyst({ PlayerName }: Props) {
 
                             <div className='hidden l:block w-full h-full'>
                                 <div className='flex items-center justify-between flex-row h-full'>
-                                    <div className={`flex flex-col mb-12 ${currentGame !== 1 ? 'space-y-56' : ''}`}>
+                                    <div className={`flex flex-col mb-12 ${((currentPlayers === 'player1' || currentPlayers === 'player2') && currentGame == 1) ? '' : 'space-y-56'}`}>
                                         <div className={`border 
                                                         3xl:w-[200px] 3xl:h-[70px] l:w-[150px] l:h-[60px] lm:w-[140px] lm:h-[50px] rounded-tr-[50px] rounded-bl-[50px]
                                                         flex justify-center items-center text-white
-                                                        ${currentGame > 1 && player1 !== winner1 ? 'bg-black/30 border-paddlefill/30 text-white/30' 
+                                                        ${currentGame > 1 && player1 !== winner1 && winner1 !== '' ? 'bg-black/30 border-paddlefill/30 text-white/30' 
                                                         : 'bg-gradient-to-r from-deepSeaBlue to-paddlestroke/30 border-paddlefill text-white'}`}>{player1}</div>
-                                        {currentGame === 1 && (
+                                        {((currentPlayers === 'player1' || currentPlayers === 'player2') && currentGame == 1) && (
                                         <div className=" border-l border-paddlefill h-56 ml-8 flex justify-center items-center">
                                             <hr className="border-t border-paddlefill l:w-[47px] 3xl:w-[98px]" />
                                             <button className='w-[60px] h-[60px] border-animated bg-deepSeaBlue rounded-[70px] text-white' onClick={() => handleButtonClick()}>Play</button>
@@ -240,14 +347,14 @@ export default function TournamentSyst({ PlayerName }: Props) {
                                         <div className={`border 
                                                         3xl:w-[200px] 3xl:h-[70px] l:w-[150px] l:h-[60px] lm:w-[140px] lm:h-[50px] rounded-tr-[50px] rounded-bl-[50px]
                                                         flex justify-center items-center text-white
-                                                        ${currentGame > 1 && player2 !== winner1 ? 'bg-black/30 border-paddlefill/30 text-white/30' 
+                                                        ${currentGame > 1 && player2 !== winner1 && winner1 !== '' ? 'bg-black/30 border-paddlefill/30 text-white/30' 
                                                         : 'bg-gradient-to-r from-deepSeaBlue to-paddlestroke/30 border-paddlefill text-white'}`}>{player2}</div>
                                     </div>
                                     <div className='flex space-y-64 flex-col mb-12'>
                                         <div className={`border 
                                                         3xl:w-[200px] 3xl:h-[70px] l:w-[150px] l:h-[60px] lm:w-[140px] lm:h-[50px] rounded-tr-[50px] rounded-bl-[50px]
                                                         flex justify-center items-center text-white
-                                                        ${currentGame > 3 && winner1 !== winner ? 'bg-black/30 border-paddlefill/30 text-white/30' 
+                                                        ${currentGame > 2 && winner1 !== winner && winner !== '' ? 'bg-black/30 border-paddlefill/30 text-white/30' 
                                                         : 'bg-gradient-to-r from-deepSeaBlue to-paddlestroke/30 border-paddlefill text-white'}`}>{winner1.substring(0, 9)}</div>
                                     </div>
                                     <div className='flex flex-col space-y-2 mb-12'>
@@ -256,7 +363,7 @@ export default function TournamentSyst({ PlayerName }: Props) {
                                         <div className=' 3xl:w-[350px] 3xl:h-[80px] lm:w-[200px] lm:h-[50px] border border-paddlefill bg-cover bg-center rounded-bl-[50px] rounded-br-[50px]
                                                          bg-gradient-to-r from-deepSeaBlue to-paddlestroke/30
                                                          flex justify-center items-center text-white'>{winner.substring(0,9)}</div>
-                                        {currentGame === 3 && (
+                                        {(currentGame === 2 && qualified == true) && (
                                             <button className='w-[60px] h-[60px] border-animated bg-deepSeaBlue rounded-[70px] text-white mx-auto' onClick={() => handleButtonClick()}>Play</button>
                                         )}
                                     </div>
@@ -264,16 +371,16 @@ export default function TournamentSyst({ PlayerName }: Props) {
                                         <div className={`border 
                                                         3xl:w-[200px] 3xl:h-[70px] l:w-[150px] l:h-[60px] lm:w-[140px] lm:h-[50px] rounded-tr-[50px] rounded-bl-[50px]
                                                         flex justify-center items-center text-white
-                                                        ${currentGame > 3 && winner2 !== winner ? 'bg-black/30 border-paddlefill/30 text-white/30' 
+                                                        ${currentGame > 2 && winner2 !== winner && winner !== '' ? 'bg-black/30 border-paddlefill/30 text-white/30' 
                                                         : 'bg-gradient-to-r from-deepSeaBlue to-paddlestroke/30 border-paddlefill text-white'}`}>{winner2.substring(0, 9)}</div>
                                     </div>
-                                    <div className={`flex flex-col mb-12 ${currentGame !== 2 ? 'space-y-56' : ''}`}>
+                                    <div className={`flex flex-col mb-12 ${((currentPlayers === 'player3' || currentPlayers === 'player4') && currentGame == 1) ? '' : 'space-y-56'}`}>
                                         <div className={`border 
                                                         3xl:w-[200px] 3xl:h-[70px] l:w-[150px] l:h-[60px] lm:w-[140px] lm:h-[50px] rounded-tr-[50px] rounded-bl-[50px]
                                                         flex justify-center items-center text-white
-                                                        ${currentGame > 2 && player3 !== winner2 ? 'bg-black/30 border-paddlefill/30 text-white/30' 
+                                                        ${currentGame > 1 && player3 !== winner2 && winner2 !== '' ? 'bg-black/30 border-paddlefill/30 text-white/30' 
                                                         : 'bg-gradient-to-r from-deepSeaBlue to-paddlestroke/30 border-paddlefill text-white'}`}>{player3}</div>
-                                        {currentGame === 2 && (
+                                        {((currentPlayers === 'player3' || currentPlayers === 'player4') && currentGame == 1) && (
                                         <div className="border-r border-paddlefill h-56 mr-8 flex justify-center items-center">
                                             <button className='border-animated w-[60px] h-[60px]  bg-deepSeaBlue rounded-[70px] text-white' onClick={() => handleButtonClick()}>Play</button>
                                             <hr className="border-t border-paddlefill l:w-[47px] 3xl:w-[98px]" />
@@ -282,14 +389,14 @@ export default function TournamentSyst({ PlayerName }: Props) {
                                         <div className={`border 
                                                         3xl:w-[200px] 3xl:h-[70px] l:w-[150px] l:h-[60px] lm:w-[140px] lm:h-[50px] rounded-tr-[50px] rounded-bl-[50px]
                                                         flex justify-center items-center text-white
-                                                        ${currentGame > 2 && player4 !== winner2 ? 'bg-black/30 border-paddlefill/30 text-white/30' 
+                                                        ${currentGame > 1 && player4 !== winner2 && winner2 !== '' ? 'bg-black/30 border-paddlefill/30 text-white/30' 
                                                         : 'bg-gradient-to-r from-deepSeaBlue to-paddlestroke/30 border-paddlefill text-white'}`}>{player4}</div>
                                     </div>
                                 </div>
                         </div>
                     </div>
                 )
-            )}
+            ))}
         </div>
     );
 }

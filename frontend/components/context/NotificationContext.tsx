@@ -2,11 +2,12 @@
 
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
-import { Bounce } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { autocompleteClasses } from '@mui/material';
 import { axiosInstance } from '@/utils/axiosInstance';
 import { useUserContext } from './usercontext';
+import { redirect } from 'next/navigation';
+import { Bounce } from 'react-toastify';
 
 const NotificationContext = createContext(null);
 
@@ -19,13 +20,26 @@ export const NotificationProvider = ({ children }) => {
     const [onlineUsers, setOnlineUsers] = useState([]);
     const {authUser} = useUserContext();
 
+    const AcceptInvite = (socket: WebSocket, sender: string, receiver: string) => {
+        socket.send(JSON.stringify({"notif_type": "accept_game", "sender": receiver, "receiver": sender,
+                        "title": "Accept Game", "description": "I accept your game invitation"
+                }));
+                const query = new URLSearchParams({
+                    type: 'invite',
+                    sender: sender,
+                    receiver: receiver,
+                }).toString();
+            
+                redirect(`/game/remotegame?${query}`);
+    }
+
     useEffect(() => {
         if (authUser !== null) {
             const ws = new WebSocket("ws://localhost:8000/ws/notification/");
             ws.onopen = () => {
               console.log("Connected to notification status");
             };
-      
+
             ws.onmessage = (message) => {
                 const newNotification = JSON.parse(message.data);
                 setIsFriendRequest(false);

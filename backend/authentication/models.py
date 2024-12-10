@@ -6,6 +6,7 @@ phone_regex = RegexValidator(
     regex=r'^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s./0-9]*$'
 )
 
+
 class CustomUser(BaseUser):
     LANGUAGE_CHOICES = (
         ('en', 'English'),
@@ -51,12 +52,13 @@ class CustomUser(BaseUser):
     online_matches = models.IntegerField(default=0)
     offline_matches = models.IntegerField(default=0)
     current_xp = models.IntegerField(default=0)
-    target_xp = models.IntegerField(default=0)
+    target_xp = models.IntegerField(default=100)
     online = models.BooleanField(default=False)
     connection_count = models.IntegerField(default=0)
     friends = models.ManyToManyField('self', blank=True, symmetrical=True)
     blocked_users = models.ManyToManyField("self", symmetrical=False, blank=True)
     anonymous = models.BooleanField(default=False)
+    is_playing = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'full_name']  # Specify any additional required fields

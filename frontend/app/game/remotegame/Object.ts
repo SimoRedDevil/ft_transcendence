@@ -3,6 +3,7 @@
 export interface player {
     player_id: string;
     name: string;
+    player_number: string;
 }
 
 export interface walls {
@@ -19,15 +20,3 @@ export interface ball {
     directionY: number;
     speed: number;
 }
-
-// export function normalizePlayer(player: player, walls: walls) {
-//     return {
-//       x: player.x / walls.wallsWidth,
-//       y: player.y / walls.wallsHeight,
-//       paddleWidth: player.paddleWidth / walls.wallsWidth,
-//       paddleHeight: player.paddleHeight / walls.wallsHeight,
-//       speedPaddle: player.speedPaddle / walls.wallsWidth,
-//       color: player.color,
-//       score: player.score,
-//     };
-//   }

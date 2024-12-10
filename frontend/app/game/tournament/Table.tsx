@@ -19,7 +19,7 @@ interface TableProps {
 }
 
 export default function Table({onGameEnd}: TableProps) {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const canvasRef = useRef<HTMLDivElement>(null);
     let count = 3; 
     let startTime = 0;
     let Duration = 1000;
@@ -114,7 +114,6 @@ export default function Table({onGameEnd}: TableProps) {
     }, []);
 
     return (
-      // @ts-ignore
         <div ref={canvasRef} className="aspect-[3/4] w-[250px]
                                           xs:w-[350px]
                                           ls:w-[380px]

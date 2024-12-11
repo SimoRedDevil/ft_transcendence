@@ -5,7 +5,16 @@ import BadgeTour from "./BadgeTour"
 // import { useState, useEffect } from 'react';
 // import BadgeTour from './BadgeTour';  // Assuming this is the correct import path
 
-export default function Versus({ socket , game_roum , username, image1, image2}: any) {
+interface Props {
+    socket: WebSocket;
+    game_roum: string;
+    username: string;
+    image1: string;
+    image2: string;
+    handlGameOver: (winer: string, scoreWiner: string,scoreLoser: string, winerImage: string, loserImage: string) => void;
+}
+
+export default function Versus({ socket , game_roum , username, image1, image2, handlGameOver}: Props) {
   const images = [
     "/images/minipic.jpeg",
     "/images/ach1.jpeg",
@@ -33,9 +42,6 @@ export default function Versus({ socket , game_roum , username, image1, image2}:
         setCurrentImage(images[randomIndex]);
       }, 500);
     }
-
-
-    
     const timeoutId = setTimeout(() => {
       setCurrentImage(images[randomIndex]); 
       setIsFinal(true);
@@ -45,7 +51,15 @@ export default function Versus({ socket , game_roum , username, image1, image2}:
       clearTimeout(timeoutId);
     };
   }, [isFinal, images]);
-  console.log(image1);
+  useEffect(() => {
+      socket.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          if(data.type === 'game_over'){
+            handlGameOver(data.winer, data.scoreWiner, data.scoreLoser, data.winerImage, data.loserImage);
+          }
+      }
+  }, []);
+
 
   return (
     <>

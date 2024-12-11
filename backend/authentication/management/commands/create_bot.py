@@ -7,6 +7,7 @@ class Command(BaseCommand):
         bot_username = 'alienpong_bot'
         bot_email = 'alienpong@aliens.com'
         bot_password = 'alien123'
+        bot_avatar_url = 'https://img.stablecog.com/insecure/1920w/aHR0cHM6Ly9iLnN0YWJsZWNvZy5jb20vZDgwOTAzNmEtNzg4Yy00YzU5LWI4N2QtNTVlMTA3MmQyM2Y5LmpwZWc.webp'
 
         if not CustomUser.objects.filter(username=bot_username).exists():
             CustomUser.objects.create_user(
@@ -14,5 +15,6 @@ class Command(BaseCommand):
                 username=bot_username,
                 email=bot_email,
                 password=bot_password,
+                avatar_url=bot_avatar_url,
                 is_bot=True
             )

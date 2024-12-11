@@ -1,13 +1,12 @@
 #!/bin/bash
 
-# Wait for Elasticsearch to be ready
 until curl -u "elastic:${ELASTIC_PASSWORD}" -s --cacert /usr/share/elasticsearch/config/certs/ca/ca.crt https://elasticsearch:9200; do
   echo "Waiting for Elasticsearch to be available..."
   sleep 5
 done
 
 # Create ILM policy
-curl -X PUT -u "elastic:${ELASTIC_PASSWORD}" --cacert /usr/share/elasticsearch/config/certs/ca/ca.crt \
+until curl -X PUT -u "elastic:${ELASTIC_PASSWORD}" --cacert /usr/share/elasticsearch/config/certs/ca/ca.crt \
   -H "Content-Type: application/json" \
   https://elasticsearch:9200/_ilm/policy/my_policy -d '
 {
@@ -42,4 +41,4 @@ curl -X PUT -u "elastic:${ELASTIC_PASSWORD}" --cacert /usr/share/elasticsearch/c
       }
     }
   }
-}'
+}' | grep -q '^{"acknowledged":true}'; do sleep 10; done

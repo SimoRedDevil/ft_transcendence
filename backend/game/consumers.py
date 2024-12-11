@@ -199,6 +199,7 @@ class Game(AsyncWebsocketConsumer):
         winer = {'username': '', 'channel_id': ''}
         loser = {'username': '', 'channel_id': ''}
         user = self.scope["user"]
+        print(user.username) 
         await self.is_not_playing(user.username) 
         Game.match_making = [player for player in Game.match_making if player['name'] != user.username]
         if self.player:

@@ -405,3 +405,22 @@ input:-webkit-autofill {
 .middle{
     animation: middle 2s forwards;
 }
+@keyframes wiggleWiggle {
+  20%,
+  100% {
+    transform: translate(0, 10px);
+  }
+
+  0% {
+    transform: translate(0, 0px);
+  }
+  10% {
+    transform: translate(0, 10px);
+  }
+}
+
+
+.searcg_anim{
+  animation: wiggleWiggle 1.6s infinite;
+}
+

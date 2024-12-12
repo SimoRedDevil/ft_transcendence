@@ -6,14 +6,16 @@ import { movePaddle } from '../app/game/remotegame/PaddleRemote';
 import p5 from 'p5';
 import { player , ball } from '../app/game/remotegame/Object';
 import { walls } from '../app/game/remotegame/Object';
-import { countdown } from '../app/game/Score';
+import { countdown } from '../app/game/remotegame/ScoreRemote';
 import dynamic from 'next/dynamic';
+import { redirect } from 'next/navigation';
+import { useUserContext } from '../components/context/usercontext';
 
 
 
 const Player1 = dynamic(() => import('../app/game/remotegame/Player1Remote'), { ssr: false });
 const Player2 = dynamic(() => import('../app/game/remotegame/Player2Remote'), { ssr: false });
-let playerInfo: player = { player_id: '', name: '' };
+let playerInfo: player = { player_id: '', name: '',  player_number: '' };
 let game_channel: string = '';
 let playeNum: string = '';
 let game_state = {};
@@ -24,32 +26,35 @@ let gameIsStarted = false;
 interface GameProps {
     playerna: string ;
     socketRef: WebSocket;
-    playernambre: string;
     groupname: string;
-    id : string;
     player_id: string;
-    aliasname: string;
+    image1: string;
+    image2: string;
+    player_number : string;
+    playername1: string;
+    playername2: string;
+    onGameEnd: (winner: string, scoreWinner: string, scoreLoser: string, imageWin: string, imageLos: string) => void;
 }
 
 
-export default function TableGame({ playerna, socketRef, playernambre, groupname , id , player_id, aliasname}: GameProps) {
+export default function TableGame({ playerna, socketRef,  groupname ,  player_id, image1, image2 , player_number,playername1, playername2,onGameEnd}: GameProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
-//   const {users, loading} = useUserContext();
+  const {authUser, loading} = useUserContext();
   const [gameStarted, setGameStarted] = useState(false);
+  const [isplayer2, setIsPlayer2] = useState(false);
   let count = 3; 
   let startTime = 0;
   let Duration = 1000;
-
   
   useEffect(() => {
     playerInfo.player_id = player_id;
-    playerInfo.name = aliasname;
+    playerInfo.name = playerna;
+    playerInfo.player_number = player_number;
+    console.log(playerInfo.player_number)
     if (typeof window !== 'undefined') {
-
       let Walls : walls = { wallsWidth: canvasRef.current.clientWidth, wallsHeight: canvasRef.current.clientHeight };
-        const firtsData = { username: playerna , 
+      const firtsData = { username: playerna , 
                             x: 4/ Walls.wallsWidth,
-                            playerNumber: playernambre,
                             y1: (Walls.wallsHeight - Walls.wallsHeight / 20) / Walls.wallsHeight,
                             y2: ((Walls.wallsHeight / 20) - (Walls.wallsHeight/40)) / Walls.wallsHeight,
                             pw: (Walls.wallsWidth/4) / Walls.wallsWidth ,
@@ -57,19 +62,22 @@ export default function TableGame({ playerna, socketRef, playernambre, groupname
                             sp: 8 / Walls.wallsWidth,
                             dirY: 5/ Walls.wallsHeight,
                             Walls: Walls,
-                            id_channel: id,
+                            id_channel: player_id,
                             groupname: groupname};
-        socketRef.send(JSON.stringify({ type: 'match_tour', data: firtsData }));
+      socketRef.send(JSON.stringify({ type: 'game_started', data: firtsData }));
       socketRef.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.type === 'start_game') {
-          console.log('Game Startedddddd');
+          console.log(data);
           game_state = data.game_serialized;
-          console.log(game_state);
           game_channel = data.name_channel;
+          console.log(playerInfo.player_id , game_state['player2'].chan_name)
+          if ( playerInfo.player_id === game_state['player1'].chan_name)
+          {
+            setIsPlayer2(true); 
+          }
           socketIsOpen = true;
           setGameStarted(true);
-
         }
         if (data.type === 'paddle_update') {
           if (data.playernumber === 1)
@@ -83,16 +91,12 @@ export default function TableGame({ playerna, socketRef, playernambre, groupname
           game_state['player2'] = data.player2;
         }
         if (data.type === 'game_over') {
-          console.log('Game Over');
-          console.log('Winner:', data.winner);
+          console.log(data);
+          setIsPlayer2(false);
           game_state = {};
-          game_channel = '';
+          playerInfo = { player_id: '', name: '',  player_number: '' };
+          onGameEnd(data.winner, data.scoreWiner, data.scoreLoser, data.winerImage, data.loserImage);
         }
-      };
-
-      socketRef.onclose = (event) => {
-        console.log('WebSocket closed:', event);
-        socketIsOpen = false;
       };
 
       socketRef.onerror = (event: Event) => {
@@ -111,7 +115,7 @@ export default function TableGame({ playerna, socketRef, playernambre, groupname
           if (canvasRef.current) {
             p.resizeCanvas(canvasRef.current.clientWidth, canvasRef.current.clientHeight);
         }
-          sketch.background("#0B4464");
+          sketch.background(authUser.color);
           if (socketIsOpen) {
             if (!gameIsStarted) {
                 const elapsedTime = sketch.millis() - startTime;
@@ -129,9 +133,6 @@ export default function TableGame({ playerna, socketRef, playernambre, groupname
                 countdown(sketch, Walls, count);
                 return;
             }
-            movePaddle(sketch, playerInfo, game_channel, socketRef);
-            if (game_state['player1'] && game_state['player2'])
-              tableDraw(sketch, game_state ,Walls, playerInfo);
             const elapsedTime = sketch.millis() - startTime;
 
             if (elapsedTime >= Duration) {
@@ -147,9 +148,12 @@ export default function TableGame({ playerna, socketRef, playernambre, groupname
             countdown(sketch, Walls, count);
             return;
         }
+        if (gameIsStarted)
+        {
           movePaddle(sketch, playerInfo, game_channel, socketRef);
           if (game_state['player1'] && game_state['player2'])
             tableDraw(sketch, game_state ,Walls, playerInfo);
+        }
         };
       }, canvasRef.current);
 
@@ -165,9 +169,6 @@ export default function TableGame({ playerna, socketRef, playernambre, groupname
       return () => {
         p.remove();
         window.removeEventListener('resize', handleResize);
-        if (socketRef) {
-          socketRef.close();
-        }
       };
     }
   }, []);
@@ -175,11 +176,14 @@ export default function TableGame({ playerna, socketRef, playernambre, groupname
   return (
     <div className="flex justify-center items-center">
         <div className="w-[85%] h-[80vh] flex justify-center items-center xl:flex-row  flex-col mt-[5vh]">
-                    { gameStarted && (
-                      <Player1 
-                          image="/images/adil.png"
-                          name={game_state['player1'].username || ''} 
-                          />
+                    { gameStarted && ( playerInfo.player_number === 'player1' ?
+                      (<Player2 
+                          image={image2}
+                          name={playername2 || ''} 
+                          />) : ((<Player1
+                            image={image1}
+                            name={playername1 || ''} 
+                            />))
                         )}
                         <div ref={canvasRef} className="aspect-[3/4] w-[250px]
                                               xs:w-[350px]
@@ -193,11 +197,14 @@ export default function TableGame({ playerna, socketRef, playernambre, groupname
                                               rounded-lg overflow-hidden 
                                               border-2 border-teal-300
                                               shadow-[0_0_12px_#fff]"/>
-                        { gameStarted && (
-                      <Player2 
-                          image="/images/abdellah.png"
-                          name={game_state['player2'].username || ''} 
-                      />
+                        { gameStarted && ( playerInfo.player_number === 'player1' ?
+                      (<Player1 
+                          image={image1}
+                          name={playername1 || ''} 
+                          />) : (<Player2 
+                          image={image2}
+                          name={playername2 || ''}
+                      />)
                     )}
         </div>
     </div>

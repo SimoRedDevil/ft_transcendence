@@ -12,14 +12,16 @@ import { handleCollision } from './Collision';
 import { countdown } from './Score';
 import p5 from 'p5';
 import { redirect } from 'next/navigation';
+import Winner from '@/components/Winner';
 
 
 interface TableProps {
-    onGameEnd: (winner: string) => void;
+    onGameEnd: (winner: string, scoreWinner: string, scoreLoser: string) => void;
 }
 
 export default function Table({onGameEnd}: TableProps) {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [gameEnded, setGameEnded] = React.useState(false);
+    const canvasRef = useRef<HTMLDivElement>(null);
     let count = 3; 
     let startTime = 0;
     let Duration = 1000;
@@ -77,23 +79,21 @@ export default function Table({onGameEnd}: TableProps) {
                     Ball.initialize(canvasRef.current);
                     Ball.velocityY *= -1;
                     Player2.score += 1;
-                    if (Player2.score == 6) {
+                    if (Player2.score == 1) {
                         sketch.noLoop();
-                        onGameEnd('player 2');
+                        onGameEnd('player 2', Player2.score.toString(), Player1.score.toString());
                         Player2.score = 0;
                         Player1.score = 0;
-                        redirect('/game/tournament');
                     }
                 } else if (Ball.ballPosY >= Walls.wallsHeight) {
                     Ball.initialize(canvasRef.current);
                     Ball.velocityY *= -1;
                     Player1.score += 1;
-                    if (Player1.score == 6) {
+                    if (Player1.score == 1) {
                         sketch.noLoop();
-                        onGameEnd('player 2');
+                        onGameEnd('player 1', Player1.score.toString(), Player2.score.toString());
                         Player1.score = 0;
                         Player2.score = 0;
-                        redirect('/game/tournament');
                     }
                 }
                 DownPaddle(sketch, Walls);
@@ -114,7 +114,6 @@ export default function Table({onGameEnd}: TableProps) {
     }, []);
 
     return (
-      // @ts-ignore
         <div ref={canvasRef} className="aspect-[3/4] w-[250px]
                                           xs:w-[350px]
                                           ls:w-[450px]

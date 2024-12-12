@@ -40,7 +40,7 @@ function Sidebar() {
             flex sm:flex-col items-around justify-around sm:justify-center items-center sm:gap-[5%] w-full h-full sm:h-[80%] flex-row
             '>
             <NavLink href='/game' isActive={game}><IoLogoGameControllerB title='Game' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink>
-            <NavLink href='/tournament' isActive={tournament}><GiLaurelsTrophy title='Tournament' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink>
+            <NavLink href='/game/tournament' isActive={tournament}><GiLaurelsTrophy title='Tournament' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink>
             <NavLink href='/profile' isActive={profile}><FaUser title='Profile' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink>
             <NavLink href='/chat' isActive={chat}><IoChatbubblesSharp title='Chat' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink>
             <NavLink href='/friend-requests' isActive={friendrequests}><FaUserFriends title='Friends Requests' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] hover:text-opacity-100 transition'/></NavLink>

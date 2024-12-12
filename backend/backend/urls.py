@@ -18,15 +18,14 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from game.views import get_all_players, get_all_matches
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('authentication.urls')),
     path('api/chat/', include('chat.urls')),
-    path('players/', get_all_players),
-    path('matches/', get_all_matches),
+    path('api/', include('game.urls')),
+    path('api/', include('tournament.urls')),
     path('api/friends/', include('friends.urls')),
     path('api/notifications/', include('notification.urls')),
     

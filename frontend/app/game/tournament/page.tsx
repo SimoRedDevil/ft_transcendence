@@ -187,8 +187,8 @@ export default function Tournament() {
                                     </div>
                                     <div className='flex flex-col space-y-2 mb-12'>
 
-                                            <Image alt='' src='/images/trophy.png' width={350} height={420} className='3xl:w-[350px] 3xl:h-[420px] l:w-[200px] l:h-[250px] lm:w-[150px] lm:h-[180px] mx-auto' />
-                                        <div className=' 3xl:w-[350px] 3xl:h-[80px] lm:w-[200px] lm:h-[50px] border border-paddlefill bg-cover bg-center rounded-bl-[50px] rounded-br-[50px]
+                                            <Image alt='' src='/images/trophy.png' width={350} height={400} className='3xl:w-[300px] 3xl:h-[300px] l:w-[200px] l:h-[250px] lm:w-[150px] lm:h-[180px] mx-auto' />
+                                        <div className=' 3xl:w-[300px] 3xl:h-[80px] lm:w-[200px] lm:h-[50px] border border-paddlefill bg-cover bg-center rounded-bl-[50px] rounded-br-[50px]
                                                          bg-gradient-to-r from-deepSeaBlue to-paddlestroke/30
                                                          flex justify-center items-center text-white'>{winner.substring(0,9)}</div>
                                         {currentGame === 3 && (

@@ -5,7 +5,17 @@ import BadgeTour from "./BadgeTour"
 // import { useState, useEffect } from 'react';
 // import BadgeTour from './BadgeTour';  // Assuming this is the correct import path
 
-export default function Versus({ img }: any) {
+interface Props {
+    socket: WebSocket;
+    game_roum: string;
+    username: string;
+    image1: string;
+    image2: string;
+    handlGameOver: (winer: string, scoreWiner: string,scoreLoser: string, winerImage: string, loserImage: string) => void;
+    goToGame: () => void; 
+}
+
+export default function Versus({ socket , game_roum , username, image1, image2, handlGameOver, goToGame}: Props) {
   const images = [
     "/images/minipic.jpeg",
     "/images/ach1.jpeg",
@@ -17,46 +27,83 @@ export default function Versus({ img }: any) {
   const [currentImage, setCurrentImage] = useState(images[0]);
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
   const [isFinal, setIsFinal] = useState(false);
+  const [isReady, setIsReady] = useState(false);
+  const [number, setNumber] = useState(20);
 
+  const handleButtonClick = () => {
+    socket.send(JSON.stringify({ type: 'playerReady', game_roum: game_roum, username: username }));
+    setIsReady(true);
+};
   useEffect(() => {
     let randomIndex;
     let intervalId;
 
     if (!isFinal) {
-      // Start interval only if it's not final
       intervalId = setInterval(() => {
         randomIndex = Math.floor(Math.random() * images.length);
         setCurrentImage(images[randomIndex]);
       }, 500);
     }
-
-    // Set timeout to stop after 5 seconds
     const timeoutId = setTimeout(() => {
-      setCurrentImage(images[randomIndex]);  // Use the last randomIndex
+      setCurrentImage(images[randomIndex]); 
       setIsFinal(true);
     }, 1000);
-
     return () => {
       clearInterval(intervalId);
       clearTimeout(timeoutId);
     };
   }, [isFinal, images]);
+  useEffect(() => {
+      socket.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          if(data.type === 'game_over'){
+            handlGameOver(data.winer, data.scoreWiner, data.scoreLoser, data.winerImage, data.loserImage);
+          }
+          if (data.type === 'go_to_game') {
+            goToGame();
+          }
+      }
+  }, []);
+  
+  useEffect(() => {
+    if (number > 0 && !isReady) {
+      const intervalId = setInterval(() => {
+        setNumber((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(intervalId);
+    }
+    else if (number === 0 && !isReady)
+      socket.send(JSON.stringify({ type: 'gameOver', game_roum: game_roum, username: username }));
+  } , [number]);
 
   return (
     <>
       <div className="bg-[url('/images/vs.png')] bg-cover bg-center xs:flex xs:justify-between xs:w-[85%] xs:items-center xs:h-[70%] md:flex-row xs:flex-col md:w-[90%] md:h-[40%] md:justify-between lg:w-[70%] xl:w-[60%] 2xl:w-[60%] xl:h-[60%] lg:h-[50%] border border-white/50 rounded-xl lg:flex items-center scale-down scaleDown_page">
         <div className="xs:w-[10rem] md:w-[40%] xs:h-full lg:w-[40%] lg:h-[70%] xl:h-[90%] xl:w-[40%] xs:flex xs:flex-col xs:justify-center xs:items-center xs:gap-2">
-          <BadgeTour img={img} />
+          <Badge img={image1} />
         </div>
-        
-        <div className="relative xs:h-[30%] lg:w-[40%] md:h-[40%] shadow-black xs:flex-col md:flex-row rounded-xl flex justify-center items-center gap-3 lg:h-full">
-          <h1 className="text-[200px] text-[#d3e2e5fb] shadow-[#d3e2e5fb] shado up font-thin">V</h1>
-          <div className="h-[50%] w-1 bg-[#d3e2e5fb] rotate-12 shadow-lg shadow-[#d3e2e5fb] border border-[#d3e2e5fb] rounded-2xl shado-b middle"></div>
-          <h1 className="text-[200px] text-[#d3e2e5fb] shadow-[#d3e2e5fb] shado down font-thin">S</h1>
+        <div className="flex justify-center items-center flex-col">
+          <div className="relative xs:h-[30%] lg:w-[40%] md:h-[40%] shadow-black  flex-row rounded-xl flex justify-center items-center gap-3 lg:h-full">
+            <h1 className="xs:text-[60px] lg:text-[100px] xl:text-[200px] text-[#d3e2e5fb] shadow-[#d3e2e5fb] shado up font-thin">V</h1>
+            <div className="xs:h-[60px]  lg:h-[100px] xl:h-[200px]  lg:w-4 bg-[#d3e2e5fb] rotate-12 shadow-lg shadow-[#d3e2e5fb] border border-[#d3e2e5fb] rounded-2xl shado-b middle"></div>
+            <h1 className="xs:text-[60px] lg:text-[100px] xl:text-[200px] text-[#d3e2e5fb] shadow-[#d3e2e5fb] shado down font-thin">S</h1>
+          </div>
+          <div className="flex items-center flex-col">
+              <div className="text-white text-sm mt-5">
+                {number}
+              </div>
+              <button
+                    className={`xs:absolute xs:-bottom-4 xs:left-0 xs:right-0 xs:mx-auto md:relative w-[70px] xs:h-[50px]  md:h-[70px] md:rounded-[100px] border-[4px] ${!isReady ? 'bg-[#C28F5F] text-white border-[#39696e]' : 'text-white/60 bg-[#C28F5F]/30 border-[#39696e]/30'} `}
+                    onClick={handleButtonClick}
+                    disabled={isReady}
+                  >
+                    {!isReady ? 'Play' : 'Ready'}
+              </button>
+          </div>
         </div>
 
         <div className="xs:w-[10rem] md:w-[40%] xs:h-full lg:w-[40%] lg:h-[70%] xl:h-[90%] xl:w-[40%] xs:flex xs:flex-col xs:justify-center xs:items-center xs:gap-2 opacity-85">
-          <BadgeTour img={currentImage} />
+          <Badge img={image2} />
         </div>
       </div>
 

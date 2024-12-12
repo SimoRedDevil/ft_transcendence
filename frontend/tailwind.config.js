@@ -8,6 +8,28 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        courgette: ["Courgette", "cursive"],
+      },
+      keyframes: {
+        platform: {
+          "0%, 100%": { transform: "translateY(-0.5em)" },
+          "50%": { transform: "translateY(0.5em)" },
+        },
+        panelRotate: {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.1" },
+        },
+        textMove: {
+          from: { transform: "translate(2rem, -50%)" },
+          to: { transform: "translate(-42.64rem, -50%)" },
+        },
+      },
+      animation: {
+        platform: "platform 8s infinite ease-in-out",
+        panelRotate: "panelRotate 24s infinite linear",
+        textMove: "textMove 8s infinite linear",
+      },
       textShadow: {
         sm: '1px 1px 2px rgba(0, 0, 0, 0.5)',
         lg: '2px 2px 4px rgba(0, 0, 0, 0.5)',
@@ -23,6 +45,9 @@ module.exports = {
         'Warriot': ['Warriot Tech', 'sans-serif'], 
         'NeverMind': ['NeverMind Bauhaus', 'sans-serif'], 
         'Orion': ['Flexsteel', 'sans-serif'], 
+        'Kecil': ['Major Mono Display', 'sans-serif'],
+        'Bruno': ['Bruno Ace SC', 'sans-serif'],
+
         
       },
       animation: {
@@ -64,6 +89,7 @@ module.exports = {
         'lm': '900px',
         'lg': '1024px',
         'xl': '1280px',
+        'l' : '1150px',
         '2xl': '1536px',
         '3xl': '1800px',
         '4xl': '2000px',

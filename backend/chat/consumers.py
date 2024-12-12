@@ -47,6 +47,14 @@ def create_notification(sender, receiver, notif_type, title, description, friend
 def block_check(user, receiver_obj, sender_obj):
     return user.blocked_users.filter(username=receiver_obj.username).exists()
 
+@database_sync_to_async
+def check_notification_exists(user, sender_obj, receiver_obj):
+    return Notification.objects.filter(sender=sender_obj, receiver=receiver_obj, notif_type='message').exists()
+
+@database_sync_to_async
+def get_notification(user, sender_obj, receiver_obj):
+    Notification.objects.filter(sender=sender_obj, receiver=receiver_obj, notif_type='message').delete()
+
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         user = self.scope['user']
@@ -105,6 +113,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.broadcast_message({'room_group_name': self.room_group_name, 'sent_by_user': sent_by_user, 'content': message, 'id': message_obj.id, 'conversation_id': conversation_obj.id})
             await self.broadcast_message({'room_group_name': other_user_room_group_name, 'sent_by_user': sent_by_user, 'content': message, 'id': message_obj.id, 'conversation_id': conversation_obj.id})
 
+            if await check_notification_exists(self.user, sender_obj, receiver_obj):
+                await get_notification(self.user, sender_obj, receiver_obj)
             notif_room_group_name = f'notif_{sent_to_user}'
             notif = await create_notification(sender_obj, receiver_obj, 'message', 'New Message', f'You have a new message from {sender_obj.full_name}.')
             await self.channel_layer.group_send(notif_room_group_name, 

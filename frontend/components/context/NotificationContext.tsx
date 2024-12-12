@@ -33,6 +33,12 @@ export const NotificationProvider = ({ children }) => {
                 redirect(`/game/remotegame?${query}`);
     }
 
+    const removeNotifications = (senderId, receiverId) => {
+        setNotifications((prevNotifications) =>
+          prevNotifications.filter((notification) => (notification.sender_info.id !== senderId || notification.receiver_info.id !== receiverId) && notification.notif_type === 'message')
+        );
+    };
+
     useEffect(() => {
         if (authUser !== null) {
             const ws = new WebSocket("ws://localhost:8000/ws/notification/");
@@ -80,6 +86,7 @@ export const NotificationProvider = ({ children }) => {
                         }
                     });
                 }
+                removeNotifications(newNotification.sender_info.id, newNotification.receiver_info.id);
                 setNotifications((prevNotifications) => [...prevNotifications, newNotification]);
             };
 

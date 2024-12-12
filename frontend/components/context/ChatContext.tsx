@@ -23,6 +23,7 @@ export const ChatProvider = ({ children }) => {
     const [pageCount, setPageCount] = useState(1);
     const [blockerUsername, setBlockUsername] = useState(null);
     const [unblockedUsername, setUnblockUsername] = useState(null);
+    const [scroll, setScroll] = useState(false);
     
     useEffect(() => {
         const checkMobile = () => {
@@ -45,6 +46,7 @@ export const ChatProvider = ({ children }) => {
         ws.current.onmessage = (message) => {
             const newMessage = JSON.parse(message.data);
             if (newMessage.msg_type === 'message') {
+                setScroll(true);
                 setMessages((prevMessages) => [...prevMessages, newMessage]);
                 setConversations((prevConversations) => {
                     const updatedConversations = prevConversations.map((conversation) =>
@@ -137,8 +139,9 @@ export const ChatProvider = ({ children }) => {
     }, [selectedConversation, page]);
 
     useEffect(() => {
-        if (messages.length > 0 && page === 1) {
+        if (messages.length > 0 && (page === 1 || scroll)) {
             scrollToLastMessage();
+            setScroll(false);
         }
         else {
             if (chatWindowRef.current && messagesLoading === false) {

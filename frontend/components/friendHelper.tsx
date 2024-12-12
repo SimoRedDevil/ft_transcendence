@@ -76,3 +76,14 @@ export const fetchSearchResults = async (
       toast.error(error.response.data.error)
     }
   }
+
+  export const getFriends = async () => {
+    try {
+        const res = await axiosInstance.get('auth/get-friends/')
+        if (res.status === 200) {
+            return res.data
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}

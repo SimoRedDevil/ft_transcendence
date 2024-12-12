@@ -62,6 +62,8 @@ export default function Profile({params}) {
     fetchUser();
   }, []);
 
+  
+
   if (!data || loading || userLoading) {
     return <div>Loading...</div>;
   }

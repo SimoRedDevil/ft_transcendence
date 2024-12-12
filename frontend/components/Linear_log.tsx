@@ -19,14 +19,11 @@ const WeeklyStatsDashboard = () => {
   const COLORS = ['#3b82f6', '#10b981'];
   return (
 
-    <div className='lg:w-full lg:h-full flex flex-col items-center'>
+    <div className='lg:w-full lg:h-full flex  justify-center items-center'>
       
-    <div className='lg:h-[5%]  w-[80%] flex justify-between' >
-        <h1 className='text-center text-lg font-semibold text-gray-800'>Win Rate  </h1>
-        <h1 className='text-center text-lg font-semibold text-gray-800'>Matches Played Throughout the Week</h1>
-    </div>
-    <div className=" flex lg:flex-row xs:flex-col lg:w-full lg:h-full xs:w-full  lg:gap-4  lg:p-4  text-white  ">
-      <div className="lg:w-[60%] xl:w-1/3  relative  ">
+   
+    <div className=" flex lg:flex-row xs:flex-col lg:w-full lg:h-full xs:w-full  lg:gap-4  lg:p-4  text-white justify-center ">
+      <div className="w-full  relative  ">
         <ResponsiveContainer width="100%" height="100%" >
           <PieChart >
           <defs>
@@ -71,11 +68,6 @@ const WeeklyStatsDashboard = () => {
           <span className="text-white text-3xl font-bold">62.5%</span>
         </div>
       </div>
-      <div className="w-full lg:h-[100%] xs:h-[50%]  ">
-      <ResponsiveContainer width="100%" height="100%">
-        <PureComponent />
-      </ResponsiveContainer>
-    </div>
     </div>
     </div>
   );

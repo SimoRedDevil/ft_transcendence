@@ -8,7 +8,7 @@ const MatchList = ({main_user_name,  results , main_user_avatar}) => {
             {results.map((result, index) => (
 
                 <div key={index} className=' w-[90%] lg:h-[4rem] xs:h-[10%]    flex flex-col justify-center items-center border-b border-white/40'>
-                    <MatchCard main_user_name={main_user_name} main_user_avatar={main_user_avatar} opp={result.opponent.name} img={result.opponent.avatar} result={result.result}  />
+                    <MatchCard main_user_name={result.player1.full_name} main_user_avatar={result.player1.avatar_url} opp={result.player2.full_name} img={result.player2.avatar_url} result={(result.score1 + ":" + result.score2)}  />
                 </div>
             ))}
         </div>

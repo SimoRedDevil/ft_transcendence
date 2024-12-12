@@ -2,7 +2,7 @@ import json
 import re
 import math
 import asyncio
-from asgiref.sync import sync_to_async
+from asgiref.sync import async_to_sync, sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from authentication.models import CustomUser
 from .models import TournamentDB
@@ -136,8 +136,8 @@ class Tournament(AsyncWebsocketConsumer):
                 if len(self.players_tournament) >= 4:
                     for player in self.players_tournament:
                         self.group_name_tournament += f'{player["name"]}'
-                    count = await async_to_sync(TournamentDB.objects.count)()
-                    self.group_name_tournament += f'_{count}'
+                    count = await TournamentDB.objects.acount()
+                    self.group_name_tournament += f'_{count+1}'
                     for _ in range(4):
                         player = self.players_tournament.pop(0)
                         Tournament.tour_players.append(player)

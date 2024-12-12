@@ -15,21 +15,10 @@ function NotificationMenu() {
 
   const {fetchNotifications, notifications, notificationsLoading} = useNotificationContext()
   const router = useRouter()
-  const [isUpdate, setIsUpdate] = useState(false)
 
-  useEffect(() => {
-    fetchNotifications()
-  }, [isUpdate])
-
-  useEffect(() => {
-    console.log(notifications)
-  }, [notifications])
-
-  const handleNotificationClick = (notification) => {
-    if (notification.notif_type === 'friend_request') {
-      router.push(`/profile/${notification.sender_info.username}`)
-    }
-  }
+  // useEffect(() => {
+  //   fetchNotifications()
+  // }, [])
 
   if (notificationsLoading) {
     return <div className='text-white fixed w-[95%] md:w-[calc(100%_-_100px)] h-[600px] flex flex-row-reverse z-50'></div>
@@ -42,17 +31,23 @@ function NotificationMenu() {
             <h1 className='text-[22px] ml-4'>Notifications</h1>
           </div>
           <div className='h-[calc(100%_-_65px)] w-full scrollbar-none overflow-y-auto scroll-smooth'>
-            {notifications?.map((notification, index) => {
-              if (notification.notif_type === 'friend_request') {
-                return (<NotificationElement Url='/friend-requests/' Avatar={notification?.sender_info.avatar_url} Description={notification?.description} Date={notification?.get_human_readable_time} Key={notification?.id} IsRead={notification?.is_read} />)
-              }
-              else if (notification.notif_type === 'message') {
-                return (<NotificationElement Url={`/chat/?username=${notification?.sender_info.username}`} Avatar={notification?.sender_info.avatar_url} Description={notification?.description} Date={notification?.get_human_readable_time} Key={notification?.id} IsRead={notification?.is_read} />)
-              }
-              else if (notification.notif_type === 'accept_friend_request') {
-                return (<NotificationElement Url='/friend-requests/' Avatar={notification?.sender_info.avatar_url} Description={notification?.description} Date={notification?.get_human_readable_time} Key={notification?.id} IsRead={notification?.is_read} />)
-              }
-            })}
+            {notifications?.map((notification) => {
+              return (
+                <div key={notification?.id}>
+                  {
+                    notification.notif_type === 'friend_request' &&
+                    <NotificationElement Url='/friend-requests/' Avatar={notification?.sender_info.avatar_url} Description={notification?.description} Date={notification?.get_human_readable_time} Key={notification?.id} IsRead={notification?.is_read} />
+                  }
+                  {
+                    notification.notif_type === 'message' &&
+                    <NotificationElement Url={`/chat/?username=${notification?.sender_info.username}`} Avatar={notification?.sender_info.avatar_url} Description={notification?.description} Date={notification?.get_human_readable_time} Key={notification?.id} IsRead={notification?.is_read} />
+                  }
+                  {
+                    notification.notif_type === 'accept_friend_request' &&
+                    <NotificationElement Url='/friend-requests/' Avatar={notification?.sender_info.avatar_url} Description={notification?.description} Date={notification?.get_human_readable_time} Key={notification?.id} IsRead={notification?.is_read} />  
+                  }
+                </div>
+            )})}
           </div>
         </div>
     </div>

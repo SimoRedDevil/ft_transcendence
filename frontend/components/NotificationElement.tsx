@@ -54,7 +54,6 @@ function NotificationElement({Url, Avatar, Description, Date, Key, IsRead}: Prop
   }
 
   return (
-    <div key={Key}>
       <Link href={Url} onClick={() => handleClick(Key)} className={`w-full ${!IsRead ? 'bg-white/5 text-white/1000' : 'text-white/60'}  p-4 flex gap-3 hover:cursor-pointer`}>
         <div className='w-[60px] h-[60px] rounded-full'>
           <Image className='rounded-full' width={60} height={60} src={Avatar} alt='user_image'></Image>
@@ -64,7 +63,6 @@ function NotificationElement({Url, Avatar, Description, Date, Key, IsRead}: Prop
           <span className='text-[15px]'>{Date}</span>
         </div>
       </Link>
-    </div>
   )
 }
 

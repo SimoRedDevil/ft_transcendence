@@ -231,7 +231,7 @@ function Chat({setShowBlockDialog}) {
           </div>
           <div className='flex flex-col justify-center gap-4'>
             <span className={`text-[20px] ${isMobile ? 'mt-4' : 'mt-0'}`}>{otherUser.full_name}</span>
-            <span className='text-[18px] text-white text-opacity-60'>{otherUserOnline ? 'Online' : 'Offline'}</span>
+            <span className='text-[18px] text-white text-opacity-60'>{(otherUserOnline || otherUser.is_bot) ? 'Online' : 'Offline'}</span>
           </div>
         </div>
         <div className={`${(!otherUser?.is_active || isBlocked || otherUser.is_bot) ? 'invisible' : 'visible'} w-[140px] flex gap-2`}>

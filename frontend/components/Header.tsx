@@ -13,13 +13,16 @@ import { useNotificationContext } from './context/NotificationContext'
 
 function Header({setNotificationClicked, notificationClicked, setProfileDropDownClicked, profileDropDownClicked}) {
   const { authUser, setSearchInput, searchInput, setIsSearching} = useContext(UserContext);
-  const {notifications} = useNotificationContext()
+  const {notifications, fetchNotifications} = useNotificationContext()
   const { t } = useTranslation();
   const [unreadNotifications, setUnreadNotifications] = useState('0');
 
   const handleNotificationClick = () => {
     setProfileDropDownClicked(false);
     setNotificationClicked(!notificationClicked);
+    if (notificationClicked === true) {
+      fetchNotifications();
+    }
   }
 
   const handleProfileClick = () => {

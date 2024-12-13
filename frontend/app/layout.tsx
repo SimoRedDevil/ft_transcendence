@@ -58,6 +58,8 @@ function RootLayout({ children }: any) {
               <link href="https://fonts.cdnfonts.com/css/nevermind-bauhaus" rel="stylesheet" /> 
               <link href="https://fonts.cdnfonts.com/css/a-space-demo" rel="stylesheet" />
               <link href="https://fonts.cdnfonts.com/css/flexsteel" rel="stylesheet" />
+              <link href="https://fonts.cdnfonts.com/css/oceanic-drift" rel="stylesheet"/>
+                
               <title>
                 {pathname.charAt(1).toUpperCase() + pathname.slice(2)}
               </title>
@@ -169,7 +171,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
             <div className="h-[95%] flex flex-col-reverse sm:flex-row max-sm:justify-center max-sm:items-center">
                 {/* Render Sidebar if pathname is not in exclude list */}
                 {!exclude.includes(pathname) && (
-                    <div className="flex sm:flex-col w-full sm:w-[100px]">
+                    <div className="flex sm:flex-col w-full sm:w-[100px] ">
                         <Sidebar />
                     </div>
                 )}

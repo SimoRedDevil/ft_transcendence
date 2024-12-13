@@ -25,7 +25,6 @@ export default function Profile() {
   const [friends, setFriends] = useState(null);
   const [matches, setMatches] = useState(null);
   const [profileLoading, setProfileLoading] = useState(true);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -61,7 +60,7 @@ export default function Profile() {
     };
     fetchMatches();
   }, []);
-
+  console.log(matches);
   if (!data || loading || profileLoading) {
     return <div>Loading...</div>;
   }
@@ -71,9 +70,9 @@ export default function Profile() {
     // <div className='h-full w-full backdrop-blur-lg flex justify-center items-center'>
     //       <Versus img={img}/>
     // </div>
-    <div className="lg:w-[100%] lg:h-full  lg:overflow-hidden lg:flex   items-center justify-center  xs:h-[90vh] md:border border-white/40 p-2 xs:w-full xs:overflow-y-auto xs:overflow-x-hidden  xs:space-y-4 lg:space-y-0 overflow-hidden  rounded-xl xs:pb-14 md:pb-" >
-      <div className='xs:w-full xs:h-[80vh] lg:w-1/4  lg:h-full flex flex-col justify-around items-center xs:gap-3 lg:gap-0 ' >
-          <div className='xs:w-full xs:h-1/2 lg:w-[90%] lg:h-[50%] rounded-[30px] user_info  border flex flex-col justify-between items-center '>
+    <div className=" lg:w-[100%] lg:h-full  lg:overflow-hidden lg:flex   items-center justify-center  mobile:h-[90vh] md:border border-white/40 p-2 mobile:w-full mobile:overflow-y-auto mobile:overflow-x-hidden  mobile:space-y-4 lg:space-y-0 overflow-hidden  rounded-xl mobile:pb-14 md:pb-" >
+      <div className='mobile:w-full mobile:h-[80vh] lg:w-1/4  lg:h-full flex flex-col justify-around items-center mobile:gap-3 lg:gap-0 ' >
+          <div className='mobile:w-full mobile:h-1/2 lg:w-[90%] lg:h-[50%] rounded-[30px] user_info  border flex flex-col justify-between items-center '>
             {/* <div className='w-full h-[80%] bg-black' ></div> */}
             <div className=' rounded-[30px] h-[30%] relative   w-full flex justify-center '> 
                   <img  className='relative p-1 ls:w-32 ls:h-32    mobile:top-2 z-10  mobile:w-32 mobile:h-32 lg:w-28 lg:h-28 2xl:w-40 2xl:h-40 rounded-full overflow-hidden border-2 border-[#0ecff1fb] shadow-lg  '  src={img} alt="" />
@@ -92,31 +91,37 @@ export default function Profile() {
               </div>
             </div>
           </div>
-          <div className='xs:w-full lg:w-[90%] lg:h-[45%]  xs:h-1/2  rounded-lg user_info' >
-          <AchievementsList achievements={data.achievements} />
+          <div className='mobile:w-full lg:w-[90%] lg:h-[45%]  mobile:h-1/2  rounded-lg user_info' >
+          <AchievementsList achievements={data} wins={authUser?.wins}/>
           </div>
       </div>
       
-      <div className='xs:w-full lg:w-1/4   h-full flex justify-center' >
-      <div className='xs:w-full lg:w-[90%] h-full user_info'>
+      <div className='mobile:w-full lg:w-[30%]   h-full flex justify-center items-center' >
+      {friends.lenght > 0 ?  
+      <div className='mobile:w-full lg:w-[90%] h-full user_info'>
         <FriendsList friends={friends} />
+      </div>:
+      <div className='mobile:w-full lg:w-[90%] h-full user_info flex justify-center items-center' >
+        <h1 className='font-Oceanic  lg:text-[1vw]'>New friends will appers here</h1>
       </div>
+        }
       </div>
-      <div className='xs:w-full lg:w-2/4 h-full '>
-      <div className='xs:w-full lg:w-full  h-full  flex  flex-col justify-center gap-5' >
-        <div className='xs:w-full  h-[40%] border border-white/40 rounded-[30px]  bg-gradient-to-r from-[#00000080] to-[#293B45B3]  flex lg:flex-row xs:flex-col items-center justify-between'>
-        <div className='  w-[70%] flex  items-center justify-center  lg:h-full' >
-          <h1 className='text-center text-white md:text-[4vw] lg:text-[2vw] font-semibold '>Total Matches : <br/> {authUser?.matches} </h1>
+      <div className='mobile:w-full lg:w-[40%] h-full '>
+      <div className='mobile:w-full lg:w-full  h-full  flex  flex-col justify-center gap-5 ' >
+        <div className='mobile:w-full  h-[40%] border border-white/40 rounded-[30px] box-border bg-gradient-to-r from-[#00000080] to-[#293B45B3]  flex lg:flex-row mobile:flex-col items-center justify-between'>
+        <div className='  w-[70%]  flex  items-center justify-center  lg:h-full' >
+          <h1 className='text-center text-white md:text-[4vw] lg:text-[2vw] font-semibold '>Total Matches : {authUser?.matches} </h1>
         </div>
-        <div className='w-full h-full  flex items-center justify-center'>
-              <WeeklyStatsDashboard />
+        <div className='mobile:w-full h-full  flex items-center justify-center'>
+              <WeeklyStatsDashboard  matches={authUser?.matches} wins={authUser?.wins}/>
         </div>
         </div>
-        <div className='xs:w-full  h-[55%] border border-white/40 rounded-[30px]  bg-gradient-to-r from-[#00000080] to-[#293B45B3]'>
+        <div className='mobile:w-full  h-[55%] border border-white/40 rounded-[30px]  bg-gradient-to-r from-[#00000080] to-[#293B45B3]'>
         <MatchList
           main_user_name={authUser?.username}
           results={matches}
           main_user_avatar={img}
+
         />
         </div>
       </div>
@@ -124,3 +129,4 @@ export default function Profile() {
     </div>
   );
 }
+/////////////////////

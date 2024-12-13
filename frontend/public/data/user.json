@@ -1,238 +1,80 @@
-{
-    "id": 1,
-    "username": "user123",
-    "full_name": "John Doe",
-    "email": "johndoe@example.com",
-    "password": "hashedpassword123",
-    "avatar": {
-      "url": "/images/Me.png"
-    },
-    "level": 10,
-    "matches": 20,
-    "win": 15,
-    "loss": 5,
-    "profile_visits": 120,
-    "friends_count": 50,
-    "top_score": 2000,
-    "tournaments": 3,
-    "online_matches": 10,
-    "offline_matches": 10,
-    "current_xp": 1500,
-    "target_xp": 2000,
-    "online": true,
-    "friends": [
-      {
-        "full_name": "Alice Smith",
-        "username": "aliceS",
-        "online": true
-      },
-      {
-        "full_name": "Alice Smith",
-        "username": "aliceS",
-        "online": true
-      },
-      {
-        "full_name": "Alice Smith",
-        "username": "aliceS",
-        "online": true
-      },
-      {
-        "full_name": "Alice Smith",
-        "username": "aliceS",
-        "online": true
-      },
-      {
-        "full_name": "Alice Smith",
-        "username": "aliceS",
-        "online": true
-      },
-      {
-        "full_name": "Alice Smith",
-        "username": "aliceS",
-        "online": true
-      },
-      {
-        "full_name": "Alice Smith",
-        "username": "aliceS",
-        "online": true
-      },
-      {
-        "full_name": "Bob Johnson",
-        "username": "bobbyJ",
-        "online": false
-      },
-      {
-        "full_name": "Charlie Brown",
-        "username": "charlieB",
-        "online": true
-      },
-      {
-        "full_name": "David Clark",
-        "username": "davidC",
-        "online": false
-      },
-      {
-        "full_name": "Eve Taylor",
-        "username": "eveT",
-        "online": true
-      }
-    ],
-    "achievements": [
-      {
-        "title": "First Win",
-        "description": "just born.",
-        "date_earned": "2024-09-01",
-        "icon": "images/ach1.jpeg",
-        "status": true
-      },
-      {
-        "title": "Top Scorer",
-        "description": "Achieved the highest score in a single game.",
-        "date_earned": "2024-09-15",
-        "icon": "images/ach1.jpeg",
-        "status": true
-      },
-      {
-        "title": "Tournament Champion",
-        "description": "Won a local tournament.",
-        "date_earned": "2024-10-05",
-        "icon": "images/ach1.jpeg",
-        "status": false
-      },
-      {
-        "title": "Tournament Champion",
-        "description": "Won a local tournament.",
-        "date_earned": "2024-10-05",
-        "icon": "images/ach1.jpeg",
-        "status": false
-      },
-      {
-        "title": "Tournament Champion",
-        "description": "Won a local tournament.",
-        "date_earned": "2024-10-05",
-        "icon": "images/ach1.jpeg",
-        "status": false
-      },
-      {
-        "title": "Tournament Champion",
-        "description": "Won a local tournament.",
-        "date_earned": "2024-10-05",
-        "icon": "images/ach1.jpeg",
-        "status": false
-      },
-      {
-        "title": "Tournament Champion",
-        "description": "Won a local tournament.",
-        "date_earned": "2024-10-05",
-        "icon": "images/ach1.jpeg",
-        "status": false
-      },
-      {
-        "title": "Tournament Champion",
-        "description": "Won a local tournament.",
-        "date_earned": "2024-10-05",
-        "icon": "images/ach1.jpeg",
-        "status": false
-      },
-      {
-        "title": "Tournament Champion",
-        "description": "Won a local tournament.",
-        "date_earned": "2024-10-05",
-        "icon": "images/ach1.jpeg",
-        "status": false
-      },
-      {
-        "title": "Tournament Champion",
-        "description": "Won a local tournament.",
-        "date_earned": "2024-10-05",
-        "icon": "images/ach1.jpeg",
-        "status": false
-      },
-      {
-        "title": "Tournament Champion",
-        "description": "Won a local tournament.",
-        "date_earned": "2024-10-05",
-        "icon": "images/ach1.jpeg",
-        "status": false
-      },
-      {
-        "title": "Tournament Champion",
-        "description": "Won a local tournament.",
-        "date_earned": "2024-10-05",
-        "icon": "images/ach1.jpeg",
-        "status": false
-      },
-      {
-        "title": "Tournament Champion",
-        "description": "Won a local tournament.",
-        "date_earned": "2024-10-05",
-        "icon": "images/ach1.jpeg",
-        "status": false
-      },
-      {
-        "title": "Tournament Champion",
-        "description": "Won a local tournament.",
-        "date_earned": "2024-10-05",
-        "icon": "images/ach1.jpeg",
-        "status": false
-      },
-      {
-        "title": "Tournament Champion",
-        "description": "Won a local tournament.",
-        "date_earned": "2024-10-05",
-        "icon": "images/ach1.jpeg",
-        "status": false
-      }
-    ],
-    "results":[
-      {
-        "opponent": {
-          "name": "Hamid",
-          "avatar": "/images/opp.jpeg"
-        },
-        "result": "10 : 5"
-      },
-      {
-        "opponent": {
-          "name": "khalid",
-          "avatar": "/images/opp.jpeg"
-        },
-        "result": "7 : 4"
-      },
-      {
-        "opponent": {
-          "name": "nohaila",
-          "avatar": "/images/opp.jpeg"
-        },
-        "result": "5 : 5"
-      },
-      {
-        "opponent": {
-          "name": "chaima",
-          "avatar": "/images/opp.jpeg"
-        },
-        "result": "5 : 5"
-      },
-      {
-        "opponent": {
-          "name": "meriem",
-          "avatar": "/images/opp.jpeg"
-        },
-        "result": "5 : 5"
-      },
-      {
-        "opponent": {
-          "name": "karim",
-          "avatar": "/images/opp.jpeg"
-        },
-        "result": "5 : 5"
-      },
-      {
-        "opponent": {
-          "name": "Said",
-          "avatar": "/images/opp.jpeg"
-        },
-        "result": "5 : 15"
-      }
-    ]
+[
+  {
+    "name": "Newborn",
+    "targetWins": 0,
+    "reward": "Start your journey with a warm welcome.",
+    "images": "/images/ach1.jpeg"
+  },
+  {
+    "name": "First Victory",
+    "targetWins": 1,
+    "reward": "Celebrate your first step to greatness.",
+    "images": "/images/second.png"
+  },
+  {
+    "name": "On a Roll",
+    "targetWins": 5,
+    "reward": "You're gaining momentum, keep it up!",
+    "images": "/images/third.png"
+  },
+  {
+    "name": "Double Digits",
+    "targetWins": 10,
+    "reward": "Double-digit wins mark your progress.",
+    "images": "/images/forth.png"
+  },
+  {
+    "name": "Rising Star",
+    "targetWins": 25,
+    "reward": "Your skills are shining bright now.",
+    "images": "/images/star.png"
+  },
+  {
+    "name": "Half Century",
+    "targetWins": 50,
+    "reward": "Reaching 50 wins shows true dedication.",
+    "images": "/images/wise.png"
+  },
+  {
+    "name": "Centurion",
+    "targetWins": 100,
+    "reward": "A hundred victories—you're a true warrior.",
+    "images": "/images/legend1.png"
+  },
+  {
+    "name": "Consistent Champ",
+    "targetWins": 200,
+    "reward": "Your consistency is unmatched.",
+    "images": "/images/great.png"
+  },
+  {
+    "name": "Master Strategist",
+    "targetWins": 500,
+    "reward": "Your strategy has reached mastery level.",
+    "images": "/images/master.png"
+  },
+  {
+    "name": "Unstoppable Force",
+    "targetWins": 1000,
+    "reward": "You've become a force to be reckoned with.",
+    "images": "/images/usnto.png"
+  },
+  {
+    "name": "Legendary Conqueror",
+    "targetWins": 2500,
+    "reward": "Conquering the legends, one win at a time.",
+    "images": "/images/conq.png"
+  },
+  {
+    "name": "Champion of Champions",
+    "targetWins": 5000,
+    "reward": "The ultimate champion among champions.",
+    "images": "/images/champ.png"
+  },
+  {
+    "name": "Immortal Winner",
+    "targetWins": 10000,
+    "reward": "You've achieved immortality in victory.",
+    "images": "/images/legend.png"
   }
+]

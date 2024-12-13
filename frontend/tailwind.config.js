@@ -47,6 +47,8 @@ module.exports = {
         'Orion': ['Flexsteel', 'sans-serif'], 
         'Kecil': ['Major Mono Display', 'sans-serif'],
         'Bruno': ['Bruno Ace SC', 'sans-serif'],
+        'Oceanic': ['Oceanic Drift', 'sans-serif'],
+        
 
         
       },
@@ -80,7 +82,7 @@ module.exports = {
         'slide-in-right': 'slideInRight 1s ease forwards',
       },
       screens: {
-        'mobile': '360px',
+        'mobile': '320px',
         'tablet': '640px',
         'laptop': '1025px',
         'desktop': '1280px',

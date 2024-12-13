@@ -209,7 +209,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
               />
             </div>
           )}
-          <Provider>
+          <Provider >
           {children}
           </Provider>
           <ToastContainer

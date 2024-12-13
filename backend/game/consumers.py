@@ -1,5 +1,5 @@
 import json
-import math
+import math 
 import asyncio
 from .models import Player, Match
 from asgiref.sync import sync_to_async
@@ -185,6 +185,28 @@ class Game(AsyncWebsocketConsumer):
                 ) 
                 asyncio.create_task(self.update_ball_loop(match_name))
             
+        if data['type'] == 'gameOver':
+            user = user = self.scope["user"]
+            await self.is_not_playing(user.username)
+            winer = {'username': '', 'channel_id': ''}
+            loser = {'username': '', 'channel_id': ''}
+            if self.player:
+                if self.player['group_name'] in Game.games_infor:
+                    game = Game.games_infor[self.player['group_name']]
+                    if self.player['player_id'] == 'player1':
+                        if 'player1' in game and 'player2' in game:
+                            winer = game['player2']
+                            loser = game['player1']
+                    else:
+                        if 'player1' in game and 'player2' in game:
+                            winer = game['player1']
+                            loser = game['player2']
+                    if winer and loser and 'image' in winer and 'image' in loser:
+                        winer_image = winer['image']
+                        loser_image = loser['image']
+                        await self.gameOver(self.player['group_name'],  winer['username'], loser['username'], winer['channel_id'], loser['channel_id'], 3, 3, 0, winer_image, loser_image)
+            
+            
         if data['type'] == 'update_ball':
             self.Ball.x += self.Ball.directionX
             self.Ball.y += self.Ball.directionY
@@ -199,7 +221,6 @@ class Game(AsyncWebsocketConsumer):
         winer = {'username': '', 'channel_id': ''}
         loser = {'username': '', 'channel_id': ''}
         user = self.scope["user"]
-        print(user.username) 
         await self.is_not_playing(user.username) 
         Game.match_making = [player for player in Game.match_making if player['name'] != user.username]
         if self.player:

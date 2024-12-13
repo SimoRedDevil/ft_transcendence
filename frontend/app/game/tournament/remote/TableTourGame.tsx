@@ -188,12 +188,12 @@ export default function TableTourGame({ playerna, socketRef, playernambre, group
   }, []);
 
   return (
-    <div className="flex justify-center items-center">
+    <>
         <div className="w-[85%] h-[80vh] flex justify-center items-center xl:flex-row  flex-col mt-[5vh]">
         { gameStarted && ( playerInfo.player_number === 'player1' ?
                       (<Player2 
                           image={image2}
-                          name={playername2 || ''} 
+                          name={playername2 || ''}
                           />) : ((<Player1
                             image={image1}
                             name={playername1 || ''} 
@@ -221,6 +221,6 @@ export default function TableTourGame({ playerna, socketRef, playernambre, group
                       />)
                     )}
         </div>
-    </div>
+    </>
   );
 }

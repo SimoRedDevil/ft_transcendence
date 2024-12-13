@@ -2,7 +2,6 @@
 
 import React, { use, useState } from 'react';
 import TournamentForm from './TournamentForm';
-import LocalGame from './LocalGame';
 import Image from 'next/image';
 import { useEffect , useRef} from 'react';
 import { player } from '../app/game/Object';

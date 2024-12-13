@@ -54,6 +54,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "build:game": "next build app/game",
     "test": "jest"
   },
   "devDependencies": {

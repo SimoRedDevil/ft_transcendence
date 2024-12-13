@@ -174,7 +174,7 @@ export default function TableGame({ playerna, socketRef,  groupname ,  player_id
   }, []);
 
   return (
-    <div className="flex justify-center items-center">
+    <>
         <div className="w-[85%] h-[80vh] flex justify-center items-center xl:flex-row  flex-col mt-[5vh]">
                     { gameStarted && ( playerInfo.player_number === 'player1' ?
                       (<Player2 
@@ -207,6 +207,6 @@ export default function TableGame({ playerna, socketRef,  groupname ,  player_id
                       />)
                     )}
         </div>
-    </div>
+    </>
   );
 }

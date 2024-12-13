@@ -206,7 +206,7 @@ class Game(AsyncWebsocketConsumer):
                         loser_image = loser['image']
                         await self.gameOver(self.player['group_name'],  winer['username'], loser['username'], winer['channel_id'], loser['channel_id'], 3, 3, 0, winer_image, loser_image)
             
-            
+        
         if data['type'] == 'update_ball':
             self.Ball.x += self.Ball.directionX
             self.Ball.y += self.Ball.directionY

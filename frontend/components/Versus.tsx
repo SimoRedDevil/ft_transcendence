@@ -28,7 +28,7 @@ export default function Versus({ socket , game_roum , username, image1, image2, 
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
   const [isFinal, setIsFinal] = useState(false);
   const [isReady, setIsReady] = useState(false);
-  const [number, setNumber] = useState(3);
+  const [number, setNumber] = useState(20);
 
   const handleButtonClick = () => {
     socket.send(JSON.stringify({ type: 'playerReady', game_roum: game_roum, username: username }));

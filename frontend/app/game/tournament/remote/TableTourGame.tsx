@@ -43,6 +43,10 @@ interface GameProps {
 
 export default function TableTourGame({ playerna, socketRef, playernambre, groupname ,  player_id, qualified,
    image1, image2, player_nambre , playername1, playername2,onGameEnd, handleUpdate, handlefinal}: GameProps) {
+  gameIsStarted = false;
+  socketIsOpen = false;
+  game_state = {};
+  game_channel = '';
   const canvasRef = useRef<HTMLDivElement>(null);
   const [gameStarted, setGameStarted] = useState(false);
   let count = 3; 
@@ -75,6 +79,7 @@ export default function TableTourGame({ playerna, socketRef, playernambre, group
       socketRef.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.type === 'start_game') {
+          console.log("tttererer");
           game_state = data.game_serialized;
           game_channel = data.name_channel;
           socketIsOpen = true;
@@ -92,14 +97,26 @@ export default function TableTourGame({ playerna, socketRef, playernambre, group
           game_state['player2'] = data.player2;
         }
         if (data.type === 'game_over') {
-          console.log("game over", data);
-          onGameEnd(data['winner'].username, data['winner'].playernambertour);
+          console.log("gameeeeee ", data)
+          if (data.isOp == true)
+          {
+            onGameEnd(data['winner'].username, data['winner'].playernambertour);
+            if (data['winner'].username === playerInfo.name) {
+              socketRef.send(JSON.stringify({ type: 'qualified', final_tournament: data['final_tournament'],
+              data: { winer: data['winner'].username, numberwiner: data['winner'].playernambertour} , groupname: groupname}));
+            }
+          }
+          else
+          {
+            onGameEnd(data['winner'].name, data['winner'].numberplayer);
+            if (data['winner'].name === playerInfo.name) {
+              socketRef.send(JSON.stringify({ type: 'qualified', final_tournament: data['final_tournament'],
+              data: { winer: data['winner'].name, numberwiner: data['winner'].numberplayer} , groupname: groupname}));
+            }
+
+          }
           gameIsStarted = false;
           socketIsOpen = false;
-          if (data['winner'].username === playerInfo.name) {
-            socketRef.send(JSON.stringify({ type: 'qualified', final_tournament: data['final_tournament'],
-            data: { winer: data['winner'].username, numberwiner: data['winner'].playernambertour} , groupname: groupname}));
-          }
           game_state = {};
           game_channel = '';
         }
@@ -189,7 +206,16 @@ export default function TableTourGame({ playerna, socketRef, playernambre, group
 
   return (
     <>
-        <div className="w-[85%] h-[80vh] flex justify-center items-center xl:flex-row  flex-col mt-[5vh]">
+        <div className="w-[100%] h-[90vh] flex justify-center items-center xl:flex-row  flex-col
+                        sm:space-y-[20px]
+                        lm:space-y-[40px]
+                        lg:space-y-[40px]
+                        xl:space-x-[60px] xl:space-y-0
+                        2xl:space-x-[200px]
+                        3xl:space-x-[250px]
+                        4xl:space-x-[300px]
+                        md:space-y-[30px]
+                        md:rounded-[50px">
         { gameStarted && ( playerInfo.player_number === 'player1' ?
                       (<Player2 
                           image={image2}

@@ -20,9 +20,9 @@ import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import {useRouter} from 'next/navigation';
 import { getCookies } from '../../../components/auth';
-
 import { getFriends } from '@/components/friendHelper';
-
+import AnonyBlockedPage from '@/components/AnonyBlockedPage';
+import { BounceLoader, PuffLoader } from 'react-spinners';
 
 export default function Profile({params}) {
   const { authUser, loading } = useUserContext();
@@ -36,6 +36,7 @@ export default function Profile({params}) {
   const resolvedParam = React.use(params);
   const { t } = useTranslation();
   const router = useRouter();
+  const [blocked, setBlocked] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,24 +54,44 @@ export default function Profile({params}) {
     if (friends)
      setProfileLoading(false);
    }, []);
-  useEffect(() => {
-    const fetchUser = async () => {
+   
+   const fetchUser = async () => {
+     try {
+       const response = await axiosInstance.get('auth/get-user/', {
+         params: {
+           username: resolvedParam.user
+         }
+       });
+       setUser(response.data);
+     } catch (error) {
+       router.push(`/${error.status}`);
+     }
+     finally {
+       setUserLoading(false);
+     }
+   }
+  
+   useEffect(() => {
+     const checkUserIsBlocked = async () => {
       try {
-        const response = await axiosInstance.get('auth/get-user/', {
+        const response = await axiosInstance.get('auth/check-blocked/', {
           params: {
             username: resolvedParam.user
           }
         });
-        setUser(response.data);
+        if (response.status === 200) {
+          setBlocked(response.data.blocked);
+          if (!response.data.blocked)
+            fetchUser();
+        }
       } catch (error) {
-        router.push(`/${error.status}`);
+        console.error("Error checking if user is blocked:", error);
+        setBlocked(false);
       }
-      finally {
-        setUserLoading(false);
-      }
-    }
-    fetchUser();
-  }, []);
+     }
+     checkUserIsBlocked();
+   }, []);
+
 
   useEffect(() => {
     const fetchMatches = async () => {
@@ -90,9 +111,30 @@ export default function Profile({params}) {
     fetchMatches();
   }, []);
   
-  if (!data || loading || userLoading) {
-    return <div>Loading...</div>;
+  if (blocked) {
+    return (
+      <div className='h-full w-full flex items-center justify-center'>
+        <AnonyBlockedPage Type='Blocked' Description='You cannot see this user because you blocked him or he is blocked you.' />
+      </div>
+    );
   }
+
+  if (user && user?.anonymous) {
+    return (
+      <div className='h-full w-full flex items-center justify-center'>
+        <AnonyBlockedPage Type='Anonymize' Description='You cannot see this user because he is anonymized his account.' />
+      </div>
+    );
+  }
+
+  if (!data || loading || userLoading) {
+    return (
+      <div className='flex items-center justify-center w-full h-full'>
+        <BounceLoader size={300} color='#1f959d' />
+      </div>
+    );
+  }
+
   console.log(matches)
   const img = user?.avatar_url ;
   return (

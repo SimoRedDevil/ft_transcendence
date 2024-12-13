@@ -124,7 +124,7 @@ class UserSerializer(serializers.ModelSerializer):
             'tournament_score', 'enabeld_2fa', 'is_already_logged', 'twofa_verified', 'qrcode_url', 'qrcode_path',
             'level', 'matches', 'wins', 'losses', 'draws', 'profile_visited','is_active',
             'friends_count', 'top_score', 'tournaments', 'online_matches',
-            'offline_matches', 'current_xp', 'target_xp', 'online', 'friends', 'blocked_users', 'is_playing', 'is_bot']
+            'offline_matches', 'current_xp', 'target_xp', 'online', 'friends', 'blocked_users', 'is_playing', 'is_bot', 'anonymous']
         extra_kwargs = {
             'password': {'write_only': True},
         }
@@ -151,4 +151,4 @@ class AnonymousUserSerializer(serializers.ModelSerializer):
 class SimplifiedUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'full_name', 'avatar_url', 'online', 'is_active', 'is_bot']
+        fields = ['id', 'username', 'full_name', 'avatar_url', 'online', 'is_active', 'is_bot', 'anonymous']

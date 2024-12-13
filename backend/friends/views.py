@@ -56,6 +56,7 @@ class CreateRequest(APIView):
             room_group_name,
             {
                 'type': 'send_notification',
+                'id': notif.id,
                 'notif_type': 'friend_request',
                 'sender': request.user.username,
                 'receiver': user.username,
@@ -119,6 +120,7 @@ class AcceptRequest(APIView):
             room_group_name,
             {
                 'type': 'send_notification',
+                'id': notif.id,
                 'notif_type': 'accept_friend_request',
                 'sender': friend_req.receiver.username,
                 'receiver': friend_req.sender.username,

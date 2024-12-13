@@ -119,8 +119,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             notif = await create_notification(sender_obj, receiver_obj, 'message', 'New Message', f'You have a new message from {sender_obj.full_name}.')
             await self.channel_layer.group_send(notif_room_group_name, 
                 {
-                    'type': 'send_notification', 
-                    'notif_type': 'message', 
+                    'type': 'send_notification',
+                    'id': notif.id,
+                    'notif_type': 'message',
                     'sender': sender_obj.username, 
                     'receiver': receiver_obj.username, 
                     'title': 'New Message', 

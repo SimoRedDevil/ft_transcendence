@@ -106,7 +106,6 @@ export const NotificationProvider = ({ children }) => {
                 {
                     autoClose: 8000,
                     position: 'top-right',
-                    transition: Bounce,
                     onClick: () => {
                         // Redirect to friend request page
                     }

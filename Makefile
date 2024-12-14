@@ -1,5 +1,5 @@
 
-all: ssl up
+all: up
 
 up :
 	docker-compose  up
@@ -22,7 +22,6 @@ start:
 ps:
 	docker ps
 
-
 push:
 	git add .; \
 	git commit -m "$(msg)"; \
@@ -43,6 +42,5 @@ fclean: stop down
 	@docker builder prune -a -f
 	@docker volume prune -f
 	@docker network prune -f
-
 
 re: fclean all

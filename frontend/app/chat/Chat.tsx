@@ -230,7 +230,7 @@ function Chat({setShowBlockDialog}) {
               }
             </div>
             <div className={(showEmoji) ? 'flex absolute top-[calc(100%_-_430px)] left-[calc(100%_-_400px)] overflow-hidden' : 'hidden'}>
-              <EmojiPicker onEmojiClick={handleEmojiClick} width={400} theme='dark' emojiStyle='google' searchDisabled={false} lazyLoadEmojis={true}/>
+              {/* <EmojiPicker onEmojiClick={handleEmojiClick} width={400} theme='dark' emojiStyle='google' searchDisabled={false} lazyLoadEmojis={true}/> */}
             </div>
           </div>
           <div className={`w-[90%] h-[250px] bg-black bg-opacity-50 border border-white border-opacity-30 rounded-[30px] p-5 flex flex-col items-center justify-center text-center gap-3 ${!isBlocked && 'invisible'}`}>

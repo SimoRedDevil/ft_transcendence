@@ -18,7 +18,7 @@ const Dashboard = () => {
       </div>
       <div className='xs:w-full xs:h-[80vh] xs:flex xs:justify-center lg:h-[90%]'>
           <div className="xs:flex xs:justify-center xs:items-center  xs:w-[89%] xs:h-full  lg:h-full">
-                <Rank player="50" />
+                {/* <Rank player="50" /> */}
           </div>
       </div>
   <div className='xs:h-[80vh] xs:w-full flex justify-center lg:h-[90%]'>

@@ -92,7 +92,6 @@ export default function TableTourGame({ playerna, socketRef, playernambre, group
           game_state['player2'] = data.player2;
         }
         if (data.type === 'game_over') {
-          console.log("gameeeeee ", data)
           if (data.isOp == true)
           {
             onGameEnd(data['winner'].username, data['winner'].playernambertour);

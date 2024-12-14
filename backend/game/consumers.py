@@ -245,7 +245,9 @@ class Game(AsyncWebsocketConsumer):
             player1['player_id'] = 'player1'
             player2 = Game.match_making.pop(0)
             player2['player_id'] = 'player2'
-            self.game_channel = f'game{player1["name"]}vs{player2["name"]}'
+            count = await Match.objects.acount()
+            count += 1
+            self.game_channel = f'game{player1["name"]}vs{player2["name"]}_{count}'
             player1['group_name'] = self.game_channel
             player2['group_name'] = self.game_channel
             if self.game_channel not in Game.games_infor:
@@ -256,7 +258,7 @@ class Game(AsyncWebsocketConsumer):
             }
             await self.update_matchCount(player1['name'])
             await self.update_matchCount(player2['name'])
-            await self.create_match(player1['name'], player2['name'])
+            await self.create_match(player1['name'], player2['name'], self.game_channel)
             await self.channel_layer.group_add(
                 self.game_channel,
                 player1['id']
@@ -274,6 +276,7 @@ class Game(AsyncWebsocketConsumer):
                     'game_channel': self.game_channel,
                 }
             )
+
  
     async def invite_game(self, data):
         if len(Game.games_invites) >= 2:
@@ -361,7 +364,6 @@ class Game(AsyncWebsocketConsumer):
                         loserimage = game['player2']
                         winerImage = winerimage['image'] 
                         loserImage = loserimage['image']
-                        await self.Update_matches(winer.username, loser.username, winer.score, loser.score)
                         await self.gameOver(game_channel, winer.username, loser.username, winer.chan_name, loser.chan_name, Tscore, winer.score, loser.score, winerImage, loserImage)
                         break
                 if self.games[game_channel]['ball'].y >= 1:
@@ -379,7 +381,6 @@ class Game(AsyncWebsocketConsumer):
                         winerImage = winerimage['image']
                         loserImage = loserimage['image']
                         Tscore = winer.score - loser.score
-                        await self.Update_matches(loser.username, winer.username, loser.score, winer.score)
                         await self.gameOver(game_channel, winer.username, loser.username, winer.chan_name, loser.chan_name, Tscore, winer.score, loser.score, winerImage, loserImage)
                         break
                 await self.channel_layer.group_send(   
@@ -401,6 +402,7 @@ class Game(AsyncWebsocketConsumer):
         await self.update_loser(loser)
         await self.is_not_playing(winer)
         await self.is_not_playing(loser)
+        await self.Update_matches(loser, winer, scoreLoser, scoreWiner, game_chan)
         if game_chan in self.player_match:
             self.player_match[game_chan].clear()
         if game_chan in self.matchs:
@@ -509,6 +511,10 @@ class Game(AsyncWebsocketConsumer):
             return None
 
     @sync_to_async
+    def is_user_blocked(self, user, username):
+        return user.blocked_users.filter(username=username).exists()
+
+    @sync_to_async
     def is_playing(self, username):
         player = CustomUser.objects.get(username=username)
         player.is_playing = True
@@ -543,10 +549,11 @@ class Game(AsyncWebsocketConsumer):
     
 
     @sync_to_async
-    def create_match(self, username1 , username2):
+    def create_match(self, username1 , username2, nameMatch):
         player1 = CustomUser.objects.get(username=username1)
         player2 = CustomUser.objects.get(username=username2)
         mAtch = Match.objects.create(
+            name=nameMatch,
             player1=player1,
             player2=player2,
             score1=0,
@@ -555,17 +562,20 @@ class Game(AsyncWebsocketConsumer):
         )
         
     @sync_to_async
-    def Update_matches(self, username1, username2, score1, score2):
-        player1 = CustomUser.objects.get(username=username1)
-        player2 = CustomUser.objects.get(username=username2)
+    def Update_matches(self, username1, username2, score1, score2, nameMatch):
+        loser = CustomUser.objects.get(username=username1)
+        winer = CustomUser.objects.get(username=username2)
         try:
-            match = Match.objects.filter(player1=player1, player2=player2).latest('id')
-            match.score1 = score1
-            match.score2 = score2
-            if score1 > score2:
-                match.winer = player1
+            match = Match.objects.filter(name=nameMatch).first()
+            print(match.player1.username, flush=True)
+            print(loser.username, flush=True)
+            if loser.username == match.player1.username:
+                match.score1 = score1
+                match.score2 = score2
             else:
-                match.winer = player2
+                match.score2 = score1
+                match.score1 = score2
+            match.winer = winer
             match.save()
         except Match.DoesNotExist:
             print("Match does not exist")

@@ -29,4 +29,5 @@ urlpatterns = [
     path('get-user/', GetUser.as_view(), name='get_user'),
     path('get-friends/', FriendsListView.as_view(), name='get_friends'),
     path('get-blocked/', BlockListView.as_view(), name='get_blocked'),
+    path('user-status/', UserStatusView.as_view(), name='user_status'),
 ]

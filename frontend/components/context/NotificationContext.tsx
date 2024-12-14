@@ -4,14 +4,21 @@ import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { autocompleteClasses } from '@mui/material';
+import { axiosInstance } from '@/utils/axiosInstance';
+import { useUserContext } from './usercontext';
 import { redirect } from 'next/navigation';
+import { Bounce } from 'react-toastify';
 
 const NotificationContext = createContext(null);
 
 export const NotificationProvider = ({ children }) => {
     const [notifications, setNotifications] = useState([]);
-    const notif_socket = useRef(null);
+    const [isFriendRequest, setIsFriendRequest] = useState(false);
+    const [notificationsLoading, setNotificationsLoading] = useState(true);
+    const [notifSocket, setNotifSocket] = useState(null);
     const { t } = useTranslation();
+    const [onlineUsers, setOnlineUsers] = useState([]);
+    const {authUser} = useUserContext();
 
     const AcceptInvite = (socket: WebSocket, sender: string, receiver: string) => {
         socket.send(JSON.stringify({"notif_type": "accept_game", "sender": receiver, "receiver": sender,
@@ -26,105 +33,103 @@ export const NotificationProvider = ({ children }) => {
                 redirect(`/game/remotegame?${query}`);
     }
 
-    useEffect(() => {
-        notif_socket.current = new WebSocket('wss://localhost/ws/notification/');
-        notif_socket.current.onopen = () => {
-            console.log('Connected to notifications');
-        };
-        notif_socket.current.onmessage = (message) => {
-            const newNotification = JSON.parse(message.data);
-
-        const Msg = ({sender, socket, receiver}) => (
-            console.log("hehrerhehrehrehrehre" ,sender, receiver, socket),
-            <div className='flex justify-end flex-col'>
-                <p className='text-xs'>{t(`You have been invited to a game by ${sender}`)}</p>
-                <div className='flex justify-around items-center w-full'>
-                    <button onClick={
-                        () => {
-                            socket.send(JSON.stringify({"notif_type": "reject_game", "sender": receiver, "receiver": sender,
-                        "title": "Reject Game", "description": "I reject your game invitation"
-                        }));
-                        }
-                    }>Reject</button>
-                    <button onClick={
-                        () => {
-                            socket.send(JSON.stringify({"notif_type": "accept_game", "sender": receiver, "receiver": sender,
-                        "title": "Accept Game", "description": "I accept your game invitation"
-                        }));
-                        const query = new URLSearchParams({
-                            type: 'invite',
-                            sender: sender,
-                            receiver: receiver,
-                        }).toString();
-                            redirect(`/game/remotegame?${query}`);
-                        }
-
-                    }>Accept</button>
-                </div>
-            </div>
+    const removeNotifications = (senderId, receiverId) => {
+        setNotifications((prevNotifications) =>
+          prevNotifications.filter((notification) => (notification.sender_info.id !== senderId || notification.receiver_info.id !== receiverId) && notification.notif_type === 'message')
         );
-            console.log(newNotification);
-            if (newNotification.notif_type === 'invite_game') {
-                toast(<Msg sender={newNotification.sender} receiver={newNotification.receiver} socket={notif_socket.current} />, 
-                {
+    };
 
-                    autoClose: 8000,
-                    theme: "dark",
-                    position: 'top-right',
-                    style: {
-                        width: '300px',
-                        height: '100px',  
+    useEffect(() => {
+        if (authUser !== null) {
+            const ws = new WebSocket("wss://localhost/ws/notification/");
+            ws.onopen = () => {
+              console.log("Connected to notification status");
+            };
+
+            ws.onmessage = (message) => {
+                const newNotification = JSON.parse(message.data);
+                setIsFriendRequest(false);
+                if (newNotification.notif_type === 'invite_game') {
+                    toast.info(t(`You have been invited to a game by ${newNotification.sender_info.full_name}`),
+                    {
+                        autoClose: 8000,
+                        position: 'top-right',
+                        transition: Bounce,
+                        onClick: () => {
+                            // Redirect to game page
+                        }
                     }
-                });
-            }
-            if (newNotification.notif_type === 'accept_game') {
-                toast.success(t(`${newNotification.sender} has accepted your game invitation`),
-                {
-                    autoClose: 8000,
-                    position: 'top-right',
+                );
+                    return;
                 }
-            );
-                const query = new URLSearchParams({
-                    type: 'invite',
-                    sender: newNotification.receiver,
-                    receiver: newNotification.sender,
-                }).toString();
-        
-                redirect(`/game/remotegame?${query}`);
-            }
-            if (newNotification.notif_type === 'reject_game') {
-                toast.error(t(`${newNotification.sender} has rejected your game invitation`),
-                {
-                    autoClose: 5000,
-                    position: 'top-right',
-                    hideProgressBar: false,
+                else if (newNotification.notif_type === 'friend_request') {
+                    setIsFriendRequest(true);
+                    toast.info(t(`${newNotification.description}`),
+                    {
+                        autoClose: 8000,
+                        position: 'top-right',
+                        transition: Bounce,
+                        onClick: () => {
+                            
+                        }
+                    });
                 }
-            );
-            }
-            else if (newNotification.notif_type === 'friend_request') {
-                toast.info(t(`${newNotification.description}`),
-                {
-                    autoClose: 8000,
-                    position: 'top-right',
-                    onClick: () => {
-                        // Redirect to friend request page
-                    }
+                else if (newNotification.notif_type === 'message') {
+                    setIsFriendRequest(true);
+                    toast.info(t(`${newNotification.description}`),
+                    {
+                        autoClose: 8000,
+                        position: 'top-right',
+                        transition: Bounce,
+                        onClick: () => {
+                            // Redirect to chat page
+                        }
+                    });
                 }
-            );
+                removeNotifications(newNotification.sender_info.id, newNotification.receiver_info.id);
+                setNotifications((prevNotifications) => [...prevNotifications, newNotification]);
+            };
+
+            ws.onclose = () => {
+              console.log("Disconnected from notification socket");
+            };
+
+            ws.onerror = (error) => {
+                console.log('Notification socket error: ', error);
             }
-            setNotifications((prevNotifications) => [...prevNotifications, newNotification]);
-        };
-        notif_socket.current.onclose = () => {
-            console.log('Disconnected from notifications');
-        };
-        notif_socket.current.onerror = (error) => {
-            console.log(error);
-        };
-        return () => notif_socket.current.close();
-    }, []);
+
+            setNotifSocket(ws);
+            return () => {
+                ws.close();
+            }
+        }
+        else
+        {
+            if (notifSocket !== null) {
+                notifSocket.close();
+                setNotifSocket(null);
+            }
+        }
+    }, [authUser]);
+
+    const fetchNotifications = async () => {
+        try {
+            setNotificationsLoading(true);
+            const response = await axiosInstance.get('notifications/');
+            if (response.status === 200) {
+                setNotifications(response.data);
+            }
+        }
+        catch (error) {
+            toast.error(t('Failed to fetch notifications'));
+        }
+        finally {
+            setNotificationsLoading(false);
+        }
+    }
 
     return (
-        <NotificationContext.Provider value={{ notifications, setNotifications, notif_socket }}>
+        <NotificationContext.Provider value={{ notifications, setNotifications, notifSocket, fetchNotifications, isFriendRequest }}>
             {children}
         </NotificationContext.Provider>
     );

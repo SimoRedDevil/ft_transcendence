@@ -43,4 +43,8 @@ fclean: stop down
 	@docker volume prune -f
 	@docker network prune -f
 
+cleandb:
+	@rm -rf  database
+	@rm -rf  redis
+
 re: fclean all

@@ -12,6 +12,7 @@ class Notification(models.Model):
     is_read = models.BooleanField(default=False)
     title = models.TextField(max_length=64)
     description = models.TextField(max_length=128)
+    friend_request = models.ForeignKey("friends.FriendRequest", on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         ordering = ['-created_at']
@@ -19,3 +20,5 @@ class Notification(models.Model):
     def mark_as_read(self):
         self.is_read = True
         self.save()
+    def get_human_readable_time(self):
+        return self.created_at.strftime("%A, %I:%M %p")

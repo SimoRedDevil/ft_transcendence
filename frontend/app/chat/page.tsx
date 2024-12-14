@@ -10,48 +10,15 @@ import AlertDialog from '../../components/AlertDialog'
 
 function ChatPage() {
   const [showBlockDialog, setShowBlockDialog] = useState(false)
-  // const socket = useRef(null)
-
-  // useEffect(() => {
-  //   socket.current = new WebSocket('wss://localhost/ws/chat/')
-  //   socket.current.onopen = () => {
-  //     console.log('Connected to the chat server')
-  //   }
-  //   socket.current.onmessage = (message) => {
-  //     const newMessage = JSON.parse(message.data)
-  //   }
-  //   socket.current.onclose = () => {
-  //     console.log('Disconnected from the chat server')
-  //   }
-  //   socket.current.onerror = (error) => {
-  //     console.log('Error: ', error)
-  //   }
-  //   return () => {
-  //     socket.current.readyState === WebSocket.OPEN && socket.current.close()
-  //   }
-  // }, [])
   return (
     <ChatProvider>
-    <div className='w-full h-full flex items-center justify-center'>
-      <div className='text-white w-[97%] h-full flex flex-col bg-black bg-opacity-60 rounded-[50px] border border-white border-opacity-30 sm:border sm:border-white sm:border-opacity-30 sm:rounded-[50px] sm:w-[90%] sm:h-[90%] xl:w-[80%] xl:h-[90%] lg:flex-row'>
-        <Conversations />
-        <Chat setShowBlockDialog={setShowBlockDialog} />
-        {showBlockDialog && <AlertDialog showBlockDialog={showBlockDialog} setShowBlockDialog={setShowBlockDialog}/>}
+      <div className='w-full h-full flex items-center justify-center'>
+        <div className='text-white w-[97%] h-full flex flex-col bg-black bg-opacity-60 rounded-[50px] border border-white border-opacity-30 sm:border sm:rounded-[50px] sm:w-[90%] sm:h-[90%] xl:w-[80%] xl:h-[90%] lg:flex-row'>
+          <Conversations />
+          <Chat setShowBlockDialog={setShowBlockDialog} />
+          {showBlockDialog && <AlertDialog showBlockDialog={showBlockDialog} setShowBlockDialog={setShowBlockDialog}/>}
+        </div>
       </div>
-      {/* <div className='border h-[100px] w-[200px] text-white'>
-        <button onClick={
-          async () => {
-            socket.current.send(JSON.stringify({
-              'content': 'Faayn akhay abdellatif',
-              'sent_by_user': 'mel-yous',
-              'sent_to_user': 'aben-nei',
-              'conversation_id': '-1',
-              'msg_type': 'message'
-            }))
-          }
-        }>initial message</button>
-      </div> */}
-    </div>
     </ChatProvider>
   )
 }

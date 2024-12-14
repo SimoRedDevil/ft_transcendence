@@ -18,7 +18,7 @@ websocket_urlpatterns = [
     path('ws/tournament/', Tournament.as_asgi()),
     path('ws/chat/', ChatConsumer.as_asgi()),
     path('ws/notification/', NotificationConsumer.as_asgi()),
-    path('ws/authentication/', MyWebSocketConsumer.as_asgi()),
+    path('ws/online/', MyWebSocketConsumer.as_asgi()),
 ]
 
 application = ProtocolTypeRouter({

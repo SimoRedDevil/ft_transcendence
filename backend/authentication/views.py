@@ -173,7 +173,7 @@ class GoogleLoginCallback(APIView):
                 user = CustomUser.objects.get((Q(username=user_info['given_name']) | Q(email=user_info['email'])))
             except CustomUser.DoesNotExist:
                 user = CustomUser.objects.create(
-                    username=user_info['given_name'],
+                    username=user_info['email'].split('@')[0],
                     email=user_info['email'],
                     full_name=user_info['name'],
                     avatar_url=user_info['picture'],
@@ -345,7 +345,6 @@ class Logout(APIView):
             logout(request)
             user.twofa_verified = False
             user.is_already_logged = False
-            user.online = False
             user.save()
             return delete_tokens(request, status=status.HTTP_200_OK)
         else:
@@ -545,6 +544,8 @@ class Delete_account(APIView):
 
     def delete(self, request):
         user = request.user
+        if not user.is_active:
+            return Response({'error': 'User is already deleted'}, status=status.HTTP_400_BAD_REQUEST)
         user.is_active = False
         user.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -595,6 +596,8 @@ class block_user(APIView):
             blocked_user = CustomUser.objects.get(username=username)
         except CustomUser.DoesNotExist:
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        if (not blocked_user.is_active):
+            return Response({'error': 'User deleted'}, status=status.HTTP_400_BAD_REQUEST)
         if user.friends.filter(username=username).exists():
             user.friends.remove(blocked_user)
         user.blocked_users.add(blocked_user)
@@ -618,11 +621,13 @@ class unblock_user(APIView):
             blocked_user = CustomUser.objects.get(username=username)
         except CustomUser.DoesNotExist:
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        if (not blocked_user.is_active):
+            return Response({'error': 'User deleted'}, status=status.HTTP_400_BAD_REQUEST)
         user.blocked_users.remove(blocked_user)
         user.save()
         broadcast_msg(user.username, username, 'unblock')
         return Response({'info': f'{blocked_user.username} is unblocked'}, status=status.HTTP_200_OK)
-    
+
 class check_blocked(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
@@ -634,6 +639,8 @@ class check_blocked(APIView):
             return Response({'error': 'username is required'}, status=status.HTTP_400_BAD_REQUEST)
         if not CustomUser.objects.filter(username=username).exists():
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        if (not CustomUser.objects.get(username=username).is_active):
+            return Response({'error': 'User deleted'}, status=status.HTTP_400_BAD_REQUEST)
         if user.blocked_users.filter(username=username).exists():
             return Response({'blocked': True, 'blocker': user.username}, status=status.HTTP_200_OK)
         if CustomUser.objects.get(username=username).blocked_users.filter(username=user.username).exists():
@@ -672,3 +679,19 @@ class AnonymousUserViewSet(APIView):
         response = delete_tokens(request, status=status.HTTP_200_OK)
         response.data = UserSerializer(anonymous_user).data
         return response
+
+class UserStatusView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        username = request.GET.get('username')
+        respone = Response()
+        if not username:
+            respone.data = 'username is required'
+            respone.status = status.HTTP_400_BAD_REQUEST
+            return respone
+        respone.status = status.HTTP_200_OK
+        respone.data = CustomUser.objects.get(username=username).online
+        return respone

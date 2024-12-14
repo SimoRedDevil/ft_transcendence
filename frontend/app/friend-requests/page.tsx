@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation';
 import { useNotificationContext } from '@/components/context/NotificationContext';
 import { SlMenu } from "react-icons/sl";
 import { MdMenuOpen } from "react-icons/md";
+import { BounceLoader } from 'react-spinners';
 
 function page() {
     const [friendRequests, setFriendRequests] = useState([]);
@@ -38,8 +39,8 @@ function page() {
     const [debouncedSearchInput, setDebouncedSearchInput] = useState(searchInput);
     const [isUpdate, setIsUpdate] = useState(false);
     const router = useRouter();
-    const {notifications} = useNotificationContext();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const {notifications, isFriendRequest} = useNotificationContext();
 
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -64,7 +65,7 @@ function page() {
             }
         };
         fetchFriendRequests();
-    }, [isUpdate, isSearch, requests, sentRequest, isFriend, isBlocked, notifications]);
+    }, [isUpdate, isSearch, requests, sentRequest, isFriend, isBlocked, isFriendRequest, notifications]);
 
     const handleAccept = async (requestId) => {
         const body = {
@@ -192,8 +193,8 @@ function page() {
     useEffect(() => {
         getFriends();
         getBlockedUsers();
-    }
-    , [isFriend, isBlocked, isUpdate, isLoading]);
+    }, [isFriend, isBlocked, isUpdate, isLoading, notifications]);
+
     const handleInputChange = (e) => {
         const value = e.target.value;
         if (!value || value.length < 1) {
@@ -211,7 +212,7 @@ function page() {
         return (
             <div className='w-full h-full flex items-center justify-center'>
                 <div className='border border-white/30 rounded-[30px] bg-black bg-opacity-50 w-[90%] h-[95%] flex items-center p-5'>
-                    <div className='text-white text-lg'>Loading...</div>
+                    <BounceLoader size={320} color='#1f959d' />
                 </div>
             </div>
         )

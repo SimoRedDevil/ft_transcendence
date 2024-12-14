@@ -35,7 +35,7 @@ export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }:
     
     useEffect(() => {  
         if (typeof window !== 'undefined' && !socketRef.current) {
-            socketRef.current = new WebSocket('ws://localhost:8000/ws/tournament/');
+            socketRef.current = new WebSocket('wss://localhost/ws/tournament/');
             socketRef.current.onopen = () => {
               console.log('WebSocket connected');
               socketRef.current.send(JSON.stringify({ type: 'connection', playerName: PlayerName , username: authUser.username}));

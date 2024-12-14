@@ -5,6 +5,7 @@ from authentication.models import CustomUser
 from .models import conversation, message
 from django.db.models import Q
 from django.utils import timezone
+from notification.models import Notification
 
 @database_sync_to_async
 def get_user(username):
@@ -37,6 +38,22 @@ def set_conversation_last_msg(conversation_obj, last_message):
 @database_sync_to_async
 def create_message(conversation, sender, receiver, content):
     return message.objects.create(conversation_id=conversation, sender_id=sender, receiver_id=receiver, content=content)
+
+@database_sync_to_async
+def create_notification(sender, receiver, notif_type, title, description, friend_request=None):
+    return Notification.objects.create(sender=sender, receiver=receiver, notif_type=notif_type, title=title, description=description, friend_request=friend_request)
+
+@database_sync_to_async
+def block_check(user, receiver_obj, sender_obj):
+    return user.blocked_users.filter(username=receiver_obj.username).exists()
+
+@database_sync_to_async
+def check_notification_exists(user, sender_obj, receiver_obj):
+    return Notification.objects.filter(sender=sender_obj, receiver=receiver_obj, notif_type='message').exists()
+
+@database_sync_to_async
+def get_notification(user, sender_obj, receiver_obj):
+    Notification.objects.filter(sender=sender_obj, receiver=receiver_obj, notif_type='message').delete()
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -79,7 +96,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if not sender_obj or not receiver_obj:
             await self.close(code=1008)
 
-        # if self.user.blocked_users.filter(username=receiver_obj.username).exists() or CustomUser.objects.filter(username=receiver_obj.username).get().blocked_users.filter(username=sender_obj.username).exists():
+        # if block_check(self.user, receiver_obj, sender_obj) or not receiver_obj.is_active:
         #     return
         if msg_type == 'message':
             message = data['content']
@@ -95,6 +112,23 @@ class ChatConsumer(AsyncWebsocketConsumer):
             other_user_room_group_name = f'chat_{sent_to_user}'
             await self.broadcast_message({'room_group_name': self.room_group_name, 'sent_by_user': sent_by_user, 'content': message, 'id': message_obj.id, 'conversation_id': conversation_obj.id})
             await self.broadcast_message({'room_group_name': other_user_room_group_name, 'sent_by_user': sent_by_user, 'content': message, 'id': message_obj.id, 'conversation_id': conversation_obj.id})
+
+            if await check_notification_exists(self.user, sender_obj, receiver_obj):
+                await get_notification(self.user, sender_obj, receiver_obj)
+            notif_room_group_name = f'notif_{sent_to_user}'
+            notif = await create_notification(sender_obj, receiver_obj, 'message', 'New Message', f'You have a new message from {sender_obj.full_name}.')
+            await self.channel_layer.group_send(notif_room_group_name, 
+                {
+                    'type': 'send_notification',
+                    'id': notif.id,
+                    'notif_type': 'message',
+                    'sender': sender_obj.username, 
+                    'receiver': receiver_obj.username, 
+                    'title': 'New Message', 
+                    'description': f'You have a new message from {sender_obj.full_name}.',
+                    'get_human_readable_time': notif.get_human_readable_time()
+                }
+            )
         elif msg_type == 'invite_game':
             other_user_room_group_name = f'chat_{sent_to_user}'
             await self.channel_layer.group_send(other_user_room_group_name, {'sent_by_user': sent_by_user, 'msg_type': 'invite_game'})

@@ -23,7 +23,6 @@ class CustomUser(BaseUser):
     full_name = models.CharField(max_length=20)
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=15, blank=True, default='06-00-00-00-00', validators=[phone_regex])
-    is_anonymous = models.BooleanField(default=False)
     city = models.CharField(max_length=20, blank=True, default='Khouribga')
     address = models.CharField(max_length=20, blank=True, default='1337 school')
     language = models.CharField(max_length=2, choices=LANGUAGE_CHOICES, default='en', error_messages={'invalid': 'Please select a valid language'})
@@ -58,8 +57,9 @@ class CustomUser(BaseUser):
     connection_count = models.IntegerField(default=0)
     friends = models.ManyToManyField('self', blank=True, symmetrical=True)
     blocked_users = models.ManyToManyField("self", symmetrical=False, blank=True)
-    is_bot = models.BooleanField(default=False)
+    anonymous = models.BooleanField(default=False)
     is_playing = models.BooleanField(default=False)
+    is_bot = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'full_name']

@@ -23,6 +23,7 @@ export const ChatProvider = ({ children }) => {
     const [pageCount, setPageCount] = useState(1);
     const [blockerUsername, setBlockUsername] = useState(null);
     const [unblockedUsername, setUnblockUsername] = useState(null);
+    const [scroll, setScroll] = useState(false);
     
     useEffect(() => {
         const checkMobile = () => {
@@ -45,6 +46,7 @@ export const ChatProvider = ({ children }) => {
         ws.current.onmessage = (message) => {
             const newMessage = JSON.parse(message.data);
             if (newMessage.msg_type === 'message') {
+                setScroll(true);
                 setMessages((prevMessages) => [...prevMessages, newMessage]);
                 setConversations((prevConversations) => {
                     const updatedConversations = prevConversations.map((conversation) =>
@@ -65,6 +67,9 @@ export const ChatProvider = ({ children }) => {
             }
             else if (newMessage.msg_type === 'invite_game') {
                 toast.info(`${newMessage.sent_by_user} has invited you to play a game!`);
+            }
+            else if (newMessage.msg_type === 'bot_message') {
+                toast.info(newMessage.content);
             }
         };
         ws.current.onclose = () => {
@@ -134,8 +139,9 @@ export const ChatProvider = ({ children }) => {
     }, [selectedConversation, page]);
 
     useEffect(() => {
-        if (messages.length > 0 && page === 1) {
+        if (messages.length > 0 && (page === 1 || scroll)) {
             scrollToLastMessage();
+            setScroll(false);
         }
         else {
             if (chatWindowRef.current && messagesLoading === false) {
@@ -148,7 +154,7 @@ export const ChatProvider = ({ children }) => {
         <ChatContext.Provider value={{ messages, Conversations, conversationsLoading, messagesLoading,
             error, selectedConversation, otherUser, ws, isMobile, lastMessageRef, page, pageCount,
             chatWindowRef, blockerUsername, unblockedUsername, setConversations, fetchMessages, fetchConversations,
-            setSelectedConversation, setOtherUser, setPage, setBlockUsername, setUnblockUsername }}>
+            setSelectedConversation, setOtherUser, setPage, setBlockUsername, setUnblockUsername, scrollToLastMessage }}>
             {children}
         </ChatContext.Provider>
     );

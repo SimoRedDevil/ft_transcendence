@@ -12,6 +12,7 @@ import { useChatContext } from '../../components/context/ChatContext';
 import axios from 'axios'
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
+import { BounceLoader } from 'react-spinners';
 
 function Conversations() {
   
@@ -56,14 +57,7 @@ function Conversations() {
     }
   }, [])
 
-  if (loading === true || conversationsLoading === true) return <div>Loading...</div> ;
   
-  const scrollToLastMessage = () => {
-    if (refScroll.current) {
-      refScroll.current.scrollIntoView({ behavior: 'smooth' })
-    }
-  }
-
   const handleConversationClick = (conversation) => {
     setSelectedConversation(conversation)
     authUser?.username === conversation.user1_info.username ? setOtherUser(conversation.user2_info) : setOtherUser(conversation.user1_info)
@@ -90,17 +84,26 @@ function Conversations() {
     let otherUser = authUser?.username === conversation.user1_info.username ? conversation.user2_info : conversation.user1_info
     return otherUser?.avatar_url
   }
-
+  
+  if (loading === true || conversationsLoading === true) {
+    return (
+      <div className='w-full h-full flex items-center justify-center'>
+        <BounceLoader size={320} color='#1f959d' />
+      </div>
+    )
+  }
+  
   return (
     <div className={`whitespace-pre-wrap w-full h-full lg:w-[400px] 2xl:w-[550px] ${isMobile && selectedConversation ? 'hidden' : 'flex flex-col'}`}>
             <div className='h-[200px]'>
               <div className='h-[120px] flex gap-4 p-[20px]'>
-                <div className='h-[80px] w-[80px] rounded-full'>
+                <div className='relative h-[80px] w-[80px] rounded-full'>
                   <Image className='rounded-full' src={authUser?.avatar_url} width={80} height={80} alt='avatar'/>
+                  <div className='absolute bottom-1 right-1 text-xs text-opacity-50 border border-white border-opacity-30 bg-[#7ED4AD] rounded-full p-[5px]'></div>
                 </div>
                 <div className='flex flex-col justify-center gap-4'>
                   <span className='text-[1rem]'>{authUser?.full_name}</span>
-                  <span className='text-[0.9rem] text-white text-opacity-65'>{authUser?.online ? 'Online' : 'Offline'}</span>
+                  <span className='text-[0.9rem] text-white text-opacity-65'>Online</span>
                 </div>
               </div>
               <div className='h-[100px] flex items-center justify-center'>

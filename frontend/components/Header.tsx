@@ -13,16 +13,22 @@ import { CiCamera } from "react-icons/ci";
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { getCookies } from './auth';
+import { useNotificationContext } from './context/NotificationContext'
 
 function Header({setNotificationClicked, notificationClicked, setProfileDropDownClicked, profileDropDownClicked}) {
-  const { authUser, fetchAuthUser, setSearchInput, searchInput, setIsSearching} = useContext(UserContext);
+  const { authUser, fetchAuthUser, setSearchInput, setIsSearching} = useContext(UserContext);
   const { t } = useTranslation();
   const API = process.env.NEXT_PUBLIC_API_URL;
   const [imageUploaded, setImageUploaded] = useState(false);
+  const {notifications, fetchNotifications} = useNotificationContext()
+  const [unreadNotifications, setUnreadNotifications] = useState('0');
 
   const handleNotificationClick = () => {
     setProfileDropDownClicked(false);
     setNotificationClicked(!notificationClicked);
+    if (notificationClicked === true) {
+      fetchNotifications();
+    }
   }
 
   const handleProfileClick = () => {
@@ -86,6 +92,15 @@ function Header({setNotificationClicked, notificationClicked, setProfileDropDown
     setImageUploaded(false);
   }
   , [imageUploaded])
+  useEffect(() => {
+    const unreadNotifications = notifications.filter(notification => notification.is_read === false).length
+    if (unreadNotifications > 99) {
+      setUnreadNotifications('+99')
+    }
+    else {
+      setUnreadNotifications(unreadNotifications)
+    }
+  }, [notifications])
 
   return (
     <header className='text-white flex justify-between items-center p-[10px]'>
@@ -96,7 +111,10 @@ function Header({setNotificationClicked, notificationClicked, setProfileDropDown
         <TextBox focus={false}  id='textsearch-id' onChange={(e) => handleInputChange(e)} placeholder='Search' icon='/icons/search.png' className='border border-white border-opacity-30 w-full h-full bg-black bg-opacity-50 rounded-[30px] flex items-center'/>
       </div>
       <div className='w-[170px] flex justify-between'>
-        <div id='notification-id' onClick={handleNotificationClick} className={`h-[70px] w-[70px] bg-white bg-opacity-0 rounded-full flex items-center justify-center hover:bg-opacity-15 hover:cursor-pointer`}>
+        <div id='notification-id' onClick={handleNotificationClick} className={`h-[70px] w-[70px] bg-white bg-opacity-0 rounded-full flex items-center justify-center hover:bg-opacity-15 hover:cursor-pointer relative`}>
+          <div className='w-[25px] h-[25px] rounded-full bg-red-500 absolute top-2 right-2 flex items-center justify-center text-center'>
+            <span className={`${unreadNotifications === '+99' ? 'text-[12px]' : 'text-[14px]'}`}>{unreadNotifications}</span>
+          </div>
           {
             notificationClicked === true ? 
             <IoIosNotifications id='notification-id' className='text-white h-[50px] w-[50px]'/> : 

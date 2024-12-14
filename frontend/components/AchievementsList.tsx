@@ -1,19 +1,27 @@
 import React from 'react';
-import Achievement from './Achievement'
+import Achievement from './Achievement'; // Assuming Achievement is a separate component
 
-const AchievementsList = ({ achievements }) => {
+const AchievementsList = ({ achievements , wins}) => {
+
   return (
-    <div className='relative top-3 w-full h-[90%] flex flex-col justify-start items-center  gap-2 overflow-auto  hide-scrollbar'>
+    <div className="relative top-3 w-full h-[90%] flex flex-col justify-start items-center gap-2 overflow-auto hide-scrollbar">
       {achievements.map((achievement, index) => (
-        achievement.status ?
-        <div key={index} className='relative top-4  w-[90%] h-[25%] flex justify-center items-center border rounded-[25px]  ach'>
-                        <Achievement title={achievement.title} des={achievement.description} img={achievement.icon} status={achievement.status} />
-        </div>:
-        <div key={index} className='relative top-4  w-[90%] h-[25%] flex justify-center items-center border rounded-[25px] opacity-35 ach'>
-          <Achievement title={achievement.title} des={achievement.description} img={achievement.icon} status={achievement.status} />
+        <div
+          key={index}
+          className={`relative top-4 w-[90%] h-[25%] flex justify-center items-center border rounded-[25px] ach ${
+            achievement.status ? '' : 'opacity-35'
+          }`}
+        >
+          <Achievement
+            title={achievement.name }
+            des={achievement.reward}
+            img={achievement.images}
+            status={wins >= achievement.targetWins ? true: false}
+          />
         </div>
       ))}
     </div>
   );
 };
-export default AchievementsList
+
+export default AchievementsList;

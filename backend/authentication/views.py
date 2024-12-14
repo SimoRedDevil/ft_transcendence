@@ -28,8 +28,7 @@ from django.core.files.storage import default_storage
 from rest_framework.parsers import MultiPartParser, FormParser
 from .host_image import host_qrcode
 
-URL_FRONT = os.getenv('URL_FRONT')
-URL_BACK = os.getenv('URL_BACK')
+URL = os.getenv('URL')
 
 # Sign Up View
 class SignUpView(generics.CreateAPIView):
@@ -69,19 +68,19 @@ class Intra42Callback(APIView):
         }
         response = requests.post('https://api.intra.42.fr/oauth/token', data=data)
         if response.status_code != 200:
-                response = HttpResponseRedirect(f"{URL_FRONT}/login")
+                response = HttpResponseRedirect(f"{URL}/login")
                 response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
                 return response
         response_data = response.json()
         access_token = response_data['access_token']
         if not access_token:
-                response = HttpResponseRedirect(f"{URL_FRONT}/login")
+                response = HttpResponseRedirect(f"{URL}/login")
                 response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
                 return response
         user_info = requests.get('https://api.intra.42.fr/v2/me', headers={'Authorization': f'Bearer {access_token}'}).json()
 
         if 'login' not in user_info or 'email' not in user_info:
-            response = HttpResponseRedirect(f"{URL_FRONT}/login")
+            response = HttpResponseRedirect(f"{URL}/login")
             response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
             return response
 
@@ -99,14 +98,14 @@ class Intra42Callback(APIView):
 
         authenticate(request, username=user.username)
         if not user.is_authenticated:
-            response = HttpResponseRedirect(f"{URL_FRONT}/login")
+            response = HttpResponseRedirect(f"{URL}/login")
             response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
             return response
         login(request, user)
         if not user.enabeld_2fa:
             user.is_already_logged = True
             user.save()
-        response = HttpResponseRedirect(f'{URL_FRONT}')
+        response = HttpResponseRedirect(f'{URL}')
         if user.enabeld_2fa:
             response.set_cookie('loginSuccess', 'twofa', max_age=30, samesite='Lax')
         else:
@@ -121,7 +120,7 @@ class GoogleLoginCallback(APIView):
     def get(self, request):
         code = request.GET.get("code")
         if not code:
-            response = HttpResponseRedirect(f"{URL_FRONT}/login")
+            response = HttpResponseRedirect(f"{URL}/login")
             response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
             return response
 
@@ -137,7 +136,7 @@ class GoogleLoginCallback(APIView):
 
         response = requests.post(token_endpoint_url, data=data)
         if response.status_code != 200:
-            response = HttpResponseRedirect(f"{URL_FRONT}/login")
+            response = HttpResponseRedirect(f"{URL}/login")
             response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
             return response
 
@@ -145,12 +144,12 @@ class GoogleLoginCallback(APIView):
             response_data = response.json()
             access_token = response_data.get("access_token")
         except ValueError:
-            response = HttpResponseRedirect(f"{URL_FRONT}/login")
+            response = HttpResponseRedirect(f"{URL}/login")
             response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
             return response
 
         if not access_token:
-            response = HttpResponseRedirect(f"{URL_FRONT}/login")
+            response = HttpResponseRedirect(f"{URL}/login")
             response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
             return response
         
@@ -159,14 +158,14 @@ class GoogleLoginCallback(APIView):
         headers = {"Authorization": f"Bearer {access_token}"}
         user_info_response = requests.get(user_info_url, headers=headers)
         if user_info_response.status_code != 200:
-            response = HttpResponseRedirect(f"{URL_FRONT}/login")
+            response = HttpResponseRedirect(f"{URL}/login")
             response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
             return response
         try:
             user_info = user_info_response.json()
 
             if 'sub' not in user_info or 'email' not in user_info:
-                response = HttpResponseRedirect(f"{URL_FRONT}/login")
+                response = HttpResponseRedirect(f"{URL}/login")
                 response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
                 return response
             try:
@@ -183,14 +182,14 @@ class GoogleLoginCallback(APIView):
                 )
             authenticate(request, username=user.username)
             if not user.is_authenticated:
-                response = HttpResponseRedirect(f"{URL_FRONT}/login")
+                response = HttpResponseRedirect(f"{URL}/login")
                 response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
                 return response
             login(request, user)
             if not user.enabeld_2fa:
                 user.is_already_logged = True
                 user.save()
-            response = HttpResponseRedirect(f'{URL_FRONT}')
+            response = HttpResponseRedirect(f'{URL}')
             if user.enabeld_2fa:
                 response.set_cookie('loginSuccess', 'twofa', max_age=30, samesite='Lax')
             else:
@@ -200,7 +199,7 @@ class GoogleLoginCallback(APIView):
             response.data = user_data
             return response
         except ValueError:
-            return HttpResponseRedirect(f"{URL_FRONT}/login")
+            return HttpResponseRedirect(f"{URL}/login")
 
 # Login View
 class LoginView(APIView):
@@ -292,7 +291,7 @@ class GetUser(APIView):
 def generate_tokens(request):
     user = request.user
     refresh = RefreshToken.for_user(user)
-    res = requests.post(f'{URL_BACK}/api/auth/refresh/', data={'refresh': str(refresh),
+    res = requests.post(f'{URL}/api/auth/refresh/', data={'refresh': str(refresh),
     'X-CSRFToken': request.COOKIES.get('csrftoken')})
     if res.status_code != 200:
         return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -432,7 +431,7 @@ class GetQRCodeView(APIView):
         if not user.twofa_secret:
             return Response({'error': '2FA is not enabled'}, status=status.HTTP_400_BAD_REQUEST)
         qr_user = user.qrcode_path.split('/')[-1]
-        qrcode_path = f"{URL_BACK}/qrcodes/" + qr_user
+        qrcode_path = f"{URL}/qrcodes/" + qr_user
         return Response({'qrcode_url': qrcode_path}, status=status.HTTP_200_OK)
 
 #update user Information
@@ -671,7 +670,7 @@ class AnonymousUserViewSet(APIView):
         anonymous_user.username = 'Anonymous' + str(random_number)
         anonymous_user.email = 'anonymous' + str(random_number) + '@gmail.com'
         anonymous_user.full_name = 'Anonymous' + str(random_number)
-        anonymous_user.avatar_url = f'{URL_BACK}/avatars/anonym.jpg'
+        anonymous_user.avatar_url = f'{URL}/avatars/anonym.jpg'
         anonymous_user.city = 'anonymous city'
         anonymous_user.address = 'anonymous address'
         anonymous_user.is_anonymous = True

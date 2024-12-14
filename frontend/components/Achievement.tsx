@@ -13,12 +13,12 @@ function Achievement({title , des , img, status}){
     ✓ Achieved
 </h2>
 : 
-                        <div className="flex justify-center items-center absolute w-[100%] h-full bg-black/40">
+                        <div className="flex justify-center items-center absolute w-[100%] h-full ">
                             <img className="mobile:w-[3vw] lg:w-[1vw] h-auto " src="/images/lock.png" />
                         </div>
                     }
                 </div>
-                <div className="bg-[url('/images/badge.png')] bg-cover bg-center items-center justify-center lg:scale-75 xl:scale-80">
+                <div className="bg-[url('/images/badge.png')] bg-cover bg-center items-center justify-center mobile:scale-75 xl:scale-80">
 
                     {/* <img className="lg:h-10 lg:w-10  xl:h-14 xl:w-14 relative top-6" src="/images/badge.png" alt="" /> */}
                     <img className="mobile:w-12 mobile:h-12   lg:h-8 lg:w-8 xl:h-12 xl:w-12 rounded-full p-1" src={img} alt="" />

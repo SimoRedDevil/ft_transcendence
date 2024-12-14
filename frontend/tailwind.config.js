@@ -95,6 +95,7 @@ module.exports = {
         '2xl': '1536px',
         '3xl': '1800px',
         '4xl': '2000px',
+        // 'screen-sm': { raw: '(max-height: 600px)' },
       },
       backgroundImage: {
         'main-bg': "url('/images/Main-Background.png')",

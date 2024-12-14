@@ -9,7 +9,7 @@ const AchievementsList = ({ achievements , wins}) => {
         <div
           key={index}
           className={`relative top-4 w-[90%] h-[25%] flex justify-center items-center border rounded-[25px] ach ${
-            achievement.status ? '' : 'opacity-35'
+            wins >= achievement.targetWins  ? 'opacity-95' : 'opacity-35'
           }`}
         >
           <Achievement

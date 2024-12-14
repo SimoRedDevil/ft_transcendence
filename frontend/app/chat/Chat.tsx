@@ -36,6 +36,7 @@ function Chat({setShowBlockDialog}) {
   const [blocker, setBlocker] = useState(null)
   const [onlineStatus, setOnlineStatus] = useState(null)
   const {onlineUsers} = useOnlineStatus()
+  const [showGotoBottom, setShowGotoBottom] = useState(false)
 
   const
   {
@@ -96,6 +97,10 @@ function Chat({setShowBlockDialog}) {
       if (page < pageCount)
         setPage((prevPage) => prevPage + 1)
     }
+    if (page > 1)
+      setShowGotoBottom(true)
+    else
+      setShowGotoBottom(false)
   }
 
   const handleBlockUser = async () => {
@@ -261,6 +266,11 @@ function Chat({setShowBlockDialog}) {
                 )
               })
             }
+            <div className='w-full h-[70px] absolute bottom-4 flex items-center justify-center'>
+              <button onClick={() => chatWindowRef.current.scrollTo(0, 100)} className={`w-[65px] h-[65px] border border-white/30 bg-black bg-opacity-70 rounded-full flex items-center justify-center ${!showGotoBottom ? 'visible' : 'invisible'}`}>
+                <IoIosArrowRoundBack className='text-white w-[40px] h-[40px] -rotate-90' />
+              </button>
+            </div>
           </div>
           <div className={(showEmoji) ? 'flex absolute top-[calc(100%_-_430px)] left-[calc(100%_-_400px)] overflow-hidden' : 'hidden'}>
             <EmojiPicker onEmojiClick={handleEmojiClick} width={400} theme='dark' emojiStyle='google' searchDisabled={false} lazyLoadEmojis={true}/>

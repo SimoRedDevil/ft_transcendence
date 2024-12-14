@@ -18,8 +18,14 @@ import { useUserContext } from '../../../components/context/usercontext';
 import { axiosInstance } from '@/utils/axiosInstance';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
-import {useRouter} from 'next/navigation';
+import {useRouter, useSearchParams} from 'next/navigation';
 import { getCookies } from '../../../components/auth';
+
+
+type ParamsType = {
+  user: string;
+};
+
 
 export default function Profile({params}) {
   const { authUser, loading } = useUserContext();
@@ -27,7 +33,7 @@ export default function Profile({params}) {
   const [Send, SetSend] = useState(false);
   const [user, setUser] = useState(null);
   const [userLoading, setUserLoading] = useState(true);
-  const resolvedParam = React.use(params);
+  const resolvedParam = React.use(params) as ParamsType;
   const { t } = useTranslation();
   const router = useRouter();
 

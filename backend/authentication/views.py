@@ -482,6 +482,7 @@ class UpdateUserView(APIView):
         if 'avatar' in request.FILES:
             file_url = self.upload_avatar(request)
             user.avatar_url = host_qrcode(f'/app{file_url}')
+            os.remove(f'/app{file_url}')
             updated = True
         user_data = UpdateUserSerializer(user).data
         if updated:

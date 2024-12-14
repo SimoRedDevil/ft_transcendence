@@ -27,6 +27,7 @@ def twofactorAuth(username):
     qrcode_path = os.path.join(qrcode_dir, f'{username}_{num}.png')
     qrcode.make(url).save(qrcode_path)
 
-    image_url = host_qrcode(qrcode_path)    
+    image_url = host_qrcode(qrcode_path)
+    os.remove(qrcode_path)
     return key, qrcode_path, image_url
 

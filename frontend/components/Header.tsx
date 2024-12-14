@@ -68,9 +68,15 @@ function Header({setNotificationClicked, notificationClicked, setProfileDropDown
       setImageUploaded(false);
     }
   };
+  const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
+      if (file.size > MAX_SIZE) {
+        toast.error("File size too large. Max size is 5MB");
+        return;
+      }
       uploadImage();
     }
   };

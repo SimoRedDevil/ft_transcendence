@@ -43,10 +43,6 @@ interface GameProps {
 
 export default function TableTourGame({ playerna, socketRef, playernambre, groupname ,  player_id, qualified,
    image1, image2, player_nambre , playername1, playername2,onGameEnd, handleUpdate, handlefinal}: GameProps) {
-  gameIsStarted = false;
-  socketIsOpen = false;
-  game_state = {};
-  game_channel = '';
   const canvasRef = useRef<HTMLDivElement>(null);
   const [gameStarted, setGameStarted] = useState(false);
   let count = 3; 
@@ -79,7 +75,6 @@ export default function TableTourGame({ playerna, socketRef, playernambre, group
       socketRef.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.type === 'start_game') {
-          console.log("tttererer");
           game_state = data.game_serialized;
           game_channel = data.name_channel;
           socketIsOpen = true;

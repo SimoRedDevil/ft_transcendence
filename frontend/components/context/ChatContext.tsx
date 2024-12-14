@@ -154,7 +154,7 @@ export const ChatProvider = ({ children }) => {
         <ChatContext.Provider value={{ messages, Conversations, conversationsLoading, messagesLoading,
             error, selectedConversation, otherUser, ws, isMobile, lastMessageRef, page, pageCount,
             chatWindowRef, blockerUsername, unblockedUsername, setConversations, fetchMessages, fetchConversations,
-            setSelectedConversation, setOtherUser, setPage, setBlockUsername, setUnblockUsername }}>
+            setSelectedConversation, setOtherUser, setPage, setBlockUsername, setUnblockUsername, scrollToLastMessage }}>
             {children}
         </ChatContext.Provider>
     );

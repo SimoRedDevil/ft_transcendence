@@ -56,6 +56,7 @@ function Chat({setShowBlockDialog}) {
     unblockedUsername,
     setBlockUsername,
     setUnblockUsername,
+    scrollToLastMessage,
   } = useChatContext()
 
   const {notifSocket} = useNotificationContext()
@@ -267,7 +268,7 @@ function Chat({setShowBlockDialog}) {
               })
             }
             <div className='w-full h-[70px] absolute bottom-4 flex items-center justify-center'>
-              <button onClick={() => chatWindowRef.current.scrollTo(0, 100)} className={`w-[65px] h-[65px] border border-white/30 bg-black bg-opacity-70 rounded-full flex items-center justify-center ${!showGotoBottom ? 'visible' : 'invisible'}`}>
+              <button onClick={() => {setShowGotoBottom(false); scrollToLastMessage()}} className={`w-[65px] h-[65px] border border-white/30 bg-black hover:bg-black/100 hover:border-white/70 bg-opacity-70 rounded-full flex items-center justify-center ${showGotoBottom ? 'visible' : 'invisible'}`}>
                 <IoIosArrowRoundBack className='text-white w-[40px] h-[40px] -rotate-90' />
               </button>
             </div>

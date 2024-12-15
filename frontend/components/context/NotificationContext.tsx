@@ -49,42 +49,95 @@ export const NotificationProvider = ({ children }) => {
             ws.onmessage = (message) => {
                 const newNotification = JSON.parse(message.data);
                 setIsFriendRequest(false);
-                if (newNotification.notif_type === 'invite_game') {
-                    toast.info(t(`You have been invited to a game by ${newNotification.sender_info.full_name}`),
-                    {
-                        autoClose: 8000,
-                        position: 'top-right',
-                        transition: Bounce,
-                        onClick: () => {
-                            // Redirect to game page
-                        }
-                    }
+                const Msg = ({sender, socket, receiver}) => (
+                    <div className='flex justify-end flex-col'>
+                        <p className='text-xs'>{t(`You have been invited to a game by ${sender.full_name}`)}</p>
+                        <div className='flex justify-around items-center w-full'>
+                            <button onClick={
+                                () => {
+                                    socket.send(JSON.stringify({"notif_type": "reject_game", "sender": receiver.username, "receiver": sender.username,
+                                "title": "Reject Game", "description": "I reject your game invitation"
+                                }));
+                                }
+                            }>Reject</button>
+                            <button onClick={
+                                () => {
+                                    socket.send(JSON.stringify({"notif_type": "accept_game", "sender": receiver.username, "receiver": sender.username,
+                                "title": "Accept Game", "description": "I accept your game invitation"
+                                }));
+                                const query = new URLSearchParams({
+                                    type: 'invite',
+                                    sender: sender.username,
+                                    receiver: receiver.username,
+                                }).toString();
+                                    redirect(`/game/remotegame?${query}`);
+                                }
+        
+                            }>Accept</button>
+                        </div>
+                    </div>
                 );
-                    return;
-                }
+                    console.log(newNotification);
+                    if (newNotification.notif_type === 'invite_game') {
+                        toast(<Msg sender={newNotification.sender_info} receiver={newNotification.receiver_info} socket={notifSocket} />, 
+                        {
+        
+                            autoClose: 8000,
+                            theme: "dark",
+                            position: 'top-right',
+                            style: {
+                                width: '300px',
+                                height: '100px',  
+                            }
+                        });
+                    }
+                    if (newNotification.notif_type === 'accept_game') {
+                        toast.success(t(`${newNotification.sender_info.full_name} has accepted your game invitation`),
+                        {
+                            autoClose: 8000,
+                            position: 'top-right',
+                        }
+                    );
+                        const query = new URLSearchParams({
+                            type: 'invite',
+                            sender: newNotification.receiver_info.username,
+                            receiver: newNotification.sender_info.username,
+                        }).toString();
+                
+                        redirect(`/game/remotegame?${query}`);
+                    }
+                    if (newNotification.notif_type === 'reject_game') {
+                        toast.error(t(`${newNotification.sender_info.full_name} has rejected your game invitation`),
+                        {
+                            autoClose: 5000,
+                            position: 'top-right',
+                            hideProgressBar: false,
+                        }
+                    );
+                    }
                 else if (newNotification.notif_type === 'friend_request') {
                     setIsFriendRequest(true);
-                    toast.info(t(`${newNotification.description}`),
-                    {
-                        autoClose: 8000,
-                        position: 'top-right',
-                        transition: Bounce,
-                        onClick: () => {
+                    // toast.info(t(`${newNotification.description}`),
+                    // {
+                    //     autoClose: 8000,
+                    //     position: 'top-right',
+                    //     transition: Bounce,
+                    //     onClick: () => {
                             
-                        }
-                    });
+                    //     }
+                    // });
                 }
                 else if (newNotification.notif_type === 'message') {
                     setIsFriendRequest(true);
-                    toast.info(t(`${newNotification.description}`),
-                    {
-                        autoClose: 8000,
-                        position: 'top-right',
-                        transition: Bounce,
-                        onClick: () => {
-                            // Redirect to chat page
-                        }
-                    });
+                    // toast.info(t(`${newNotification.description}`),
+                    // {
+                    //     autoClose: 8000,
+                    //     position: 'top-right',
+                    //     transition: Bounce,
+                    //     onClick: () => {
+                    //         // Redirect to chat page
+                    //     }
+                    // });
                 }
                 removeNotifications(newNotification.sender_info.id, newNotification.receiver_info.id);
                 setNotifications((prevNotifications) => [...prevNotifications, newNotification]);
@@ -105,7 +158,7 @@ export const NotificationProvider = ({ children }) => {
         }
         else
         {
-            if (notifSocket !== null) {
+            if (notifSocket !== null && notifSocket.readyState === WebSocket.OPEN) {
                 notifSocket.close();
                 setNotifSocket(null);
             }

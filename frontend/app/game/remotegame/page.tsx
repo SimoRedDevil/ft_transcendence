@@ -77,6 +77,19 @@ export default function Game() {
                     setIdChannel(play_id);
     }
 
+    const handlGameOver=(winer, scoreWiner,scoreLoser, winerImage, loserImage) => {
+        setWinnerImg(winerImage);
+        setLoserImg(loserImage);
+        setScoreWinner(scoreWiner);
+        setScoreLoser(scoreLoser);
+        setGameOver(true);
+        setIsPlaying(false);
+        setGameStarted(true);
+    }
+
+    const goGame = () => {  
+        setGameStarted(true);
+    }
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -127,7 +140,7 @@ export default function Game() {
                         md:border md:border-white md:border-opacity-30
                         md:bg-black md:bg-opacity-20
                         md:rounded-[50px]'>
-        {!gameStarted ? ( !matchready ? (!isplaying ? (<Platform />) : <>already playing</>) : (<Versus socket={socketRef.current} game_roum={game_roum} username={authUser.username} image1={image1} image2={image2}/>)) 
+        {!gameStarted ? ( !matchready ? (!isplaying ? (<Platform />) : <>already playing</>) : (<Versus socket={socketRef.current} game_roum={game_roum} username={authUser.username} image1={image1} image2={image2} handlGameOver={handlGameOver} goToGame={goGame}/>)) 
         : (!gameOver ? (<TableGame playerna={authUser.username} socketRef={socketRef.current}  groupname={game_roum} player_id={id_channel} 
             image1={image1} image2={image2} player_number={playernumber} playername1={nameplayer1} playername2={nameplayer2} onGameEnd={handleGameEnd}/>) 
         : (<Winner winer={winerImage} loser={loserImage} scoreWinner={scoreWinner} scoreLoser={scoreLoser} rematch={rematch} socket={socketRef.current} handleRematch={handleRematch} handlGoToGame={handlGoToGame} handleConnection={handleConnection} />))}

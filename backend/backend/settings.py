@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv # type: ignore
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -23,22 +23,10 @@ STATIC_URL = "/avatars/"
 
 load_dotenv()
 
-STATICFILES_DIRS = [
-    BASE_DIR / "./avatars",
-]
 
-
-# Add a MEDIA_ROOT for qrcodes
-QRCODE_URL = '/qrcodes/'
-QRCODE_ROOT = os.path.join(BASE_DIR, 'authentication/qrcodes')
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-^3knd(m=5&aq8zx$uw@qfy8^h5dnx75bkd)^k)b!nyv#$tu443'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -56,13 +44,11 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000/',
-    'http://*',
-    'https://*',
+    "https://localhost",
 ]
 
 CSRF_COOKIE_HTTPONLY = False
-CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
+CSRF_TRUSTED_ORIGINS = ["https://localhost"]
 CSRF_USE_SESSIONS = False  # Unless explicitly using sessions for CSRF
 CSRF_COOKIE_NAME = "csrftoken"  # Ensure this matches what you're using on the client-side
 
@@ -90,13 +76,13 @@ INSTALLED_APPS = [
     'notification',
     'allauth',
     'allauth.account',
-    'allauth.socialaccount',
+    # 'allauth.socialaccount',
     'dj_rest_auth',
     'rest_framework.authtoken',
     'allauth.socialaccount.providers.google',
-    'dj_rest_auth.registration',
+    # 'dj_rest_auth.registration',
     'rest_framework_simplejwt',
-    'rest_framework_simplejwt.token_blacklist',
+    # 'rest_framework_simplejwt.token_blacklist',
 ]
 
 # django.contrib.sites
@@ -135,10 +121,8 @@ SIMPLE_JWT = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'http://*',
-    'https://*',
+    'https://127.0.0.1',
+    "https://localhost",
 ]
 
 MIDDLEWARE = [
@@ -152,6 +136,30 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
 ]
+
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False,
+#     "formatters": {
+#         "json": {
+#             "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
+#         },
+#     },
+#     "handlers": {
+#         "logstash": {
+#             "class": "graypy.GELFUDPHandler",
+#             "host": "logstash", 
+#             "port": 5044,
+#         },
+#     },
+#     "loggers": {
+#         "django": {
+#             "handlers": ["logstash"],
+#             "level": "INFO",
+#             "propagate": True,
+#         },
+#     },
+# }
 
 ROOT_URLCONF = 'backend.urls'
 
@@ -177,7 +185,6 @@ ASGI_APPLICATION = 'backend.asgi.application'
 
 
 # 42 API OAuth settings
-
 ############################################################################################################
 
 INTRA_42_CLIENT_ID = os.getenv('INTRA_42_CLIENT_ID')
@@ -193,10 +200,9 @@ INTRA_42_REDIRECT_URI = os.getenv('INTRA_42_REDIRECT_URI')
 GOOGLE_OAUTH_CLIENT_ID = os.getenv('GOOGLE_OAUTH_CLIENT_ID')
 GOOGLE_OAUTH_CLIENT_SECRET = os.getenv('GOOGLE_OAUTH_CLIENT_SECRET')
 GOOGLE_OAUTH_CALLBACK_URL = os.getenv('GOOGLE_OUATH_REDIRECT_URI')
-# Configure django-allauth to connect social accounts to existing accounts with the same email
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_EMAIL_VERIFICATION = "none"  # Set to "mandatory" if you want email verification
+ACCOUNT_EMAIL_VERIFICATION = "none"
 
 ############################################################################################################
 
@@ -210,10 +216,6 @@ DATABASES = {
         'PORT': '5432',
     }
 }
-
-
-# Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -229,10 +231,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
-
-# Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
@@ -251,12 +249,5 @@ CHANNEL_LAYERS = {
         },
     },
 }
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

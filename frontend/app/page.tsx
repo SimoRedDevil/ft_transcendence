@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link'
 import axios from 'axios'
 import { useRouter } from 'next/navigation';
@@ -13,13 +13,16 @@ export default function Home() {
     const {setIsAuthenticated, fetchAuthUser, setauthUser} = useContext(UserContext);
 
     return (
-            <div className='
-                flex
-                w-full
-                justify-center
-                items-center
-                h-screen
-                text-white'>
-            </div>
+        <div
+        className="
+          flex
+          flex-col
+          w-full
+          justify-center
+          items-center
+          h-screen
+          text-white"
+      >
+      </div>
     )
 }

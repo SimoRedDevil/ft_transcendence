@@ -3,15 +3,13 @@ from django.contrib.auth import authenticate
 from .models import CustomUser
 import re
 
-
-
 def check_valid_format(data):
     username = data.get('username')
     password = data.get('password')
 
     if (len(username) > 20):
         raise serializers.ValidationError("Username should be between 9 and 20 characters")
-    elif not re.match(r'^[A-Za-z-]+$', username):
+    elif not re.match(r'^[A-Za-z-0-9]+$', username):
         raise serializers.ValidationError("Username should only contain letters and optional hyphens.")
 
     elif (len(password) < 9 or len(password) > 20):
@@ -120,9 +118,9 @@ class UpdateUserSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'full_name', 'username', 'email', 'phone_number', 'city', 'address', 'language', 'color', 'board_name', 'avatar_url', 'social_logged', 'tournament_name', 
+        fields = ['id', 'full_name', 'username', 'email', 'is_anonymous', 'phone_number', 'city', 'address', 'language', 'color', 'board_name', 'avatar_url', 'social_logged', 'tournament_name', 
             'tournament_score', 'enabeld_2fa', 'is_already_logged', 'twofa_verified', 'qrcode_url', 'qrcode_path',
-            'level', 'matches', 'wins', 'losses', 'draws', 'profile_visited','is_active',
+            'level', 'matches', 'wins', 'losses', 'draws', 'profile_visited','is_active', 'is_bot',
             'friends_count', 'top_score', 'tournaments', 'online_matches',
             'offline_matches', 'current_xp', 'target_xp', 'online', 'friends', 'blocked_users', 'is_playing', 'is_bot', 'anonymous']
         extra_kwargs = {
@@ -138,15 +136,6 @@ class BlockedUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['id', 'email', 'full_name', 'username', 'avatar_url', 'online', 'blocked_users']
-
-class AnonymousUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = '__all__'
-        extra_kwargs = {
-            'password': {'write_only': True},
-        }
-
 
 class SimplifiedUserSerializer(serializers.ModelSerializer):
     class Meta:

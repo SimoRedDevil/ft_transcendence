@@ -66,10 +66,10 @@ export default function Winner({winer, loser, scoreWinner, scoreLoser, rematch, 
                 <Badge img={loser}/>
             </div>
         </div>
-        <div className="font-[Bona Nova SC] relaive  font-loby  lg:bottom-10 md:bottom-[25%] xs:bottom-[10%]       xs:w-[50%] xs:h-[5%] md:w-[30%] md:h-[5%]  lg:w-[18%] lg:h-[4%] xl:w-[15%] 2xl:w-[10%] xl:h-[5%] bg-[url('/images/rematch-bg2.png')] bg-cover  scale-lobby  bg-center border border-white/50 flex justify-center items-center lg:[2rem] rounded-xl text-white/80">
+        <div className="font-[Bona Nova SC]  my-2 font-loby  lg:bottom-10 md:bottom-[25%] xs:bottom-[10%]       xs:w-[50%] xs:h-[5%] md:w-[30%] md:h-[5%]  lg:w-[18%] lg:h-[4%] xl:w-[15%] 2xl:w-[10%] xl:h-[5%] bg-[url('/images/rematch-bg2.png')] bg-cover  scale-lobby  bg-center border border-white/50 flex justify-center items-center lg:[2rem] rounded-xl text-white/80">
             <button className="opacity " onClick={handleRematchClick} >Rematch<i className="fa-solid fa-right-to-bracket relative "></i>  </button>
           </div>
-        <div className=" font-[Bona Nova SC]  relaive right-5  font-loby  lg:bottom-10 md:bottom-[25%] xs:bottom-[10%]       xs:w-[50%] xs:h-[5%] md:w-[30%] md:h-[5%]  lg:w-[18%] lg:h-[4%] xl:w-[15%] 2xl:w-[10%] xl:h-[5%] bg-[url('/images/lobby2.png')] bg-cover  scale-lobby  bg-center border border-white/50 flex justify-center items-center lg:[2rem] rounded-xl text-white/80" >  
+        <div className=" font-[Bona Nova SC]   right-5  font-loby  lg:bottom-10 md:bottom-[25%] xs:bottom-[10%]       xs:w-[50%] xs:h-[5%] md:w-[30%] md:h-[5%]  lg:w-[18%] lg:h-[4%] xl:w-[15%] 2xl:w-[10%] xl:h-[5%] bg-[url('/images/lobby2.png')] bg-cover  scale-lobby  bg-center border border-white/50 flex justify-center items-center lg:[2rem] rounded-xl text-white/80" >  
             <button className="opacity " onClick={handleBackHome} >Back to Home <i className="fa-solid fa-right-to-bracket relative "></i>  </button>
           </div>
         </>

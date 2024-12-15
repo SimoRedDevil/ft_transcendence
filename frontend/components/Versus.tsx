@@ -5,7 +5,17 @@ import BadgeTour from "./BadgeTour"
 // import { useState, useEffect } from 'react';
 // import BadgeTour from './BadgeTour';  // Assuming this is the correct import path
 
-export default function Versus({ socket , game_roum , username, image1, image2}: any) {
+interface Props {
+    socket: WebSocket;
+    game_roum: string;
+    username: string;
+    image1: string;
+    image2: string;
+    handlGameOver: (winer: string, scoreWiner: string,scoreLoser: string, winerImage: string, loserImage: string) => void;
+    goToGame: () => void; 
+}
+
+export default function Versus({ socket , game_roum , username, image1, image2, handlGameOver, goToGame}: Props) {
   const images = [
     "/images/minipic.jpeg",
     "/images/ach1.jpeg",
@@ -18,6 +28,7 @@ export default function Versus({ socket , game_roum , username, image1, image2}:
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
   const [isFinal, setIsFinal] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const [number, setNumber] = useState(20);
 
   const handleButtonClick = () => {
     socket.send(JSON.stringify({ type: 'playerReady', game_roum: game_roum, username: username }));
@@ -33,9 +44,6 @@ export default function Versus({ socket , game_roum , username, image1, image2}:
         setCurrentImage(images[randomIndex]);
       }, 500);
     }
-
-
-    
     const timeoutId = setTimeout(() => {
       setCurrentImage(images[randomIndex]); 
       setIsFinal(true);
@@ -45,7 +53,28 @@ export default function Versus({ socket , game_roum , username, image1, image2}:
       clearTimeout(timeoutId);
     };
   }, [isFinal, images]);
-  console.log(image1);
+  useEffect(() => {
+      socket.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          if(data.type === 'game_over'){
+            handlGameOver(data.winer, data.scoreWiner, data.scoreLoser, data.winerImage, data.loserImage);
+          }
+          if (data.type === 'go_to_game') {
+            goToGame();
+          }
+      }
+  }, []);
+  
+  useEffect(() => {
+    if (number > 0 && !isReady) {
+      const intervalId = setInterval(() => {
+        setNumber((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(intervalId);
+    }
+    else if (number === 0 && !isReady)
+      socket.send(JSON.stringify({ type: 'gameOver', game_roum: game_roum, username: username }));
+  } , [number]);
 
   return (
     <>
@@ -59,7 +88,10 @@ export default function Versus({ socket , game_roum , username, image1, image2}:
             <div className="xs:h-[60px]  lg:h-[100px] xl:h-[200px]  lg:w-4 bg-[#d3e2e5fb] rotate-12 shadow-lg shadow-[#d3e2e5fb] border border-[#d3e2e5fb] rounded-2xl shado-b middle"></div>
             <h1 className="xs:text-[60px] lg:text-[100px] xl:text-[200px] text-[#d3e2e5fb] shadow-[#d3e2e5fb] shado down font-thin">S</h1>
           </div>
-          <div>
+          <div className="flex items-center flex-col">
+              <div className="text-white text-sm mt-5">
+                {number}
+              </div>
               <button
                     className={`xs:absolute xs:-bottom-4 xs:left-0 xs:right-0 xs:mx-auto md:relative w-[70px] xs:h-[50px]  md:h-[70px] md:rounded-[100px] border-[4px] ${!isReady ? 'bg-[#C28F5F] text-white border-[#39696e]' : 'text-white/60 bg-[#C28F5F]/30 border-[#39696e]/30'} `}
                     onClick={handleButtonClick}

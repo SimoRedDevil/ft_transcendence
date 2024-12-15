@@ -1,5 +1,5 @@
 import json
-import math
+import math 
 import asyncio
 from .models import Player, Match
 from asgiref.sync import sync_to_async
@@ -189,6 +189,28 @@ class Game(AsyncWebsocketConsumer):
                 ) 
                 asyncio.create_task(self.update_ball_loop(match_name))
             
+        if data['type'] == 'gameOver':
+            user = user = self.scope["user"]
+            await self.is_not_playing(user.username)
+            winer = {'username': '', 'channel_id': ''}
+            loser = {'username': '', 'channel_id': ''}
+            if self.player:
+                if self.player['group_name'] in Game.games_infor:
+                    game = Game.games_infor[self.player['group_name']]
+                    if self.player['player_id'] == 'player1':
+                        if 'player1' in game and 'player2' in game:
+                            winer = game['player2']
+                            loser = game['player1']
+                    else:
+                        if 'player1' in game and 'player2' in game:
+                            winer = game['player1']
+                            loser = game['player2']
+                    if winer and loser and 'image' in winer and 'image' in loser:
+                        winer_image = winer['image']
+                        loser_image = loser['image']
+                        await self.gameOver(self.player['group_name'],  winer['username'], loser['username'], winer['channel_id'], loser['channel_id'], 3, 3, 0, winer_image, loser_image)
+            
+        
         if data['type'] == 'update_ball':
             self.Ball.x += self.Ball.directionX
             self.Ball.y += self.Ball.directionY
@@ -222,49 +244,43 @@ class Game(AsyncWebsocketConsumer):
                     await self.gameOver(self.player['group_name'],  winer['username'], loser['username'], winer['channel_id'], loser['channel_id'], 3, 3, 0, winer_image, loser_image)
 
     async def matchmaking(self, data):
-        user = self.scope["user"]
-        for i, player1 in enumerate(Game.match_making):
-            for j, player2 in enumerate(Game.match_making[i + 1:], start=i + 1):
-                block1 = await check_block2(player1['name'], player2['name'])
-                block2 = await check_block2(player2['name'], player1['name'])
-                
-                print(block1, block2, flush=True)
-                if not block1 and not block2:
-                    Game.match_making.pop(j) 
-                    Game.match_making.pop(i)
-                    
-                    player1['player_id'] = 'player1'
-                    player2['player_id'] = 'player2'
-                    
-                    count = await Match.objects.acount()
-                    self.game_channel = f'game{player1["name"]}vs{player2["name"]}_{count + 1}'
-                    player1['group_name'] = self.game_channel
-                    player2['group_name'] = self.game_channel
-                    
-                    if self.game_channel not in Game.games_infor:
-                        Game.games_infor[self.game_channel] = []
-                    
-                    Game.games_infor[self.game_channel] = {
-                        'player1': {"username": player1['name'], "channel_id": player1['id'], "image": player1['image']},
-                        'player2': {"username": player2['name'], "channel_id": player2['id'], "image": player2['image']}
-                    }
-                    
-                    await self.update_matchCount(player1['name'])
-                    await self.update_matchCount(player2['name'])
-                    await self.create_match(player1['name'], player2['name'])
-                    
-                    await self.channel_layer.group_add(self.game_channel, player1['id'])
-                    await self.channel_layer.group_add(self.game_channel, player2['id'])
-                    
-                    await self.channel_layer.group_send(
-                        self.game_channel,
-                        {
-                            'type': 'match_ready',
-                            'players': [player1, player2],
-                            'game_channel': self.game_channel,
-                        }
-                    )
-        print("No valid match found in the matchmaking queue.")
+        if len(Game.match_making) >= 2:
+            player1 = Game.match_making.pop(0)
+            player1['player_id'] = 'player1'
+            player2 = Game.match_making.pop(0)
+            player2['player_id'] = 'player2'
+            count = await Match.objects.acount()
+            count += 1
+            self.game_channel = f'game{player1["name"]}vs{player2["name"]}_{count}'
+            player1['group_name'] = self.game_channel
+            player2['group_name'] = self.game_channel
+            if self.game_channel not in Game.games_infor:
+                Game.games_infor[self.game_channel] = []
+            Game.games_infor[self.game_channel] = {
+                'player1': {"username": player1['name'], "channel_id": player1['id'], "image": player1['image']},
+                'player2': {"username": player2['name'], "channel_id": player2['id'], "image": player2['image']}
+            }
+            await self.update_matchCount(player1['name'])
+            await self.update_matchCount(player2['name'])
+            await self.create_match(player1['name'], player2['name'], self.game_channel)
+            await self.channel_layer.group_add(
+                self.game_channel,
+                player1['id']
+            )
+
+            await self.channel_layer.group_add(
+                self.game_channel,
+                player2['id']
+            )
+            await self.channel_layer.group_send(
+                self.game_channel,
+                {
+                    'type': 'match_ready',
+                    'players': [player1, player2],
+                    'game_channel': self.game_channel,
+                }
+            )
+
  
     async def invite_game(self, data):
         if len(Game.games_invites) >= 2:
@@ -352,7 +368,6 @@ class Game(AsyncWebsocketConsumer):
                         loserimage = game['player2']
                         winerImage = winerimage['image'] 
                         loserImage = loserimage['image']
-                        await self.Update_matches(winer.username, loser.username, winer.score, loser.score)
                         await self.gameOver(game_channel, winer.username, loser.username, winer.chan_name, loser.chan_name, Tscore, winer.score, loser.score, winerImage, loserImage)
                         break
                 if self.games[game_channel]['ball'].y >= 1:
@@ -370,7 +385,6 @@ class Game(AsyncWebsocketConsumer):
                         winerImage = winerimage['image']
                         loserImage = loserimage['image']
                         Tscore = winer.score - loser.score
-                        await self.Update_matches(loser.username, winer.username, loser.score, winer.score)
                         await self.gameOver(game_channel, winer.username, loser.username, winer.chan_name, loser.chan_name, Tscore, winer.score, loser.score, winerImage, loserImage)
                         break
                 await self.channel_layer.group_send(   
@@ -392,6 +406,7 @@ class Game(AsyncWebsocketConsumer):
         await self.update_loser(loser)
         await self.is_not_playing(winer)
         await self.is_not_playing(loser)
+        await self.Update_matches(loser, winer, scoreLoser, scoreWiner, game_chan)
         if game_chan in self.player_match:
             self.player_match[game_chan].clear()
         if game_chan in self.matchs:
@@ -500,6 +515,10 @@ class Game(AsyncWebsocketConsumer):
             return None
 
     @sync_to_async
+    def is_user_blocked(self, user, username):
+        return user.blocked_users.filter(username=username).exists()
+
+    @sync_to_async
     def is_playing(self, username):
         player = CustomUser.objects.get(username=username)
         player.is_playing = True
@@ -534,10 +553,11 @@ class Game(AsyncWebsocketConsumer):
     
 
     @sync_to_async
-    def create_match(self, username1 , username2):
+    def create_match(self, username1 , username2, nameMatch):
         player1 = CustomUser.objects.get(username=username1)
         player2 = CustomUser.objects.get(username=username2)
         mAtch = Match.objects.create(
+            name=nameMatch,
             player1=player1,
             player2=player2,
             score1=0,
@@ -546,17 +566,20 @@ class Game(AsyncWebsocketConsumer):
         )
         
     @sync_to_async
-    def Update_matches(self, username1, username2, score1, score2):
-        player1 = CustomUser.objects.get(username=username1)
-        player2 = CustomUser.objects.get(username=username2)
+    def Update_matches(self, username1, username2, score1, score2, nameMatch):
+        loser = CustomUser.objects.get(username=username1)
+        winer = CustomUser.objects.get(username=username2)
         try:
-            match = Match.objects.filter(player1=player1, player2=player2).latest('id')
-            match.score1 = score1
-            match.score2 = score2
-            if score1 > score2:
-                match.winer = player1
+            match = Match.objects.filter(name=nameMatch).first()
+            print(match.player1.username, flush=True)
+            print(loser.username, flush=True)
+            if loser.username == match.player1.username:
+                match.score1 = score1
+                match.score2 = score2
             else:
-                match.winer = player2
+                match.score2 = score1
+                match.score1 = score2
+            match.winer = winer
             match.save()
         except Match.DoesNotExist:
             print("Match does not exist")

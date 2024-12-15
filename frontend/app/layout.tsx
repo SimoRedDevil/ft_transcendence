@@ -100,7 +100,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
   useEffect(() => {
     if (isAuthenticated) {
       fetchAuthUser();
-      if (pathname === "/login") {
+      if (pathname === "/login" || (pathname === "/twofa" && !authUser?.two_factor_enabled)) {
         router.push("/");
       }
       fetchNotifications();
@@ -209,7 +209,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
               />
             </div>
           )}
-          <Provider>
+          <Provider >
           {children}
           </Provider>
           <ToastContainer
@@ -237,8 +237,6 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
                 transform: "translateX(-50%)", // Compensate for the left shift
               }}
             />
-
-
         </div>
       </div>
     </div>

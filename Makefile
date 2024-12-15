@@ -1,8 +1,11 @@
 
-all: up
+all: ssl up
 
 up :
 	docker-compose  up
+
+ssl:
+	bash backend/generate_ssl.sh
 
 build:
 	docker-compose  up --build
@@ -19,14 +22,12 @@ start:
 ps:
 	docker ps
 
-
 push:
 	git add .; \
 	git commit -m "$(msg)"; \
     git push
 
 fclean: stop down
-	@rm -rf  database
 	@rm -rf  redis
 	@rm -rf backend/*/__pycache__
 	@rm -rf backend/*/migrations
@@ -35,6 +36,8 @@ fclean: stop down
 	@rm -rf backend/authentication/qrcodes/*
 	@rm -rf  frontend/.next
 	@rm -rf  frontend/node_modules
+	@rm -rf  frontend/package-lock.json
+	@rm -rf  backend/ssl
 	@docker system prune -a -f
 	@docker builder prune -a -f
 	@docker volume prune -f

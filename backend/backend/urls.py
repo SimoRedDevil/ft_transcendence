@@ -29,7 +29,4 @@ urlpatterns = [
     path('api/friends/', include('friends.urls')),
     path('api/notifications/', include('notification.urls')),
     
-]+ static(settings.QRCODE_URL, document_root=settings.QRCODE_ROOT)
-
-if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+]

@@ -18,9 +18,9 @@
       }
     ],
     "target": "ES2017",
-    "baseUrl": ".", // Add this line
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"] // Add this line
+      "@/*": ["./*"]
     }
   },
   "include": [

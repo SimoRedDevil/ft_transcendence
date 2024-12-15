@@ -7,7 +7,6 @@ export const fetchSearchResults = async (
     searchInput: string,
     setSearchResults: (data: any) => void,
     setSearchLoading: (loading: boolean) => void,
-    setIsUpdate: (update: boolean) => void
 ) => {
     try {
       setSearchLoading(true);
@@ -17,7 +16,6 @@ export const fetchSearchResults = async (
         }
       });
       setSearchResults(res.data);
-      setIsUpdate(true);
     } catch (error) {
       console.log(error);
     } finally {
@@ -35,7 +33,7 @@ export const fetchSearchResults = async (
     try {
       const cookies = await getCookies();
       const csrfToken = cookies.cookies.csrftoken;
-      const response = await axios.post('http://localhost:8000/api/auth/block/', body, {
+      const response = await axios.post('https://localhost/api/auth/block/', body, {
         headers: {
           "Content-Type": "application/json",
           'X-CSRFToken': csrfToken,
@@ -61,7 +59,7 @@ export const fetchSearchResults = async (
     try {
       const cookies = await getCookies();
       const csrfToken = cookies.cookies.csrftoken;
-      const response = await axios.post('http://localhost:8000/api/auth/unblock/', body, {
+      const response = await axios.post('https://localhost/api/auth/unblock/', body, {
         headers: {
           "Content-Type": "application/json",
           'X-CSRFToken': csrfToken,

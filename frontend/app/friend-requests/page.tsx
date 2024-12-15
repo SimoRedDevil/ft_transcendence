@@ -67,7 +67,6 @@ function page() {
         fetchFriendRequests();
     }, [isUpdate, isSearch, requests, sentRequest, isFriend, isBlocked, isFriendRequest, notifications]);
 
-
     const handleAccept = async (requestId) => {
         const body = {
             id: requestId
@@ -75,7 +74,7 @@ function page() {
         try {
             const cookies = await getCookies();
             const csrfToken = cookies.cookies.csrftoken;
-            const response = await axios.post(`http://localhost:8000/api/friends/requests/accept-request/`, body, {
+            const response = await axios.post(`https://localhost/api/friends/requests/accept-request/`, body, {
               headers: {
                 "Content-Type": "application/json",
                 'X-CSRFToken': csrfToken,
@@ -94,7 +93,7 @@ function page() {
     useEffect(() => {
         if (debouncedSearchInput !== "") {
             setIsUpdate(true);
-          fetchSearchResults(debouncedSearchInput, setSearchResults, setSearchLoading, setIsUpdate);
+          fetchSearchResults(debouncedSearchInput, setSearchResults, setSearchLoading);
         } else {
           setSearchResults([]);
         }
@@ -107,7 +106,7 @@ function page() {
         try {
             const cookies = await getCookies();
             const csrfToken = cookies.cookies.csrftoken;
-            const response = await axios.post(`http://localhost:8000/api/friends/requests/reject-request/`, body, {
+            const response = await axios.post(`https://localhost/api/friends/requests/reject-request/`, body, {
               headers: {
                 "Content-Type": "application/json",
                 'X-CSRFToken': csrfToken,
@@ -131,7 +130,7 @@ function page() {
         try {
             const cookies = await getCookies();
             const csrfToken = cookies.cookies.csrftoken;
-            const response = await axios.post(`http://localhost:8000/api/friends/requests/create-request/`, body, {
+            const response = await axios.post(`https://localhost/api/friends/requests/create-request/`, body, {
               headers: {
                 "Content-Type": "application/json",
                 'X-CSRFToken': csrfToken,
@@ -176,7 +175,7 @@ function page() {
         try {
             const cookies = await getCookies();
             const csrfToken = cookies.cookies.csrftoken;
-            const response = await axios.post(`http://localhost:8000/api/friends/requests/remove-friend/`, body, {
+            const response = await axios.post(`https://localhost/api/friends/requests/remove-friend/`, body, {
               headers: {
                 "Content-Type": "application/json",
                 'X-CSRFToken': csrfToken,
@@ -231,7 +230,7 @@ function page() {
     }, [isMenuOpen])
   return (
     <div className='w-full h-full flex items-center justify-center'>
-        <div className='border border-white/30 rounded-[30px] bg-black bg-opacity-50 w-[90%] 3xl:w-[1700px] h-[95%] pr-10 p-5 
+        <div className='border border-white/30 rounded-[30px] bg-black bg-opacity-50 md:w-[80%]  w-[90%] 3xl:w-[1700px] h-[95%] pr-10 p-5 
         overflow-hidden no-scrollbar
         '>
             <div className='flex justify-around w-full  sm:w-[900px] h-[30px] sm:h-[50px]'>

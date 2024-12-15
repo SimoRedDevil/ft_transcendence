@@ -16,7 +16,7 @@ import Winner from '@/components/Winner';
 
 
 interface TableProps {
-    onGameEnd: (winner: string, scoreWinner: string, scoreLoser: string) => void;
+    onGameEnd: (winner: string, loser: string, scoreWinner: string, scoreLoser: string) => void;
 }
 
 export default function Table({onGameEnd}: TableProps) {
@@ -81,7 +81,7 @@ export default function Table({onGameEnd}: TableProps) {
                     Player2.score += 1;
                     if (Player2.score == 1) {
                         sketch.noLoop();
-                        onGameEnd('player 2', Player2.score.toString(), Player1.score.toString());
+                        onGameEnd('player 2', 'player 1',Player2.score.toString(), Player1.score.toString());
                         Player2.score = 0;
                         Player1.score = 0;
                     }
@@ -91,7 +91,7 @@ export default function Table({onGameEnd}: TableProps) {
                     Player1.score += 1;
                     if (Player1.score == 1) {
                         sketch.noLoop();
-                        onGameEnd('player 1', Player1.score.toString(), Player2.score.toString());
+                        onGameEnd('player 1','player 2' ,Player1.score.toString(), Player2.score.toString());
                         Player1.score = 0;
                         Player2.score = 0;
                     }

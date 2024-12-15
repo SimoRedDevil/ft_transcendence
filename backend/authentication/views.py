@@ -1,12 +1,10 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from django.contrib.auth import login, authenticate, logout
 from .serializers import *
-from .models import CustomUser, anonymousUser
-from django.http import JsonResponse
+from .models import CustomUser
 import requests
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import redirect
@@ -14,33 +12,23 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authentication import SessionAuthentication
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework_simplejwt.tokens import AccessToken
-from datetime import timedelta
-from rest_framework.decorators import api_view, permission_classes
 from django.forms.models import model_to_dict
 from authentication.twofaAuth import twofactorAuth
 import pyotp
-from django.http import HttpResponse
 from urllib.parse import urljoin
-from rest_framework_simplejwt.exceptions import TokenError
-import shutil
 import os
-from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
-from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
-from allauth.socialaccount.providers.oauth2.client import OAuth2Client
-from dj_rest_auth.registration.views import SocialLoginView
 from django.http import HttpResponseRedirect
-from rest_framework_simplejwt.authentication import JWTAuthentication
 import jwt
 from django.utils.timezone import now
-from rest_framework.decorators import action
 from django.db.models import Q
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+import random
+from django.core.files.storage import default_storage
+from rest_framework.parsers import MultiPartParser, FormParser
+from .host_image import host_qrcode
 
-URL_FRONT = os.getenv('URL_FRONT')
-URL_BACK = os.getenv('URL_BACK')
+URL = os.getenv('URL')
 
 # Sign Up View
 class SignUpView(generics.CreateAPIView):
@@ -80,19 +68,19 @@ class Intra42Callback(APIView):
         }
         response = requests.post('https://api.intra.42.fr/oauth/token', data=data)
         if response.status_code != 200:
-                response = HttpResponseRedirect(f"{URL_FRONT}/login")
+                response = HttpResponseRedirect(f"{URL}/login")
                 response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
                 return response
         response_data = response.json()
         access_token = response_data['access_token']
         if not access_token:
-                response = HttpResponseRedirect(f"{URL_FRONT}/login")
+                response = HttpResponseRedirect(f"{URL}/login")
                 response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
                 return response
         user_info = requests.get('https://api.intra.42.fr/v2/me', headers={'Authorization': f'Bearer {access_token}'}).json()
 
         if 'login' not in user_info or 'email' not in user_info:
-            response = HttpResponseRedirect(f"{URL_FRONT}/login")
+            response = HttpResponseRedirect(f"{URL}/login")
             response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
             return response
 
@@ -110,14 +98,14 @@ class Intra42Callback(APIView):
 
         authenticate(request, username=user.username)
         if not user.is_authenticated:
-            response = HttpResponseRedirect(f"{URL_FRONT}/login")
+            response = HttpResponseRedirect(f"{URL}/login")
             response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
             return response
         login(request, user)
         if not user.enabeld_2fa:
             user.is_already_logged = True
             user.save()
-        response = HttpResponseRedirect(f'{URL_FRONT}')
+        response = HttpResponseRedirect(f'{URL}')
         if user.enabeld_2fa:
             response.set_cookie('loginSuccess', 'twofa', max_age=30, samesite='Lax')
         else:
@@ -132,7 +120,7 @@ class GoogleLoginCallback(APIView):
     def get(self, request):
         code = request.GET.get("code")
         if not code:
-            response = HttpResponseRedirect(f"{URL_FRONT}/login")
+            response = HttpResponseRedirect(f"{URL}/login")
             response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
             return response
 
@@ -148,7 +136,7 @@ class GoogleLoginCallback(APIView):
 
         response = requests.post(token_endpoint_url, data=data)
         if response.status_code != 200:
-            response = HttpResponseRedirect(f"{URL_FRONT}/login")
+            response = HttpResponseRedirect(f"{URL}/login")
             response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
             return response
 
@@ -156,12 +144,12 @@ class GoogleLoginCallback(APIView):
             response_data = response.json()
             access_token = response_data.get("access_token")
         except ValueError:
-            response = HttpResponseRedirect(f"{URL_FRONT}/login")
+            response = HttpResponseRedirect(f"{URL}/login")
             response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
             return response
 
         if not access_token:
-            response = HttpResponseRedirect(f"{URL_FRONT}/login")
+            response = HttpResponseRedirect(f"{URL}/login")
             response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
             return response
         
@@ -170,14 +158,14 @@ class GoogleLoginCallback(APIView):
         headers = {"Authorization": f"Bearer {access_token}"}
         user_info_response = requests.get(user_info_url, headers=headers)
         if user_info_response.status_code != 200:
-            response = HttpResponseRedirect(f"{URL_FRONT}/login")
+            response = HttpResponseRedirect(f"{URL}/login")
             response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
             return response
         try:
             user_info = user_info_response.json()
 
             if 'sub' not in user_info or 'email' not in user_info:
-                response = HttpResponseRedirect(f"{URL_FRONT}/login")
+                response = HttpResponseRedirect(f"{URL}/login")
                 response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
                 return response
             try:
@@ -194,14 +182,14 @@ class GoogleLoginCallback(APIView):
                 )
             authenticate(request, username=user.username)
             if not user.is_authenticated:
-                response = HttpResponseRedirect(f"{URL_FRONT}/login")
+                response = HttpResponseRedirect(f"{URL}/login")
                 response.set_cookie('loginSuccess', 'false', max_age=30, samesite='Lax')
                 return response
             login(request, user)
             if not user.enabeld_2fa:
                 user.is_already_logged = True
                 user.save()
-            response = HttpResponseRedirect(f'{URL_FRONT}')
+            response = HttpResponseRedirect(f'{URL}')
             if user.enabeld_2fa:
                 response.set_cookie('loginSuccess', 'twofa', max_age=30, samesite='Lax')
             else:
@@ -211,7 +199,7 @@ class GoogleLoginCallback(APIView):
             response.data = user_data
             return response
         except ValueError:
-            return HttpResponseRedirect(f"{URL_FRONT}/login")
+            return HttpResponseRedirect(f"{URL}/login")
 
 # Login View
 class LoginView(APIView):
@@ -231,7 +219,8 @@ class LoginView(APIView):
             if user is not None:
                 login(request, user)
                 if not user.avatar_url:
-                    user.avatar_url = f'{URL_BACK}/avatars/default.png'
+                    avatar_url = host_qrcode('/app/avatars/default.png')
+                    user.avatar_url = avatar_url
                 if not user.enabeld_2fa:
                     user.is_already_logged = True
                 response = Response(status=status.HTTP_200_OK)
@@ -258,7 +247,6 @@ class UserViewSet(viewsets.ModelViewSet):
             blocked_users = self.request.user.blocked_users.all()
             friends = self.request.user.friends.all()
             return result_users.exclude(username__in=blocked_by_users.all().values_list('username', flat=True)).exclude(username__in=blocked_users.all().values_list('username', flat=True)).exclude(username__in=friends.all().values_list('username', flat=True)).filter(Q(is_active=True) & Q(is_bot=False))
-            # return result_users.exclude(username__in=blocked_by_users.all().values_list('username', flat=True)).exclude(username__in=blocked_users.all().values_list('username', flat=True)).filter(is_active=True)
         return CustomUser.objects.filter(Q(is_active=True) & Q(is_bot=False))
 
 class FriendsListView(APIView):
@@ -303,7 +291,7 @@ class GetUser(APIView):
 def generate_tokens(request):
     user = request.user
     refresh = RefreshToken.for_user(user)
-    res = requests.post(f'{URL_BACK}/api/auth/refresh/', data={'refresh': str(refresh),
+    res = requests.post(f'{URL}/api/auth/refresh/', data={'refresh': str(refresh),
     'X-CSRFToken': request.COOKIES.get('csrftoken')})
     if res.status_code != 200:
         return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -443,13 +431,14 @@ class GetQRCodeView(APIView):
         if not user.twofa_secret:
             return Response({'error': '2FA is not enabled'}, status=status.HTTP_400_BAD_REQUEST)
         qr_user = user.qrcode_path.split('/')[-1]
-        qrcode_path = f"{URL_BACK}/qrcodes/" + qr_user
+        qrcode_path = f"{URL}/qrcodes/" + qr_user
         return Response({'qrcode_url': qrcode_path}, status=status.HTTP_200_OK)
 
 #update user Information
 class UpdateUserView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
+
     def put(self, request):
         user = request.user
         data = request.data
@@ -488,15 +477,14 @@ class UpdateUserView(APIView):
             user.color = color
             user.board_name = board_name
             updated = True
+        if 'avatar' in request.FILES:
+            file_url = self.upload_avatar(request)
+            user.avatar_url = host_qrcode(f'/app{file_url}')
+            os.remove(f'/app{file_url}')
+            updated = True
+        user_data = UpdateUserSerializer(user).data
         if updated:
             user.save()
-        avatar_file = data.get('avatar_url')
-        if avatar_file:
-            url = avatar_file
-            user.avatar_url = url
-            user.save()
-            return Response(status=status.HTTP_200_OK)
-        user_data = UpdateUserSerializer(user).data
         return Response(user_data, status=status.HTTP_200_OK)
 
 #change password
@@ -506,17 +494,27 @@ class UpdateUserView(APIView):
         confirm_password = data.get('confirm_password')
         if not user.social_logged:
             if not user.check_password(current_password):
-                return Response({'error': 'Current password is incorrect'}, status=status.HTTP_400_BAD_REQUEST)
+                response = Response(status=status.HTTP_400_BAD_REQUEST)
+                response.data = 'Current password is incorrect'
+                return response
         else:
             if user.password_is_set:
                 if not user.check_password(current_password):
-                    return Response({'error': 'Current password is incorrect'}, status=status.HTTP_400_BAD_REQUEST)
+                    response = Response(status=status.HTTP_400_BAD_REQUEST)
+                    response.data = 'Current password is incorrect'
+                    return response
         if not new_password or not confirm_password:
-            return Response({'error': 'New password and confirmation are required'}, status=status.HTTP_400_BAD_REQUEST)
+            response = Response(status=status.HTTP_400_BAD_REQUEST)
+            response.data = 'New password and confirm password are required'
+            return response
         if new_password == current_password:
-            return Response({'error': 'New password must be different from the current password'}, status=status.HTTP_400_BAD_REQUEST)
+            response = Response(status=status.HTTP_400_BAD_REQUEST)
+            response.data = 'New password cannot be the same as the current password'
+            return response
         if new_password != confirm_password:
-            return Response({'error': 'Passwords do not match'}, status=status.HTTP_400_BAD_REQUEST)
+            response = Response(status=status.HTTP_400_BAD_REQUEST)
+            response.data = 'Passwords do not match'
+            return response
         user.set_password(new_password)
         if user.social_logged:
             user.password_is_set = True
@@ -528,6 +526,16 @@ class UpdateUserView(APIView):
             user.language = language
             return True
         return False
+    
+    def upload_avatar(self, request):
+        file_obj = request.FILES.get('avatar')
+        if not file_obj:
+            response = Response(status=status.HTTP_400_BAD_REQUEST)
+            response.data = 'No file provided'
+            return response
+        file_path = default_storage.save(f"avatars/{file_obj.name}", file_obj)
+        file_url = default_storage.url(file_path)
+        return file_url
 
 class Delete_account(APIView):
     authentication_classes = [SessionAuthentication]
@@ -645,25 +653,30 @@ class AnonymousUserViewSet(APIView):
     def get(self, request):
         user = request.user
         try:
-            anonymous_user = anonymousUser.objects.get(user=user)
-        except anonymousUser.DoesNotExist:
+            anonymous_user = CustomUser.objects.get(email=user.email)
+        except CustomUser.DoesNotExist:
             return Response({'error': 'Anonymous user not found'}, status=status.HTTP_404_NOT_FOUND)
-        return Response(status=status.HTTP_200_OK)
-    def post(self, request):
+        response = Response(status=status.HTTP_200_OK)
+        response.data = UserSerializer(anonymous_user).data
+        return response
+
+    def put(self, request):
         user = request.user
         try:
-            anonymous_user = anonymousUser.objects.get(user=user)
-            user.anonymous = True
-            user.save()
-            anonymous_user.username = 'anonymous' + str(user.id)
-            anonymous_user.email = 'anonymous' + str(user.id) + '@gmail.com'
-            anonymous_user.full_name = 'anonymous'
-            anonymous_user.save()
-        except anonymousUser.DoesNotExist:
-            response = Response(status=status.HTTP_404_NOT_FOUND)
-            return response
-        response = Response(status=status.HTTP_200_OK)
-        response.data = model_to_dict(anonymous_user)
+            anonymous_user = CustomUser.objects.get(email=user.email)
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'user not found'}, status=status.HTTP_404_NOT_FOUND)
+        random_number = random.randint(1, 100000)
+        anonymous_user.username = 'Anonymous' + str(random_number)
+        anonymous_user.email = 'anonymous' + str(random_number) + '@gmail.com'
+        anonymous_user.full_name = 'Anonymous' + str(random_number)
+        anonymous_user.avatar_url = f'{URL}/avatars/anonym.jpg'
+        anonymous_user.city = 'anonymous city'
+        anonymous_user.address = 'anonymous address'
+        anonymous_user.is_anonymous = True
+        anonymous_user.save()
+        response = delete_tokens(request, status=status.HTTP_200_OK)
+        response.data = UserSerializer(anonymous_user).data
         return response
 
 class UserStatusView(APIView):

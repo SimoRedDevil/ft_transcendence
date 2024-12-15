@@ -38,9 +38,9 @@ const DonutChart = ({ wins, matches }) => {
   const COLORS = ['#3b82f6', '#10b981'];
 
   return (
-    <div className="w-full lg:h-full mobile:h-[80%] md:h-[70%] flex justify-center items-center">
-      <div className="flex flex-col lg:w-full lg:h-full text-white justify-center">
-        <div className="w-full h-full relative">
+    <div className="w-full lg:h-full mobile:h-[70%] md:h-[60%] chart flex justify-center items-center">
+      <div className="flex flex-col lg:w-full lg:h-full text-white justify-center relative mobile:top-1">
+        <div className="w-full h-full relative ">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <defs>
@@ -79,8 +79,8 @@ const DonutChart = ({ wins, matches }) => {
               />
             </PieChart>
           </ResponsiveContainer>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-white text-3xl font-bold">
+          <div className="absolute inset-0 -top-3 flex items-center justify-center">
+            <span className="text-white text-xl font-bold">
               {winPercentage.toFixed(2)}%
             </span>
           </div>

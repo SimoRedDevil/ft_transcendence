@@ -70,20 +70,20 @@ export default function Profile() {
     // <div className='h-full w-full backdrop-blur-lg flex justify-center items-center'>
     //       <Versus img={img}/>
     // </div>
-    <div className=" lg:w-[100%] lg:h-full  lg:overflow-hidden lg:flex   items-center justify-center  mobile:h-[90vh] md:border border-white/40 p-2 mobile:w-full mobile:overflow-y-auto mobile:overflow-x-hidden  mobile:space-y-4 lg:space-y-0 overflow-hidden  rounded-xl mobile:pb-14 md:pb-" >
-      <div className='mobile:w-full mobile:h-[80vh] lg:w-1/4  lg:h-full flex flex-col justify-around items-center mobile:gap-3 lg:gap-0 ' >
-          <div className='mobile:w-full mobile:h-1/2 lg:w-[90%] lg:h-[50%] rounded-[30px] user_info  border flex flex-col justify-between items-center '>
+    <div className=" lg:w-[100%]  lg:overflow-hidden lg:flex   items-center justify-center  md:border border-white/40 p-2 mobile:w-full mobile:overflow-y-auto mobile:overflow-x-hidden  mobile:space-y-4 lg:space-y-0 overflow-hidden  rounded-xl mobile:pb-14 pa" >
+      <div className='mobile:w-full mobile:h-[80vh] lg:w-[30%]  lg:h-full flex flex-col justify-around items-center mobile:gap-3 lg:gap-0 ' >
+          <div className='mobile:w-full card special mobile:h-1/2 lg:w-[90%] lg:h-[50%] rounded-[30px] user_info  border flex flex-col  justify-between items-center lg:p-4 2xl:pb-10 '>
             {/* <div className='w-full h-[80%] bg-black' ></div> */}
-            <div className=' rounded-[30px] h-[30%] relative   w-full flex justify-center '> 
-                  <img  className='relative p-1 ls:w-32 ls:h-32    mobile:top-2 z-10  mobile:w-32 mobile:h-32 lg:w-28 lg:h-28 2xl:w-40 2xl:h-40 rounded-full overflow-hidden border-2 border-[#0ecff1fb] shadow-lg  '  src={img} alt="" />
+            <div className=' rounded-[30px] h-[30%] relative profile_pic  2xl:-top-2  w-full flex justify-center '> 
+                  <img  className='relative p-1 ls:w-32 ls:h-32     z-10  mobile:w-32 mobile:h-32 lg:w-28 lg:h-28 2xl:w-40 2xl:h-40 rounded-full overflow-hidden shadow-lg  border-2 border-[#0ecff1fb]'  src={img} alt="" />
             </div>
-            <div className='w-full lg:h-[70%] mobile:-top-8 ls:-top-4 lm:-top-1 md:-top-1 md:pt-2 lg:-top-0   flex flex-col justify-around items-center relative  lg:pt-16 xl:pt-20 '>
-              <div className='flex flex-col lg:justify-center mobile:justify-around items-center'>
-                <h1 className='mobile:text-[8vw] lm:text-[5vw] lg:text-[2vw] ls:text-[5vw] lg:font-bold  font-Earth relative '>{authUser?.full_name}</h1>
-                <h2 className='relative lg:text-[0.8vw] mobile:text-[2.5vw] lm:text-[2vw] text-white/70'>@{authUser?.username}</h2>
-                <h2 className='relative lg:text-[0.8vw] mobile:text-[2.5vw] lm:text-[2vw] text-white/80'>{authUser?.email}</h2>
+            <div className='w-full lg:h-[70%] mobile:-top-4 ls:-top-4 lm:-top-1 md:-top-1 md:pt-2 lg:-top-0   flex flex-col justify-around items-center relative  lg:pt-16 xl:pt-20 '>
+              <div className='text_holder flex flex-col lg:justify-center mobile:justify-around items-center'>
+                <h1 className='mobile:text-[7vw] lm:text-[5vw] lg:text-[2vw] ls:text-[5vw] lg:font-bold  font-Earth relative '>{authUser?.full_name.slice(0,15)}..</h1>
+                <h2 className='relative text_info text-white/70'>@{authUser?.username}</h2>
+                <h2 className='relative text_info text-white/80'>{authUser?.email}</h2>
               </div>
-              <h1 className=" relative lg:text-[1.2vw] mobile:text-[5vw] lm:text-[3vw] font-Warriot">
+              <h1 className=" relative textlvl font-Warriot">
                 Level: {authUser?.level}
               </h1>
               <div className='relative   w-[90%] '>
@@ -97,7 +97,7 @@ export default function Profile() {
       </div>
       
       <div className='mobile:w-full lg:w-[30%]   h-full flex justify-center items-center' >
-      {friends.lenght > 0 ?  
+      {friends && friends?.length > 0 ?  
       <div className='mobile:w-full lg:w-[90%] h-full user_info'>
         <FriendsList friends={friends} />
       </div>:
@@ -112,7 +112,7 @@ export default function Profile() {
         <div className='  w-[70%]  flex  items-center justify-center  lg:h-full' >
           <h1 className='text-center text-white md:text-[4vw] lg:text-[2vw] font-semibold '>Total Matches : {authUser?.matches} </h1>
         </div>
-        <div className='mobile:w-full h-full  flex items-center justify-center'>
+        <div className='mobile:w-full h-full  flex items-center justify-center ' >
               <WeeklyStatsDashboard  matches={authUser?.matches} wins={authUser?.wins}/>
         </div>
         </div>

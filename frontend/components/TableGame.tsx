@@ -174,8 +174,18 @@ export default function TableGame({ playerna, socketRef,  groupname ,  player_id
   }, []);
 
   return (
-    <div className="flex justify-center items-center">
-        <div className="w-[85%] h-[80vh] flex justify-center items-center xl:flex-row  flex-col mt-[5vh]">
+    <>
+        <div className="w-[100%] h-[90vh] flex justify-center items-center xl:flex-row  flex-col
+                        sm:space-y-[20px]
+                        lm:space-y-[40px]
+                        lg:space-y-[40px]
+                        xl:space-x-[60px] xl:space-y-0
+                        2xl:space-x-[200px]
+                        3xl:space-x-[250px]
+                        4xl:space-x-[300px]
+                        md:space-y-[30px]
+                        md:rounded-[50px]
+                        ">
                     { gameStarted && ( playerInfo.player_number === 'player1' ?
                       (<Player2 
                           image={image2}
@@ -207,6 +217,6 @@ export default function TableGame({ playerna, socketRef,  groupname ,  player_id
                       />)
                     )}
         </div>
-    </div>
+    </>
   );
 }

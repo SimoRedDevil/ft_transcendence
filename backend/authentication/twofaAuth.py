@@ -10,14 +10,7 @@ import cloudinary.uploader
 import cloudinary.api
 import cloudinary
 import cloudinary.uploader
-
-# Configure Cloudinary with your credentials
-cloudinary.config( 
-    cloud_name = "dpaaktpyi", 
-    api_key = "578992178567154", 
-    api_secret = "33SDSYNO7iJsWrNxH5rPCP178QE",
-    secure=True
-)
+from .host_image import host_qrcode
 
 def twofactorAuth(username):
     key = pyotp.random_base32()
@@ -34,14 +27,7 @@ def twofactorAuth(username):
     qrcode_path = os.path.join(qrcode_dir, f'{username}_{num}.png')
     qrcode.make(url).save(qrcode_path)
 
-    image_url = host_qrcode(qrcode_path)    
+    image_url = host_qrcode(qrcode_path)
+    os.remove(qrcode_path)
     return key, qrcode_path, image_url
 
-def host_qrcode(qrcode_path):
-    try:
-        response = cloudinary.uploader.upload(qrcode_path)
-        image_url = response['secure_url']
-        return image_url
-    except Exception as e:
-        print("Error uploading image to Cloudinary: ", str(e))
-        return None

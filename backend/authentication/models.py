@@ -31,7 +31,7 @@ class CustomUser(BaseUser):
     tournament_name = models.CharField(max_length=20, blank=True, null=True)
     is_already_logged = models.BooleanField(default=False)
     tournament_score = models.IntegerField(default=0)
-    ## 2FA
+    ## 2FA fields
     enabeld_2fa = models.BooleanField(default=False)
     twofa_secret = models.CharField(max_length=32, blank=True, null=True)
     twofa_verified = models.BooleanField(default=False)
@@ -62,7 +62,7 @@ class CustomUser(BaseUser):
     is_bot = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email', 'full_name']  # Specify any additional required fields
+    REQUIRED_FIELDS = ['email', 'full_name']
 
 
     def __str__(self):
@@ -71,16 +71,3 @@ class CustomUser(BaseUser):
     class Meta:
         db_table = 'users'
         verbose_name_plural = 'users'
-
-class anonymousUser(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='anonymous_user')
-    id = models.AutoField(primary_key=True, unique=True, editable=False)
-    username = models.CharField(max_length=20, unique=True, blank=True)
-    email = models.EmailField(unique=True, blank=True)
-    full_name = models.CharField(max_length=20, blank=True)
-    def __str__(self):
-        return self.user.username
-
-    class Meta:
-        db_table = 'anonymous_users'
-        verbose_name_plural = 'anonymous_users'

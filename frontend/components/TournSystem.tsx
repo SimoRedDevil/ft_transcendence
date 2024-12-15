@@ -2,7 +2,6 @@
 
 import React, { use, useState } from 'react';
 import TournamentForm from './TournamentForm';
-import LocalGame from './LocalGame';
 import Image from 'next/image';
 import { useEffect , useRef} from 'react';
 import { player } from '../app/game/Object';
@@ -36,7 +35,7 @@ export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }:
     
     useEffect(() => {  
         if (typeof window !== 'undefined' && !socketRef.current) {
-            socketRef.current = new WebSocket('ws://localhost:8000/ws/tournament/');
+            socketRef.current = new WebSocket('wss://localhost/ws/tournament/');
             socketRef.current.onopen = () => {
               console.log('WebSocket connected');
               socketRef.current.send(JSON.stringify({ type: 'connection', playerName: PlayerName , username: authUser.username}));
@@ -61,6 +60,46 @@ export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }:
                 }
                 if (data.type === 'player_number') {
                     setPlayernumber(data.number_of_number);
+                }
+                if (data.type === 'update_state')
+                {
+                    console.log(data);
+                    if (data['final_tournament'] === false)
+                    {
+                        if(data['players'][0].numberwiner === 'player1' || data['players'][0].numberwiner === 'player2')
+                            setWinner2(data['players'][1].winer);
+                        else if(data['players'][0].numberwiner === 'player3' || data['players'][0].numberwiner === 'player4')
+                            setWinner1(data['players'][1].winer);
+                        if (data['players'][1].numberwiner === 'player1' || data['players'][1].numberwiner === 'player2')
+                            setWinner2(data['players'][0].winer);
+                        else if (data['players'][1].numberwiner === 'player3' || data['players'][1].numberwiner === 'player4')
+                            setWinner1(data['players'][0].winer);
+                    }
+                    else
+                    {
+                        setWinner(data['players'].winer);
+                        setShowLocalGame(false);
+                        setCurrentGame(currentGame + 2);
+                        GameEnd(data['players'].winer);
+                    }
+                    // handleUpdateState(data.winner1, data.playerN1, data.winner2, data.playerN2);
+                }
+                if (data.type === 'start_game') {
+                    console.log("hhhhhh",data);
+                }
+                if (data.type === 'game_over')
+                {
+                    console.log(data);
+                    console.log(PlayerName);
+                    if (data.winner.name === PlayerName)
+                        setQualified(true);
+            
+                    if (data.winner.numberplayer == 'player1' || data.winner.numberplayer == 'player2')
+                        setWinner1(data.winner.name);
+                    else if (data.winner.numberplayer == 'player4' || data.winner.numberplayer == 'player3')
+                        setWinner2(data.winner.name);
+                    setShowLocalGame(false);
+                    setCurrentGame(currentGame + 1);
                 }
                 if (data.type === 'tournament_start') {
                     setPlayers(data.players);

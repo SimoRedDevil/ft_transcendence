@@ -33,7 +33,7 @@ export const OnlineStatusProvider = ({ children }) => {
         }
         else
         {
-            if (onlineSocket !== null) {
+            if (onlineSocket !== null && onlineSocket.readyState === WebSocket.OPEN) {
                 onlineSocket.close();
                 setOnlineSocket(null);
             }

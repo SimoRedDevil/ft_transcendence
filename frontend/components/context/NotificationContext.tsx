@@ -100,7 +100,7 @@ export const NotificationProvider = ({ children }) => {
 
             setNotifSocket(ws);
             return () => {
-                ws.close();
+                ws.readyState === WebSocket.OPEN && ws.close();
             }
         }
         else

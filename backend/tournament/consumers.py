@@ -24,7 +24,7 @@ class paddles:
         self.playerNu = playerNu
         self.playernambertour = N_tour
         self.score = 0
-         
+ 
     def to_dict(self):
         return {
             'x': self.x,

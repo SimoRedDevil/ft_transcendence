@@ -222,7 +222,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
               pauseOnFocusLoss
               pauseOnHover
               draggable
-              stacked
+              // stacked
               theme="dark"
               progressStyle={{ backgroundColor: "#4cd964" }}
               style={{

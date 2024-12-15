@@ -8,34 +8,34 @@ const OnlineStatusContext = createContext(null);
 
 export const OnlineStatusProvider = ({ children }) => {
     const [onlineUsers, setOnlineUsers] = useState([]);
-    const [onlineSocket, setOnlineSocket] = useState(null);
+    // const [onlineSocket, setOnlineSocket] = useState(null);
     const { t } = useTranslation();
     const {authUser} = useUserContext();
+    const onlineSocket = useRef(null);
 
     useEffect(() => {
         if (authUser !== null) {
-            const ws = new WebSocket("ws://localhost:8000/ws/online/");
-            ws.onopen = () => {
+            if (!onlineSocket.current) {
+                onlineSocket.current = new WebSocket("ws://localhost:8000/ws/online/");
+            }
+            // const ws = new WebSocket("ws://localhost:8000/ws/online/");
+            onlineSocket.current.onopen = () => {
               console.log("Connected to online status");
             };
       
-            ws.onmessage = (message) => {
+            onlineSocket.current.onmessage = (message) => {
                 setOnlineUsers(JSON.parse(message.data));
             };
 
-            ws.onclose = () => {
+            onlineSocket.current.onclose = () => {
               console.log("Disconnected from online status");
-            };
-            setOnlineSocket(ws);
-            return () => {
-                ws.close();
             };
         }
         else
         {
-            if (onlineSocket !== null) {
-                onlineSocket.close();
-                setOnlineSocket(null);
+            if (onlineSocket.current !== null && onlineSocket.current.readyState === WebSocket.OPEN) {
+                onlineSocket.current.close();
+                onlineSocket.current = null;
             }
         }
     }, [authUser]);

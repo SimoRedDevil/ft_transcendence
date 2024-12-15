@@ -152,7 +152,7 @@ function Chat({setShowBlockDialog}) {
   }
 
   const handleInviteGame = async () => {
-    notifSocket.send(JSON.stringify({
+    notifSocket.current.send(JSON.stringify({
       'notif_type': 'invite_game',
       'sender': authUser?.username,
       'receiver': otherUser?.username,

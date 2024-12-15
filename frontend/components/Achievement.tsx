@@ -9,7 +9,7 @@ function Achievement({title , des , img, status}){
                         <p className="mobile:text-[4vw] ls:text-[2vw] lg:text-[0.6vw] text-white/50">{des.slice(0, 20)}...</p>
                     </div>
 
-                    {status ? <h2 className="mobile:text-[2vw] text-white ls:text-[1.5vw] lm:text-[0.8vw] lg:text-[0.8vw] md:text-[0.8vw] truncate">
+                    {status ? <h2 className="mobile:text-[4vw] ls:text-[1.5vw]  lg:text-[0.7vw] text-white">
     ✓ Achieved
 </h2>
 : 

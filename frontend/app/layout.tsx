@@ -23,7 +23,7 @@ import { OnlineStatusProvider } from "@/components/context/OnlineStatusContext";
 
 function RootLayout({ children }: any) {
   const pathname = usePathname();
-  const exclude = ["/login", "/twofa"];
+  const exclude = ["/login", "/twofa", "/landing"];
   const router = useRouter();
 
   return (
@@ -59,6 +59,9 @@ function RootLayout({ children }: any) {
               <link href="https://fonts.cdnfonts.com/css/a-space-demo" rel="stylesheet" />
               <link href="https://fonts.cdnfonts.com/css/flexsteel" rel="stylesheet" />
               <link href="https://fonts.cdnfonts.com/css/oceanic-drift" rel="stylesheet"/>
+              <link href="https://fonts.cdnfonts.com/css/nk57-monospace" rel="stylesheet" />
+              <link href="https://fonts.cdnfonts.com/css/red-hat-mono" rel="stylesheet" />
+                
                 
               <title>
                 {pathname.charAt(1).toUpperCase() + pathname.slice(2)}
@@ -171,12 +174,12 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
             <div className="h-[95%] flex flex-col-reverse sm:flex-row max-sm:justify-center max-sm:items-center">
                 {/* Render Sidebar if pathname is not in exclude list */}
                 {!exclude.includes(pathname) && (
-                    <div className="flex sm:flex-col w-full sm:w-[100px] ">
+                    <div className="flex sm:flex-col w-full sm:w-[100px] mobile:absolute mobile:bottom-0">
                         <Sidebar />
                     </div>
                 )}
                 
-                <div className="h-[90%]  w-full flex ">
+                <div className="h-[100%]  w-full flex ">
                     {
                         (isAuthenticated && isSearching) && (
                             <div className='z-50 fixed left-0 flex items-center justify-center w-full h-[600px] text-white'>

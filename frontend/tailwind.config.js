@@ -48,6 +48,9 @@ module.exports = {
         'Kecil': ['Major Mono Display', 'sans-serif'],
         'Bruno': ['Bruno Ace SC', 'sans-serif'],
         'Oceanic': ['Oceanic Drift', 'sans-serif'],
+        'NK57': ['NK57 Monospace', 'sans-serif'],
+        'Red': ['Red Hat Mono', 'sans-serif'],
+                                                
         
 
         
@@ -95,6 +98,7 @@ module.exports = {
         '2xl': '1536px',
         '3xl': '1800px',
         '4xl': '2000px',
+        '5xl': '2280px',
         // 'screen-sm': { raw: '(max-height: 600px)' },
       },
       backgroundImage: {

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useTranslation } from "react-i18next";
 import ProfileCard from '../../components/ProfileCard';
 import MatchSelect from '../../components/MatchSelect';
 import Versus from '../../components/Versus';
@@ -26,6 +27,7 @@ export default function Profile() {
   const [data, setData] = useState(null);
   const [friends, setFriends] = useState(null);
   const [matches, setMatches] = useState(null);
+  const { t } = useTranslation();
   const [profileLoading, setProfileLoading] = useState(true);
   useEffect(() => {
     const fetchData = async () => {
@@ -89,10 +91,12 @@ export default function Profile() {
              </h1>
                 }
                 <h2 className='relative text_info text-white/70'>@{authUser?.username}</h2>
-                <h2 className='relative text_info text-white/80'>{authUser?.email}</h2>
+                <h2 className='relative text_info text-white/80'> {authUser?.email.length > 20 
+                 ? `${authUser.email.slice(0, 20)}..` 
+                 : authUser.email}</h2>
               </div>
               <h1 className=" relative textlvl font-Warriot">
-                Level: {authUser?.level}
+                {t("Level")}: {authUser?.level}
               </h1>
               <div className='relative   w-[90%] '>
                 <ProgressLine progress={authUser?.level} />
@@ -105,19 +109,12 @@ export default function Profile() {
       </div>
       
       <div className='mobile:w-full lg:w-[30%]   h-full flex justify-center items-center' >
-      {friends.length > 0 ?  
+      {friends && friends.length > 0 ?  
       <div className='mobile:w-full lg:w-[90%] h-full user_info'>
         <FriendsList friends={friends} />
       </div>:
       <div className='mobile:w-full lg:w-[90%] h-full user_info flex justify-center items-center' >
-        {/* <h1 className='font-Oceanic  lg:text-[1vw]'>New friends will appear here</h1> */}
-        <div className='relative top-6  lg:h-[90%] xs:h-[90%]  w-full overflow-auto hide-scrollbar  scale-105'>
-        <div className=' w-full h-auto   flex flex-col items-center gap-5 '>
-                <div className='relative w-[100%] h-[3.5rem]  flex flex-col justify-center items-center'>
-                    <FriendCard Name="hamid hamid hamid" Username="hamid" online={true} />
-                </div>
-        </div>
-        </div>
+        <h1 className='font-Oceanic  lg:text-[1vw]'>{t("New friends will appers here")}</h1>
       </div>
         }
       </div>
@@ -125,7 +122,7 @@ export default function Profile() {
       <div className='mobile:w-full lg:w-full  h-full  flex  flex-col justify-center gap-5 ' >
         <div className='mobile:w-full  h-[40%] border border-white/40 rounded-[30px] box-border bg-gradient-to-r from-[#00000080] to-[#293B45B3]  flex lg:flex-row mobile:flex-col items-center justify-between'>
         <div className='  w-[70%]  flex  items-center justify-center  lg:h-full' >
-          <h1 className='text-center text-white md:text-[4vw] lg:text-[2vw] font-semibold '>Total Matches : {authUser?.matches} </h1>
+          <h1 className='text-center text-white md:text-[4vw] lg:text-[2vw] font-semibold '>{t("Total Matches")} : {authUser?.matches} </h1>
         </div>
         <div className='mobile:w-full h-full  flex items-center justify-center ' >
               <WeeklyStatsDashboard  matches={authUser?.matches} wins={authUser?.wins}/>

@@ -1,16 +1,18 @@
+import { useTranslation } from "react-i18next";
 function Achievement({title , des , img, status}){
+    const { t } = useTranslation();
     return(
 
         
         <div className=" w-[90%] h-full flex justify-between items-center  relative  box-border">
                 <div className=" h-full flex  flex-col justify-between ">
                     <div className="flex flex-col ">
-                        <h1 className="mobile:text-[5vw] ls:text-[3vw] lm:text-[2vw]  lg:text-[1vw] text-white " >{title}</h1> 
-                        <p className="mobile:text-[4vw] ls:text-[2vw] lg:text-[0.6vw] text-white/50">{des.slice(0, 20)}...</p>
+                        <h1 className="mobile:text-[5vw] ls:text-[3vw] lm:text-[2vw]  lg:text-[1vw] text-white " >{t(title)}</h1> 
+                        <p className="mobile:text-[4vw] ls:text-[2vw] lg:text-[0.6vw] text-white/50"> {`${t(des.slice(0, 20))}...`}.</p>
                     </div>
 
                     {status ? <h2 className="mobile:text-[4vw] ls:text-[1.5vw]  lg:text-[0.7vw] text-white">
-    ✓ Achieved
+    ✓ {t("Achieved")}
 </h2>
 : 
                         <div className="flex justify-center items-center absolute w-[100%] h-full ">

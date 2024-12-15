@@ -16,7 +16,7 @@ export const OnlineStatusProvider = ({ children }) => {
     useEffect(() => {
         if (authUser !== null) {
             if (!onlineSocket.current) {
-                onlineSocket.current = new WebSocket("ws://localhost:8000/ws/online/");
+                onlineSocket.current = new WebSocket("wss://localhost/ws/online/");
             }
             // const ws = new WebSocket("ws://localhost:8000/ws/online/");
             onlineSocket.current.onopen = () => {

@@ -274,7 +274,7 @@ export const NotificationProvider = ({ children }) => {
         if (authUser !== null) {
             // const ws = new WebSocket("ws://localhost:8000/ws/notification/");
             if (!notifSocket.current)
-                notifSocket.current = new WebSocket("ws://localhost:8000/ws/notification/");
+                notifSocket.current = new WebSocket("wss://localhost/ws/notification/");
             notifSocket.current.onopen = () => {
               console.log("Connected to notification status");
             };

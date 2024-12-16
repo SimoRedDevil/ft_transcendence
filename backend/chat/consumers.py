@@ -57,17 +57,15 @@ def get_notification(user, sender_obj, receiver_obj):
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        user = self.scope['user']
-        if user.is_anonymous or not user.is_authenticated:
+        self.user = self.scope['user']
+        self.room_group_name = f'chat_{self.user.username}'
+        if self.user.is_anonymous or not self.user.is_authenticated:
             await self.close(code=1008)
         else:
-            self.user = user
-            self.room_group_name = f'chat_{user.username}'
             await self.channel_layer.group_add(
                 self.room_group_name,
                 self.channel_name
             )
-            print(f'CHANNEL_LAYER: {self.channel_name}', flush=True)
             await self.accept()
 
     async def disconnect(self, close_code):

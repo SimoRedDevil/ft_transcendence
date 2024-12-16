@@ -41,8 +41,8 @@ def setTokens(response, user):
     response.set_cookie(
         key='access',
         value=access_token,
-        httponly=False,
-        secure=False,
+        httponly=True,
+        secure=True,
         samesite='Lax',
     )
     return response
@@ -302,8 +302,8 @@ def generate_tokens(request):
     response.set_cookie(
         key='access',
         value=access_token,
-        httponly=False,
-        secure=False, 
+        httponly=True,
+        secure=True,
         samesite='Lax',
     )
     user = request.user

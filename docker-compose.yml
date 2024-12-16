@@ -41,6 +41,8 @@ services:
       - mynetwork
     ports:
       - "8000:8000"
+    volumes:
+      - ./backend:/app
     env_file:
       - .env
     restart: always
@@ -97,7 +99,9 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
+      - ./backend/ssl:/usr/share/elasticsearch/ssl 
       - ./policy_ilm.sh:/usr/share/elasticsearch/policy_ilm.sh
+      - ./backend/generate_ssl.sh:/usr/share/elasticsearch/generate_ssl.sh
     user: "0"
     networks:
       - mynetwork
@@ -153,6 +157,7 @@ services:
         until curl -s -X POST --cacert config/certs/ca/ca.crt -u "elastic:${ELASTIC_PASSWORD}" -H "Content-Type: application/json" https://elasticsearch:9200/_security/user/kibana_system/_password -d "{\"password\":\"${KIBANA_PASSWORD}\"}" | grep -q "^{}"; do sleep 10; done;
         echo "Running ILM script";
         bash policy_ilm.sh;
+        bash generate_ssl.sh;
         echo "All done!";
       '
     healthcheck:

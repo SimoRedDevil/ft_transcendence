@@ -18,7 +18,7 @@ export const OnlineStatusProvider = ({ children }) => {
             if (!onlineSocket.current) {
                 onlineSocket.current = new WebSocket("wss://localhost/ws/online/");
             }
-            // const ws = new WebSocket("ws://localhost:8000/ws/online/");
+            // const ws = new WebSocket("wss://localhost:8000/ws/online/");
       
             onlineSocket.current.onmessage = (message) => {
                 setOnlineUsers(JSON.parse(message.data));

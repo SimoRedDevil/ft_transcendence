@@ -8,6 +8,7 @@ import { getCookies } from '@/components/auth';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useNotificationContext } from './context/NotificationContext'
+import { useTranslation } from 'react-i18next';
 
 type Props = {
     Url: string,
@@ -15,13 +16,15 @@ type Props = {
     Description: string,
     Date: string,
     Key: string,
-    IsRead: boolean
+    IsRead: boolean,
+    FullName: string,
 }
 
 
-function NotificationElement({Url, Avatar, Description, Date, Key, IsRead}: Props) {
+function NotificationElement({Url, Avatar, Description, Date, Key, IsRead, FullName}: Props) {
 
   const {notifications, setNotifications} = useNotificationContext()
+  const {t} = useTranslation()
   
   const handleClick = async (notificationId) => {
     const body = {
@@ -59,8 +62,8 @@ function NotificationElement({Url, Avatar, Description, Date, Key, IsRead}: Prop
           <Image className='rounded-full' width={60} height={60} src={Avatar} alt='user_image'></Image>
         </div>
         <div className='flex flex-col gap-3'>
-          <span className='text-[18px]'>{Description}</span>
-          <span className='text-[15px]'>{Date}</span>
+          <span className='text-[18px]'>{FullName + ' ' + t(Description.split(FullName)[1])}</span>
+          <span className='text-[15px]'>{t(Date.split(',')[0]) + ',' + Date.split(',')[1]}</span>
         </div>
       </Link>
   )

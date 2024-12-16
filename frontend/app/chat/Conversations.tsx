@@ -13,6 +13,8 @@ import axios from 'axios'
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import { BounceLoader } from 'react-spinners';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 
 function Conversations() {
   
@@ -31,6 +33,7 @@ function Conversations() {
     refScroll
   } = useChatContext()
   
+  const {t} = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const friendUserName = searchParams.get('username');
@@ -52,7 +55,7 @@ function Conversations() {
         }
       })
       .catch((err) => {
-        console.log(err)
+        toast.error(t('Error fetching conversation'))
       })
     }
   }, [])
@@ -75,7 +78,7 @@ function Conversations() {
         setConversations(response.data)
       })
       .catch((err) => {
-        console.log(err)
+        toast.error(t('Error searching conversation'))
       })
     }
   }
@@ -103,11 +106,11 @@ function Conversations() {
                 </div>
                 <div className='flex flex-col justify-center gap-4'>
                   <span className='text-[17px] sm:text-[20px]'>{authUser?.full_name}</span>
-                  <span className='text-[15px] sm:text-[18px] text-white text-opacity-65'>Online</span>
+                  <span className='text-[15px] sm:text-[18px] text-white text-opacity-65'>{t('Online')}</span>
                 </div>
               </div>
               <div className='h-[100px] flex items-center justify-center'>
-                <TextBox focus={false}  onChange={(e) => handleConversationSearch(e)} placeholder='Search...' icon='/icons/search.png' className='border border-white border-opacity-20 w-[95%] h-[70px] bg-white bg-opacity-10 rounded-[40px] flex items-center'></TextBox>
+                <TextBox focus={false}  onChange={(e) => handleConversationSearch(e)} placeholder={t('Search')} icon='/icons/search.png' className='border border-white border-opacity-20 w-[95%] h-[70px] bg-white bg-opacity-10 rounded-[40px] flex items-center'></TextBox>
               </div>
             </div>
         <div className='mt-[20px] h-[calc(100%_-_270px)] no-scrollbar overflow-y-auto scroll-smooth'>
@@ -123,7 +126,7 @@ function Conversations() {
                     <span className='text-[16px] sm:text-[20px]'>{conversation.user2_info.full_name}</span> :
                     <span className='text-[16px] sm:text-[20px]'>{conversation.user1_info.full_name}</span>
                   }
-                  <span className='text-[15px] sm:text-[18px] text-white text-opacity-65'>{truncateMessage(conversation.last_message, 20)}</span>
+                  <span className='text-[15px] sm:text-[18px] text-white text-opacity-65'>{truncateMessage(t(conversation.last_message), 20)}</span>
                 </div>
               </div>)
             })

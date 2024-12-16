@@ -1,6 +1,6 @@
 #!/bin/bash
 
-path=backend/ssl
+path=/usr/share/elasticsearch/ssl
 
 mkdir -p $path/private
 mkdir -p $path/certs

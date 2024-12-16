@@ -93,7 +93,7 @@ export default function Game() {
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            socketRef.current = new WebSocket('ws://localhost:8000/ws/game/');
+            socketRef.current = new WebSocket('wss://localhost:8000/ws/game/');
             socketRef.current.onopen = () => {
                 socketRef.current.send(JSON.stringify({ type: 'connection', username: authUser.username, flag: typeGame, sender: sender, receiver: receiver }));
             }

@@ -94,8 +94,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if not sender_obj or not receiver_obj:
             await self.close(code=1008)
 
-        # if block_check(self.user, receiver_obj, sender_obj) or not receiver_obj.is_active:
-        #     return
         if msg_type == 'message':
             message = data['content']
             conversation_id = data['conversation_id']
@@ -114,7 +112,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             if await check_notification_exists(self.user, sender_obj, receiver_obj):
                 await get_notification(self.user, sender_obj, receiver_obj)
             notif_room_group_name = f'notif_{sent_to_user}'
-            notif = await create_notification(sender_obj, receiver_obj, 'message', 'New Message', f'You have a new message from {sender_obj.full_name}.')
+            notif = await create_notification(sender_obj, receiver_obj, 'message', 'New Message', f'{sender_obj.full_name} has sent you a message.')
             await self.channel_layer.group_send(notif_room_group_name, 
                 {
                     'type': 'send_notification',
@@ -123,7 +121,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'sender': sender_obj.username, 
                     'receiver': receiver_obj.username, 
                     'title': 'New Message', 
-                    'description': f'You have a new message from {sender_obj.full_name}.',
+                    'description': f'{sender_obj.full_name} has sent you a message.',
                     'get_human_readable_time': notif.get_human_readable_time()
                 }
             )

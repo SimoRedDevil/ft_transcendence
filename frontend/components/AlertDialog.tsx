@@ -40,10 +40,10 @@ export default function AlertDialog({showBlockDialog, setShowBlockDialog}) {
         withCredentials: true,
       });
       if (response.status === 200) {
-        toast.success("User blocked successfully")
+        toast.success(t("User blocked successfully"))
       }
     } catch (error) {
-      toast.error(t(error.response.data.error))
+      toast.error(error.response.data.error)
     }
     setOpen(false);
     setShowBlockDialog(false)
@@ -58,18 +58,17 @@ export default function AlertDialog({showBlockDialog, setShowBlockDialog}) {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          {"Block " + otherUser?.full_name + "?"}
+          {t("Block") + " " + otherUser?.full_name + "?"}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-          By blocking this contact, you will no longer receive messages or any form of communication from them.
-          Are you sure you want to block this contact?
+            {t("By blocking this contact, you will no longer receive messages or any form of communication from them. Are you sure you want to block this contact?")}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
+          <Button onClick={handleClose}>{t("Cancel")}</Button>
           <Button onClick={handleBlock} autoFocus>
-            Block
+            {t("Block")}
           </Button>
         </DialogActions>
       </Dialog>

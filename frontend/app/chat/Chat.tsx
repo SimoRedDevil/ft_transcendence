@@ -115,7 +115,7 @@ function Chat({setShowBlockDialog}) {
     try {
       const cookies = await getCookies();
       const csrfToken = cookies.cookies.csrftoken;
-      const response = await axios.post('https://localhost/api/auth/unblock/', body, {
+      const response = await axios.post('http://localhost:8000/api/auth/unblock/', body, {
         headers: {
           "Content-Type": "application/json",
           'X-CSRFToken': csrfToken,
@@ -182,7 +182,7 @@ function Chat({setShowBlockDialog}) {
           setOtherUserOnline(response.data)
         }
       }).catch((error) => {
-        toast.error(t(error.response.data.error))
+        toast.error(error.response.data.error)
       })
     }
   }, [otherUser, onlineUsers])
@@ -237,7 +237,7 @@ function Chat({setShowBlockDialog}) {
           </div>
           <div className='flex flex-col justify-center gap-4'>
             <span className={`text-[20px] ${isMobile ? 'mt-4' : 'mt-0'}`}>{otherUser.full_name}</span>
-            <span className='text-[18px] text-white text-opacity-60'>{(otherUserOnline || otherUser.is_bot) ? 'Online' : 'Offline'}</span>
+            <span className='text-[18px] text-white text-opacity-60'>{(otherUserOnline || otherUser.is_bot) ? t('Online') : t('Offline')}</span>
           </div>
         </div>
         <div className={`${(!otherUser?.is_active || isBlocked || otherUser.is_bot) ? 'invisible' : 'visible'} w-[140px] flex gap-2`}>
@@ -261,7 +261,7 @@ function Chat({setShowBlockDialog}) {
                       <span className='text-white text-opacity-90 p-[20px]'>{message.content}</span>
                     </div>
                     <div className=''>
-                      <span className='text-white text-opacity-50 text-[0.8rem]'>{message.get_human_readable_time}</span>
+                      <span className='text-white text-opacity-50 text-[0.8rem]'>{t(message.get_human_readable_time.split(',')[0]) + ',' + message.get_human_readable_time.split(',')[1]}</span>
                     </div>
                   </div> : null
                 )
@@ -280,20 +280,20 @@ function Chat({setShowBlockDialog}) {
         <div className={`w-[90%] h-[250px] bg-black bg-opacity-50 border border-white border-opacity-30 rounded-[30px] p-5 flex flex-col items-center justify-center text-center gap-3 ${(!isBlocked && otherUser?.is_active) && 'hidden'}`}>
             <div className={`text-red-600 text-opacity-60`}>
               {
-                !otherUser?.is_active ? <p>You cannot chat with this user because his account is deleted.</p> :
-                  ((blocker === authUser?.username && otherUser?.is_active) ? <p>You have blocked this user. Unblock him to send messages.</p> : <p>You have been blocked by this user. You cannot send messages.</p>)
+                !otherUser?.is_active ? <p>{t('You cannot chat with this user because his account is deleted.')}</p> :
+                  ((blocker === authUser?.username && otherUser?.is_active) ? <p>{t('You have blocked this user. Unblock him to send messages.')}</p> : <p>{t('You have been blocked by this user. You cannot send messages.')}</p>)
               }
             </div>
             {
               (blocker === authUser?.username && otherUser?.is_active) &&
               <button onClick={handleUnblockUser} className='hover:bg-[#427baa] w-[220px] h-[55px] bg-[#3b6e98] rounded-[30px] flex items-center justify-center'>
-                <span className='text-white text-opacity-90'>Unblock</span>
+                <span className='text-white text-opacity-90'>{t('Unblock')}</span>
               </button>
             }
         </div>
         <div className={`w-full h-[100px] bg-transparent flex items-center justify-center ${(isBlocked || !otherUser?.is_active || otherUser?.is_bot) && 'hidden'}`}>
           <div onKeyDown={handleKeyDown} className={`flex justify-between h-[80px] w-full rounded-[30px] border border-white border-opacity-30 bg-black bg-opacity-50 ${isBlocked ? ' border-red-600 bg-red-600 bg-opacity-20 ' : ''} `}>
-            <TextBox focus={true} input={input} onChange={(e) => handleInputChange(e)} placeholder='Type a message...' icon={undefined} className={`w-full h-full bg-transparent rounded-[30px] p-[20px] ${isBlocked && 'invisible'}`} disabled={isBlocked === true ? true : false}></TextBox>
+            <TextBox focus={true} input={input} onChange={(e) => handleInputChange(e)} placeholder={t('Type a message...')} icon={undefined} className={`w-full h-full bg-transparent rounded-[30px] p-[20px] ${isBlocked && 'invisible'}`} disabled={isBlocked === true ? true : false}></TextBox>
             <div className='w-[140px] flex items-center justify-center gap-3'>
               <button disabled={isBlocked === true ? true : false} onClick={handleEmoji}>
                 <MdEmojiEmotions className={!showEmoji ? 'text-white text-opacity-90 w-[40px] h-[40px] hover:text-opacity-100' : 'text-[#4682B4] text-opacity-100 w-[40px] h-[40px]'} />

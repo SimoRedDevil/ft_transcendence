@@ -48,7 +48,28 @@
     "Something Went Wrong": "Algo salió mal",
     "Account Created Successfully": "Cuenta creada con éxito",
     "Protect your account with two-factor authentication": "Protege tu cuenta con autenticación de dos factores",
-    "Two-factor authentication is an enhanced security feature that requires a six-digit code from your authenticator app in addition to your password." : "La autenticación de dos factores es una función de seguridad mejorada que requiere un código de seis dígitos de tu aplicación de autenticación además de tu contraseña."
-
+    "Two-factor authentication is an enhanced security feature that requires a six-digit code from your authenticator app in addition to your password." : "La autenticación de dos factores es una función de seguridad mejorada que requiere un código de seis dígitos de tu aplicación de autenticación además de tu contraseña.",
+    "Tap to chat": "Toca para chatear",
+    "Type a message...": "Escribe un mensaje...",
+    "Block": "Bloquear",
+    "By blocking this contact, you will no longer receive messages or any form of communication from them. Are you sure you want to block this contact?": "Al bloquear este contacto, ya no recibirás mensajes ni ninguna forma de comunicación de ellos. ¿Estás seguro de que quieres bloquear este contacto?",
+    "Cancel": "Cancelar",
+    "Monday": "Lunes",
+    "Tuesday": "Martes",
+    "Wednesday": "Miércoles",
+    "Thursday": "Jueves",
+    "Friday": "Viernes",
+    "Saturday": "Sábado",
+    "Sunday": "Domingo",
+    "You cannot chat with this user because his account is deleted.": "No puedes chatear con este usuario porque su cuenta está eliminada.",
+    "You have blocked this user. Unblock him to send messages.": "Has bloqueado a este usuario. Desbloquéalo para enviar mensajes.",
+    "You have been blocked by this user. You cannot send messages.": "Este usuario te ha bloqueado. No puedes enviar mensajes.",
+    "Unblock": "Desbloquear",
+    "User blocked successfully": "Usuario bloqueado con éxito",
+    "Error fetching conversation": "Error al obtener la conversación",
+    "Error searching conversation": "Error al buscar la conversación",
+    " has sent you a friend request.": " te ha enviado una solicitud de amistad.",
+    " has accepted your friend request.": " ha aceptado tu solicitud de amistad.",
+    " has sent you a message.": " te ha enviado un mensaje."
   }
   

@@ -42,11 +42,10 @@ function Sidebar() {
             <div className='
             flex sm:flex-col items-around justify-around sm:justify-center items-center sm:gap-[5%] w-full h-full sm:h-[80%] flex-row
             '>
-            {/* <NavLink href='/game' isActive={game}><IoLogoGameControllerB title='Game' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink> */}
-            <button isActive={game} onClick={() => setGameOpen(!gameOpen)}>
+            <button onClick={() => setGameOpen(!gameOpen)}>
                 <IoLogoGameControllerB title='Game' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/>
             </button>
-            <button isActive={tournament} onClick={() => setTourOpen(!tourOpen)}>
+            <button onClick={() => setTourOpen(!tourOpen)}>
                 <GiLaurelsTrophy title='Game' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/>
             </button>
             {/* <NavLink href='/game/tournament' isActive={tournament}><GiLaurelsTrophy title='Tournament' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink> */}

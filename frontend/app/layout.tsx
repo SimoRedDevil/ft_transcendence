@@ -61,6 +61,10 @@ function RootLayout({ children }: any) {
               <link href="https://fonts.cdnfonts.com/css/oceanic-drift" rel="stylesheet"/>
               <link href="https://fonts.cdnfonts.com/css/nk57-monospace" rel="stylesheet" />
               <link href="https://fonts.cdnfonts.com/css/red-hat-mono" rel="stylesheet" />
+              <link href="https://fonts.cdnfonts.com/css/freemono" rel="stylesheet" />
+                
+
+                
                 
                 
               <title>

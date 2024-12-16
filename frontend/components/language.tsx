@@ -34,7 +34,6 @@ export default function Language() {
         try {
             const cookies = await getCookies();
             const csrftoken = cookies.cookies.csrftoken;
-            console.log(csrftoken);
             const response = await axios.put(
               `${API}/update/`,
               body,
@@ -42,6 +41,7 @@ export default function Language() {
                 withCredentials: true,
                 headers: {
                   "Content-Type": "application/json",
+                    "X-CSRFToken": csrftoken,
                 },
               }
             );

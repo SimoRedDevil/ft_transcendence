@@ -137,7 +137,7 @@ export default function Profile({params}) {
     );
   }
 
-  if (loading || profileLoading | userLoading) {
+  if (loading || profileLoading || userLoading) {
     return (
       <div className='flex items-center justify-center w-full h-full'>
         <BounceLoader size={300} color='#1f959d' />
@@ -149,7 +149,7 @@ export default function Profile({params}) {
     // <div className='h-full w-full backdrop-blur-lg flex justify-center items-center'>
     //       <MatchSelect />
     // </div>
-    <div className=" lg:w-[100%]  lg:overflow-hidden lg:flex    items-center justify-center  md:border border-white/40 p-2 mobile:w-full mobile:overflow-y-auto mobile:overflow-x-hidden  mobile:space-y-4 lg:space-y-0 overflow-hidden  rounded-xl mobile:pb-14 pa" >
+    <div className=" lg:w-[100%]  lg:overflow-hidden lg:flex    items-center justify-center  md:border border-white/40 p-2 mobile:w-full mobile:overflow-y-auto mobile:overflow-x-hidden  mobile:space-y-4 lg:space-y-0 overflow-hidden  rounded-xl mobile:pb-14 hide-scrollbar" >
       <div className='mobile:w-full mobile:h-[80vh] lg:w-[30%] min-h-[900px] lg:h-full flex flex-col justify-around items-center mobile:gap-3 lg:gap-0 ' >
           <div className='mobile:w-full  min-h-[300px] h-[400px] xl:h-[450px]  lg:w-[90%]  rounded-[30px] user_info  border flex flex-col  justify-around items-center lg:p-4 2xl:pb-10 '>
             {/* <div className='w-full h-[80%] bg-black' ></div> */}
@@ -159,9 +159,9 @@ export default function Profile({params}) {
             <div className='w-full lg:h-[70%] mobile:-top-4 ls:-top-4 lm:-top-1 md:-top-1 md:pt-2 lg:-top-0   flex flex-col justify-around items-center relative  lg:pt-16 xl:pt-20 '>
               <div className='text_holder flex flex-col lg:justify-center mobile:justify-around items-center'>
               {
-               <h1 className='mobile:text-[7vw] lm:text-[5vw] lg:text-[2vw] ls:text-[6vw] lg:font-bold font-Earth relative ptet'>
-               {user?.full_name.length > 20 
-                 ? `${user?.full_name.slice(0, 20)}..` 
+               <h1 title={user?.full_name} className='mobile:text-[7vw] lm:text-[5vw] lg:text-[2vw] ls:text-[6vw] lg:font-bold font-Earth relative ptet'>
+               {user?.full_name.length > 10 
+                 ? `${user?.full_name.slice(0, 10)}..` 
                  : user?.full_name}
              </h1>
                 }
@@ -189,7 +189,7 @@ export default function Profile({params}) {
         <FriendsList friends={friends} />
       </div>:
       <div className='mobile:w-full lg:w-[90%] h-full user_info flex justify-center items-center' >
-        <h1 className='font-Oceanic  lg:text-[1vw]'>{t("New friends will appers here")}</h1>
+        <h1 className='font-Oceanic  lg:text-[1.2vw]'>{t("New friends will appers here")}</h1>
       </div>
         }
       </div>
@@ -197,19 +197,23 @@ export default function Profile({params}) {
       <div className='mobile:w-full lg:w-full  h-full  flex  flex-col justify-center gap-5 ' >
         <div className='mobile:w-full  h-[40%] border border-white/40 rounded-[30px] box-border bg-gradient-to-r from-[#00000080] to-[#293B45B3]  flex lg:flex-row mobile:flex-col items-center justify-between'>
         <div className='  w-[70%]  flex  items-center justify-center  lg:h-full' >
-          <h1 className='text-center text-white md:text-[4vw] lg:text-[2vw] font-semibold '>{t("Total Matches")} : {user?.matches} </h1>
+          <h1 className='text-center text-white md:text-[4vw] lg:text-[2vw] font-semibold font-r2014'>{t("Total Matches")} : {user?.matches} </h1>
         </div>
         <div className='mobile:w-full h-full  flex items-center justify-center ' >
               <WeeklyStatsDashboard  matches={user?.matches} wins={user?.wins}/>
         </div>
         </div>
         <div className='mobile:w-full  h-[55%] border border-white/40 rounded-[30px]  bg-gradient-to-r from-[#00000080] to-[#293B45B3]'>
-        <MatchList
+        {matches && matches.length > 0 ? 
+       <MatchList
           main_user_name={user?.username}
           results={matches}
           main_user_avatar={img}
-
-        />
+          
+        /> : <h1  className='text-white text-center font-Oceanic lg:text-[1.2vw]'>
+          {t("No matches found")}
+        </h1>
+        }
         </div>
       </div>
       </div>

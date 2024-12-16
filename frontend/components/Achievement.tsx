@@ -6,7 +6,7 @@ function Achievement({title , des , img, status}){
                 <div className=" h-full flex  flex-col justify-between ">
                     <div className="flex flex-col ">
                         <h1 className="mobile:text-[5vw] ls:text-[3vw] lm:text-[2vw]  lg:text-[1vw] text-white " >{t(title)}</h1> 
-                        <p className="mobile:text-[4vw] ls:text-[2vw] lg:text-[0.6vw] text-white/50"> {`${t(des.slice(0, 20))}...`}.</p>
+                        <p title={des} className="mobile:text-[4vw] ls:text-[2vw] lg:text-[0.6vw] text-white/50"> {t(des).slice(0, 20)}...</p>
                     </div>
 
                     {status ? <h2 className="mobile:text-[4vw] ls:text-[1.5vw]  lg:text-[0.7vw] text-white">

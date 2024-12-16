@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
+import { useTranslation } from "react-i18next";
 
 const DonutChart = ({ wins, matches }) => {
   // State to store the donut data
@@ -36,7 +37,7 @@ const DonutChart = ({ wins, matches }) => {
   }, [wins, matches]);
 
   const COLORS = ['#3b82f6', '#10b981'];
-
+  const { t } = useTranslation();
   return (
     <div className="w-full lg:h-full mobile:h-[70%] md:h-[60%] chart flex justify-center items-center">
       <div className="flex flex-col lg:w-full lg:h-full text-white justify-center relative mobile:top-1">
@@ -74,7 +75,7 @@ const DonutChart = ({ wins, matches }) => {
                 height={30}
                 iconType="circle"
                 formatter={(value, entry, index) => (
-                  <span style={{ color: COLORS[index] }}>{value}</span>
+                  <span style={{ color: COLORS[index] }}>{t(value)}</span>
                 )}
               />
             </PieChart>

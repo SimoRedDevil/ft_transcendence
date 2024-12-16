@@ -50,6 +50,8 @@ module.exports = {
         'Oceanic': ['Oceanic Drift', 'sans-serif'],
         'NK57': ['NK57 Monospace', 'sans-serif'],
         'Red': ['Red Hat Mono', 'sans-serif'],
+        'r2014': ['FreeMono', 'sans-serif'],
+
                                                 
         
 

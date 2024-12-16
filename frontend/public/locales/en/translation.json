@@ -78,5 +78,18 @@
     "The ultimate champion among champions." : "The ultimate champion among champions.",
     "Immortal Winner": "Immortal Winner",
     "You've achieved immortality in victory.": "You've achieved immortality in victory.",
-    "Achieved": "Achieved"
+    "Achieved": "Achieved",
+    "No matches found": "No matches found",
+    "Request" : "Request",
+    "Sent" : "Sent",
+    "Friends" : "Friends",
+    "Blocked" : "Blocked",
+    "Send": "Send",
+    "No friend requests" : "No friend requests",
+    "No sent requests" : "No sent requests",
+    "No friends" : "No friends",
+    "No blocked users" : "No blocked users",
+    "No search results" : "No search results",
+    "Win": "Win",
+    "Losses": "Losses"
 }

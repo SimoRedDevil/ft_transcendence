@@ -349,6 +349,18 @@ export const NotificationProvider = ({ children }) => {
                         }
                     });
                 }
+                else if (newNotification.notif_type === 'players_warning') {
+                    toast.info(t(`${newNotification.description}`),
+                    {
+                        autoClose: 8000,
+                        theme: "dark",
+                        position: 'top-right',
+                        style: {
+                            width: '400px',
+                            height: '100px'
+                        }
+                    });
+                }
                 removeNotifications(newNotification.sender_info.id, newNotification.receiver_info.id);
                 setNotifications((prevNotifications) => [...prevNotifications, newNotification]);
             };

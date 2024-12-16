@@ -122,14 +122,15 @@ class Tournament(AsyncWebsocketConsumer):
         self.group_name_tournament = ""
         
     async def broadcast_message(self, message):
-        room_group_name = f'chat_{message.receiver_id.username}'
+        chat_room_group_name = f'chat_{message.receiver_id.username}'
+        notif_room_group_name = f'notif_{message.receiver_id.username}'
         id  = message.id
         conversation_id = message.conversation_id.id
         sent_by_user = message.sender_id.username
         content = message.content
 
         await self.channel_layer.group_send(
-            room_group_name,
+            chat_room_group_name,
             {
                 'type': 'send_message',
                 'msg_type': 'message',
@@ -137,6 +138,18 @@ class Tournament(AsyncWebsocketConsumer):
                 'conversation_id': conversation_id,
                 'sent_by_user': sent_by_user,
                 'content': content
+            }
+        )
+        await self.channel_layer.group_send(
+            notif_room_group_name,
+            {
+                'type': 'send_notification',
+                'notif_type': 'players_warning',
+                'id': None,
+                'sender': sent_by_user,
+                'receiver': message.receiver_id.username,
+                'title': 'Players warning',
+                'description': content
             }
         )
 
@@ -257,12 +270,12 @@ class Tournament(AsyncWebsocketConsumer):
                     }
                 )
         if data['type'] == 'qualified':
-            if data['groupname'] not in self.players_final:
-                self.players_final[data['groupname']] = []
-            self.players_final[data['groupname']].append(data['data'])
-            if len(self.players_final[data['groupname']]) == 2:
-                username1 = self.get_usernames(data['groupname'], self.players_final[data['groupname']][0]['winner'])
-                username2 = self.get_usernames(data['groupname'], self.players_final[data['groupname']][1]['winner'])
+            if data['groupname'] not in Tournament.players_final:
+                Tournament.players_final[data['groupname']] = []
+            Tournament.players_final[data['groupname']].append(data['data'])
+            if len(Tournament.players_final[data['groupname']]) == 2:
+                username1 = self.get_usernames(data['groupname'], Tournament.players_final[data['groupname']][0]['winer'])
+                username2 = self.get_usernames(data['groupname'], Tournament.players_final[data['groupname']][1]['winer'])
                 message1 = await save_bot_message(username1, username2, True)
                 message2 = await save_bot_message(username2, username1, True)
                 await self.broadcast_message(message1)
@@ -276,12 +289,12 @@ class Tournament(AsyncWebsocketConsumer):
                         'final_tournament': True
                     } 
                 )
-            elif len(self.players_final[data['groupname']]) == 2:
+            elif len(Tournament.players_final[data['groupname']]) == 2:
                 await self.channel_layer.group_send(
                     data['groupname'],
                     {
                         'type': 'update_state',
-                        'players': self.players_final[data['groupname']],
+                        'players': Tournament.players_final[data['groupname']],
                         'final_tournament': False
                     }
                 )

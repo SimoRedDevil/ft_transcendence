@@ -41,8 +41,8 @@ def setTokens(response, user):
     response.set_cookie(
         key='access',
         value=access_token,
-        httponly=False,
-        secure=False, 
+        httponly=True,
+        secure=True,
         samesite='Lax',
     )
     return response
@@ -105,11 +105,11 @@ class Intra42Callback(APIView):
         if not user.enabeld_2fa:
             user.is_already_logged = True
             user.save()
-        response = HttpResponseRedirect(f'{URL}')
-        if user.enabeld_2fa:
-            response.set_cookie('loginSuccess', 'twofa', max_age=30, samesite='Lax')
-        else:
+            response = HttpResponseRedirect(f'{URL}')
             response.set_cookie('loginSuccess', 'true', max_age=30, samesite='Lax')
+        if user.enabeld_2fa:
+            response = HttpResponseRedirect(f'{URL}/twofa')
+            response.set_cookie('loginSuccess', 'twofa', max_age=30, samesite='Lax')
         response = setTokens(response, user)
         user_data = Intra42UserSerializer(user).data
         response.data = user_data
@@ -189,11 +189,11 @@ class GoogleLoginCallback(APIView):
             if not user.enabeld_2fa:
                 user.is_already_logged = True
                 user.save()
-            response = HttpResponseRedirect(f'{URL}')
-            if user.enabeld_2fa:
-                response.set_cookie('loginSuccess', 'twofa', max_age=30, samesite='Lax')
-            else:
+                response = HttpResponseRedirect(f'{URL}')
                 response.set_cookie('loginSuccess', 'true', max_age=30, samesite='Lax')
+            if user.enabeld_2fa:
+                HttpResponseRedirect(f"{URL}/twofa")
+                response.set_cookie('loginSuccess', 'twofa', max_age=30, samesite='Lax')
             response = setTokens(response, user)
             user_data = GoogleUserSerializer(user).data
             response.data = user_data
@@ -226,6 +226,7 @@ class LoginView(APIView):
                 response = Response(status=status.HTTP_200_OK)
                 if user.enabeld_2fa:
                     response.set_cookie('loginSuccess', 'twofa', max_age=30, samesite='Lax')
+                    HttpResponseRedirect(f"{URL}/twofa")
                 user.save()
                 response = setTokens(response, user)
                 return response
@@ -291,7 +292,7 @@ class GetUser(APIView):
 def generate_tokens(request):
     user = request.user
     refresh = RefreshToken.for_user(user)
-    res = requests.post(f'{URL}/api/auth/refresh/', data={'refresh': str(refresh),
+    res = requests.post(f'{URL}api/auth/refresh/', data={'refresh': str(refresh),
     'X-CSRFToken': request.COOKIES.get('csrftoken')})
     if res.status_code != 200:
         return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -301,8 +302,8 @@ def generate_tokens(request):
     response.set_cookie(
         key='access',
         value=access_token,
-        httponly=False,
-        secure=False, 
+        httponly=True,
+        secure=True,
         samesite='Lax',
     )
     user = request.user
@@ -318,19 +319,15 @@ class AuthenticatedUserView(APIView):
 
     def get(self, request):
         user = request.user
+        access_token = request.COOKIES.get('access')
         try:
-            acces_token = request.COOKIES.get('access')
             decoded_access_token = jwt.decode(
-                acces_token,
+                access_token,
                 key=settings.SECRET_KEY,
                 algorithms=["HS256"]
             )
-        except jwt.ExpiredSignatureError:
+        except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, jwt.DecodeError):
             return generate_tokens(request)
-
-        except (jwt.InvalidTokenError, jwt.DecodeError):
-            return delete_tokens(request, status=status.HTTP_401_UNAUTHORIZED)
-
         return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
 
 # Logout View
@@ -357,13 +354,11 @@ class EnableTwoFactorView(APIView):
     def get(self, request):
         user = request.user
 
-        key, qrcode_path, qrcode_url = twofactorAuth(user.username)
+        key, qrcode_url = twofactorAuth(user.username)
         user.twofa_secret = key
-        user.qrcode_path = qrcode_path
         user.qrcode_url = qrcode_url
-        user.qrcode_path = qrcode_path
         user.save()
-        return Response({'qrcode_url': user.qrcode_path}, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
 
 #disable 2fa
 class DisableTwoFactorView(APIView):
@@ -375,9 +370,6 @@ class DisableTwoFactorView(APIView):
         user.enabeld_2fa = False
         user.twofa_secret = None
         user.qrcode_url = None
-        if os.path.exists(str(user.qrcode_path)):
-            os.remove(str(user.qrcode_path))
-        user.qrcode_path = None
         user.save()
         return Response(status=status.HTTP_200_OK)
 
@@ -420,19 +412,6 @@ class GetCookies(APIView):
         # You can format the cookies as needed
         cookie_data = {key: value for key, value in cookies.items()}
         return Response({'cookies': cookie_data}, status=200)
-
-#get qrcode for 2fa
-class GetQRCodeView(APIView):
-    authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        user = request.user
-        if not user.twofa_secret:
-            return Response({'error': '2FA is not enabled'}, status=status.HTTP_400_BAD_REQUEST)
-        qr_user = user.qrcode_path.split('/')[-1]
-        qrcode_path = f"{URL}/qrcodes/" + qr_user
-        return Response({'qrcode_url': qrcode_path}, status=status.HTTP_200_OK)
 
 #update user Information
 class UpdateUserView(APIView):

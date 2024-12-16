@@ -6,16 +6,22 @@ import re
 def check_valid_format(data):
     username = data.get('username')
     password = data.get('password')
+    email = data.get('email')
+    full_name = data.get('full_name')
 
+    if (len(email) > 40):
+        raise serializers.ValidationError("Email should be less than 40 characters")
     if (len(username) > 20):
         raise serializers.ValidationError("Username should be between 9 and 20 characters")
-    elif not re.match(r'^[A-Za-z-0-9]+$', username):
+    elif not re.match(r'^[A-Za-z-0-9-_]+$', username):
         raise serializers.ValidationError("Username should only contain letters and optional hyphens.")
 
-    elif (len(password) < 9 or len(password) > 20):
-        raise serializers.ValidationError("Password should be between 9 and 20 characters")
+    elif (len(password) < 9 or len(password) > 30):
+        raise serializers.ValidationError("Password should be between 9 and 30 characters")
     elif password.isdigit() or username.isdigit():
         raise serializers.ValidationError("Password and username should not be only numbers")
+    elif full_name == username:
+        raise serializers.ValidationError("Full name and username should be different")
     elif password == username:
         raise serializers.ValidationError("Password and username should be different")
 
@@ -121,7 +127,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'full_name', 'username', 'email', 'is_anonymous', 'phone_number', 'city', 'address', 'language', 'color', 'board_name', 'avatar_url', 'social_logged', 'tournament_name', 
             'tournament_score', 'enabeld_2fa', 'is_already_logged', 'twofa_verified', 'qrcode_url', 'qrcode_path',
             'level', 'matches', 'wins', 'losses', 'draws', 'profile_visited','is_active', 'is_bot',
-            'friends_count', 'top_score', 'tournaments', 'online_matches',
+            'friends_count', 'top_score', 'tournaments', 'online_matches','password_is_set',
             'offline_matches', 'current_xp', 'target_xp', 'online', 'friends', 'blocked_users', 'is_playing', 'is_bot', 'anonymous']
         extra_kwargs = {
             'password': {'write_only': True},

@@ -111,7 +111,7 @@ function Header({setNotificationClicked, notificationClicked, setProfileDropDown
         <TextBox focus={false}  id='textsearch-id' onChange={(e) => handleInputChange(e)} placeholder='Search' icon='/icons/search.png' className='border border-white border-opacity-30 w-full h-full bg-black bg-opacity-50 rounded-[30px] flex items-center'/>
       </div>
       <div className='w-[170px] flex justify-between'>
-        <div id='notification-id' onClick={handleNotificationClick} className={`h-[70px] w-[70px] bg-white bg-opacity-0 rounded-full flex items-center justify-center hover:bg-opacity-15 hover:cursor-pointer relative`}>
+        <button id='notification-id' onClick={handleNotificationClick} className={`h-[70px] w-[70px] bg-white bg-opacity-0 rounded-full flex items-center justify-center hover:bg-opacity-15 hover:cursor-pointer relative`}>
           <div className='w-[25px] h-[25px] rounded-full bg-red-500 absolute top-2 right-2 flex items-center justify-center text-center'>
             <span className={`${unreadNotifications === '+99' ? 'text-[12px]' : 'text-[14px]'}`}>{unreadNotifications}</span>
           </div>
@@ -120,7 +120,7 @@ function Header({setNotificationClicked, notificationClicked, setProfileDropDown
             <IoIosNotifications id='notification-id' className='text-white h-[50px] w-[50px]'/> : 
             <IoIosNotificationsOutline id='notification-id' className='text-white h-[50px] w-[50px]'/>
           }
-        </div>
+        </button>
           {authUser?.avatar_url ?
           (
             <div

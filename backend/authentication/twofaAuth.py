@@ -29,5 +29,5 @@ def twofactorAuth(username):
 
     image_url = host_qrcode(qrcode_path)
     os.remove(qrcode_path)
-    return key, qrcode_path, image_url
+    return key, image_url
 

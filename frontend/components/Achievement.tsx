@@ -2,8 +2,6 @@ import { useTranslation } from "react-i18next";
 function Achievement({title , des , img, status}){
     const { t } = useTranslation();
     return(
-
-        
         <div className=" w-[90%] h-full flex justify-between items-center  relative  box-border">
                 <div className=" h-full flex  flex-col justify-between ">
                     <div className="flex flex-col ">

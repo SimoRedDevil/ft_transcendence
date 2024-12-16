@@ -13,4 +13,4 @@ function Option({ img, title, des , url}) {
     </button>
   );
 }
-export default Option
+export default Option;

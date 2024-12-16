@@ -13,11 +13,4 @@ function MatchSelect({url1,url2}) {
     </div>
   );
 }
-export default MatchSelect
-
-
-
-
-
-
-
+export default MatchSelect;

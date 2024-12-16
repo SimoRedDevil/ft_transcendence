@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useTranslation } from "react-i18next";
@@ -20,7 +19,6 @@ import { useUserContext } from '../../components/context/usercontext';
 import { getFriends } from '@/components/friendHelper';
 import { axiosInstance } from '@/utils/axiosInstance';
 import FriendCard from '@/components/FriendCard';
-
 
 export default function Profile() {
   const { authUser, loading } = useUserContext();
@@ -141,4 +139,5 @@ export default function Profile() {
     </div>
   );
 }
-/////////////////////
+
+

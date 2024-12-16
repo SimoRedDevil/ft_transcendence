@@ -178,7 +178,6 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
                         <Sidebar />
                     </div>
                 )}
-                
                 <div className="h-[100%]  w-full flex ">
                     {
                         (isAuthenticated && isSearching) && (

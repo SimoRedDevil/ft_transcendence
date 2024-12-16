@@ -25,7 +25,6 @@ const get_first = async () => {
             return arr.sort((a, b) => b.points - a.points);
         };
         sortedTeams = sortByPoints(teams);
-        console.log(sortedTeams);
     } catch (error) {
         console.error('There was a problem with reading the file:', error);
     }
@@ -35,7 +34,6 @@ const get_first = async () => {
 
 async function Rank(info, player: number) {
     const table = await get_first();
-    console.log(table[0].teamname + "ijfuwenfwe");
     return (
         <div
             className=" w-full xs:h-[89%] lg:h-full overflow-auto border_cus rounded-xl bg-gradient-to-b from-[rgba(26,31,38,0.7)] to-[rgba(0,0,0,0.5)] flex flex-col justify-start gap-[15px] items-center hide-scrollbar"

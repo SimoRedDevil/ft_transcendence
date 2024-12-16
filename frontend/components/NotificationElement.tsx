@@ -30,7 +30,7 @@ function NotificationElement({Url, Avatar, Description, Date, Key, IsRead}: Prop
     try {
       const cookies = await getCookies();
       const csrfToken = cookies.cookies.csrftoken;
-      const response = await axios.post('http://localhost:8000/api/notifications/mark-as-read/', body, {
+      const response = await axios.post('https://localhost/api/notifications/mark-as-read/', body, {
         headers: {
           "Content-Type": "application/json",
           'X-CSRFToken': csrfToken,

@@ -39,7 +39,6 @@ export function tableDraw(sketch: p5, game_state: {} ,Walls: walls, playerInofo:
   let bl2 = 50;
   let detailX2 = 0;
   let detailY2 = 0;
-  console.log("hhhhhh ", playerInofo.player_number);
   if (playerInofo.player_number === 'player2') 
     {
       Score2(sketch, Walls, game_state['player2'].score);

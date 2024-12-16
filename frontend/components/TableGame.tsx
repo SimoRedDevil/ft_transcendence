@@ -50,7 +50,6 @@ export default function TableGame({ playerna, socketRef,  groupname ,  player_id
     playerInfo.player_id = player_id;
     playerInfo.name = playerna;
     playerInfo.player_number = player_number;
-    console.log(playerInfo.player_number)
     if (typeof window !== 'undefined') {
       let Walls : walls = { wallsWidth: canvasRef.current.clientWidth, wallsHeight: canvasRef.current.clientHeight };
       const firtsData = { username: playerna , 
@@ -68,10 +67,8 @@ export default function TableGame({ playerna, socketRef,  groupname ,  player_id
       socketRef.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.type === 'start_game') {
-          console.log(data);
           game_state = data.game_serialized;
           game_channel = data.name_channel;
-          console.log(playerInfo.player_id , game_state['player2'].chan_name)
           if ( playerInfo.player_id === game_state['player1'].chan_name)
           {
             setIsPlayer2(true); 
@@ -91,7 +88,6 @@ export default function TableGame({ playerna, socketRef,  groupname ,  player_id
           game_state['player2'] = data.player2;
         }
         if (data.type === 'game_over') {
-          console.log(data);
           setIsPlayer2(false);
           game_state = {};
           playerInfo = { player_id: '', name: '',  player_number: '' };
@@ -100,7 +96,6 @@ export default function TableGame({ playerna, socketRef,  groupname ,  player_id
       };
 
       socketRef.onerror = (event: Event) => {
-        console.log('WebSocket error:', event);
     };
       const p = new p5((sketch) => {
         sketch.setup = () => {

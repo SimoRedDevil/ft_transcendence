@@ -62,7 +62,6 @@ export default function Profile() {
     };
     fetchMatches();
   }, []);
-  console.log(matches);
   if (!data || loading || profileLoading) {
     return <div>Loading...</div>;
   }
@@ -107,7 +106,7 @@ export default function Profile() {
       </div>
       
       <div className='mobile:w-full lg:w-[30%]   h-full flex justify-center items-center' >
-      {friends && friends.length > 0 ?  
+      {friends && friends?.length > 0 ?  
       <div className='mobile:w-full lg:w-[90%] h-full user_info'>
         <FriendsList friends={friends} />
       </div>:

@@ -20,14 +20,11 @@ export default function TournamentRemote() {
 
     const handlSubmit = (e) => {
         e.preventDefault()
-        console.log(player)
         setForm(true)
     }
     const HandleUserExist = (exist, playerExit, message) => {
-        console.log(exist)
         setUserExist(true)
         setMessage(message)
-        console.log(playerExit)
         setPlayerExit(playerExit)
         setForm(false)
     }

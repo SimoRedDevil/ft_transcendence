@@ -139,7 +139,6 @@ function Chat({setShowBlockDialog}) {
     }).then((response) => {
       if (response.status === 200) {
         setIsBlocked(response.data.blocked)
-        console.log(response.data.blocker)
         if (response.data.blocker !== null) {
           setBlocker(response.data.blocker)
         }
@@ -152,7 +151,7 @@ function Chat({setShowBlockDialog}) {
   }
 
   const handleInviteGame = async () => {
-    notifSocket.send(JSON.stringify({
+    notifSocket.current.send(JSON.stringify({
       'notif_type': 'invite_game',
       'sender': authUser?.username,
       'receiver': otherUser?.username,
@@ -232,8 +231,8 @@ function Chat({setShowBlockDialog}) {
                 <MdOutlineKeyboardBackspace className='text-white w-[40px] h-[40px]' />
               </button>
             }
-            <div className={`${!otherUserOnline ? 'bg-[#E63946]' : 'bg-[#7ED4AD]'} absolute xs:bottom-1 xs:right-3 bottom-3 right-0 text-xs text-opacity-50 border border-white border-opacity-30 rounded-full p-[5px]`}></div>
-            <Link href={`/profile/${otherUser?.username}/`}><Image className='rounded-full' src={otherUser?.avatar_url} width={80} height={80} alt='avatar'/></Link>
+            <div className={`${(otherUserOnline || otherUser?.is_bot) ? 'bg-[#7ED4AD]' : 'bg-[#c44545]'} absolute xs:bottom-1 xs:right-3 bottom-3 right-0 text-xs text-opacity-50 border border-white border-opacity-30 rounded-full p-[5px]`}></div>
+            <Link className={`${otherUser?.is_bot && 'cursor-default'}`} href={`${!otherUser?.is_bot ? `/profile/${otherUser?.username}` : ''}`}><Image className='rounded-full' src={otherUser?.avatar_url} width={80} height={80} alt='avatar'/></Link>
           </div>
           <div className='flex flex-col justify-center gap-4'>
             <span className={`text-[20px] ${isMobile ? 'mt-4' : 'mt-0'}`}>{otherUser.full_name}</span>

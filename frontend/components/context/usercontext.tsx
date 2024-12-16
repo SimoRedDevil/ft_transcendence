@@ -41,7 +41,8 @@ export const UserProvider = ({ children }) => {
             setauthUser(null);
             setError(error);
             setIsAuthenticated(false);
-            router.push('/landing');
+            if (pathname !== '/login')
+                router.push('/landing');
         } 
         finally {
             setTimeout(() => {

@@ -8,7 +8,6 @@ function Bronze(playerdata){
     useEffect(() => {
       const handleResize = () => {
         setScreenSize(window.innerWidth);
-        console.log("Screen width:", window.innerWidth);
       };
       window.addEventListener("resize", handleResize);
       return () => window.removeEventListener("resize", handleResize);

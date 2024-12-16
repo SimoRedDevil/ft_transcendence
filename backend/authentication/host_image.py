@@ -13,7 +13,6 @@ cloudinary.config(
 
 def host_qrcode(image_path):
     try:
-        print("Uploading image to Cloudinary...", image_path, flush=True)
         response = cloudinary.uploader.upload(image_path)
         image_url = response['secure_url']
         return image_url

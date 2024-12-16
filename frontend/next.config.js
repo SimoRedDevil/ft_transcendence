@@ -23,6 +23,10 @@ module.exports = {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'img.stablecog.com',
+      },
     ],
   },
   reactStrictMode: false, // Disable React Strict Mode

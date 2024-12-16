@@ -72,12 +72,6 @@ export const ChatProvider = ({ children }) => {
                 toast.info(newMessage.content);
             }
         };
-        ws.current.onclose = () => {
-            console.log('Disconnected from the chat server');
-        };
-        ws.current.onerror = (error) => {
-            console.error('Error:', error);
-        };
         return () => {
             ws.current.readyState === WebSocket.OPEN && ws.current.close();
         };

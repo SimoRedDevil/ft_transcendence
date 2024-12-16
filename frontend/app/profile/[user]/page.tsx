@@ -42,7 +42,7 @@ export default function Profile({params}) {
   const resolvedParam = React.use(params) as ParamsType;
   const { t } = useTranslation();
   const router = useRouter();
-  const [blocked, setBlocked] = useState(true);
+  const [blocked, setBlocked] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -73,7 +73,10 @@ export default function Profile({params}) {
        router.push(`/${error.status}`);
      }
      finally {
-       setUserLoading(false);
+      setTimeout(() => {
+        setUserLoading(false);
+        
+      }, 1000);
      }
    }
   
@@ -120,7 +123,13 @@ export default function Profile({params}) {
     };
     fetchMatches();
   }, []);
-  
+  if (loading || profileLoading || userLoading) {
+    return (
+      <div className='flex items-center justify-center w-full h-full'>
+        <BounceLoader size={300} color='#1f959d' />
+      </div>
+    );
+  }
   if (blocked) {
     return (
       <div className='h-full w-full flex items-center justify-center'>
@@ -137,13 +146,6 @@ export default function Profile({params}) {
     );
   }
 
-  if (loading || profileLoading || userLoading) {
-    return (
-      <div className='flex items-center justify-center w-full h-full'>
-        <BounceLoader size={300} color='#1f959d' />
-      </div>
-    );
-  }
   const img = user?.avatar_url ;
   return (
     // <div className='h-full w-full backdrop-blur-lg flex justify-center items-center'>

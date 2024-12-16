@@ -571,8 +571,6 @@ class Game(AsyncWebsocketConsumer):
         winer = CustomUser.objects.get(username=username2)
         try:
             match = Match.objects.filter(name=nameMatch).first()
-            print(match.player1.username, flush=True)
-            print(loser.username, flush=True)
             if loser.username == match.player1.username:
                 match.score1 = score1
                 match.score2 = score2

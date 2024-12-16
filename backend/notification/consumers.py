@@ -27,18 +27,16 @@ def create_notification(sender, receiver, notif_type, title, description, friend
 class NotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         user = self.scope['user']
+        self.room_group_name = f'notif_{user.username}'
+        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         if user.is_anonymous or not user.is_authenticated:
-            pass
             await self.close(code=1008)
         else:
-            self.room_group_name = f'notif_{user.username}'
-            await self.channel_layer.group_add(self.room_group_name, self.channel_name)
             await self.accept()
     async def disconnect(self, close_code):
-        pass
+        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
     async def receive(self, text_data):
         data = json.loads(text_data)
-        print(data, flush=True)
         notif_type = data['notif_type']
         sender = await get_user(data['sender'])
         receiver = await get_user(data['receiver'])
@@ -48,42 +46,19 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         if (sender == None or receiver == None):
             await self.close(code=4000)
         else:
-            receiver_room_group_name = f'notif_{receiver.username}'
-            await self.channel_layer.group_send(receiver_room_group_name, {
-                'type': 'send_notification',
-                'notif_type': notif_type,
-                'sender': sender.username,
-                'receiver': receiver.username,
-                'title': title,
-                'description': description
-            })
+            if (notif_type == 'invite_game' or notif_type == 'accept_game' or notif_type == 'reject_game'):
+                receiver_room_group_name = f'notif_{receiver.username}'
+                await self.channel_layer.group_send(receiver_room_group_name, {
+                    'type': 'send_notification',
+                    'notif_type': notif_type,
+                    'sender': sender.username,
+                    'receiver': receiver.username,
+                    'title': title,
+                    'description': description
+                })
+
             if (notif_type != 'invite_game' and notif_type != 'accept_game' and notif_type != 'reject_game'):
                 await create_notification(sender, receiver, notif_type, title, description)
-             
-        if (notif_type == 'accept_game'):
-            receiver_room_group_name = f'notif_{receiver.username}'
-            await self.channel_layer.group_send(receiver_room_group_name, {
-                'type': 'send_notification',
-                'notif_type': notif_type,
-                'sender': sender.username,
-                'receiver': receiver.username,
-                'title': title,
-                'description': description
-            })
-        
-        if (notif_type == 'reject_game'):
-            print(data) 
-            receiver_room_group_name = f'notif_{receiver.username}'
-            await self.channel_layer.group_send(receiver_room_group_name, {
-                'type': 'send_notification',
-                'notif_type': notif_type,
-                'sender': sender.username,
-                'receiver': receiver.username,
-                'title': title,
-                'description': description
-            })
-            # await create_notification(sender, receiver, notif_type, title, description)
-            # await create_notification(receiver, sender, 'invite_game', title, description)
 
     async def send_notification(self, event):
         sender = await get_user(event['sender'])
@@ -97,7 +72,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
 
         if (notif_type == 'friend_request'):
             friend_request = event['friend_request']
-        if notif_type != 'invite_game':
+        if notif_type != 'invite_game' and notif_type != 'accept_game' and notif_type != 'reject_game':
             id = event['id']
         await self.send(text_data=json.dumps({
             'notif_type': notif_type,

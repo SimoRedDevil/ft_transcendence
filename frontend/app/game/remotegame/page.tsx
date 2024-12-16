@@ -93,9 +93,8 @@ export default function Game() {
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            socketRef.current = new WebSocket('wss://localhost/ws/game/');
+            socketRef.current = new WebSocket('ws://localhost:8000/ws/game/');
             socketRef.current.onopen = () => {
-                console.log('WebSocket connected');
                 socketRef.current.send(JSON.stringify({ type: 'connection', username: authUser.username, flag: typeGame, sender: sender, receiver: receiver }));
             }
             socketRef.current.onmessage = (event) => {
@@ -105,21 +104,16 @@ export default function Game() {
                 }
                 if (data.type === 'connection') {
                     
-                    console.log(data);
                     setPlayerNumber(data.player.player_number)
                     setIdChannel(data.player.id);
                 }
                 if (data.type === 'match_ready') {
-                    console.log(data);
                     setImage1(data['players'][0].image);
                     setImage2(data['players'][1].image);
                     setNamePlayer1(data['players'][0].name)
                     setNamePlayer2(data['players'][1].name)
                     setGameRoom(data.game_channel);
                     setMatchReady(true);
-                }
-                if (data.type === 'exist_player') {
-                    console.log(data);
                 }
                 if (data.type === 'go_to_game') {
                     setGameStarted(true);

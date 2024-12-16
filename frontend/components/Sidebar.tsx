@@ -53,18 +53,18 @@ function Sidebar() {
             <button onClick={() =>{ setTourOpen(false); setGameOpen(false)} } ><NavLink href='/chat' isActive={chat}><IoChatbubblesSharp title='Chat' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink></button>
             <button onClick={() =>{ setTourOpen(false); setGameOpen(false)} } ><NavLink href='/friend-requests' isActive={friendrequests}><FaUserFriends title='Friends Requests' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] hover:text-opacity-100 transition'/></NavLink></button>
             <button onClick={() =>{ setTourOpen(false); setGameOpen(false)} } ><NavLink href='/settings' isActive={settings}><IoSettings title='Settings' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink></button>
-            <button  onClick={() =>{ setTourOpen(false); setGameOpen(false)} } className='w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] text-white block sm:hidden' onClick={handleLogout}><RiLogoutBoxLine title='Logout' className='w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></button>
+            <button  onClick={() =>{ setTourOpen(false); setGameOpen(false) ; handleLogout } } className='w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] text-white block sm:hidden'><RiLogoutBoxLine title='Logout' className='w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></button>
             </div> 
             <button className='w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] sm:block hidden text-white' onClick={handleLogout}><RiLogoutBoxLine title='Logout' className='w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></button>
-        </nav>
+         </nav>
         {gameOpen &&
             <div onClick={() => setGameOpen(!gameOpen)} className="mobile:w-full md:w-[90%] lg:w-[100%]   mobile:top-16 mobile:h-[90%] lg:h-full absolute md:right-0 tablet:-right-10    flex justify-center items-center mobile:p-4  md:p-0">
-                <MatchSelect url1="/game" url2="/game/remotegame" />
+                <MatchSelect url1="/game" url2="/game/remotegame"  type="game" />
             </div>
         }
         {tourOpen &&
             <div onClick={() => setTourOpen(!tourOpen)} className="mobile:w-full md:w-[90%] lg:w-[100%]   mobile:top-16 mobile:h-[90%] lg:h-full absolute md:right-0 tablet:-right-10    flex justify-center items-center mobile:p-4  md:p-0">
-                <MatchSelect url1="/game/tournament" url2="/game/tournament/remote"/>
+                <MatchSelect url1="/game/tournament" url2="/game/tournament/remote" type="Tournament"/>
             </div>
         }
     </>

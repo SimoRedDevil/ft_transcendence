@@ -9,7 +9,6 @@ export default function WaitingTournament({ numberplayer }: WaitingTournamentPro
   const [numplayer, setNumplayer] = useState(0);
 
   useEffect(() => {
-    console.log("numplayer changed:", numplayer);
     setNumplayer(numberplayer);
   }, [numberplayer]);  
   return (

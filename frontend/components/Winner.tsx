@@ -33,7 +33,6 @@ export default function Winner({winer, loser, scoreWinner, scoreLoser, rematch, 
             const data = JSON.parse(event.data);
             if(data.type === 'match_ready'){
                 handleRematch(data);
-                console.log(data);
             }
             if (data.type === 'go_to_game') {
                 handlGoToGame();

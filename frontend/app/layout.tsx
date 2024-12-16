@@ -108,7 +108,6 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
     if (isAuthenticated) {
       fetchAuthUser();
       if (pathname !== "/twofa" && authUser?.enabeld_2fa && !authUser?.twofa_verified) {
-        console.log("Redirecting to twofa");
         router.push("/twofa");
       } else
       if (pathname === "/login" || (pathname === "/twofa"
@@ -233,7 +232,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
               pauseOnFocusLoss
               pauseOnHover
               draggable
-              stacked
+              // stacked
               theme="dark"
               progressStyle={{ backgroundColor: "#4cd964" }}
               style={{

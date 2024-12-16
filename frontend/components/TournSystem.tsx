@@ -37,7 +37,6 @@ export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }:
         if (typeof window !== 'undefined' && !socketRef.current) {
             socketRef.current = new WebSocket('wss://localhost/ws/tournament/');
             socketRef.current.onopen = () => {
-              console.log('WebSocket connected');
               socketRef.current.send(JSON.stringify({ type: 'connection', playerName: PlayerName , username: authUser.username}));
             };
       
@@ -63,7 +62,6 @@ export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }:
                 }
                 if (data.type === 'update_state')
                 {
-                    console.log(data);
                     if (data['final_tournament'] === false)
                     {
                         if(data['players'][0].numberwiner === 'player1' || data['players'][0].numberwiner === 'player2')
@@ -77,7 +75,6 @@ export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }:
                     }
                     else
                     {
-                        console.log(data);
                         setWinner(data['players'].winer);
                         setShowLocalGame(false);
                         setCurrentGame(currentGame + 2);
@@ -85,13 +82,8 @@ export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }:
                     }
                     // handleUpdateState(data.winner1, data.playerN1, data.winner2, data.playerN2);
                 }
-                if (data.type === 'start_game') {
-                    console.log("hhhhhh",data);
-                }
                 if (data.type === 'game_over')
-                {
-                    console.log(data);
-                    console.log(PlayerName);
+                {;
                     if (data.winner.name === PlayerName)
                         setQualified(true);
             
@@ -112,13 +104,6 @@ export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }:
                 }
             }
               
-            socketRef.current.onclose = (event) => {
-                console.log('WebSocket closed:', event);
-            };
-            
-            socketRef.current.onerror = (event: Event) => {
-                console.log('WebSocket error:', event);
-            };
             };
     }, []);
 
@@ -236,7 +221,6 @@ export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }:
     }
 
     const handlefinal = (wineer, image) => {
-        console.log(image);
         setWinner(wineer);
         setShowLocalGame(false);
         setCurrentGame(currentGame + 2);

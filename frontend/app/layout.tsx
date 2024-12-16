@@ -174,7 +174,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
             <div className="h-[95%] flex flex-col-reverse sm:flex-row max-sm:justify-center max-sm:items-center">
                 {/* Render Sidebar if pathname is not in exclude list */}
                 {!exclude.includes(pathname) && (
-                    <div className="flex sm:flex-col w-full sm:w-[100px] mobile:absolute mobile:bottom-0">
+                    <div className="flex sm:flex-col w-full sm:w-[100px] ">
                         <Sidebar />
                     </div>
                 )}

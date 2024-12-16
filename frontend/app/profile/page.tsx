@@ -79,7 +79,7 @@ export default function Profile() {
           <div className='mobile:w-full  min-h-[300px] h-[400px] xl:h-[450px]  lg:w-[90%]  rounded-[30px] user_info  border flex flex-col  justify-around items-center lg:p-4 2xl:pb-10 '>
             {/* <div className='w-full h-[80%] bg-black' ></div> */}
             <div className=' rounded-[30px] h-[30%]  profile_pic  2xl:-top-2  w-full flex justify-center '> 
-                  <img  className=' p-1 ls:w-32 ls:h-32     z-10  mobile:w-32 mobile:h-32 lg:w-28 lg:h-28  xl:w-40 xl:h-40 rounded-full overflow-hidden shadow-lg  border-2 border-[#0ecff1fb]'  src={img} alt="" />
+                  <img  className=' p-1 ls:w-32 ls:h-32       mobile:w-32 mobile:h-32 lg:w-28 lg:h-28  xl:w-40 xl:h-40 rounded-full overflow-hidden shadow-lg  border-2 border-[#0ecff1fb]'  src={img} alt="" />
             </div>
             <div className='w-full lg:h-[70%] mobile:-top-4 ls:-top-4 lm:-top-1 md:-top-1 md:pt-2 lg:-top-0   flex flex-col justify-around items-center relative  lg:pt-16 xl:pt-20 '>
               <div className='text_holder flex flex-col lg:justify-center mobile:justify-around items-center'>

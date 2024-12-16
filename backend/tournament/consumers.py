@@ -84,12 +84,15 @@ def get_conversation(user1, user2):
     return conversation.objects.get(user1_id=user1, user2_id=user2)
 
 @database_sync_to_async
-def save_bot_message(username1, username2):
+def save_bot_message(username1, username2, is_final=False):
     bot = CustomUser.objects.get(username='alienpong_bot')
     user1 = CustomUser.objects.get(username=username1)
     user2 = CustomUser.objects.get(username=username2)
     conv = None
-    message = f'You will play against {user2.full_name} in the tournament. Good luck!'
+    if is_final:
+        message = f'You will play against {user2.full_name} in the final match. Good luck!'
+    else:
+        message = f'You will play against {user2.full_name} in the tournament. Good luck!'
     if check_conversation_exists(bot, user1) == False:
         conv = create_conversation(bot, user1, message)
     else:
@@ -257,6 +260,13 @@ class Tournament(AsyncWebsocketConsumer):
             if data['groupname'] not in self.players_final:
                 self.players_final[data['groupname']] = []
             self.players_final[data['groupname']].append(data['data'])
+            if len(self.players_final[data['groupname']]) == 2:
+                username1 = self.get_usernames(data['groupname'], self.players_final[data['groupname']][0]['winner'])
+                username2 = self.get_usernames(data['groupname'], self.players_final[data['groupname']][1]['winner'])
+                message1 = await save_bot_message(username1, username2, True)
+                message2 = await save_bot_message(username2, username1, True)
+                await self.broadcast_message(message1)
+                await self.broadcast_message(message2)
             if data['final_tournament'] == True:
                 await self.channel_layer.group_send(
                     data['groupname'],

@@ -4,8 +4,11 @@ import React, { useState } from 'react';
 import TournamentForm from '../../../components/TournamentForm';
 import LocalGame from '../../../components/LocalGame';
 import Image from 'next/image';
+import WinnerTour from '../../../components/WinnerTour';
+import { useTranslation } from 'next-i18next';
 
 export default function Tournament() {
+    const { t } = useTranslation();
     const [isFormSubmitted, setIsFormSubmitted] = useState(false);
     const [showLocalGame, setShowLocalGame] = useState(false);
     const [players, setPlayers] = useState({ player1: '', player2: '', player3: '', player4: '' });
@@ -14,6 +17,7 @@ export default function Tournament() {
     const [winner1, setWinner1] = useState('');
     const [winner2, setWinner2] = useState('');
     const [winner, setWinner] = useState('');
+    const [gameEnd, setGameEnd] = useState(false);
 
     const handleFormSubmit = (playerData) => {
         setPlayers(playerData);
@@ -31,7 +35,10 @@ export default function Tournament() {
         else if (currentGame == 2)
             setWinner2(winner);
         else
+        {
+            setGameEnd(true);
             setWinner(winner)
+        }
             
         setShowLocalGame(false);
         setCurrentGame(currentGame + 1);
@@ -42,7 +49,8 @@ export default function Tournament() {
                         md:border md:border-white md:border-opacity-30
                         md:bg-black md:bg-opacity-20
                         md:rounded-[50px]">
-            {showLocalGame ? (
+            
+            {!gameEnd ?  (showLocalGame ? (
                 <LocalGame player1={currentPlayers.player1} player2={currentPlayers.player2} onGameEnd={handleGameEnd} />
             ) : (
                 !isFormSubmitted ? (
@@ -56,7 +64,7 @@ export default function Tournament() {
                                 <div className='w-[120px] h-[70px] text-white flex justify-center items-center'>{players.player1.substring(0, 9)}</div>
                                 <div className='text-white'>VS</div>
                                 <div className='w-[120px] h-[70px] text-white flex justify-center items-center'>{players.player2.substring(0, 9)}</div>
-                                <button className='w-[20%] h-[100%] rounded-lg rounded-l-[40px] bg-deepSeaBlue text-white' onClick={() => handleButtonClick(players.player1, players.player2)}>Play</button>
+                                <button className='w-[20%] h-[100%] rounded-lg rounded-l-[40px] bg-deepSeaBlue text-white' onClick={() => handleButtonClick(players.player1, players.player2)}>{t("Play")}</button>
                             </div>
                         )}
                         {currentGame === 2 && (<div className='text-white sm:hidden'>Match 2</div>)}
@@ -65,7 +73,7 @@ export default function Tournament() {
                                 <div className='w-[120px] h-[70px] text-white flex justify-center items-center'>{players.player3.substring(0, 9)}</div>
                                 <div className='text-white'>VS</div>
                                 <div className='w-[120px] h-[70px] text-white flex justify-center items-center'>{players.player4.substring(0, 9)}</div>
-                                <button className='w-[20%] h-[100%] rounded-lg rounded-l-[40px] bg-deepSeaBlue text-white' onClick={() => handleButtonClick(players.player3, players.player4)}>Play</button>
+                                <button className='w-[20%] h-[100%] rounded-lg rounded-l-[40px] bg-deepSeaBlue text-white' onClick={() => handleButtonClick(players.player3, players.player4)}>{t("Play")}</button>
                             </div>
                         )}
                         {currentGame == 3 && (
@@ -73,7 +81,7 @@ export default function Tournament() {
                                 <div className='w-[120px] h-[70px] text-white flex justify-center items-center'>{winner1.substring(0, 9)}</div>
                                 <div className='text-white'>VS</div>
                                 <div className='w-[120px] h-[70px] text-white flex justify-center items-center'>{winner2.substring(0, 9)}</div>
-                                <button className='w-[20%] h-[100%] rounded-lg rounded-l-[40px] bg-deepSeaBlue text-white' onClick={() => handleButtonClick(winner1, winner2)}>Play</button>
+                                <button className='w-[20%] h-[100%] rounded-lg rounded-l-[40px] bg-deepSeaBlue text-white' onClick={() => handleButtonClick(winner1, winner2)}>{t("Play")}</button>
                             </div>
                         )}
                         {currentGame > 3 && (
@@ -97,7 +105,7 @@ export default function Tournament() {
                                             <div className="flex flex-col justify-center items-center mt-2 w-36">
                                                 <hr className="border-t border-paddlefill w-full" />
                                                 <hr className="border-l border-paddlefill h-8" />
-                                                <button className='w-[60px] h-[60px] border-animated bg-deepSeaBlue rounded-[70px] text-white' onClick={() => handleButtonClick(players.player1, players.player2)}>Play</button>
+                                                <button className='w-[60px] h-[60px] border-animated bg-deepSeaBlue rounded-[70px] text-white' onClick={() => handleButtonClick(players.player1, players.player2)}>{t("Play")}</button>
                                             </div>
                                             )}
                                             <div className={`border 
@@ -120,7 +128,7 @@ export default function Tournament() {
                                                          bg-gradient-to-r from-deepSeaBlue to-paddlestroke/30
                                                          flex justify-center items-center text-white'>{winner.substring(0,9)}</div>
                                         {currentGame === 3 && (
-                                            <button className='w-[60px] h-[60px] border-animated bg-deepSeaBlue rounded-[70px] text-white mx-auto' onClick={() => handleButtonClick(winner1, winner2)}>Play</button>
+                                            <button className='w-[60px] h-[60px] border-animated bg-deepSeaBlue rounded-[70px] text-white mx-auto' onClick={() => handleButtonClick(winner1, winner2)}>{t("Play")}</button>
                                         )}
                                     </div>
                                     <div className='flex flex-col'>
@@ -138,7 +146,7 @@ export default function Tournament() {
                                                     : 'bg-gradient-to-r from-deepSeaBlue to-paddlestroke/30 border-paddlefill text-white'}`}>{players.player3.substring(0, 9)}</div>
                                             {currentGame === 2 && (
                                             <div className="flex flex-col justify-center items-center w-36">
-                                                <button className='w-[60px] h-[60px] border-animated bg-deepSeaBlue rounded-[70px] text-white' onClick={() => handleButtonClick(players.player3, players.player4)}>Play</button>
+                                                <button className='w-[60px] h-[60px] border-animated bg-deepSeaBlue rounded-[70px] text-white' onClick={() => handleButtonClick(players.player3, players.player4)}>{t("Play")}</button>
                                                 <hr className="border-l border-paddlefill h-8" />
                                                 <hr className="border-t border-paddlefill w-full mb-2" />
                                             </div>
@@ -169,7 +177,7 @@ export default function Tournament() {
                                         {currentGame === 1 && (
                                         <div className=" border-l border-paddlefill h-56 ml-8 flex justify-center items-center">
                                             <hr className="border-t border-paddlefill l:w-[47px] 3xl:w-[98px]" />
-                                            <button className='w-[60px] h-[60px] border-animated bg-deepSeaBlue rounded-[70px] text-white' onClick={() => handleButtonClick(players.player1, players.player2)}>Play</button>
+                                            <button className='w-[60px] h-[60px] border-animated bg-deepSeaBlue rounded-[70px] text-white' onClick={() => handleButtonClick(players.player1, players.player2)}>{t("Play")}</button>
                                         </div>
                                         )}
                                         <div className={`border 
@@ -192,7 +200,7 @@ export default function Tournament() {
                                                          bg-gradient-to-r from-deepSeaBlue to-paddlestroke/30
                                                          flex justify-center items-center text-white'>{winner.substring(0,9)}</div>
                                         {currentGame === 3 && (
-                                            <button className='w-[60px] h-[60px] border-animated bg-deepSeaBlue rounded-[70px] text-white mx-auto' onClick={() => handleButtonClick(winner1, winner2)}>Play</button>
+                                            <button className='w-[60px] h-[60px] border-animated bg-deepSeaBlue rounded-[70px] text-white mx-auto' onClick={() => handleButtonClick(winner1, winner2)}>{t("Play")}</button>
                                         )}
                                     </div>
                                     <div className='flex space-y-64 flex-col mb-12 '>
@@ -210,7 +218,7 @@ export default function Tournament() {
                                                         : 'bg-gradient-to-r from-deepSeaBlue to-paddlestroke/30 border-paddlefill text-white'}`}>{players.player3.substring(0, 9)}</div>
                                         {currentGame === 2 && (
                                         <div className="border-r border-paddlefill h-56 mr-8 flex justify-center items-center">
-                                            <button className='border-animated w-[60px] h-[60px]  bg-deepSeaBlue rounded-[70px] text-white' onClick={() => handleButtonClick(players.player3, players.player4)}>Play</button>
+                                            <button className='border-animated w-[60px] h-[60px]  bg-deepSeaBlue rounded-[70px] text-white' onClick={() => handleButtonClick(players.player3, players.player4)}>{t("Play")}</button>
                                             <hr className="border-t border-paddlefill l:w-[47px] 3xl:w-[98px]" />
                                         </div>
                                         )}
@@ -224,7 +232,7 @@ export default function Tournament() {
                         </div>
                     </div>
                 )
-            )}
+            )): ( <WinnerTour winner={winner} img='/images/adil.png' />)}
         </div>
     );
 }

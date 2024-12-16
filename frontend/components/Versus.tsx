@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import Badge from "./Badge"
 import BadgeTour from "./BadgeTour"
+import { useTranslation } from "react-i18next";
 // import { useState, useEffect } from 'react';
 // import BadgeTour from './BadgeTour';  // Assuming this is the correct import path
 
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export default function Versus({ socket , game_roum , username, image1, image2, handlGameOver, goToGame}: Props) {
+  const { t } = useTranslation();
   const images = [
     "/images/minipic.jpeg",
     "/images/ach1.jpeg",
@@ -97,7 +99,7 @@ export default function Versus({ socket , game_roum , username, image1, image2, 
                     onClick={handleButtonClick}
                     disabled={isReady}
                   >
-                    {!isReady ? 'Play' : 'Ready'}
+                    {!isReady ? t('Play') : t('Ready')}
               </button>
           </div>
         </div>

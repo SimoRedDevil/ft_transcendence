@@ -79,7 +79,7 @@ export default function Table({onGameEnd}: TableProps) {
                     Ball.initialize(canvasRef.current);
                     Ball.velocityY *= -1;
                     Player2.score += 1;
-                    if (Player2.score == 1) {
+                    if (Player2.score == 6) {
                         sketch.noLoop();
                         onGameEnd('player 2', 'player 1',Player2.score.toString(), Player1.score.toString());
                         Player2.score = 0;
@@ -89,7 +89,7 @@ export default function Table({onGameEnd}: TableProps) {
                     Ball.initialize(canvasRef.current);
                     Ball.velocityY *= -1;
                     Player1.score += 1;
-                    if (Player1.score == 1) {
+                    if (Player1.score == 6) {
                         sketch.noLoop();
                         onGameEnd('player 1','player 2' ,Player1.score.toString(), Player2.score.toString());
                         Player1.score = 0;

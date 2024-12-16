@@ -37,7 +37,7 @@ interface GameProps {
     qualified: boolean;
     onGameEnd: (winner: string, number: string) => void;
     handleUpdate: (winer1: string, playerN1: string, winer2: string, playerN2: string) => void;
-    handlefinal: (wineer: string) => void;
+    handlefinal: (wineer: string, img: string) => void;
 }
 
 
@@ -92,23 +92,11 @@ export default function TableTourGame({ playerna, socketRef, playernambre, group
           game_state['player2'] = data.player2;
         }
         if (data.type === 'game_over') {
-          if (data.isOp == true)
-          {
-            onGameEnd(data['winner'].username, data['winner'].playernambertour);
-            if (data['winner'].username === playerInfo.name) {
-              socketRef.send(JSON.stringify({ type: 'qualified', final_tournament: data['final_tournament'],
-              data: { winer: data['winner'].username, numberwiner: data['winner'].playernambertour} , groupname: groupname}));
-            }
-          }
-          else
-          {
             onGameEnd(data['winner'].name, data['winner'].numberplayer);
             if (data['winner'].name === playerInfo.name) {
               socketRef.send(JSON.stringify({ type: 'qualified', final_tournament: data['final_tournament'],
               data: { winer: data['winner'].name, numberwiner: data['winner'].numberplayer} , groupname: groupname}));
             }
-
-          }
           gameIsStarted = false;
           socketIsOpen = false;
           game_state = {};
@@ -116,10 +104,11 @@ export default function TableTourGame({ playerna, socketRef, playernambre, group
         }
         if (data.type === 'update_state')
           {
+            console.log(data);
             if (data['final_tournament'] === false)
               handleUpdate(data['players'][0].winer, data['players'][0].numberwiner, data['players'][1].winer, data['players'][1].numberwiner);
             else
-              handlefinal(data['players'].winer);
+              handlefinal(data['players'].winer, data.image);
 
           }
       };

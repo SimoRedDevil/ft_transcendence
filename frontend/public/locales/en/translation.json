@@ -48,6 +48,26 @@
     "Something Went Wrong": "Something Went Wrong",
     "Account Created Successfully": "Account Created Successfully",
     "Protect your account with two-factor authentication": "Protect your account with two-factor authentication",
-    "Two-factor authentication is an enhanced security feature that requires a six-digit code from your authenticator app in addition to your password." : "Two-factor authentication is an enhanced security feature that requires a six-digit code from your authenticator app in addition to your password."
-
+    "Two-factor authentication is an enhanced security feature that requires a six-digit code from your authenticator app in addition to your password." : "Two-factor authentication is an enhanced security feature that requires a six-digit code from your authenticator app in addition to your password.",
+    "S":"S",
+    "E":"E",
+    "A":"A",
+    "R":"R",
+    "C":"C",
+    "H":"H",
+    "I":"I",
+    "N":"N",
+    "G":"G",
+    "Play": "Play",
+    "Ready": "Ready",
+    "Rematch": "Rematch",
+    "Back to Home": "Back to Home",
+    "Join Tournament": "Join Tournament",
+    "player1": "player1",
+    "player2": "player2",
+    "player3": "player3",
+    "player4": "player4",
+    "Go": "Go",
+    "Win": "Win",
+    "Home": "Home"
 }

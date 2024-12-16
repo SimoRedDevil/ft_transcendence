@@ -48,7 +48,27 @@
     "Something Went Wrong": "Algo salió mal",
     "Account Created Successfully": "Cuenta creada con éxito",
     "Protect your account with two-factor authentication": "Protege tu cuenta con autenticación de dos factores",
-    "Two-factor authentication is an enhanced security feature that requires a six-digit code from your authenticator app in addition to your password." : "La autenticación de dos factores es una función de seguridad mejorada que requiere un código de seis dígitos de tu aplicación de autenticación además de tu contraseña."
-
+    "Two-factor authentication is an enhanced security feature that requires a six-digit code from your authenticator app in addition to your password." : "La autenticación de dos factores es una función de seguridad mejorada que requiere un código de seis dígitos de tu aplicación de autenticación además de tu contraseña.",
+    "S": "B",
+    "E": "U",
+    "A": "S",
+    "R": "C",
+    "C": "A",
+    "H": "N",
+    "I": "D",
+    "N": "O",
+    "G": "",
+    "Play": "Jugar",
+    "Ready": "Listo",
+    "Rematch": "Revancha",
+    "Back to Home": "Volver a inicio",
+    "Join Tournament": "Unirse al torneo",
+    "player1": "jugador1",
+    "player2": "jugador2",
+    "player3": "jugador3",
+    "player4": "jugador4",
+    "Go": "Ir",
+    "Win": "Ganar",
+    "Home": "Inicio"
   }
   

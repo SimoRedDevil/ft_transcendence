@@ -1,8 +1,10 @@
 'use client'
 
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export default function TournamentForm({ onSubmit }) {
+    const { t } = useTranslation()
     const [player1, setPlayer1] = useState('')
     const [player2, setPlayer2] = useState('')
     const [player3, setPlayer3] = useState('')
@@ -69,7 +71,7 @@ export default function TournamentForm({ onSubmit }) {
                                             lm:mt-[50px]
                                             2xl:mt-[55px]
                                             3xl:mt-[60px]
-                                            4xl:mt-[60px] font-Kecil font-bold '>player1</label>
+                                            4xl:mt-[60px] font-Kecil font-bold '>{t("player1")}</label>
                             <input type="text" id="player1" placeholder="Player 1" required
                                 value={player1}
                                 onChange={(e) => setPlayer1(e.target.value)}
@@ -84,7 +86,7 @@ export default function TournamentForm({ onSubmit }) {
                                             lm:mt-[50px]
                                             2xl:mt-[55px]
                                             3xl:mt-[60px]
-                                            4xl:mt-[60px] font-Kecil font-bold '>player2</label>
+                                            4xl:mt-[60px] font-Kecil font-bold '>{t("player2")}</label>
                             <input type="text" id="player2" placeholder="Player 2" required
                                 value={player2}
                                 onChange={(e) => setPlayer2(e.target.value)}
@@ -101,7 +103,7 @@ export default function TournamentForm({ onSubmit }) {
                                             lm:mt-[50px]
                                             2xl:mt-[55px]
                                             3xl:mt-[60px]
-                                            4xl:mt-[60px] font-Kecil font-bold'>player3</label>
+                                            4xl:mt-[60px] font-Kecil font-bold'>{t("player3")}</label>
                             <input type="text" id="player3" placeholder="Player 3" required
                                 value={player3}
                                 onChange={(e) => setPlayer3(e.target.value)}
@@ -116,7 +118,7 @@ export default function TournamentForm({ onSubmit }) {
                                             lm:mt-[50px]
                                             2xl:mt-[55px]
                                             3xl:mt-[60px]
-                                            4xl:mt-[60px] font-Kecil font-bold'>player4</label>
+                                            4xl:mt-[60px] font-Kecil font-bold'>{t("player4")}</label>
                             <input type="text" id="player4" placeholder="Player 4" required
                                 value={player4}
                                 onChange={(e) => setPlayer4(e.target.value)}
@@ -131,7 +133,7 @@ export default function TournamentForm({ onSubmit }) {
                                                     lm:mt-[8px]
                                                     2xl:mt-[2px]
                                                     3xl:mt-[150px]
-                                                    4xl:mt-[150px] text-[1.2rem]'>Go</button>
+                                                    4xl:mt-[150px] text-[1.2rem]'>{t("Go")}</button>
                 </form>
             </div>
         </div>

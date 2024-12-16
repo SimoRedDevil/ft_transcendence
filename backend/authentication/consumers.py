@@ -59,9 +59,8 @@ class MyWebSocketConsumer(AsyncWebsocketConsumer):
             )
 
     async def disconnect(self, close_code):
-        if not self.user.username in online_users:
-            return
-        online_users.pop(self.user.username)
+        if self.user.username in online_users:
+            online_users.pop(self.user.username)
         await update_user_status(self.user.id, False)
         await self.channel_layer.group_send(
             self.room_group_name,

@@ -102,8 +102,8 @@ function Conversations() {
                   <div className='absolute bottom-1 right-1 text-xs text-opacity-50 border border-white border-opacity-30 bg-[#7ED4AD] rounded-full p-[5px]'></div>
                 </div>
                 <div className='flex flex-col justify-center gap-4'>
-                  <span className='text-[1rem]'>{authUser?.full_name}</span>
-                  <span className='text-[0.9rem] text-white text-opacity-65'>Online</span>
+                  <span className='text-[17px] sm:text-[20px]'>{authUser?.full_name}</span>
+                  <span className='text-[15px] sm:text-[18px] text-white text-opacity-65'>Online</span>
                 </div>
               </div>
               <div className='h-[100px] flex items-center justify-center'>
@@ -120,10 +120,10 @@ function Conversations() {
                 <div className='flex flex-col gap-4'>
                   {
                     authUser?.username === conversation.user1_info.username ?
-                    <span className='text-[1rem]'>{conversation.user2_info.full_name}</span> :
-                    <span className='text-[1rem]'>{conversation.user1_info.full_name}</span>
+                    <span className='text-[16px] sm:text-[20px]'>{conversation.user2_info.full_name}</span> :
+                    <span className='text-[16px] sm:text-[20px]'>{conversation.user1_info.full_name}</span>
                   }
-                  <span className='text-[0.9rem] text-white text-opacity-65'>{truncateMessage(conversation.last_message, 20)}</span>
+                  <span className='text-[15px] sm:text-[18px] text-white text-opacity-65'>{truncateMessage(conversation.last_message, 20)}</span>
                 </div>
               </div>)
             })

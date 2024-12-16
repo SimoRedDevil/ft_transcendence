@@ -242,3 +242,11 @@ CHANNEL_LAYERS = {
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Set secure cookies and headers for HTTPS
+SECURE_SSL_REDIRECT = True  # Redirect HTTP to HTTPS
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')  # Tells Django that the request is secure
+CSRF_COOKIE_SECURE = True  # Ensure CSRF cookies are only sent over HTTPS
+SESSION_COOKIE_SECURE = True  # Ensure session cookies are only sent over HTTPS
+# Use the X-Forwarded-For header to get the real client IP address
+USE_X_FORWARDED_HOST = True

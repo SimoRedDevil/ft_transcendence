@@ -14,7 +14,7 @@ import { useUserContext } from '../components/context/usercontext';
 interface Props {
     PlayerName: string;
     HandleUserExist: (exist: boolean, playerExit: string, message: string) => void;
-    GameEnd: (winer: string) => void; 
+    GameEnd: (winer: string, img: string) => void; 
 }
 
 interface Player {
@@ -77,10 +77,11 @@ export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }:
                     }
                     else
                     {
+                        console.log(data);
                         setWinner(data['players'].winer);
                         setShowLocalGame(false);
                         setCurrentGame(currentGame + 2);
-                        GameEnd(data['players'].winer);
+                        GameEnd(data['players'].winer, data.image);
                     }
                     // handleUpdateState(data.winner1, data.playerN1, data.winner2, data.playerN2);
                 }
@@ -234,11 +235,12 @@ export default function TournamentSyst({ PlayerName, HandleUserExist, GameEnd }:
             setWinner1(winer1);
     }
 
-    const handlefinal = (wineer) => {
+    const handlefinal = (wineer, image) => {
+        console.log(image);
         setWinner(wineer);
         setShowLocalGame(false);
         setCurrentGame(currentGame + 2);
-        GameEnd(wineer);
+        GameEnd(wineer, image);
     }
 
 

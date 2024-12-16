@@ -20,6 +20,7 @@ import { SlMenu } from "react-icons/sl";
 import { MdMenuOpen } from "react-icons/md";
 import { BounceLoader } from 'react-spinners';
 import { useSearchParams } from "next/navigation";
+import { useTranslation } from "react-i18next";
 
 function page() {
     const [friendRequests, setFriendRequests] = useState([]);
@@ -43,6 +44,7 @@ function page() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const {notifications, isFriendRequest} = useNotificationContext();
     const searchParams = useSearchParams();
+    const { t } = useTranslation();
   
   const requestsRef = useRef(null);
   const friendsRef = useRef(null);
@@ -51,7 +53,10 @@ function page() {
     const section = searchParams.get('section');
 
     if (section === 'friends') {
-      setIsFriend(true);
+        setTimeout(() => {
+            setIsFriend(true);
+            
+        }, 300);
       setRequests(false);
       setSentRequest(false);
       setIsBlocked(false);
@@ -253,7 +258,7 @@ function page() {
     }, [isMenuOpen])
   return (
     <div className='w-full h-full flex items-center justify-center'>
-        <div className='border border-white/30 rounded-[30px] bg-black bg-opacity-50 md:w-[90%] ml-5 w-[90%] 3xl:w-[1700px] h-[95%] pr-10 p-5 
+        <div className='border border-white/30 rounded-[30px] bg-black bg-opacity-50 md:w-[90%] ml-5 w-[90%] 3xl:w-[1700px] h-[90%] pr-10 p-5 
         overflow-hidden no-scrollbar
         '>
             <div className='flex justify-around w-full gap-2 h-[30px] sm:h-[50px]'>
@@ -280,7 +285,7 @@ function page() {
                 `} />
                 <div className={`text-sm lg:text-lg hidden lg:block
                     ${requests ? 'text-[#37c8b7]' : 'text-white'}
-                `}>Requests</div>
+                `}>{t("Requests")}</div>
             </button>
             <button onClick={
                 () => {
@@ -305,7 +310,7 @@ function page() {
                 `} />
                 <div className={`text-sm lg:text-lg hidden lg:block
                     ${sentRequest ? 'text-[#37c8b7]' : 'text-white'}
-                `}>Sent</div>
+                `}>{t("Sent")}</div>
             </button>
             <button onClick={
                 () => {setSentRequest(false)
@@ -328,7 +333,7 @@ function page() {
                 <div className={`text-sm lg:text-lg hidden lg:block
                     ${isFriend ? 'text-[#37c8b7]' : 'text-white'}
                 `}>
-                    Friends
+                    {t("Friends")}
                 </div>
             </button>
             <button onClick={
@@ -353,7 +358,7 @@ function page() {
                 <div className={`text-sm lg:text-lg hidden lg:block
                     ${isBlocked ? 'text-[#37c8b7]' : 'text-white'}
                 `}>
-                    Blocked
+                    {t("Blocked")}
                 </div>
             </button>
             <button onClick={
@@ -370,7 +375,7 @@ function page() {
                 {!isSearch ?
                 <>
                     <IoIosSend className='text-[25px] lg:text-[30px] text-white mr-2' />
-                    <div className='text-white text-sm lg:text-lg hidden lg:block'>Send</div>
+                    <div className='text-white text-sm lg:text-lg hidden lg:block'>{t("Send")}</div>
                 </>
                 :
                 <TextBox focus={true} onChange={(e) => handleInputChange(e)} placeholder='Search'
@@ -383,7 +388,7 @@ function page() {
             <div className='w-full text-white gap-3 h-full overflow-y-auto overflow-x-hidden no-scrollbar '>
             {requests && (
                 <>
-                    {(friendRequests || !friendRequests) && friendRequests.length < 1 && <p>No friend requests</p>}
+                    {(friendRequests || !friendRequests) && friendRequests.length < 1 && <p>{t("No friend requests")}</p>}
                     {friendRequests?.map((request) => (
                     request.receiver_info.username === authUser?.username && (
                     <div key={request.id} className='flex gap-2 xs:gap-0 flex-row min-w-[220px] xs:items-center xs:justify-between mb-3'>
@@ -405,7 +410,7 @@ function page() {
                 )}
                 {sentRequest && (
                 <>
-                    {(friendRequestsSent || !friendRequestsSent) && friendRequestsSent.length < 1 && <p>No sent requests</p>}
+                    {(friendRequestsSent || !friendRequestsSent) && friendRequestsSent.length < 1 && <p>{t("No sent requests")}</p>}
                     {friendRequestsSent?.map((request) => (
                     request.sender_info.username === authUser?.username && (
                     <div key={request.id} className='flex gap-2 xs:gap-0 flex-row min-w-[220px] xs:items-center xs:justify-between mb-3'>
@@ -427,7 +432,7 @@ function page() {
                 )}
                 {isFriend && (
                 <>
-                    {friends && friends.length < 1 && <p>No friends</p>}
+                    {friends && friends.length < 1 && <p>{t("No friends")}</p>}
                     {friends?.map((friend) => (
                     <div key={friend.id} className='flex gap-2 xs:gap-0 flex-row min-w-[220px] xs:items-center xs:justify-between mb-3'>
                         <button onClick={
@@ -491,7 +496,7 @@ function page() {
                 }
                 {isBlocked && (
                 <>
-                    {blockedUsers && blockedUsers.length < 1 && <p>No blocked users</p>}
+                    {blockedUsers && blockedUsers.length < 1 && <p>{t("No blocked users")}</p>}
                     {blockedUsers?.map((user) => (
                     <div key={user.id} className='flex gap-2 xs:gap-0 flex-row min-w-[220px] xs:items-center xs:justify-between mb-3'>
                         <div className='flex items-center gap-2 w-full'>
@@ -512,7 +517,7 @@ function page() {
                 }
                 {isSearch && (
                     <>
-                    {(!searchResults || searchResults.length < 1) && <p>No search results</p>}
+                    {(!searchResults || searchResults.length < 1) && <p>{t("No search results")}</p>}
                     {searchResults?.map((result) => (
                         result?.username !== authUser?.username &&
                          (

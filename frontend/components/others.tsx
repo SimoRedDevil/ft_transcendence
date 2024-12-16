@@ -113,7 +113,7 @@ export default function Others() {
               title: "text-lg sm:text-xl md:text-2xl font-semibold text-white",
             },
           }).then(() => {
-            router.push("/login");
+            router.push("/landing");
           }
           );
         } else {

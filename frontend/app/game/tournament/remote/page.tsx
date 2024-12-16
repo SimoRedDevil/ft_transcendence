@@ -4,15 +4,19 @@ import { useState } from 'react'
 import TournamentSyst from '../../../../components/TournSystem'
 import WinnerTour from '@/components/WinnerTour'
 import WaitingTournament from '@/components/WaitingTournament'
+import { useTranslation } from 'next-i18next'
 
 
 export default function TournamentRemote() {
+    const { t } = useTranslation()
     const [player, setPlayer] = useState('')
     const [form, setForm] = useState(false)
     const [userExist, setUserExist] = useState(false)
     const [message, setMessage] = useState('')
     const [gamEnd, setGameEnd] = useState(false)
     const [playerExit, setPlayerExit] = useState('')
+    const [winner, setWinner] = useState('')
+    const [img, setImg] = useState('')
 
     const handlSubmit = (e) => {
         e.preventDefault()
@@ -28,7 +32,9 @@ export default function TournamentRemote() {
         setForm(false)
     }
 
-    const handleGameEnd = (winer) => {
+    const handleGameEnd = (winer, img) => {
+        setWinner(winer)
+        setImg(img)
         setGameEnd(true)
     }
 
@@ -45,7 +51,7 @@ export default function TournamentRemote() {
                                 lm:w-[400px] lm:h-[500px] lm:space-y-[120px]
                                 xs:w-[300px] xs:h-[400px] xs:space-y-[100px]
                                 w-[200px] h-[300px] space-y-[30px]">
-                    <h1 className='text-white font-bold 3xl:mt-[40px] l:mt-[40px] lm:mt-[40px] ls:mt-[30px] mt-[30px]'>Join Tournament</h1>
+                    <h1 className='text-white font-bold 3xl:mt-[40px] l:mt-[40px] lm:mt-[40px] ls:mt-[30px] mt-[30px]'>{t("Join Tournament")}</h1>
                     <form action="" className='flex flex-col items-center h-full' onSubmit={handlSubmit}>
                         <input type="text" id="player" placeholder="AliasName" required
                                     value={player}
@@ -63,7 +69,7 @@ export default function TournamentRemote() {
                 </div>
             </div>
         ) : (
-            !gamEnd ? (<TournamentSyst PlayerName={player} HandleUserExist={HandleUserExist} GameEnd={handleGameEnd} />) : (<WinnerTour />)
+            !gamEnd ? (<TournamentSyst PlayerName={player} HandleUserExist={HandleUserExist} GameEnd={handleGameEnd} />) : (<WinnerTour winner={winner} img={img}  />)
         )}
     </div>
   )

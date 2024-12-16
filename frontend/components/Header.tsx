@@ -108,7 +108,7 @@ function Header({setNotificationClicked, notificationClicked, setProfileDropDown
         <Link href='/'><Image src='/icons/logo.png' priority height={60} width={60} alt='logo'/></Link>
       </div>
       <div className='sm:w-[400px] md:w-[500px] lg:w-[600px] 2xl:w-[700px] w-[50%] h-[60px]'>
-        <TextBox focus={false}  id='textsearch-id' onChange={(e) => handleInputChange(e)} placeholder='Search' icon='/icons/search.png' className='border border-white border-opacity-30 w-full h-full bg-black bg-opacity-50 rounded-[30px] flex items-center'/>
+        <TextBox focus={false}  id='textsearch-id' onChange={(e) => handleInputChange(e)} placeholder={t('Search')} icon='/icons/search.png' className='border border-white border-opacity-30 w-full h-full bg-black bg-opacity-50 rounded-[30px] flex items-center'/>
       </div>
       <div className='w-[170px] flex justify-between'>
         <button id='notification-id' onClick={handleNotificationClick} className={`h-[70px] w-[70px] bg-white bg-opacity-0 rounded-full flex items-center justify-center hover:bg-opacity-15 hover:cursor-pointer relative`}>
@@ -128,6 +128,7 @@ function Header({setNotificationClicked, notificationClicked, setProfileDropDown
             bg-white bg-opacity-50 rounded-full flex items-center justify-center group`}
           >
             <Image
+             title={authUser?.username}
               id="profile-id"
               src={authUser?.avatar_url}
               height={70}

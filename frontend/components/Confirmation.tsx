@@ -33,7 +33,7 @@ const Confirmation = ({
         },
       });
       toast.success(t("Account Deleted Successfully"));
-      router.push("/login");
+      router.push("/landing");
     } catch (err) {
       toast.error(t("Error Deleting Sccount"));
     }

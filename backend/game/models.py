@@ -15,6 +15,7 @@ class Player(models.Model):
     is_active = models.BooleanField(default=False)
 
 class Match(models.Model):
+    name = models.CharField(max_length=100, default='')
     player1 = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='player1_in_match')
     player2 = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='player2_in_match')
     score1 = models.IntegerField(default=0)

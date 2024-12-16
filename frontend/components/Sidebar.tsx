@@ -42,18 +42,18 @@ function Sidebar() {
             <div className='
             flex sm:flex-col items-around justify-around sm:justify-center items-center sm:gap-[5%] w-full h-full sm:h-[80%] flex-row
             '>
-            <button onClick={() => setGameOpen(!gameOpen)}>
+            <button onClick={() => {setGameOpen(!gameOpen); setTourOpen(false)}}>
                 <IoLogoGameControllerB title='Game' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/>
             </button>
-            <button onClick={() => setTourOpen(!tourOpen)}>
+            <button onClick={() => {setTourOpen(!tourOpen); setGameOpen(false)}} >
                 <GiLaurelsTrophy title='Game' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/>
             </button>
             {/* <NavLink href='/game/tournament' isActive={tournament}><GiLaurelsTrophy title='Tournament' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink> */}
             <button onClick={() =>{ setTourOpen(false); setGameOpen(false)} }><NavLink href='/profile' isActive={profile}><FaUser title='Profile' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink></button>
-            <button><NavLink href='/chat' isActive={chat}><IoChatbubblesSharp title='Chat' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink></button>
-            <button><NavLink href='/friend-requests' isActive={friendrequests}><FaUserFriends title='Friends Requests' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] hover:text-opacity-100 transition'/></NavLink></button>
-            <button><NavLink href='/settings' isActive={settings}><IoSettings title='Settings' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink></button>
-            <button className='w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] text-white block sm:hidden' onClick={handleLogout}><RiLogoutBoxLine title='Logout' className='w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></button>
+            <button onClick={() =>{ setTourOpen(false); setGameOpen(false)} } ><NavLink href='/chat' isActive={chat}><IoChatbubblesSharp title='Chat' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink></button>
+            <button onClick={() =>{ setTourOpen(false); setGameOpen(false)} } ><NavLink href='/friend-requests' isActive={friendrequests}><FaUserFriends title='Friends Requests' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] hover:text-opacity-100 transition'/></NavLink></button>
+            <button onClick={() =>{ setTourOpen(false); setGameOpen(false)} } ><NavLink href='/settings' isActive={settings}><IoSettings title='Settings' className='text-white w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></NavLink></button>
+            <button  onClick={() =>{ setTourOpen(false); setGameOpen(false)} } className='w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] text-white block sm:hidden' onClick={handleLogout}><RiLogoutBoxLine title='Logout' className='w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></button>
             </div> 
             <button className='w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] sm:block hidden text-white' onClick={handleLogout}><RiLogoutBoxLine title='Logout' className='w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]'/></button>
         </nav>

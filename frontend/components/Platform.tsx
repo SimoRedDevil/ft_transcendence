@@ -1,7 +1,9 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 // import "./Platform.css";
 
 const Platform = () => {
+    const { t } = useTranslation();
     const duration = "1";
     return (
         <>
@@ -10,55 +12,55 @@ const Platform = () => {
                             className="searcg_anim lg:text-[6rem] xs:text-[2rem] font-Bruno"
                             style={{ animationDelay: "0s" }}
                         >
-                            S
+                            {t('S')}
                         </span>
                         <span
                             className="searcg_anim lg:text-[6rem] xs:text-[2rem] font-Bruno"
                             style={{ animationDelay: "0.1s" }}
                         >
-                            E
+                            {t('E')}
                         </span>
                         <span
                             className="searcg_anim lg:text-[6rem] xs:text-[2rem] font-Bruno"
                             style={{ animationDelay: "0.2s" }}
                         >
-                            A
+                            {t('A')}
                         </span>
                         <span
                             className="searcg_anim lg:text-[6rem] xs:text-[2rem] font-Bruno"
                             style={{ animationDelay: "0.3s" }}
                         >
-                            R
+                            {t('R')}
                         </span>
                         <span
                             className="searcg_anim lg:text-[6rem] xs:text-[2rem] font-Bruno"
                             style={{ animationDelay: "0.4s" }}
                         >
-                            C
+                            {t('C')}
                         </span>
                         <span
                             className="searcg_anim lg:text-[6rem] xs:text-[2rem] font-Bruno"
                             style={{ animationDelay: "0.5s" }}
                         >
-                            H
+                            {t('H')}
                         </span>
                         <span
                             className="searcg_anim lg:text-[6rem] xs:text-[2rem] font-Bruno"
                             style={{ animationDelay: "0.6s" }}
                         >
-                            I
+                            {t('I')}
                         </span>
                         <span
                             className="searcg_anim lg:text-[6rem] xs:text-[2rem] font-Bruno"
                             style={{ animationDelay: "0.7s" }}
                         >
-                            N
+                            {t('N')}
                         </span>
                         <span
                             className="searcg_anim lg:text-[6rem] xs:text-[2rem] font-Bruno"
                             style={{ animationDelay: "0.8s" }}
                         >
-                            G
+                            {t('G')}
                         </span>
                         </div>
 

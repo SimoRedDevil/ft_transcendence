@@ -24,7 +24,7 @@ export const logout = async (
         });
         setIsAuthenticated(false);
         // setauthUser(null);
-        router.push('/login');
+        router.push('/landing');
     } catch (error) {
         setIsAuthenticated(false);
         setauthUser(null);

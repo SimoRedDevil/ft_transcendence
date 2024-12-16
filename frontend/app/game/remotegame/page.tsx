@@ -93,7 +93,7 @@ export default function Game() {
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            socketRef.current = new WebSocket('wss://localhost:8000/ws/game/');
+            socketRef.current = new WebSocket('wss://localhost/ws/game/');
             socketRef.current.onopen = () => {
                 socketRef.current.send(JSON.stringify({ type: 'connection', username: authUser.username, flag: typeGame, sender: sender, receiver: receiver }));
             }
@@ -130,14 +130,16 @@ export default function Game() {
         } 
     }, []);
     return (
-        <div className='w-[90%] h-[80vh] flex justify-center items-center flex-col  ml-[28px]
-                        md:border md:border-white md:border-opacity-30
-                        md:bg-black md:bg-opacity-20
-                        md:rounded-[50px]'>
-        {!gameStarted ? ( !matchready ? (!isplaying ? (<Platform />) : <>already playing</>) : (<Versus socket={socketRef.current} game_roum={game_roum} username={authUser.username} image1={image1} image2={image2} handlGameOver={handlGameOver} goToGame={goGame}/>)) 
-        : (!gameOver ? (<TableGame playerna={authUser.username} socketRef={socketRef.current}  groupname={game_roum} player_id={id_channel} 
-            image1={image1} image2={image2} player_number={playernumber} playername1={nameplayer1} playername2={nameplayer2} onGameEnd={handleGameEnd}/>) 
-        : (<Winner winer={winerImage} loser={loserImage} scoreWinner={scoreWinner} scoreLoser={scoreLoser} rematch={rematch} socket={socketRef.current} handleRematch={handleRematch} handlGoToGame={handlGoToGame} handleConnection={handleConnection} />))}
+        <div className="w-full h-full flex justify-center items-center">
+            <div className='w-[90%] h-[80vh] flex justify-center items-center flex-col  ml-[28px]
+                            md:border md:border-white md:border-opacity-30
+                            md:bg-black md:bg-opacity-20
+                            md:rounded-[50px]'>
+            {!gameStarted ? ( !matchready ? (!isplaying ? (<Platform />) : <>already playing</>) : (<Versus socket={socketRef.current} game_roum={game_roum} username={authUser.username} image1={image1} image2={image2} handlGameOver={handlGameOver} goToGame={goGame}/>)) 
+            : (!gameOver ? (<TableGame playerna={authUser.username} socketRef={socketRef.current}  groupname={game_roum} player_id={id_channel} 
+                image1={image1} image2={image2} player_number={playernumber} playername1={nameplayer1} playername2={nameplayer2} onGameEnd={handleGameEnd}/>) 
+            : (<Winner winer={winerImage} loser={loserImage} scoreWinner={scoreWinner} scoreLoser={scoreLoser} rematch={rematch} socket={socketRef.current} handleRematch={handleRematch} handlGoToGame={handlGoToGame} handleConnection={handleConnection} />))}
+            </div>
         </div>
     );
 }

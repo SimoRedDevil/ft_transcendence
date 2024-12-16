@@ -138,6 +138,7 @@
     "Error searching conversation": "Error searching conversation",
     " has sent you a friend request.": " has sent you a friend request.",
     " has accepted your friend request.": " has accepted your friend request.",
-    " has sent you a message.": " has sent you a message."
+    " has sent you a message.": " has sent you a message.",
+    "Welcome to AlienPong!" : "Welcome to AlienPong!"
 
 }

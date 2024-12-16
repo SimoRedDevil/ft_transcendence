@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import {UserContext} from "../components/context/usercontext";
 import { useContext } from "react";
 import { getCookies, logout} from '../components/auth';
+import Profile from './profile/page';
 
 
 export default function Home() {
@@ -13,16 +14,6 @@ export default function Home() {
     const {setIsAuthenticated, fetchAuthUser, setauthUser} = useContext(UserContext);
 
     return (
-        <div
-        className="
-          flex
-          flex-col
-          w-full
-          justify-center
-          items-center
-          h-screen
-          text-white"
-      >
-      </div>
+      <Profile/>
     )
 }

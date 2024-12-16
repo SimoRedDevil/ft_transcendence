@@ -71,9 +71,8 @@ export const NotificationProvider = ({ children }) => {
 
     useEffect(() => {
         if (authUser !== null) {
-            // const ws = new WebSocket("wss://localhost:8000:8000/ws/notification/");
             if (!notifSocket.current)
-                notifSocket.current = new WebSocket("wss://localhost:8000/ws/notification/");
+                notifSocket.current = new WebSocket("wss://localhost/ws/notification/");
             notifSocket.current.onopen = () => {
               console.log("Connected to notification status");
             };
@@ -98,7 +97,6 @@ export const NotificationProvider = ({ children }) => {
                     setIsFriendRequest(true);
                     toast.info(t(`${newNotification.description}`),
                     {
-                        autoClose: 8000,
                         position: 'top-right',
                         transition: Bounce,
                     });
@@ -107,7 +105,6 @@ export const NotificationProvider = ({ children }) => {
                     setIsFriendRequest(true);
                     toast.info(t(`${newNotification.description}`),
                     {
-                        autoClose: 8000,
                         position: 'top-right',
                         transition: Bounce,
                     });

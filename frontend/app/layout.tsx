@@ -23,7 +23,7 @@ import { OnlineStatusProvider } from "@/components/context/OnlineStatusContext";
 
 function RootLayout({ children }: any) {
   const pathname = usePathname();
-  const exclude = ["/login", "/twofa", "/landing"];
+  const exclude = ["/login", "/twofa", "/landing", "/game", "/game/remotegame", "/game/tournament", "/game/tournament/remote"];
   const router = useRouter();
 
   return (
@@ -112,7 +112,7 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
       } else
       if (pathname === "/login" || (pathname === "/twofa"
           && (!authUser?.enabeld_2fa || (authUser?.enabeld_2fa && authUser?.twofa_verified)))) {
-        router.push("/");
+        router.push("/profile");
       }
       fetchNotifications();
     }

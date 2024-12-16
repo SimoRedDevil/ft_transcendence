@@ -105,7 +105,7 @@ class Intra42Callback(APIView):
         if not user.enabeld_2fa:
             user.is_already_logged = True
             user.save()
-            response = HttpResponseRedirect(f'{URL}')
+            response = HttpResponseRedirect(f'{URL}/profile')
             response.set_cookie('loginSuccess', 'true', max_age=30, samesite='Lax')
         if user.enabeld_2fa:
             response = HttpResponseRedirect(f'{URL}/twofa')
@@ -189,7 +189,7 @@ class GoogleLoginCallback(APIView):
             if not user.enabeld_2fa:
                 user.is_already_logged = True
                 user.save()
-                response = HttpResponseRedirect(f'{URL}')
+                response = HttpResponseRedirect(f'{URL}/profile')
                 response.set_cookie('loginSuccess', 'true', max_age=30, samesite='Lax')
             if user.enabeld_2fa:
                 HttpResponseRedirect(f"{URL}/twofa")

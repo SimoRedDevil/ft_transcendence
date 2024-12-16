@@ -59,7 +59,7 @@ const SigninPage: React.FC<SigninPageProps> = ({ onNavigate}) => {
           
         );
         }, 400);
-        router.push("/");
+        router.push("/profile");
       }
     } catch (error) {
       const errorMessages = 

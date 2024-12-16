@@ -97,7 +97,9 @@ def save_bot_message(username1, username2, is_final=False):
         conv = create_conversation(bot, user1, message)
     else:
         conv = get_conversation(bot, user1)
-    return create_message(conv, bot, user1, message)
+    msg = create_message(conv, bot, user1, message)
+    conv.last_message = msg.content
+    return msg
 
 class Tournament(AsyncWebsocketConsumer):
 

@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useState } from 'react'
 import { axiosInstance } from '@/utils/axiosInstance'
 import { UserContext, useUserContext } from '@/components/context/usercontext'
@@ -19,6 +19,7 @@ import { useNotificationContext } from '@/components/context/NotificationContext
 import { SlMenu } from "react-icons/sl";
 import { MdMenuOpen } from "react-icons/md";
 import { BounceLoader } from 'react-spinners';
+import { useSearchParams } from "next/navigation";
 
 function page() {
     const [friendRequests, setFriendRequests] = useState([]);
@@ -41,7 +42,29 @@ function page() {
     const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const {notifications, isFriendRequest} = useNotificationContext();
+    const searchParams = useSearchParams();
+  
+  const requestsRef = useRef(null);
+  const friendsRef = useRef(null);
 
+  useEffect(() => {
+    const section = searchParams.get('section');
+
+    if (section === 'friends') {
+      setIsFriend(true);
+      setRequests(false);
+      setSentRequest(false);
+      setIsBlocked(false);
+      setIsSearch(false);
+    } else if (section === 'requests') {
+      setRequests(true);
+      setIsFriend(false);
+      setSentRequest(false);
+      setIsBlocked(false);
+      setIsSearch(false);
+    }
+  }, [searchParams]);
+  
     useEffect(() => {
         const handler = setTimeout(() => {
           setDebouncedSearchInput(searchInput);
@@ -230,10 +253,10 @@ function page() {
     }, [isMenuOpen])
   return (
     <div className='w-full h-full flex items-center justify-center'>
-        <div className='border border-white/30 rounded-[30px] bg-black bg-opacity-50 md:w-[80%]  w-[90%] 3xl:w-[1700px] h-[95%] pr-10 p-5 
+        <div className='border border-white/30 rounded-[30px] bg-black bg-opacity-50 md:w-[90%] ml-5 w-[90%] 3xl:w-[1700px] h-[95%] pr-10 p-5 
         overflow-hidden no-scrollbar
         '>
-            <div className='flex justify-around w-full  sm:w-[900px] h-[30px] sm:h-[50px]'>
+            <div className='flex justify-around w-full gap-2 h-[30px] sm:h-[50px]'>
             <button onClick={
                 () => {
                     setTimeout(() => {
@@ -249,13 +272,13 @@ function page() {
                     setSearchInput('');
                     setSearchResults([])
                 }
-            } className={`flex  justify-start mx-2 xs:mx-0
-                ${requests ? 'sm:border-b-2 border-[#37c8b7] text-[#37c8b7]' : 'text-white'}
+            } className={`flex justify-start mx-2 xs:mx-0
+                ${requests ? 'lg:border-b-2 border-[#37c8b7] text-[#37c8b7]' : 'text-white'}
             `}>
-                <FaUserFriends className={`text-[30px]  mr-2
+                <FaUserFriends className={`text-[25px] lg:text-[30px]  mr-2
                     ${requests ? 'text-[#37c8b7]' : 'text-white'}
                 `} />
-                <div className={`text-lg hidden sm:block
+                <div className={`text-sm lg:text-lg hidden lg:block
                     ${requests ? 'text-[#37c8b7]' : 'text-white'}
                 `}>Requests</div>
             </button>
@@ -274,13 +297,13 @@ function page() {
                     setSearchResults([])
                 }
             } className={`flex  justify-start mx-2 xs:mx-0 
-                ${sentRequest ? 'sm:border-b-2 border-[#37c8b7] text-[#37c8b7]' : 'text-white'}
+                ${sentRequest ? 'lg:border-b-2 border-[#37c8b7] text-[#37c8b7]' : 'text-white'}
             `}
             >
-                <TbMessageUser className={`text-[30px] mr-2
+                <TbMessageUser className={`text-[25px] lg:text-[30px] mr-2
                     ${sentRequest ? 'text-[#37c8b7]' : 'text-white'}
                 `} />
-                <div className={`text-lg hidden sm:block
+                <div className={`text-sm lg:text-lg hidden lg:block
                     ${sentRequest ? 'text-[#37c8b7]' : 'text-white'}
                 `}>Sent</div>
             </button>
@@ -297,12 +320,12 @@ function page() {
                     setSearchResults([])
                 }
             } className={`flex  justify-start mx-2 xs:mx-0 
-                ${isFriend ? 'sm:border-b-2 border-[#37c8b7] text-[#37c8b7]' : 'text-white'}
+                ${isFriend ? 'lg:border-b-2 border-[#37c8b7] text-[#37c8b7]' : 'text-white'}
             `}>
-                <FaUsers className={`text-[30px] mr-2
+                <FaUsers className={`text-[25px] lg:text-[30px] mr-2
                     ${isFriend ? 'text-[#37c8b7]' : 'text-white'}
                 `} />
-                <div className={`text-lg hidden sm:block
+                <div className={`text-sm lg:text-lg hidden lg:block
                     ${isFriend ? 'text-[#37c8b7]' : 'text-white'}
                 `}>
                     Friends
@@ -322,12 +345,12 @@ function page() {
                     setSearchResults([])
                 }
             } className={`flex  justify-start mx-2 xs:mx-0 
-                ${isBlocked ? 'sm:border-b-2 border-[#37c8b7] text-[#37c8b7]' : 'text-white'}
+                ${isBlocked ? 'lg:border-b-2 border-[#37c8b7] text-[#37c8b7]' : 'text-white'}
             `}>
-                <MdBlockFlipped className={`text-[30px] mr-2
+                <MdBlockFlipped className={`text-[25px] lg:text-[30px] mr-2
                     ${isBlocked ? 'text-[#37c8b7]' : 'text-white'}
                 `} />
-                <div className={`text-lg hidden sm:block
+                <div className={`text-sm lg:text-lg hidden lg:block
                     ${isBlocked ? 'text-[#37c8b7]' : 'text-white'}
                 `}>
                     Blocked
@@ -346,8 +369,8 @@ function page() {
             `}>
                 {!isSearch ?
                 <>
-                    <IoIosSend className='text-[30px] text-white mr-2' />
-                    <div className='text-white text-lg hidden sm:block'>Send</div>
+                    <IoIosSend className='text-[25px] lg:text-[30px] text-white mr-2' />
+                    <div className='text-white text-sm lg:text-lg hidden lg:block'>Send</div>
                 </>
                 :
                 <TextBox focus={true} onChange={(e) => handleInputChange(e)} placeholder='Search'

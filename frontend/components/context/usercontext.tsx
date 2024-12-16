@@ -35,15 +35,8 @@ export const UserProvider = ({ children }) => {
             });
             const user = response.data;
             setauthUser(user);
-            if (user) {
+            if (user) 
                 setIsAuthenticated(true);
-                if (user.enabeld_2fa && !user.is_already_logged)
-                    router.push("/twofa");
-                }
-            else {
-                setIsAuthenticated(false);
-                router.push('/login');
-            }
             } catch (error) {
             setauthUser(null);
             setError(error);

@@ -36,7 +36,7 @@ function NotificationMenu() {
                 <div key={notification?.id}>
                   {
                     notification.notif_type === 'friend_request' &&
-                    <NotificationElement Url='/friend-requests/' Avatar={notification?.sender_info.avatar_url} Description={notification?.description} Date={notification?.get_human_readable_time} Key={notification?.id} IsRead={notification?.is_read} />
+                    <NotificationElement Url='/friend-requests?section=requests' Avatar={notification?.sender_info.avatar_url} Description={notification?.description} Date={notification?.get_human_readable_time} Key={notification?.id} IsRead={notification?.is_read} />
                   }
                   {
                     notification.notif_type === 'message' &&
@@ -44,7 +44,7 @@ function NotificationMenu() {
                   }
                   {
                     notification.notif_type === 'accept_friend_request' &&
-                    <NotificationElement Url='/friend-requests/' Avatar={notification?.sender_info.avatar_url} Description={notification?.description} Date={notification?.get_human_readable_time} Key={notification?.id} IsRead={notification?.is_read} />  
+                    <NotificationElement Url='/friend-requests?section=friends' Avatar={notification?.sender_info.avatar_url} Description={notification?.description} Date={notification?.get_human_readable_time} Key={notification?.id} IsRead={notification?.is_read} />  
                   }
                 </div>
             )})}

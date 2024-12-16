@@ -44,13 +44,13 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
-    "https://localhost",
+    "https://localhost"
 ]
 
 CSRF_COOKIE_HTTPONLY = False
 CSRF_TRUSTED_ORIGINS = ["https://localhost"]
-CSRF_USE_SESSIONS = False  # Unless explicitly using sessions for CSRF
-CSRF_COOKIE_NAME = "csrftoken"  # Ensure this matches what you're using on the client-side
+CSRF_USE_SESSIONS = False
+CSRF_COOKIE_NAME = "csrftoken"
 
 
 
@@ -60,7 +60,7 @@ INSTALLED_APPS = [
     'daphne',
     'channels',
     'django.contrib.admin',
-    'django.contrib.auth',  # Keep this only once
+    'django.contrib.auth', 
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -76,13 +76,10 @@ INSTALLED_APPS = [
     'notification',
     'allauth',
     'allauth.account',
-    # 'allauth.socialaccount',
     'dj_rest_auth',
     'rest_framework.authtoken',
     'allauth.socialaccount.providers.google',
-    # 'dj_rest_auth.registration',
     'rest_framework_simplejwt',
-    # 'rest_framework_simplejwt.token_blacklist',
 ]
 
 # django.contrib.sites
@@ -112,18 +109,12 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'authentication.CustomUser'
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),    # Short lifetime for access token
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=90),    # Longer lifetime for refresh token
-    'ROTATE_REFRESH_TOKENS': True,                 # Rotate refresh tokens on refresh
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),    # lifetime for access token
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=90),    # lifetime for refresh token
+    'ROTATE_REFRESH_TOKENS': True,                 # Rotate refresh tokens 
     'BLACKLIST_AFTER_ROTATION': True,              # Blacklist old tokens
-    'UPDATE_LAST_LOGIN': True,                   # Update last login on token refresh
-    'BLACKLIST_AFTER_ROTATION': True,              # Blacklist old tokens
+    'UPDATE_LAST_LOGIN': True,                   # Update last login on token refresh 
 }
-
-CORS_ALLOWED_ORIGINS = [
-    'https://127.0.0.1',
-    "https://localhost",
-]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

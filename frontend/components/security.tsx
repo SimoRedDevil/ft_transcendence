@@ -24,6 +24,7 @@ export default function Security() {
   const [current_password, setCurrentPassword] = useState("");
   const [new_password, setNewPassword] = useState("");
   const [confirm_password, setConfirmPassword] = useState("");
+  const [isUpdate, setIsUpdate] = useState(false);
 
   const API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -48,9 +49,11 @@ export default function Security() {
       });
       if (response.status === 200) {
         toast.success(t("Password Changed Successfully"));
+        setIsUpdate(true);
       }
     } catch (error) {
       toast.error(t("Password Change Failed, Please Try Again"));
+      setIsUpdate(false);
     }
   };
 
@@ -58,38 +61,19 @@ export default function Security() {
     return <div>Loading...</div>;
   }
 
-  // const getqrcode = async () => {
-  //   try {
-  //     const response = await axios(`${API}/get-qrcode/`, {
-  //       withCredentials: true,
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //     });
-  //     if (response.status === 200) {
-  //       const qr = response.data.qrcode_url;
-  //       setQrcode(qr);
-  //     }
-  //   } catch (error) {
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   useEffect(() => {
     authUser && fetchAuthUser();
-    if (authUser?.qrcode_path) {
+    if (authUser?.qrcode_url) {
       setQrcode(authUser?.qrcode_url);
-      // getqrcode();
       setEnable2FA(true);
     } else {
       setQrcode("");
     }
-  }, [authUser?.qrcode_path, enable2FA]);
+  }, [authUser?.qrcode_url, enable2FA]);
 
   useEffect(() => {
     authUser && fetchAuthUser();
-  }, [authUser?.qrcode_path, enable2FA]);
+  }, [authUser?.qrcode_url, enable2FA, isUpdate]);
   const handelChange = async () => {
     {
       setIsPopupOpen(true);
@@ -128,13 +112,14 @@ export default function Security() {
             >
               {t("Current Password")}
             </h1>
-            <input
+            <input disabled={authUser?.password_is_set ? false : true}
               value={current_password}
               onChange={(e) => setCurrentPassword(e.target.value)}
               type="password"
-              className="laptop:h-[70px] tablet:h-[50px] rounded-[50px] mt-2 
+              className={`laptop:h-[70px] tablet:h-[50px] rounded-[50px] mt-2 
                     bg-white bg-opacity-10 text-white p-4 border-[0.5px] border-gray-500 focus:outline-none
-                    h-[50px] mb-3 w-[90%] password-circles"
+                    h-[50px] mb-3 w-[90%] password-circles ${authUser?.password_is_set ? "opacity-100" : "opacity-50"}
+                    `}
             />
           </div>
           <div className="flex flex-col items-start w-full pl-5 ">

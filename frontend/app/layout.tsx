@@ -100,7 +100,12 @@ function AuthProtectedLayout({ children, pathname, exclude, router }: any) {
   useEffect(() => {
     if (isAuthenticated) {
       fetchAuthUser();
-      if (pathname === "/login" || (pathname === "/twofa" && !authUser?.two_factor_enabled)) {
+      if (pathname !== "/twofa" && authUser?.enabeld_2fa && !authUser?.twofa_verified) {
+        console.log("Redirecting to twofa");
+        router.push("/twofa");
+      } else
+      if (pathname === "/login" || (pathname === "/twofa"
+          && (!authUser?.enabeld_2fa || (authUser?.enabeld_2fa && authUser?.twofa_verified)))) {
         router.push("/");
       }
       fetchNotifications();

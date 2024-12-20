@@ -81,7 +81,7 @@ The ft_transcendence project requires students to leverage a combination of mode
     
     [![My Skills](https://skillicons.dev/icons?i=html,css,js,ts,react,next,tailwind,django,python,postgresql,docker,git)](https://skillicons.dev)
 ## Authors
-- [@SimoRedDevil](https://github.com/SimoRedDevil)
-- [@aaghbal](https://github.com/aaghbal)
+- [SimoRedDevil](https://github.com/SimoRedDevil)
+- [aaghbal](https://github.com/aaghbal)
 - [Abdlatif-20](https://github.com/Abdlatif-20)
 - Youssri El Bassri

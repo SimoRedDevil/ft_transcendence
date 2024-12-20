@@ -1,16 +1,14 @@
-
 ![AlienPong!](https://media.discordapp.net/attachments/1119948190838444122/1319682348551376998/Screen_Shot_2024-12-20_at_4.05.36_PM.png?ex=6766d976&is=676587f6&hm=6aa7592f21ee9ff99af3d3a05033c70431128db4d7111140168107a9beb542fd&=&format=webp&quality=lossless&width=3592&height=1754)
 
-# PONG GAME (FT_TRANSCENDENCE)
+# [PONG GAME (FT_TRANSCENDENCE)](#introduction)
 
 This project is about building a full-stack web application from scratch, emphasizing the integration of both backend and frontend technologies. One of the core themes of the project is creating a Pong game with multiplayer functionality, integrating real-time gameplay and social features.
 ## Table of Contents
-
-- [Introduction](#)
-- [About](#)
-- [Technical Stack](#)
-- [Authors](#)
-## About
+- [Introduction](#introduction)
+- [About](#about)
+- [Technical Stack](#technologies)
+- [Authors](#authors)
+## [About](#about)
 
 The ft_transcendence project is the last project in the 42 curriculum, designed to push students full-stack development skills to their limits. This project requires creating a complete web application that integrates advanced features, real-time interactions, and secure user authentication. The main theme revolves around building a Pong game platform, enhancing it with modern web technologies and social features to create a dynamic and engaging user experience.
 
@@ -50,7 +48,7 @@ The ft_transcendence project is the last project in the 42 curriculum, designed 
 
     - Ensure the application is fully functional across various devices, including desktops, tablets, and smartphones.\
     - Focus on intuitive user interfaces and smooth navigation.
-## Technical Stack
+## [Technical Stack](#technologies)
 The ft_transcendence project requires students to leverage a combination of modern technologies to deliver a polished and scalable application:
 
 - Frontend:
@@ -80,7 +78,7 @@ The ft_transcendence project requires students to leverage a combination of mode
     - Log stash
     
     [![My Skills](https://skillicons.dev/icons?i=html,css,js,ts,react,next,tailwind,django,python,postgresql,docker,git)](https://skillicons.dev)
-## Authors
+## [Authors](#authors)
 - [SimoRedDevil](https://github.com/SimoRedDevil)
 - [aaghbal](https://github.com/aaghbal)
 - [Abdlatif-20](https://github.com/Abdlatif-20)

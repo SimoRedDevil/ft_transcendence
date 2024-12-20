@@ -6,7 +6,7 @@ This project is about building a full-stack web application from scratch, emphas
 ## Table of Contents
 - [Introduction](#introduction)
 - [About](#about)
-- [Technical Stack](#technologies)
+- [Technical Stack](#tech)
 - [Authors](#authors)
 ## [About](#about)
 
@@ -46,9 +46,9 @@ The ft_transcendence project is the last project in the 42 curriculum, designed 
     - Provide detailed statistics for players to analyze their performance.
 - Responsive Design
 
-    - Ensure the application is fully functional across various devices, including desktops, tablets, and smartphones.\
+    - Ensure the application is fully functional across various devices, including desktops, tablets, and smartphones.
     - Focus on intuitive user interfaces and smooth navigation.
-## [Technical Stack](#technologies)
+## [Technical Stack](#tech)
 The ft_transcendence project requires students to leverage a combination of modern technologies to deliver a polished and scalable application:
 
 - Frontend:

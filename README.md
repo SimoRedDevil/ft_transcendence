@@ -6,7 +6,7 @@ This project is about building a full-stack web application from scratch, emphas
 ## Table of Contents
 - [Introduction](#introduction)
 - [About](#about)
-- [Technical Stack](#tech)
+- [Technologies](#tech)
 - [Authors](#authors)
 ## [About](#about)
 

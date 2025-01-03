@@ -1,4 +1,4 @@
-![AlienPong!](https://media.discordapp.net/attachments/1119948190838444122/1319682348551376998/Screen_Shot_2024-12-20_at_4.05.36_PM.png?ex=6766d976&is=676587f6&hm=6aa7592f21ee9ff99af3d3a05033c70431128db4d7111140168107a9beb542fd&=&format=webp&quality=lossless&width=3592&height=1754)
+![AlienPong!](https://raw.githubusercontent.com/SimoRedDevil/ft_transcendence/refs/heads/master/bg.png)
 
 # [PONG GAME (FT_TRANSCENDENCE)](#introduction)
 
